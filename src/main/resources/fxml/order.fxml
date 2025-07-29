@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeeshop.shopcoffeemanagement.controller.OrderController" spacing="20" styleClass="content-area">
+    
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header">
+        <VBox>
+            <Label text="Đặt hàng" styleClass="header-title"/>
+            <Label text="Tạo đơn hàng mới cho khách hàng" styleClass="header-subtitle"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+    </HBox>
+    
+    <!-- Main Content -->
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        
+        <!-- Left Panel - Menu Selection -->
+        <VBox spacing="15" HBox.hgrow="ALWAYS">
+            
+            <!-- Table Selection -->
+            <VBox styleClass="form-container" spacing="10">
+                <Label text="Chọn bàn" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <ComboBox fx:id="tableComboBox" promptText="Chọn bàn..." styleClass="form-input"/>
+            </VBox>
+            
+            <!-- Menu Filters -->
+            <VBox styleClass="form-container" spacing="10">
+                <Label text="Tìm kiếm món" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <HBox spacing="10">
+                    <ComboBox fx:id="categoryFilter" promptText="Danh mục" styleClass="form-input" prefWidth="200"/>
+                    <TextField fx:id="searchField" promptText="Tìm kiếm món..." styleClass="form-input" HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+            
+            <!-- Menu Grid -->
+            <VBox styleClass="form-container" VBox.vgrow="ALWAYS">
+                <Label text="Menu" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent;">
+                    <GridPane fx:id="menuGrid" hgap="15" vgap="15" styleClass="menu-grid"/>
+                </ScrollPane>
+            </VBox>
+            
+        </VBox>
+        
+        <!-- Right Panel - Order Summary -->
+        <VBox styleClass="form-container" prefWidth="350" VBox.vgrow="ALWAYS">
+            
+            <Label text="Đơn hàng" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            
+            <!-- Order Items -->
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent;">
+                <VBox fx:id="orderSummaryBox" spacing="8"/>
+            </ScrollPane>
+            
+            <!-- Total Amount -->
+            <VBox spacing="5" style="-fx-padding: 15; -fx-background-color: #f8f9fa; -fx-background-radius: 8;">
+                <HBox alignment="CENTER_RIGHT">
+                    <Label text="Tổng cộng:" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="totalAmountLabel" text="0 VNĐ" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
+                </HBox>
+            </VBox>
+            
+            <!-- Action Buttons -->
+            <VBox spacing="10" style="-fx-padding: 15 0 0 0;">
+                <Button fx:id="placeOrderButton" text="✅ Đặt hàng" onAction="#placeOrder" styleClass="success-button" disable="true"/>
+                <Button fx:id="clearOrderButton" text="🗑️ Xóa đơn hàng" onAction="#clearOrder" styleClass="danger-button" disable="true"/>
+            </VBox>
+            
+        </VBox>
+        
+    </HBox>
+    
+</VBox> 

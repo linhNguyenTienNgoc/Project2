@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeeshop.shopcoffeemanagement.controller.DashboardController" spacing="20" styleClass="content-area">
+    
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header">
+        <VBox>
+            <Label text="Dashboard" styleClass="header-title"/>
+            <Label text="Tổng quan hệ thống quản lý quán cà phê" styleClass="header-subtitle"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="currentTimeLabel" styleClass="header-subtitle"/>
+        <Button text="🔄 Làm mới" onAction="#refreshDashboard" styleClass="primary-button"/>
+    </HBox>
+    
+    <!-- Statistics Cards -->
+    <GridPane hgap="20" vgap="20">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="200" prefWidth="250"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="200" prefWidth="250"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="200" prefWidth="250"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="200" prefWidth="250"/>
+        </columnConstraints>
+        
+        <!-- Total Tables Card -->
+        <VBox styleClass="dashboard-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="📊" style="-fx-font-size: 32; -fx-text-fill: #667eea;"/>
+            <Label fx:id="totalTablesLabel" text="0" styleClass="stat-number"/>
+            <Label text="Tổng số bàn" styleClass="stat-label"/>
+        </VBox>
+        
+        <!-- Available Tables Card -->
+        <VBox styleClass="dashboard-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="✅" style="-fx-font-size: 32; -fx-text-fill: #4ecdc4;"/>
+            <Label fx:id="availableTablesLabel" text="0" styleClass="stat-number"/>
+            <Label text="Bàn có sẵn" styleClass="stat-label"/>
+        </VBox>
+        
+        <!-- Occupied Tables Card -->
+        <VBox styleClass="dashboard-card" GridPane.columnIndex="2" GridPane.rowIndex="0">
+            <Label text="🟡" style="-fx-font-size: 32; -fx-text-fill: #ff6b6b;"/>
+            <Label fx:id="occupiedTablesLabel" text="0" styleClass="stat-number"/>
+            <Label text="Bàn đang sử dụng" styleClass="stat-label"/>
+        </VBox>
+        
+        <!-- Menu Items Card -->
+        <VBox styleClass="dashboard-card" GridPane.columnIndex="3" GridPane.rowIndex="0">
+            <Label text="🍽️" style="-fx-font-size: 32; -fx-text-fill: #764ba2;"/>
+            <Label fx:id="totalMenuItemsLabel" text="0" styleClass="stat-number"/>
+            <Label text="Món trong menu" styleClass="stat-label"/>
+        </VBox>
+    </GridPane>
+    
+    <!-- Charts and Activity Section -->
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <!-- Left Column - Charts -->
+        <VBox spacing="20" HBox.hgrow="ALWAYS">
+            <!-- Table Status Chart -->
+            <VBox styleClass="dashboard-card" VBox.vgrow="ALWAYS">
+                <Label text="📈 Biểu đồ trạng thái bàn" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <VBox fx:id="tableStatusChart" VBox.vgrow="ALWAYS" alignment="CENTER"/>
+            </VBox>
+            
+            <!-- Menu Category Chart -->
+            <VBox styleClass="dashboard-card" VBox.vgrow="ALWAYS">
+                <Label text="🍕 Biểu đồ danh mục menu" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <VBox fx:id="menuCategoryChart" VBox.vgrow="ALWAYS" alignment="CENTER"/>
+            </VBox>
+        </VBox>
+        
+        <!-- Right Column - Recent Activity -->
+        <VBox styleClass="dashboard-card" prefWidth="350" VBox.vgrow="ALWAYS">
+            <Label text="📋 Hoạt động gần đây" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent;">
+                <VBox fx:id="recentActivityBox" spacing="10"/>
+            </ScrollPane>
+        </VBox>
+    </HBox>
+    
+    <!-- Action Buttons -->
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button text="📊 Phân tích chi tiết" onAction="#showAnalytics" styleClass="primary-button"/>
+        <Button text="📄 Xuất báo cáo" onAction="#exportReport" styleClass="success-button"/>
+    </HBox>
+    
+</VBox> 

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" spacing="20" alignment="CENTER">
+   <children>
+      <Text fill="#2c3e50" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="HÓA ĐƠN">
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font>
+      </Text>
+      <Text fill="#7f8c8d" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Tính năng quản lý hóa đơn sẽ được phát triển sau">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Text>
+      <Text fill="#7f8c8d" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Chức năng này sẽ cho phép xem và in hóa đơn">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Text>
+   </children>
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+</VBox> 
