@@ -536,4 +536,98 @@
         -fx-translate-x: 0;
         -fx-opacity: 1;
     }
+}
+
+/* Quick Order Button */
+.quick-order-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 1);
+}
+
+.quick-order-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #1f5f8b);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 8, 0, 0, 2);
+}
+
+.quick-order-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #1f5f8b, #154360);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.7), 3, 0, 0, 1);
+}
+
+/* Admin Table Styles */
+.admin-table {
+    -fx-background-color: white;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+}
+
+.admin-table .column-header {
+    -fx-background-color: linear-gradient(to bottom, #34495e, #2c3e50);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.admin-table .table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: #ecf0f1;
+    -fx-border-width: 0 0 1 0;
+}
+
+.admin-table .table-row-cell:odd {
+    -fx-background-color: #f8f9fa;
+}
+
+.admin-table .table-row-cell:selected {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+}
+
+/* Invoice Table Styles */
+.invoice-table {
+    -fx-background-color: white;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+}
+
+.invoice-table .column-header {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.invoice-table .table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: #ecf0f1;
+    -fx-border-width: 0 0 1 0;
+}
+
+.invoice-table .table-row-cell:odd {
+    -fx-background-color: #f8f9fa;
+}
+
+.invoice-table .table-row-cell:selected {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-text-fill: white;
+}
+
+/* Search Input Styles */
+.search-input {
+    -fx-background-color: white;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-padding: 8 12;
+    -fx-font-size: 14;
+}
+
+.search-input:focused {
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(three-pass-box, rgba(52,152,219,0.3), 5, 0, 0, 0);
 } 

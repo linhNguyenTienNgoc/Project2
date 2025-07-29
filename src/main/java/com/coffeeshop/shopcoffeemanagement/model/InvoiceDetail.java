@@ -67,6 +67,15 @@ public class InvoiceDetail {
     public String getFormattedUnitPrice() {
         return String.format("%,.0f VNĐ", unitPrice);
     }
+    
+    // Convenience methods for InvoiceController
+    public String getMenuItemName() { 
+        return menu != null ? menu.getName() : "N/A"; 
+    }
+    
+    public BigDecimal getPrice() { 
+        return unitPrice != null ? unitPrice : BigDecimal.ZERO; 
+    }
 
     @Override
     public String toString() {

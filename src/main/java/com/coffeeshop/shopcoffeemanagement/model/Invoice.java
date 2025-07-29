@@ -73,6 +73,24 @@ public class Invoice {
 
     public List<InvoiceDetail> getDetails() { return details; }
     public void setDetails(List<InvoiceDetail> details) { this.details = details; }
+    
+    // Convenience methods for InvoiceController
+    public String getTableNumber() { 
+        return table != null ? table.getTableNumber() : "N/A"; 
+    }
+    
+    public void setTableNumber(String tableNumber) {
+        // This method is for demo purposes only
+        // In real implementation, you would update the table object
+    }
+    
+    public String getCustomerName() { 
+        return "Khách hàng"; // Default customer name for demo
+    }
+    
+    public void setCustomerName(String customerName) {
+        // This method is for demo purposes only
+    }
 
     public void addDetail(InvoiceDetail detail) {
         this.details.add(detail);

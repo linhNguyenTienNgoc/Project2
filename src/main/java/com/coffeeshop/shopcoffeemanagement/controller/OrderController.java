@@ -49,6 +49,9 @@ public class OrderController {
     @FXML
     private Button backToTablesButton;
     
+    @FXML
+    private Button quickOrderButton;
+    
     private CoffeeTableDAO tableDAO;
     private MenuDAO menuDAO;
     private List<Menu> menuItems;
@@ -420,6 +423,76 @@ public class OrderController {
             e.printStackTrace();
             CoffeeShopApplication.showError("Lỗi", "Không thể quay về màn hình bàn: " + e.getMessage());
         }
+    }
+    
+    @FXML
+    private void showQuickOrder() {
+        showQuickOrderDialog();
+    }
+    
+    private void showQuickOrderDialog() {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Đặt hàng nhanh");
+        dialog.setHeaderText("Chọn món phổ biến");
+        
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setAlignment(Pos.CENTER);
+        
+        Text titleText = new Text("⚡ ĐẶT HÀNG NHANH");
+        titleText.setFont(Font.font("System", FontWeight.BOLD, 18));
+        titleText.setTextAlignment(TextAlignment.CENTER);
+        
+        // Popular items grid
+        GridPane popularGrid = new GridPane();
+        popularGrid.setHgap(10);
+        popularGrid.setVgap(10);
+        popularGrid.setAlignment(Pos.CENTER);
+        
+        // Popular items
+        String[] popularItems = {
+            "Cà phê đen", "Cà phê sữa", "Cappuccino", "Latte",
+            "Trà sữa trân châu", "Nước ép cam", "Bánh tiramisu", "Bánh cheesecake"
+        };
+        
+        int col = 0;
+        int row = 0;
+        for (String itemName : popularItems) {
+            Button itemButton = new Button(itemName);
+            itemButton.setPrefWidth(120);
+            itemButton.setPrefHeight(40);
+            itemButton.getStyleClass().add("quick-order-button");
+            
+            itemButton.setOnAction(e -> {
+                // Find the menu item and add to order
+                Menu foundItem = menuItems.stream()
+                    .filter(item -> item.getName().equals(itemName))
+                    .findFirst()
+                    .orElse(null);
+                
+                if (foundItem != null) {
+                    addToOrder(foundItem);
+                    CoffeeShopApplication.showInfo("Thành công", "Đã thêm " + itemName + " vào đơn hàng");
+                } else {
+                    CoffeeShopApplication.showError("Lỗi", "Không tìm thấy món " + itemName);
+                }
+            });
+            
+            popularGrid.add(itemButton, col, row);
+            col++;
+            if (col >= 4) {
+                col = 0;
+                row++;
+            }
+        }
+        
+        content.getChildren().addAll(titleText, popularGrid);
+        dialog.getDialogPane().setContent(content);
+        
+        ButtonType closeButton = new ButtonType("Đóng", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().add(closeButton);
+        
+        dialog.showAndWait();
     }
     
     // Inner class to represent order items

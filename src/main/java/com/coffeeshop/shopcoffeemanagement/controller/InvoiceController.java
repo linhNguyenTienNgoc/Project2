@@ -3,9 +3,12 @@ package com.coffeeshop.shopcoffeemanagement.controller;
 import com.coffeeshop.shopcoffeemanagement.CoffeeShopApplication;
 import com.coffeeshop.shopcoffeemanagement.model.Invoice;
 import com.coffeeshop.shopcoffeemanagement.model.InvoiceDetail;
+import com.coffeeshop.shopcoffeemanagement.model.CoffeeTable;
+import com.coffeeshop.shopcoffeemanagement.model.Employee;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.text.Font;
@@ -317,29 +320,32 @@ public class InvoiceController {
         // Create demo invoice data
         List<Invoice> invoices = new java.util.ArrayList<>();
         
-        Invoice invoice1 = new Invoice();
+        // Create demo tables
+        CoffeeTable table1 = new CoffeeTable("T01", 4, "Khu vực A");
+        table1.setId(1L);
+        CoffeeTable table3 = new CoffeeTable("T03", 6, "Khu vực B");
+        table3.setId(3L);
+        CoffeeTable table5 = new CoffeeTable("T05", 8, "Khu vực C");
+        table5.setId(5L);
+        
+        // Create demo employees
+        Employee employee1 = new Employee("staff1", "password", "Nhân viên 1", "staff1@coffee.com", "0901234567", "STAFF");
+        employee1.setId(1L);
+        
+        Invoice invoice1 = new Invoice("INV001", table1, employee1);
         invoice1.setId(1L);
-        invoice1.setInvoiceNumber("INV001");
-        invoice1.setTableNumber("T01");
-        invoice1.setCustomerName("Nguyễn Văn A");
         invoice1.setTotalAmount(new BigDecimal("125000"));
         invoice1.setStatus("PAID");
         invoice1.setCreatedAt(LocalDateTime.now().minusHours(2));
         
-        Invoice invoice2 = new Invoice();
+        Invoice invoice2 = new Invoice("INV002", table3, employee1);
         invoice2.setId(2L);
-        invoice2.setInvoiceNumber("INV002");
-        invoice2.setTableNumber("T03");
-        invoice2.setCustomerName("Trần Thị B");
         invoice2.setTotalAmount(new BigDecimal("85000"));
         invoice2.setStatus("PENDING");
         invoice2.setCreatedAt(LocalDateTime.now().minusMinutes(30));
         
-        Invoice invoice3 = new Invoice();
+        Invoice invoice3 = new Invoice("INV003", table5, employee1);
         invoice3.setId(3L);
-        invoice3.setInvoiceNumber("INV003");
-        invoice3.setTableNumber("T05");
-        invoice3.setCustomerName("Phạm Văn C");
         invoice3.setTotalAmount(new BigDecimal("200000"));
         invoice3.setStatus("PAID");
         invoice3.setCreatedAt(LocalDateTime.now().minusDays(1));
