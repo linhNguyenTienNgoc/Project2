@@ -1,188 +1,217 @@
-# ☕ Hệ thống Quản lý Quán Cà phê
+# ☕ Coffee Shop Management System
 
-Ứng dụng JavaFX hiện đại để quản lý quán cà phê với giao diện đẹp mắt và tính năng đầy đủ.
+## 🌟 Tổng quan
 
-## 🚀 Tính năng chính
+Hệ thống quản lý quán cà phê hiện đại với giao diện đẹp mắt, được thiết kế theo xu hướng **Glass Morphism** và **Material Design**. Ứng dụng hỗ trợ đầy đủ các chức năng quản lý từ đặt hàng, quản lý bàn, menu đến báo cáo doanh thu.
 
-### 👥 Quản lý người dùng
-- **Đăng nhập/Đăng xuất** với phân quyền Admin và Staff
-- **Quản lý nhân viên** với thông tin chi tiết
-- **Phân quyền** theo vai trò
+## ✨ Tính năng nổi bật
 
-### 🏠 Quản lý bàn
-- **Hiển thị bàn** dạng hình chữ nhật (không phải hình tròn)
-- **Trạng thái bàn**: Có sẵn, Đang sử dụng, Đã đặt
-- **Thêm/Sửa/Xóa bàn** với thông tin chi tiết
-- **Tìm kiếm và lọc** bàn theo trạng thái
+### 🎨 **Giao diện hiện đại**
+- **Glass Morphism Design**: Hiệu ứng kính mờ với backdrop blur
+- **Gradient Backgrounds**: Nền gradient đẹp mắt
+- **Smooth Animations**: Hiệu ứng chuyển động mượt mà
+- **Responsive Layout**: Giao diện thích ứng với mọi kích thước màn hình
 
-### 🍽️ Quản lý Menu
-- **Danh mục đa dạng**: Cà phê, Trà, Nước ép, Tráng miệng, Đồ ăn, Sinh tố
-- **Thông tin chi tiết**: Tên, mô tả, giá, hình ảnh
-- **Tìm kiếm và lọc** theo danh mục
-- **Thêm/Sửa/Xóa** món ăn
+### 👥 **Phân quyền người dùng**
+- **Admin**: Quản lý toàn bộ hệ thống, tạo tài khoản nhân viên
+- **Staff**: Đặt hàng, quản lý bàn, xử lý thanh toán
 
-### 📋 Đặt hàng
-- **Chọn bàn** từ danh sách có sẵn
-- **Thêm món** vào đơn hàng với số lượng
-- **Tính tổng tiền** tự động
-- **Xác nhận đơn hàng** trước khi tạo
+### 🍽️ **Quản lý đặt hàng**
+- **Quick Order**: Đặt hàng nhanh với các món phổ biến
+- **Real-time Menu**: Menu cập nhật theo thời gian thực
+- **Smart Table Management**: Quản lý trạng thái bàn thông minh
+- **Payment Processing**: Xử lý thanh toán đa phương thức
 
-### 📊 Dashboard
-- **Thống kê tổng quan**: Số bàn, trạng thái, menu
-- **Biểu đồ tròn** hiển thị phân bố
-- **Hoạt động gần đây** với timeline
-- **Thời gian thực** cập nhật
+### 📊 **Báo cáo & Analytics**
+- **Dashboard**: Tổng quan doanh thu, đơn hàng
+- **Invoice Management**: Quản lý hóa đơn chi tiết
+- **Export Features**: Xuất báo cáo ra file
 
-### 💾 Kết nối Database
-- **SQL Server** với JDBC
-- **Dữ liệu thực** lưu trữ và truy xuất
-- **Fallback data** khi không có database
-- **Script SQL** tự động tạo database
-
-## 🎨 Giao diện
-
-### ✨ Thiết kế hiện đại
-- **Gradient colors** với màu sắc đẹp mắt
-- **Animation effects** mượt mà
-- **Responsive layout** thích ứng
-- **Icons và emoji** trực quan
-
-### 🎯 UX/UI tốt
-- **Navigation** rõ ràng với sidebar
-- **Search và filter** nhanh chóng
-- **Confirmation dialogs** an toàn
-- **Error handling** thân thiện
-
-## 🛠️ Công nghệ sử dụng
-
-- **JavaFX 17** - Giao diện người dùng
-- **Maven** - Quản lý dependencies
-- **SQL Server** - Database
-- **JDBC** - Kết nối database
-- **CSS** - Styling hiện đại
-
-## 📦 Cài đặt và chạy
+## 🚀 Cài đặt & Chạy ứng dụng
 
 ### Yêu cầu hệ thống
 - Java 17 hoặc cao hơn
 - Maven 3.6+
 - SQL Server (tùy chọn)
 
-### Cách 1: Chạy Demo (Không cần database)
+### Cài đặt nhanh
 ```bash
 # Clone repository
 git clone <repository-url>
 cd ShopCoffeeManagement
 
-# Chạy ứng dụng demo
-mvn clean javafx:run -DmainClass=com.coffeeshop.shopcoffeemanagement.DemoApplication
-```
+# Build project
+mvn clean compile
 
-### Cách 2: Chạy với Database
-1. **Cài đặt SQL Server** (xem hướng dẫn trong `DATABASE_SETUP_GUIDE.md`)
-2. **Chạy script database**:
-   ```bash
-   # Mở SQL Server Management Studio
-   # Chạy file database_setup.sql
-   ```
-3. **Cấu hình kết nối**:
-   - Chỉnh sửa `src/main/resources/config/database.properties`
-   - Thay đổi password SA
-4. **Chạy ứng dụng**:
-   ```bash
-   mvn clean javafx:run -DmainClass=com.coffeeshop.shopcoffeemanagement.CoffeeShopApplication
-   ```
+# Chạy ứng dụng
+mvn javafx:run
+```
 
 ### Chạy từ IntelliJ IDEA
 1. Mở project trong IntelliJ IDEA
-2. Chạy `CoffeeShopApplication.java` hoặc `DemoApplication.java`
-3. Hoặc sử dụng Maven plugin
+2. Chạy class `CoffeeShopApplication`
+3. Hoặc sử dụng Maven plugin: `javafx:run`
 
-## 🔐 Tài khoản đăng nhập
+## 🎯 Tài khoản demo
 
-### Demo Mode
-- **Admin**: admin/admin123
-- **Staff**: staff1/staff123
-- **Manager**: manager/manager123
+### Admin Account
+- **Username**: admin
+- **Password**: admin123
+- **Quyền**: Quản lý toàn bộ hệ thống
 
-### Database Mode
-- **Admin**: admin/admin123
-- **Staff**: staff1/staff123
-- **Manager**: manager/manager123
+### Staff Account
+- **Username**: staff
+- **Password**: staff123
+- **Quyền**: Đặt hàng, quản lý bàn
 
-## 📁 Cấu trúc project
+## 📱 Hướng dẫn sử dụng
+
+### 1. **Đăng nhập**
+- Chọn tài khoản phù hợp với vai trò
+- Hệ thống sẽ tự động chuyển hướng đến giao diện tương ứng
+
+### 2. **Quản lý bàn**
+- Xem trạng thái tất cả bàn (Available/Occupied/Reserved)
+- Click vào bàn để thực hiện thao tác
+- Tìm kiếm và lọc bàn theo trạng thái
+
+### 3. **Đặt hàng**
+- Chọn bàn từ danh sách
+- Sử dụng "Đặt hàng nhanh" cho các món phổ biến
+- Thêm món từ menu chi tiết
+- Xử lý thanh toán và xuất hóa đơn
+
+### 4. **Quản lý menu**
+- Thêm/sửa/xóa món ăn
+- Phân loại theo danh mục
+- Cập nhật giá và mô tả
+
+### 5. **Báo cáo**
+- Xem tổng quan doanh thu
+- Quản lý hóa đơn
+- Xuất báo cáo chi tiết
+
+## 🛠️ Cấu trúc dự án
 
 ```
 ShopCoffeeManagement/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/coffeeshop/shopcoffeemanagement/
-│   │   │       ├── controller/     # Controllers
-│   │   │       ├── model/          # Data models
-│   │   │       ├── dao/            # Data access objects
-│   │   │       ├── service/        # Business logic
-│   │   │       └── util/           # Utilities
-│   │   └── resources/
-│   │       ├── fxml/               # FXML layouts
-│   │       ├── css/                # Stylesheets
-│   │       └── config/             # Configuration
-├── database_setup.sql              # Database script
-├── DATABASE_SETUP_GUIDE.md         # Database setup guide
-└── README.md                       # This file
+├── src/main/java/com/coffeeshop/shopcoffeemanagement/
+│   ├── CoffeeShopApplication.java          # Main application
+│   ├── controller/                         # Controllers
+│   │   ├── LoginController.java
+│   │   ├── MainController.java
+│   │   ├── TablesController.java
+│   │   ├── OrderController.java
+│   │   ├── MenuController.java
+│   │   ├── AdminController.java
+│   │   └── InvoiceController.java
+│   ├── model/                             # Data models
+│   │   ├── Employee.java
+│   │   ├── CoffeeTable.java
+│   │   ├── Menu.java
+│   │   ├── Invoice.java
+│   │   └── InvoiceDetail.java
+│   ├── dao/                               # Data access objects
+│   │   ├── EmployeeDAO.java
+│   │   ├── CoffeeTableDAO.java
+│   │   └── MenuDAO.java
+│   ├── service/                           # Business logic
+│   │   └── EmployeeService.java
+│   └── util/                              # Utilities
+│       └── DatabaseConnection.java
+├── src/main/resources/
+│   ├── fxml/                              # UI layouts
+│   │   ├── login.fxml
+│   │   ├── main.fxml
+│   │   ├── tables.fxml
+│   │   ├── order.fxml
+│   │   ├── menu.fxml
+│   │   ├── admin.fxml
+│   │   └── invoices.fxml
+│   ├── css/                               # Stylesheets
+│   │   └── main.css
+│   └── config/                            # Configuration
+│       └── database.properties
+└── pom.xml                                # Maven configuration
 ```
 
-## 🎯 Tính năng nâng cao
+## 🎨 Thiết kế giao diện
 
-### 📈 Analytics
-- **Biểu đồ thống kê** trực quan
-- **Báo cáo doanh thu** theo thời gian
-- **Phân tích xu hướng** bán hàng
+### **Glass Morphism Elements**
+- **Transparent backgrounds** với backdrop blur
+- **Subtle borders** với độ trong suốt
+- **Layered shadows** tạo chiều sâu
+- **Smooth transitions** cho tương tác
 
-### 🔄 Real-time Updates
-- **Cập nhật trạng thái** bàn real-time
-- **Thông báo** khi có đơn hàng mới
-- **Đồng bộ dữ liệu** tự động
+### **Color Palette**
+- **Primary**: `#667eea` → `#764ba2` (Gradient)
+- **Success**: `#4ecdc4` → `#44a08d` (Gradient)
+- **Danger**: `#ff6b6b` → `#ee5a52` (Gradient)
+- **Neutral**: `rgba(255, 255, 255, 0.9)` (Glass)
 
-### 📱 Responsive Design
-- **Giao diện thích ứng** với mọi kích thước màn hình
-- **Touch-friendly** cho tablet
-- **Keyboard shortcuts** cho power users
+### **Typography**
+- **Font Family**: Segoe UI, Roboto, Helvetica Neue
+- **Font Weights**: 400 (Regular), 600 (Semi-bold), 700 (Bold)
+- **Font Sizes**: 12px - 32px (Responsive)
 
-## 🐛 Troubleshooting
+## 🔧 Cấu hình database
 
-### Lỗi thường gặp
-1. **"Không thể tìm thấy file config/database.properties"**
-   - Đây là thông báo bình thường, ứng dụng sẽ sử dụng demo data
-   - Để kết nối database, xem hướng dẫn trong `DATABASE_SETUP_GUIDE.md`
+### SQL Server Setup
+1. Cài đặt SQL Server
+2. Tạo database `CoffeeShopManagement`
+3. Chạy script `database_setup.sql`
+4. Cập nhật `config/database.properties`
 
-2. **"Driver not found"**
-   - Refresh Maven project
-   - Clean và rebuild project
+### Demo Mode
+- Ứng dụng có thể chạy với dữ liệu demo
+- Không cần cấu hình database
+- Tất cả chức năng hoạt động bình thường
 
-3. **"Connection refused"**
-   - Kiểm tra SQL Server đang chạy
-   - Kiểm tra port 1433
-   - Kiểm tra firewall
+## 🚀 Tính năng nâng cao
 
-### Hỗ trợ
-- Xem file `DATABASE_SETUP_GUIDE.md` để cấu hình database
-- Kiểm tra logs trong console để debug
-- Đảm bảo Java 17+ và Maven được cài đặt đúng
+### **Smart Features**
+- **Auto-save**: Tự động lưu dữ liệu
+- **Search & Filter**: Tìm kiếm thông minh
+- **Keyboard Shortcuts**: Phím tắt tiện lợi
+- **Drag & Drop**: Kéo thả cho đặt hàng
 
-## 🎉 Kết quả
+### **Performance**
+- **Lazy Loading**: Tải dữ liệu theo nhu cầu
+- **Caching**: Cache dữ liệu thường dùng
+- **Optimized Queries**: Truy vấn tối ưu
 
-Sau khi hoàn thành, bạn sẽ có:
-- ✅ **Ứng dụng hoàn chỉnh** có thể demo ngay
-- ✅ **Giao diện đẹp** với animation mượt mà
-- ✅ **Tính năng đầy đủ** cho quản lý quán cà phê
-- ✅ **Database thực** lưu trữ dữ liệu
-- ✅ **Code sạch** dễ bảo trì và mở rộng
+## 📈 Roadmap
+
+### **Version 2.0**
+- [ ] Mobile app companion
+- [ ] Real-time notifications
+- [ ] Advanced analytics
+- [ ] Multi-language support
+
+### **Version 2.1**
+- [ ] Inventory management
+- [ ] Employee scheduling
+- [ ] Customer loyalty program
+- [ ] Online ordering integration
+
+## 🤝 Đóng góp
+
+1. Fork project
+2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Tạo Pull Request
 
 ## 📄 License
 
-Project này được tạo cho mục đích học tập và demo.
+Dự án này được phát hành dưới MIT License - xem file [LICENSE](LICENSE) để biết thêm chi tiết.
+
+## 📞 Liên hệ
+
+- **Developer**: Nguyễn Văn Admin
+- **Email**: admin@coffeeshop.com
+- **Project**: [Coffee Shop Management System](https://github.com/your-repo)
 
 ---
 
-**Chúc bạn thành công với dự án quản lý quán cà phê! ☕🚀** 
+⭐ **Nếu dự án này hữu ích, hãy cho chúng tôi một star!** 
