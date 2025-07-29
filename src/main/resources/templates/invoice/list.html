@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Hóa đơn - Coffee Shop Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar {
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            min-height: calc(100vh - 56px);
+        }
+        
+        .sidebar .nav-link {
+            color: #333;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 2px 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .main-content {
+            padding: 20px;
+        }
+        
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-coffee me-2"></i>
+                Coffee Shop Management
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-2"></i>
+                        <span th:text="${currentEmployee.name}">User</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/change-password">
+                            <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/tables">
+                                <i class="fas fa-table me-2"></i>
+                                Quản lý bàn
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/menu">
+                                <i class="fas fa-utensils me-2"></i>
+                                Quản lý menu
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/invoices">
+                                <i class="fas fa-receipt me-2"></i>
+                                Quản lý hóa đơn
+                            </a>
+                        </li>
+                        <li class="nav-item" th:if="${currentEmployee.role == 'admin'}">
+                            <a class="nav-link" href="/employees">
+                                <i class="fas fa-users me-2"></i>
+                                Quản lý nhân viên
+                            </a>
+                        </li>
+                        <li class="nav-item" th:if="${currentEmployee.role == 'admin'}">
+                            <a class="nav-link" href="/reports">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Báo cáo
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-receipt me-2"></i>
+                        Quản lý Hóa đơn
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <a href="/invoices/create" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>
+                                Tạo hóa đơn mới
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Box -->
+                <div class="search-box mb-4">
+                    <form th:action="@{/invoices}" method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="search" class="form-label">Tìm kiếm</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   th:value="${param.search}" placeholder="Tìm theo mã hóa đơn, bàn...">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Trạng thái</label>
+                            <select class="form-control" id="status" name="status">
+                                <option value="">Tất cả</option>
+                                <option value="Pending" th:selected="${param.status == 'Pending'}">Chờ thanh toán</option>
+                                <option value="Paid" th:selected="${param.status == 'Paid'}">Đã thanh toán</option>
+                                <option value="Cancelled" th:selected="${param.status == 'Cancelled'}">Đã hủy</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="startDate" class="form-label">Từ ngày</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate" 
+                                   th:value="${param.startDate}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="endDate" class="form-label">Đến ngày</label>
+                            <input type="date" class="form-control" id="endDate" name="endDate" 
+                                   th:value="${param.endDate}">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search me-2"></i>
+                                Tìm kiếm
+                            </button>
+                            <a href="/invoices" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>
+                                Xóa bộ lọc
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Invoices Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Mã HĐ</th>
+                                        <th>Bàn</th>
+                                        <th>Nhân viên</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="invoice : ${invoices}">
+                                        <td>
+                                            <strong th:text="${invoice.id}">#001</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info" th:text="${invoice.table.name}">Bàn 1</span>
+                                        </td>
+                                        <td th:text="${invoice.employee.name}">Nhân viên</td>
+                                        <td th:text="${#temporals.format(invoice.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+                                        <td>
+                                            <strong class="text-success" th:text="${#numbers.formatDecimal(invoice.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</strong>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge" 
+                                                  th:class="${invoice.status == 'Pending' ? 'status-pending' : 
+                                                            invoice.status == 'Paid' ? 'status-paid' : 'status-cancelled'}"
+                                                  th:text="${invoice.status == 'Pending' ? 'Chờ thanh toán' : 
+                                                           invoice.status == 'Paid' ? 'Đã thanh toán' : 'Đã hủy'}">
+                                                Chờ thanh toán
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/invoices/view/{id}(id=${invoice.id})}" 
+                                                   class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a th:href="@{/invoices/edit/{id}(id=${invoice.id})}" 
+                                                   class="btn btn-sm btn-outline-warning" title="Sửa"
+                                                   th:if="${invoice.status == 'Pending'}">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a th:href="@{/invoices/pay/{id}(id=${invoice.id})}" 
+                                                   class="btn btn-sm btn-outline-success" title="Thanh toán"
+                                                   th:if="${invoice.status == 'Pending'}"
+                                                   onclick="return confirm('Xác nhận thanh toán hóa đơn này?')">
+                                                    <i class="fas fa-credit-card"></i>
+                                                </a>
+                                                <a th:href="@{/invoices/cancel/{id}(id=${invoice.id})}" 
+                                                   class="btn btn-sm btn-outline-danger" title="Hủy"
+                                                   th:if="${invoice.status == 'Pending'}"
+                                                   onclick="return confirm('Bạn có chắc muốn hủy hóa đơn này?')">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(invoices)}">
+                                        <td colspan="7" class="text-center text-muted py-4">
+                                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                                            <p>Không có hóa đơn nào</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">
+                                    <i class="fas fa-receipt me-2"></i>
+                                    Tổng hóa đơn
+                                </h5>
+                                <h3 th:text="${#lists.size(invoices)}">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Chờ thanh toán
+                                </h5>
+                                <h3 th:text="${invoices.stream().filter(i -> i.status == 'Pending').count()}">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Đã thanh toán
+                                </h5>
+                                <h3 th:text="${invoices.stream().filter(i -> i.status == 'Paid').count()}">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">
+                                    <i class="fas fa-money-bill-wave me-2"></i>
+                                    Tổng doanh thu
+                                </h5>
+                                <h3 th:text="${#numbers.formatDecimal(invoices.stream().filter(i -> i.status == 'Paid').mapToDouble(i -> i.totalAmount).sum(), 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

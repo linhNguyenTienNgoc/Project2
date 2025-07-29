@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Hóa đơn mới - Coffee Shop Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar {
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            min-height: calc(100vh - 56px);
+        }
+        
+        .sidebar .nav-link {
+            color: #333;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 2px 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .main-content {
+            padding: 20px;
+        }
+        
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .menu-item {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .menu-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .menu-item.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+        
+        .cart-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quantity-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .total-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-coffee me-2"></i>
+                Coffee Shop Management
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-2"></i>
+                        <span th:text="${currentEmployee.name}">User</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/change-password">
+                            <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/tables">
+                                <i class="fas fa-table me-2"></i>
+                                Quản lý bàn
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/menu">
+                                <i class="fas fa-utensils me-2"></i>
+                                Quản lý menu
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/invoices">
+                                <i class="fas fa-receipt me-2"></i>
+                                Quản lý hóa đơn
+                            </a>
+                        </li>
+                        <li class="nav-item" th:if="${currentEmployee.role == 'admin'}">
+                            <a class="nav-link" href="/employees">
+                                <i class="fas fa-users me-2"></i>
+                                Quản lý nhân viên
+                            </a>
+                        </li>
+                        <li class="nav-item" th:if="${currentEmployee.role == 'admin'}">
+                            <a class="nav-link" href="/reports">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Báo cáo
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-plus me-2"></i>
+                        Tạo Hóa đơn mới
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <a href="/invoices" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Quay lại
+                        </a>
+                    </div>
+                </div>
+
+                <form th:action="@{/invoices/create}" method="post" id="invoiceForm">
+                    <div class="row">
+                        <!-- Left Column - Menu Selection -->
+                        <div class="col-md-8">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-utensils me-2"></i>
+                                        Chọn món ăn
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Table Selection -->
+                                    <div class="mb-4">
+                                        <label for="tableId" class="form-label">
+                                            <i class="fas fa-table me-2"></i>
+                                            Chọn bàn
+                                        </label>
+                                        <select class="form-select" id="tableId" name="tableId" required>
+                                            <option value="">Chọn bàn</option>
+                                            <option th:each="table : ${availableTables}" 
+                                                    th:value="${table.id}" 
+                                                    th:text="${table.name + ' (' + table.status + ')'}">
+                                                Bàn 1 (Available)
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Menu Items -->
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3" th:each="menuItem : ${menuItems}">
+                                            <div class="menu-item" th:onclick="'addToCart(' + ${menuItem.id} + ', \'' + ${menuItem.name} + '\', ' + ${menuItem.price} + ')'">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="mb-1" th:text="${menuItem.name}">Tên món</h6>
+                                                        <p class="text-muted mb-2" th:text="${menuItem.description}">Mô tả</p>
+                                                        <span class="badge bg-primary" th:text="${menuItem.category}">Danh mục</span>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <strong class="text-success" th:text="${#numbers.formatDecimal(menuItem.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Cart -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-shopping-cart me-2"></i>
+                                        Giỏ hàng
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="cartItems">
+                                        <!-- Cart items will be added here dynamically -->
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                                            <p>Chưa có món nào được chọn</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="total-section mt-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Tổng tiền:</span>
+                                            <strong id="totalAmount">0 VNĐ</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span>Thuế (10%):</span>
+                                            <strong id="taxAmount">0 VNĐ</strong>
+                                        </div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between">
+                                            <span><strong>Thành tiền:</strong></span>
+                                            <strong id="finalAmount">0 VNĐ</strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <button type="submit" class="btn btn-primary w-100" id="createInvoiceBtn" disabled>
+                                            <i class="fas fa-save me-2"></i>
+                                            Tạo hóa đơn
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let cart = [];
+        let total = 0;
+
+        function addToCart(id, name, price) {
+            const existingItem = cart.find(item => item.id === id);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: id,
+                    name: name,
+                    price: price,
+                    quantity: 1
+                });
+            }
+            
+            updateCartDisplay();
+            updateTotal();
+        }
+
+        function updateQuantity(id, change) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(item => item.id !== id);
+                }
+                updateCartDisplay();
+                updateTotal();
+            }
+        }
+
+        function updateCartDisplay() {
+            const cartContainer = document.getElementById('cartItems');
+            
+            if (cart.length === 0) {
+                cartContainer.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                        <p>Chưa có món nào được chọn</p>
+                    </div>
+                `;
+                return;
+            }
+
+            cartContainer.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">${item.name}</h6>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="updateQuantity(${item.id}, -1)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="quantity-control">
+                            <button type="button" class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                            <span class="fw-bold">${item.quantity}</span>
+                            <button type="button" class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                        </div>
+                        <strong class="text-success">${formatCurrency(item.price * item.quantity)}</strong>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateTotal() {
+            total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = total * 0.1;
+            const final = total + tax;
+
+            document.getElementById('totalAmount').textContent = formatCurrency(total);
+            document.getElementById('taxAmount').textContent = formatCurrency(tax);
+            document.getElementById('finalAmount').textContent = formatCurrency(final);
+
+            // Enable/disable create button
+            const createBtn = document.getElementById('createInvoiceBtn');
+            createBtn.disabled = cart.length === 0 || !document.getElementById('tableId').value;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        // Add cart data to form before submit
+        document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+            if (cart.length === 0) {
+                e.preventDefault();
+                alert('Vui lòng chọn ít nhất một món ăn!');
+                return;
+            }
+
+            // Add cart items to form
+            cart.forEach(item => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'items[' + item.id + ']';
+                input.value = item.quantity;
+                this.appendChild(input);
+            });
+        });
+
+        // Update total when table is selected
+        document.getElementById('tableId').addEventListener('change', updateTotal);
+    </script>
+</body>
+</html> 
