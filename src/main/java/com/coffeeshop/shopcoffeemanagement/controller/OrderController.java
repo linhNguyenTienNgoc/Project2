@@ -46,6 +46,9 @@ public class OrderController {
     @FXML
     private Button clearOrderButton;
     
+    @FXML
+    private Button backToTablesButton;
+    
     private CoffeeTableDAO tableDAO;
     private MenuDAO menuDAO;
     private List<Menu> menuItems;
@@ -63,6 +66,24 @@ public class OrderController {
         setupFilters();
         displayMenuItems();
         updateOrderSummary();
+        
+        // Tự động chọn bàn nếu có bàn được chọn từ màn hình bàn
+        autoSelectTable();
+    }
+    
+    private void autoSelectTable() {
+        CoffeeTable selectedTable = CoffeeShopApplication.getSelectedTable();
+        if (selectedTable != null) {
+            // Tìm bàn trong ComboBox và chọn
+            for (CoffeeTable table : tableComboBox.getItems()) {
+                if (table.getId().equals(selectedTable.getId())) {
+                    tableComboBox.setValue(table);
+                    break;
+                }
+            }
+            // Clear selected table sau khi đã chọn
+            CoffeeShopApplication.setSelectedTable(null);
+        }
     }
     
     private void loadTables() {
@@ -325,7 +346,23 @@ public class OrderController {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             // TODO: Save order to database
-            CoffeeShopApplication.showInfo("Thành công", "Đơn hàng đã được tạo thành công!");
+            
+            // Cập nhật trạng thái bàn thành OCCUPIED
+            CoffeeTable selectedTable = tableComboBox.getValue();
+            if (selectedTable != null) {
+                try {
+                    if (tableDAO.updateStatus(selectedTable.getId(), "OCCUPIED")) {
+                        selectedTable.setStatus("OCCUPIED");
+                        CoffeeShopApplication.showInfo("Thành công", "Đơn hàng đã được tạo thành công!\nBàn " + selectedTable.getTableNumber() + " đã được đánh dấu là có khách.");
+                    } else {
+                        CoffeeShopApplication.showError("Lỗi", "Không thể cập nhật trạng thái bàn");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    CoffeeShopApplication.showError("Lỗi", "Không thể cập nhật trạng thái bàn: " + e.getMessage());
+                }
+            }
+            
             clearOrder();
         }
     }
@@ -335,6 +372,28 @@ public class OrderController {
         orderItems.clear();
         updateOrderSummary();
         CoffeeShopApplication.showInfo("Thành công", "Đã xóa đơn hàng");
+    }
+    
+    @FXML
+    private void backToTables() {
+        try {
+            // Chuyển về màn hình quản lý bàn
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/tables.fxml"));
+            javafx.scene.Parent tablesRoot = loader.load();
+            
+            // Tạo scene mới
+            javafx.scene.Scene tablesScene = new javafx.scene.Scene(tablesRoot);
+            tablesScene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+            
+            // Lấy stage hiện tại và thay đổi scene
+            javafx.stage.Stage currentStage = (javafx.stage.Stage) menuGrid.getScene().getWindow();
+            currentStage.setScene(tablesScene);
+            currentStage.setTitle("Quản lý bàn");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            CoffeeShopApplication.showError("Lỗi", "Không thể quay về màn hình bàn: " + e.getMessage());
+        }
     }
     
     // Inner class to represent order items

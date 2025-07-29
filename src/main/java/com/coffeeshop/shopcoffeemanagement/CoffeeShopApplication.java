@@ -1,6 +1,7 @@
 package com.coffeeshop.shopcoffeemanagement;
 
 import com.coffeeshop.shopcoffeemanagement.model.Employee;
+import com.coffeeshop.shopcoffeemanagement.model.CoffeeTable;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -15,6 +16,7 @@ public class CoffeeShopApplication extends Application {
     
     private static Stage primaryStage;
     private static Employee currentUser;
+    private static CoffeeTable selectedTable;
     
     @Override
     public void start(Stage stage) throws IOException {
@@ -111,6 +113,14 @@ public class CoffeeShopApplication extends Application {
     
     public static void setCurrentUser(Employee user) {
         currentUser = user;
+    }
+    
+    public static CoffeeTable getSelectedTable() {
+        return selectedTable;
+    }
+    
+    public static void setSelectedTable(CoffeeTable table) {
+        selectedTable = table;
     }
     
     public static void logout() {

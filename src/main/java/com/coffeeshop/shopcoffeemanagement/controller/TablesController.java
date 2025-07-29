@@ -200,22 +200,70 @@ public class TablesController {
     }
     
     private void handleTableClick(CoffeeTable table) {
-        String status = table.getStatus();
+        if ("AVAILABLE".equals(table.getStatus())) {
+            // Bàn trống - cho phép đặt hàng
+            showOrderDialog(table);
+        } else if ("OCCUPIED".equals(table.getStatus())) {
+            // Bàn có khách - hiển thị thông tin đơn hàng
+            showTableDetails(table);
+        } else if ("RESERVED".equals(table.getStatus())) {
+            // Bàn đã đặt - hiển thị thông tin đặt bàn
+            showReservationDetails(table);
+        }
+    }
+    
+    private void showOrderDialog(CoffeeTable table) {
         String message = "Bàn " + table.getTableNumber() + "\n" +
-                        "Trạng thái: " + getStatusText(status) + "\n" +
+                        "Sức chứa: " + table.getCapacity() + " người\n" +
+                        "Vị trí: " + table.getLocation() + "\n\n" +
+                        "Bạn có muốn tạo đơn hàng cho bàn này không?";
+        
+        CoffeeShopApplication.showConfirmation("Đặt hàng cho bàn " + table.getTableNumber(), 
+            message, () -> openOrderScreen(table));
+    }
+    
+    private void showTableDetails(CoffeeTable table) {
+        String message = "Bàn " + table.getTableNumber() + " đang được sử dụng.\n" +
+                        "Sức chứa: " + table.getCapacity() + " người\n" +
+                        "Vị trí: " + table.getLocation() + "\n\n" +
+                        "Bạn có muốn xem chi tiết đơn hàng không?";
+        
+        CoffeeShopApplication.showConfirmation("Thông tin bàn " + table.getTableNumber(), 
+            message, () -> viewTableDetails(table));
+    }
+    
+    private void showReservationDetails(CoffeeTable table) {
+        String message = "Bàn " + table.getTableNumber() + " đã được đặt trước.\n" +
                         "Sức chứa: " + table.getCapacity() + " người\n" +
                         "Vị trí: " + table.getLocation();
         
-        if ("AVAILABLE".equals(status)) {
-            CoffeeShopApplication.showConfirmation("Chọn bàn", 
-                message + "\n\nBạn có muốn đặt bàn này không?", 
-                () -> occupyTable(table));
-        } else if ("OCCUPIED".equals(status)) {
-            CoffeeShopApplication.showConfirmation("Quản lý bàn", 
-                message + "\n\nBạn có muốn xem chi tiết đơn hàng không?", 
-                () -> viewTableDetails(table));
-        } else {
-            CoffeeShopApplication.showInfo("Thông tin bàn", message);
+        CoffeeShopApplication.showInfo("Thông tin đặt bàn " + table.getTableNumber(), message);
+    }
+    
+    private void openOrderScreen(CoffeeTable selectedTable) {
+        try {
+            // Lưu bàn được chọn vào application context
+            CoffeeShopApplication.setSelectedTable(selectedTable);
+            
+            // Chuyển sang màn hình đặt hàng
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/order.fxml"));
+            javafx.scene.Parent orderRoot = loader.load();
+            
+            // Lấy controller của màn hình order
+            OrderController orderController = loader.getController();
+            
+            // Tạo scene mới
+            javafx.scene.Scene orderScene = new javafx.scene.Scene(orderRoot);
+            orderScene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+            
+            // Lấy stage hiện tại và thay đổi scene
+            javafx.stage.Stage currentStage = (javafx.stage.Stage) tablesGrid.getScene().getWindow();
+            currentStage.setScene(orderScene);
+            currentStage.setTitle("Đặt hàng - Bàn " + selectedTable.getTableNumber());
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            CoffeeShopApplication.showError("Lỗi", "Không thể mở màn hình đặt hàng: " + e.getMessage());
         }
     }
     
