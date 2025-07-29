@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.coffeeshop.shopcoffeemanagement.controller.AdminController" 
+      spacing="20" styleClass="admin-container">
+   <children>
+      <!-- Header -->
+      <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header">
+         <children>
+            <Text fill="#2c3e50" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="👥 QUẢN LÝ NHÂN VIÊN">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Text>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="addStaffButton" onAction="#addNewStaff" styleClass="success-button" text="➕ Thêm nhân viên" />
+            <Button fx:id="refreshButton" onAction="#refreshStaffData" styleClass="primary-button" text="🔄 Làm mới" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </HBox>
+      
+      <!-- Search and Filter -->
+      <HBox alignment="CENTER_LEFT" spacing="15" styleClass="search-container">
+         <children>
+            <TextField fx:id="searchField" promptText="🔍 Tìm kiếm nhân viên..." prefWidth="300" styleClass="search-input" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="editStaffButton" onAction="#editSelectedStaff" styleClass="primary-button" text="✏️ Chỉnh sửa" disable="true" />
+            <Button fx:id="deleteStaffButton" onAction="#deleteSelectedStaff" styleClass="danger-button" text="🗑️ Xóa" disable="true" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="20.0" right="20.0" top="0.0" />
+         </padding>
+      </HBox>
+      
+      <!-- Staff Table -->
+      <TableView fx:id="staffTable" VBox.vgrow="ALWAYS" styleClass="admin-table">
+         <columns>
+            <TableColumn fx:id="usernameColumn" text="👤 Tên đăng nhập" prefWidth="150" />
+            <TableColumn fx:id="fullNameColumn" text="📝 Họ và tên" prefWidth="200" />
+            <TableColumn fx:id="roleColumn" text="🎭 Vai trò" prefWidth="100" />
+            <TableColumn fx:id="statusColumn" text="📊 Trạng thái" prefWidth="120" />
+         </columns>
+         <placeholder>
+            <VBox alignment="CENTER" spacing="10">
+               <Text text="📋 Không có nhân viên nào" style="-fx-font-size: 16; -fx-fill: #7f8c8d;" />
+               <Text text="Nhấn 'Thêm nhân viên' để tạo tài khoản mới" style="-fx-font-size: 12; -fx-fill: #95a5a6;" />
+            </VBox>
+         </placeholder>
+      </TableView>
+   </children>
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+</VBox> 

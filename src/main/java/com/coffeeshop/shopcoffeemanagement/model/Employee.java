@@ -38,6 +38,9 @@ public class Employee {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    
+    public String getFullName() { return name; } // Alias for getName
+    public void setFullName(String fullName) { this.name = fullName; } // Alias for setName
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }

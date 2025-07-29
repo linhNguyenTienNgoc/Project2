@@ -125,6 +125,28 @@ public class MenuDAO {
         return false;
     }
     
+    public boolean update(Menu menu) {
+        String sql = "UPDATE Menu SET name = ?, description = ?, price = ?, category = ?, available = ?, updated_at = GETDATE() WHERE id = ?";
+        
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, menu.getName());
+            stmt.setString(2, menu.getDescription());
+            stmt.setBigDecimal(3, menu.getPrice());
+            stmt.setString(4, menu.getCategory());
+            stmt.setBoolean(5, menu.isAvailable());
+            stmt.setLong(6, menu.getId());
+            
+            return stmt.executeUpdate() > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
     private Menu mapResultSetToMenu(ResultSet rs) throws SQLException {
         Menu menu = new Menu();
         menu.setId(rs.getLong("id"));

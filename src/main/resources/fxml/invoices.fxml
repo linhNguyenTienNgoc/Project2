@@ -5,23 +5,58 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" spacing="20" alignment="CENTER">
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.coffeeshop.shopcoffeemanagement.controller.InvoiceController" 
+      spacing="20" styleClass="invoice-container">
    <children>
-      <Text fill="#2c3e50" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="HÓA ĐƠN">
-         <font>
-            <Font name="System Bold" size="24.0" />
-         </font>
-      </Text>
-      <Text fill="#7f8c8d" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Tính năng quản lý hóa đơn sẽ được phát triển sau">
-         <font>
-            <Font size="16.0" />
-         </font>
-      </Text>
-      <Text fill="#7f8c8d" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Chức năng này sẽ cho phép xem và in hóa đơn">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </Text>
+      <!-- Header -->
+      <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header">
+         <children>
+            <Text fill="#2c3e50" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="🧾 QUẢN LÝ HÓA ĐƠN">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Text>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="refreshButton" onAction="#refreshInvoiceData" styleClass="primary-button" text="🔄 Làm mới" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </HBox>
+      
+      <!-- Search and Filter -->
+      <HBox alignment="CENTER_LEFT" spacing="15" styleClass="search-container">
+         <children>
+            <TextField fx:id="searchField" promptText="🔍 Tìm kiếm hóa đơn..." prefWidth="300" styleClass="search-input" />
+            <ComboBox fx:id="statusFilter" promptText="Lọc theo trạng thái" prefWidth="200" styleClass="combo-box" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="viewInvoiceButton" onAction="#viewSelectedInvoice" styleClass="primary-button" text="👁️ Xem chi tiết" disable="true" />
+            <Button fx:id="exportInvoiceButton" onAction="#exportSelectedInvoice" styleClass="success-button" text="📄 Xuất file" disable="true" />
+            <Button fx:id="printInvoiceButton" onAction="#printSelectedInvoice" styleClass="primary-button" text="🖨️ In hóa đơn" disable="true" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="20.0" right="20.0" top="0.0" />
+         </padding>
+      </HBox>
+      
+      <!-- Invoice Table -->
+      <TableView fx:id="invoiceTable" VBox.vgrow="ALWAYS" styleClass="invoice-table">
+         <columns>
+            <TableColumn fx:id="invoiceNumberColumn" text="📋 Số hóa đơn" prefWidth="120" />
+            <TableColumn fx:id="tableNumberColumn" text="🪑 Bàn" prefWidth="80" />
+            <TableColumn fx:id="customerNameColumn" text="👤 Khách hàng" prefWidth="150" />
+            <TableColumn fx:id="totalAmountColumn" text="💰 Tổng tiền" prefWidth="120" />
+            <TableColumn fx:id="statusColumn" text="📊 Trạng thái" prefWidth="100" />
+            <TableColumn fx:id="createdAtColumn" text="📅 Ngày tạo" prefWidth="150" />
+         </columns>
+         <placeholder>
+            <VBox alignment="CENTER" spacing="10">
+               <Text text="📋 Không có hóa đơn nào" style="-fx-font-size: 16; -fx-fill: #7f8c8d;" />
+               <Text text="Các hóa đơn sẽ hiển thị ở đây" style="-fx-font-size: 12; -fx-fill: #95a5a6;" />
+            </VBox>
+         </placeholder>
+      </TableView>
    </children>
    <padding>
       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

@@ -69,6 +69,17 @@ public class MainController {
         loadContent("/fxml/settings.fxml");
     }
     
+    @FXML
+    private void showAdmin() {
+        // Chỉ admin mới có thể truy cập
+        Employee currentUser = CoffeeShopApplication.getCurrentUser();
+        if (currentUser != null && "ADMIN".equals(currentUser.getRole())) {
+            loadContent("/fxml/admin.fxml");
+        } else {
+            CoffeeShopApplication.showError("Lỗi", "Bạn không có quyền truy cập trang quản trị");
+        }
+    }
+    
     private void loadContent(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));

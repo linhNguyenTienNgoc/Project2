@@ -199,8 +199,125 @@ public class MenuController {
     
     @FXML
     private void showAddMenuItemDialog() {
-        // TODO: Implement add menu item dialog
-        CoffeeShopApplication.showInfo("Thông báo", "Tính năng thêm món sẽ được phát triển sau");
+        showMenuItemDialog(null);
+    }
+    
+    private void showMenuItemDialog(Menu menu) {
+        Dialog<Menu> dialog = new Dialog<>();
+        dialog.setTitle(menu == null ? "Thêm món mới" : "Chỉnh sửa món");
+        dialog.setHeaderText(menu == null ? "Nhập thông tin món mới" : "Chỉnh sửa thông tin món");
+        
+        // Setup dialog content
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setAlignment(Pos.CENTER);
+        
+        Text titleText = new Text(menu == null ? "➕ THÊM MÓN MỚI" : "✏️ CHỈNH SỬA MÓN");
+        titleText.setFont(Font.font("System", FontWeight.BOLD, 18));
+        titleText.setTextAlignment(TextAlignment.CENTER);
+        
+        TextField nameField = new TextField();
+        nameField.setPromptText("Tên món");
+        nameField.setPrefWidth(300);
+        
+        TextArea descriptionField = new TextArea();
+        descriptionField.setPromptText("Mô tả món");
+        descriptionField.setPrefWidth(300);
+        descriptionField.setPrefRowCount(3);
+        descriptionField.setWrapText(true);
+        
+        TextField priceField = new TextField();
+        priceField.setPromptText("Giá (VNĐ)");
+        priceField.setPrefWidth(300);
+        
+        ComboBox<String> categoryComboBox = new ComboBox<>();
+        categoryComboBox.getItems().addAll("Cà phê", "Trà", "Nước ép", "Bánh", "Đồ ăn nhẹ", "Khác");
+        categoryComboBox.setPromptText("Chọn danh mục");
+        categoryComboBox.setPrefWidth(300);
+        
+        CheckBox activeCheckBox = new CheckBox("Món đang bán");
+        activeCheckBox.setSelected(true);
+        
+        // Set current values if editing
+        if (menu != null) {
+            nameField.setText(menu.getName());
+            descriptionField.setText(menu.getDescription());
+            priceField.setText(menu.getPrice().toString());
+            categoryComboBox.setValue(menu.getCategory());
+            activeCheckBox.setSelected(menu.isAvailable());
+        }
+        
+        content.getChildren().addAll(titleText, nameField, descriptionField, priceField, categoryComboBox, activeCheckBox);
+        dialog.getDialogPane().setContent(content);
+        
+        // Setup buttons
+        ButtonType saveButtonType = new ButtonType("💾 Lưu", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("❌ Hủy", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, cancelButtonType);
+        
+        // Validation
+        Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveButtonType);
+        saveButton.setDisable(true);
+        
+        // Enable save button only when required fields are filled
+        javafx.beans.value.ChangeListener<String> validationListener = (observable, oldValue, newValue) -> {
+            boolean isValid = !nameField.getText().trim().isEmpty() &&
+                            !priceField.getText().trim().isEmpty() &&
+                            categoryComboBox.getValue() != null;
+            
+            // Validate price is numeric
+            try {
+                if (!priceField.getText().trim().isEmpty()) {
+                    new BigDecimal(priceField.getText().trim());
+                }
+            } catch (NumberFormatException e) {
+                isValid = false;
+            }
+            
+            saveButton.setDisable(!isValid);
+        };
+        
+        nameField.textProperty().addListener(validationListener);
+        priceField.textProperty().addListener(validationListener);
+        categoryComboBox.valueProperty().addListener((observable, oldValue, newValue) -> validationListener.changed(null, null, null));
+        
+        // Handle result
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                try {
+                    Menu newMenu = menu != null ? menu : new Menu();
+                    newMenu.setName(nameField.getText().trim());
+                    newMenu.setDescription(descriptionField.getText().trim());
+                    newMenu.setPrice(new BigDecimal(priceField.getText().trim()));
+                    newMenu.setCategory(categoryComboBox.getValue());
+                    newMenu.setAvailable(activeCheckBox.isSelected());
+                    
+                    boolean success;
+                    if (menu == null) {
+                        // Create new menu item
+                        success = menuDAO.save(newMenu);
+                    } else {
+                        // Update existing menu item
+                        success = menuDAO.update(newMenu);
+                    }
+                    
+                    if (success) {
+                        loadMenuItems();
+                        CoffeeShopApplication.showInfo("Thành công", 
+                            menu == null ? "Đã thêm món mới" : "Đã cập nhật thông tin món");
+                        return newMenu;
+                    } else {
+                        CoffeeShopApplication.showError("Lỗi", "Không thể lưu thông tin món");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    CoffeeShopApplication.showError("Lỗi", "Không thể lưu thông tin món: " + e.getMessage());
+                }
+            }
+            return null;
+        });
+        
+        dialog.showAndWait();
     }
     
     private void editMenuItem(Menu item) {
