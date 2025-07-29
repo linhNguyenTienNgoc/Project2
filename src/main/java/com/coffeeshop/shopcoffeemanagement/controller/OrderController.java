@@ -338,32 +338,58 @@ public class OrderController {
         
         orderDetails.append("\nTổng cộng: ").append(String.format("%,.0f VNĐ", total));
         
+        // Hiển thị dialog thanh toán
+        showPaymentDialog(orderDetails.toString(), total);
+    }
+    
+    private void showPaymentDialog(String orderDetails, BigDecimal total) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Xác nhận đơn hàng");
-        alert.setHeaderText("Đơn hàng sẽ được tạo");
-        alert.setContentText(orderDetails.toString());
+        alert.setTitle("Thanh toán đơn hàng");
+        alert.setHeaderText("Xác nhận đặt hàng");
+        alert.setContentText(orderDetails + "\n\nChọn phương thức thanh toán:");
+        
+        ButtonType cashButton = new ButtonType("💵 Tiền mặt");
+        ButtonType cardButton = new ButtonType("💳 Thẻ");
+        ButtonType cancelButton = new ButtonType("❌ Hủy");
+        
+        alert.getButtonTypes().setAll(cashButton, cardButton, cancelButton);
         
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            // TODO: Save order to database
+        if (result.isPresent()) {
+            if (result.get() == cashButton || result.get() == cardButton) {
+                String paymentMethod = result.get() == cashButton ? "Tiền mặt" : "Thẻ";
+                processPayment(orderDetails, total, paymentMethod);
+            }
+        }
+    }
+    
+    private void processPayment(String orderDetails, BigDecimal total, String paymentMethod) {
+        // TODO: Lưu đơn hàng vào database
+        try {
+            CoffeeTable selectedTable = tableComboBox.getValue();
             
             // Cập nhật trạng thái bàn thành OCCUPIED
-            CoffeeTable selectedTable = tableComboBox.getValue();
-            if (selectedTable != null) {
-                try {
-                    if (tableDAO.updateStatus(selectedTable.getId(), "OCCUPIED")) {
-                        selectedTable.setStatus("OCCUPIED");
-                        CoffeeShopApplication.showInfo("Thành công", "Đơn hàng đã được tạo thành công!\nBàn " + selectedTable.getTableNumber() + " đã được đánh dấu là có khách.");
-                    } else {
-                        CoffeeShopApplication.showError("Lỗi", "Không thể cập nhật trạng thái bàn");
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    CoffeeShopApplication.showError("Lỗi", "Không thể cập nhật trạng thái bàn: " + e.getMessage());
-                }
+            if (tableDAO.updateStatus(selectedTable.getId(), "OCCUPIED")) {
+                selectedTable.setStatus("OCCUPIED");
+                
+                // Hiển thị thông báo thành công
+                String successMessage = "✅ Đơn hàng đã được tạo thành công!\n\n" +
+                                      "Bàn: " + selectedTable.getTableNumber() + "\n" +
+                                      "Phương thức thanh toán: " + paymentMethod + "\n" +
+                                      "Tổng tiền: " + String.format("%,.0f VNĐ", total) + "\n\n" +
+                                      "Bàn đã được đánh dấu là có khách.";
+                
+                CoffeeShopApplication.showInfo("Thanh toán thành công", successMessage);
+                
+                // Xóa đơn hàng và quay về màn hình bàn
+                clearOrder();
+                backToTables();
+            } else {
+                CoffeeShopApplication.showError("Lỗi", "Không thể cập nhật trạng thái bàn");
             }
-            
-            clearOrder();
+        } catch (Exception e) {
+            e.printStackTrace();
+            CoffeeShopApplication.showError("Lỗi", "Không thể xử lý thanh toán: " + e.getMessage());
         }
     }
     

@@ -15,8 +15,10 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
 import com.coffeeshop.shopcoffeemanagement.dao.CoffeeTableDAO;
+import com.coffeeshop.shopcoffeemanagement.controller.OrderController;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class TablesController {
     
@@ -29,14 +31,78 @@ public class TablesController {
     @FXML
     private Button refreshButton;
     
+    @FXML
+    private TextField searchField;
+    
+    @FXML
+    private ComboBox<String> statusFilter;
+    
     private List<CoffeeTable> tables;
     private CoffeeTableDAO tableDAO;
     
     @FXML
     public void initialize() {
         tableDAO = new CoffeeTableDAO();
+        setupFilters();
         loadTables();
         displayTables();
+    }
+    
+    private void setupFilters() {
+        // Setup status filter
+        statusFilter.getItems().addAll("Tất cả", "Trống", "Có khách", "Đã đặt", "Đang dọn");
+        statusFilter.setValue("Tất cả");
+        
+        // Setup search field
+        searchField.setPromptText("Tìm kiếm bàn...");
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterTables();
+        });
+        
+        // Setup status filter
+        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
+            filterTables();
+        });
+    }
+    
+    private void filterTables() {
+        String searchText = searchField.getText().toLowerCase();
+        String selectedStatus = statusFilter.getValue();
+        
+        List<CoffeeTable> filteredTables = tables.stream()
+            .filter(table -> {
+                // Filter by search text
+                boolean matchesSearch = table.getTableNumber().toLowerCase().contains(searchText) ||
+                                      table.getLocation().toLowerCase().contains(searchText);
+                
+                // Filter by status
+                boolean matchesStatus = "Tất cả".equals(selectedStatus) ||
+                                      getStatusText(table.getStatus()).equals(selectedStatus);
+                
+                return matchesSearch && matchesStatus;
+            })
+            .collect(java.util.stream.Collectors.toList());
+        
+        displayFilteredTables(filteredTables);
+    }
+    
+    private void displayFilteredTables(List<CoffeeTable> filteredTables) {
+        tablesGrid.getChildren().clear();
+        
+        int columns = 5; // Số cột hiển thị
+        int row = 0;
+        int col = 0;
+        
+        for (CoffeeTable table : filteredTables) {
+            VBox tableNode = createTableNode(table);
+            tablesGrid.add(tableNode, col, row);
+            
+            col++;
+            if (col >= columns) {
+                col = 0;
+                row++;
+            }
+        }
     }
     
     @FXML
@@ -283,7 +349,83 @@ public class TablesController {
     }
     
     private void viewTableDetails(CoffeeTable table) {
-        // TODO: Implement view table details
-        CoffeeShopApplication.showInfo("Chi tiết bàn", "Tính năng xem chi tiết sẽ được phát triển sau");
+        // Hiển thị dialog với các tùy chọn cho bàn có khách
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Quản lý bàn " + table.getTableNumber());
+        alert.setHeaderText("Bàn đang có khách");
+        alert.setContentText("Bàn " + table.getTableNumber() + " - " + table.getCapacity() + " người\n" +
+                           "Vị trí: " + table.getLocation() + "\n\n" +
+                           "Chọn hành động:");
+        
+        ButtonType viewOrderButton = new ButtonType("📋 Xem đơn hàng");
+        ButtonType addMoreButton = new ButtonType("➕ Thêm món");
+        ButtonType checkoutButton = new ButtonType("💳 Thanh toán");
+        ButtonType freeTableButton = new ButtonType("🔄 Giải phóng bàn");
+        ButtonType cancelButton = new ButtonType("❌ Đóng");
+        
+        alert.getButtonTypes().setAll(viewOrderButton, addMoreButton, checkoutButton, freeTableButton, cancelButton);
+        
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent()) {
+            ButtonType selectedButton = result.get();
+            if (selectedButton == viewOrderButton) {
+                showOrderDetails(table);
+            } else if (selectedButton == addMoreButton) {
+                openOrderScreen(table);
+            } else if (selectedButton == checkoutButton) {
+                processCheckout(table);
+            } else if (selectedButton == freeTableButton) {
+                freeTable(table);
+            }
+        }
+    }
+    
+    private void showOrderDetails(CoffeeTable table) {
+        // TODO: Hiển thị chi tiết đơn hàng hiện tại
+        CoffeeShopApplication.showInfo("Chi tiết đơn hàng", 
+            "Đơn hàng cho bàn " + table.getTableNumber() + "\n\n" +
+            "Tính năng xem chi tiết đơn hàng sẽ được phát triển sau.");
+    }
+    
+    private void processCheckout(CoffeeTable table) {
+        CoffeeShopApplication.showConfirmation("Thanh toán", 
+            "Xác nhận thanh toán cho bàn " + table.getTableNumber() + "?\n\n" +
+            "Sau khi thanh toán, bàn sẽ được giải phóng.", 
+            () -> {
+                try {
+                    if (tableDAO.updateStatus(table.getId(), "AVAILABLE")) {
+                        table.setStatus("AVAILABLE");
+                        displayTables(); // Refresh display
+                        CoffeeShopApplication.showInfo("Thành công", 
+                            "Đã thanh toán và giải phóng bàn " + table.getTableNumber());
+                    } else {
+                        CoffeeShopApplication.showError("Lỗi", "Không thể cập nhật trạng thái bàn");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    CoffeeShopApplication.showError("Lỗi", "Không thể xử lý thanh toán: " + e.getMessage());
+                }
+            });
+    }
+    
+    private void freeTable(CoffeeTable table) {
+        CoffeeShopApplication.showConfirmation("Giải phóng bàn", 
+            "Xác nhận giải phóng bàn " + table.getTableNumber() + "?\n\n" +
+            "Bàn sẽ được đánh dấu là trống.", 
+            () -> {
+                try {
+                    if (tableDAO.updateStatus(table.getId(), "AVAILABLE")) {
+                        table.setStatus("AVAILABLE");
+                        displayTables(); // Refresh display
+                        CoffeeShopApplication.showInfo("Thành công", 
+                            "Đã giải phóng bàn " + table.getTableNumber());
+                    } else {
+                        CoffeeShopApplication.showError("Lỗi", "Không thể cập nhật trạng thái bàn");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    CoffeeShopApplication.showError("Lỗi", "Không thể giải phóng bàn: " + e.getMessage());
+                }
+            });
     }
 } 

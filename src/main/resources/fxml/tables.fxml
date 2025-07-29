@@ -25,6 +25,18 @@
          </padding>
       </HBox>
       
+      <!-- Search and Filter Controls -->
+      <HBox alignment="CENTER_LEFT" spacing="15">
+         <children>
+            <TextField fx:id="searchField" promptText="Tìm kiếm bàn..." prefWidth="250" styleClass="form-input" />
+            <ComboBox fx:id="statusFilter" promptText="Lọc theo trạng thái" prefWidth="200" styleClass="combo-box" />
+            <Region HBox.hgrow="ALWAYS" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="20.0" right="20.0" top="0.0" />
+         </padding>
+      </HBox>
+      
       <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
          <content>
             <GridPane fx:id="tablesGrid" styleClass="table-grid" alignment="TOP_CENTER">
