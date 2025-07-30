@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class InvoiceController {
@@ -128,13 +129,23 @@ public class InvoiceController {
         statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
             filterInvoices();
         });
+
+        
     }
     
     private void loadInvoiceData() {
-        // TODO: Load from database
-        // For now, create demo data
-        allInvoices = createDemoInvoices();
-        invoiceTable.getItems().setAll(allInvoices);
+        try {
+            // TODO: Load from database using InvoiceDAO
+            // For now, show empty list
+            allInvoices = new ArrayList<>();
+            invoiceTable.getItems().setAll(allInvoices);
+            CoffeeShopApplication.showInfo("Thông báo", "Chưa có hóa đơn nào trong hệ thống.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            CoffeeShopApplication.showError("Lỗi", "Không thể tải danh sách hóa đơn: " + e.getMessage());
+            allInvoices = new ArrayList<>();
+            invoiceTable.getItems().setAll(allInvoices);
+        }
     }
     
     private void filterInvoices() {
@@ -317,43 +328,7 @@ public class InvoiceController {
     }
     
     private List<Invoice> createDemoInvoices() {
-        // Create demo invoice data
-        List<Invoice> invoices = new java.util.ArrayList<>();
-        
-        // Create demo tables
-        CoffeeTable table1 = new CoffeeTable("T01", 4, "Khu vực A");
-        table1.setId(1L);
-        CoffeeTable table3 = new CoffeeTable("T03", 6, "Khu vực B");
-        table3.setId(3L);
-        CoffeeTable table5 = new CoffeeTable("T05", 8, "Khu vực C");
-        table5.setId(5L);
-        
-        // Create demo employees
-        Employee employee1 = new Employee("staff1", "password", "Nhân viên 1", "staff1@coffee.com", "0901234567", "STAFF");
-        employee1.setId(1L);
-        
-        Invoice invoice1 = new Invoice("INV001", table1, employee1);
-        invoice1.setId(1L);
-        invoice1.setTotalAmount(new BigDecimal("125000"));
-        invoice1.setStatus("PAID");
-        invoice1.setCreatedAt(LocalDateTime.now().minusHours(2));
-        
-        Invoice invoice2 = new Invoice("INV002", table3, employee1);
-        invoice2.setId(2L);
-        invoice2.setTotalAmount(new BigDecimal("85000"));
-        invoice2.setStatus("PENDING");
-        invoice2.setCreatedAt(LocalDateTime.now().minusMinutes(30));
-        
-        Invoice invoice3 = new Invoice("INV003", table5, employee1);
-        invoice3.setId(3L);
-        invoice3.setTotalAmount(new BigDecimal("200000"));
-        invoice3.setStatus("PAID");
-        invoice3.setCreatedAt(LocalDateTime.now().minusDays(1));
-        
-        invoices.add(invoice1);
-        invoices.add(invoice2);
-        invoices.add(invoice3);
-        
-        return invoices;
+        // Return empty list - all data should come from database
+        return new java.util.ArrayList<>();
     }
 } 

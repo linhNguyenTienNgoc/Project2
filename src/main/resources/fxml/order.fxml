@@ -14,6 +14,11 @@
             <Label text="Tạo đơn hàng mới cho khách hàng" styleClass="header-subtitle"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
+        <!-- Keyboard shortcuts info -->
+        <VBox alignment="CENTER_RIGHT" spacing="5">
+            <Label text="⌨️ Phím tắt:" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #7f8c8d;"/>
+            <Label text="F1: Đặt hàng nhanh | F2: Đặt hàng | F3: Xóa đơn | F4: Quay lại" style="-fx-font-size: 10; -fx-text-fill: #95a5a6;"/>
+        </VBox>
     </HBox>
     
     <!-- Main Content -->
@@ -33,13 +38,17 @@
                 <Label text="Tìm kiếm món" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
                 <HBox spacing="10">
                     <ComboBox fx:id="categoryFilter" promptText="Danh mục" styleClass="form-input" prefWidth="200"/>
-                    <TextField fx:id="searchField" promptText="Tìm kiếm món..." styleClass="form-input" HBox.hgrow="ALWAYS"/>
+                    <TextField fx:id="searchField" promptText="Tìm kiếm món... (Enter để tìm)" styleClass="form-input" HBox.hgrow="ALWAYS"/>
                 </HBox>
             </VBox>
             
             <!-- Menu Grid -->
             <VBox styleClass="form-container" VBox.vgrow="ALWAYS">
-                <Label text="Menu" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Menu" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="💡 Click để thêm, Double-click để thêm nhanh" style="-fx-font-size: 11; -fx-text-fill: #7f8c8d;"/>
+                </HBox>
                 <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent;">
                     <GridPane fx:id="menuGrid" hgap="15" vgap="15" styleClass="menu-grid"/>
                 </ScrollPane>
@@ -48,9 +57,13 @@
         </VBox>
         
         <!-- Right Panel - Order Summary -->
-        <VBox styleClass="form-container" prefWidth="350" VBox.vgrow="ALWAYS">
+        <VBox styleClass="form-container" prefWidth="380" VBox.vgrow="ALWAYS">
             
-            <Label text="Đơn hàng" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Đơn hàng" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="editOrderButton" text="✏️ Chỉnh sửa đơn hàng" onAction="#editOrder" styleClass="secondary-button" disable="true"/>
+            </HBox>
             
             <!-- Order Items -->
             <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent;">
@@ -68,10 +81,10 @@
             
             <!-- Action Buttons -->
             <VBox spacing="10" style="-fx-padding: 15 0 0 0;">
-                <Button fx:id="quickOrderButton" text="⚡ Đặt hàng nhanh" onAction="#showQuickOrder" styleClass="primary-button"/>
-                <Button fx:id="placeOrderButton" text="✅ Đặt hàng" onAction="#placeOrder" styleClass="success-button" disable="true"/>
-                <Button fx:id="clearOrderButton" text="🗑️ Xóa đơn hàng" onAction="#clearOrder" styleClass="danger-button" disable="true"/>
-                <Button fx:id="backToTablesButton" text="⬅️ Quay lại bàn" onAction="#backToTables" styleClass="primary-button"/>
+                <Button fx:id="quickOrderButton" text="⚡ Đặt hàng nhanh (F1)" onAction="#showQuickOrder" styleClass="primary-button"/>
+                <Button fx:id="placeOrderButton" text="✅ Đặt hàng (F2)" onAction="#placeOrder" styleClass="success-button" disable="true"/>
+                <Button fx:id="clearOrderButton" text="🗑️ Xóa đơn hàng (F3)" onAction="#clearOrder" styleClass="danger-button" disable="true"/>
+                <Button fx:id="backToTablesButton" text="⬅️ Quay lại bàn (F4)" onAction="#backToTables" styleClass="primary-button"/>
             </VBox>
             
         </VBox>

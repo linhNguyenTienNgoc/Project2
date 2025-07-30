@@ -30,8 +30,7 @@ public class EmployeeDAO {
             
         } catch (SQLException e) {
             e.printStackTrace();
-            // Fallback to demo data if database connection fails
-            return getDemoEmployee(username);
+            throw new RuntimeException("Không thể kết nối database: " + e.getMessage());
         }
         
         return null;
@@ -52,8 +51,7 @@ public class EmployeeDAO {
             
         } catch (SQLException e) {
             e.printStackTrace();
-            // Fallback to demo data
-            return getDemoEmployeeById(id);
+            throw new RuntimeException("Không thể kết nối database: " + e.getMessage());
         }
         
         return null;
@@ -73,10 +71,7 @@ public class EmployeeDAO {
             
         } catch (SQLException e) {
             e.printStackTrace();
-            // Fallback to demo data
-            employees.add(getDemoEmployee("admin"));
-            employees.add(getDemoEmployee("staff1"));
-            employees.add(getDemoEmployee("manager"));
+            throw new RuntimeException("Không thể kết nối database: " + e.getMessage());
         }
         
         return employees;
@@ -170,32 +165,5 @@ public class EmployeeDAO {
         return employee;
     }
     
-    // Demo fallback methods
-    private Employee getDemoEmployee(String username) {
-        if ("admin".equals(username)) {
-            Employee admin = new Employee("admin", "admin123", "Nguyễn Văn Admin", "admin@coffeeshop.com", "0901234567", "ADMIN");
-            admin.setId(1L);
-            return admin;
-        } else if ("staff1".equals(username)) {
-            Employee staff = new Employee("staff1", "staff123", "Trần Thị Nhân Viên", "staff1@coffeeshop.com", "0901234568", "STAFF");
-            staff.setId(2L);
-            return staff;
-        } else if ("manager".equals(username)) {
-            Employee manager = new Employee("manager", "manager123", "Phạm Thị Quản Lý", "manager@coffeeshop.com", "0901234570", "ADMIN");
-            manager.setId(4L);
-            return manager;
-        }
-        return null;
-    }
-    
-    private Employee getDemoEmployeeById(Long id) {
-        if (id == 1L) {
-            return getDemoEmployee("admin");
-        } else if (id == 2L) {
-            return getDemoEmployee("staff1");
-        } else if (id == 4L) {
-            return getDemoEmployee("manager");
-        }
-        return null;
-    }
+    // Removed demo data fallback - all data must come from database
 } 

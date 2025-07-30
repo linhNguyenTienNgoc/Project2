@@ -29,8 +29,7 @@ public class CoffeeTableDAO {
             
         } catch (SQLException e) {
             e.printStackTrace();
-            // Fallback to demo data
-            tables = getDemoTables();
+            throw new RuntimeException("Không thể kết nối database: " + e.getMessage());
         }
         
         return tables;
@@ -117,24 +116,5 @@ public class CoffeeTableDAO {
         return table;
     }
     
-    // Demo fallback methods
-    private List<CoffeeTable> getDemoTables() {
-        List<CoffeeTable> tables = new ArrayList<>();
-        tables.add(new CoffeeTable("T01", 4, "Khu vực A - Gần cửa sổ"));
-        tables.add(new CoffeeTable("T02", 4, "Khu vực A - Gần cửa sổ"));
-        tables.add(new CoffeeTable("T03", 6, "Khu vực B - Giữa quán"));
-        tables.add(new CoffeeTable("T04", 6, "Khu vực B - Giữa quán"));
-        tables.add(new CoffeeTable("T05", 8, "Khu vực C - Góc yên tĩnh"));
-        tables.add(new CoffeeTable("T06", 4, "Khu vực A - Gần cửa sổ"));
-        tables.add(new CoffeeTable("T07", 4, "Khu vực B - Giữa quán"));
-        tables.add(new CoffeeTable("T08", 6, "Khu vực C - Góc yên tĩnh"));
-        tables.add(new CoffeeTable("T09", 4, "Khu vực A - Gần cửa sổ"));
-        tables.add(new CoffeeTable("T10", 8, "Khu vực C - Góc yên tĩnh"));
-        
-        // Set status cho một số bàn
-        tables.get(4).setStatus("OCCUPIED"); // T05
-        tables.get(6).setStatus("RESERVED"); // T07
-        
-        return tables;
-    }
+    // Removed demo data fallback - all data must come from database
 } 

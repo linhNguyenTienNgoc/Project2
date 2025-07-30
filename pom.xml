@@ -15,7 +15,7 @@
     </properties>
 
     <dependencies>
-        <!-- JavaFX Dependencies -->
+        <!-- JavaFX Dependencies - Optimized for Performance -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -26,21 +26,6 @@
             <artifactId>javafx-fxml</artifactId>
             <version>17.0.6</version>
         </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-web</artifactId>
-            <version>17.0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-swing</artifactId>
-            <version>17.0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-media</artifactId>
-            <version>17.0.6</version>
-        </dependency>
         
         <!-- Database Dependencies -->
         <dependency>
@@ -49,65 +34,11 @@
             <version>12.4.2.jre11</version>
         </dependency>
         
-        <!-- UI Enhancement Libraries -->
+        <!-- UI Enhancement Libraries - Optimized for Performance -->
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
             <version>11.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dlsc.formsfx</groupId>
-            <artifactId>formsfx-core</artifactId>
-            <version>11.6.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.synedra</groupId>
-            <artifactId>validatorfx</artifactId>
-            <version>0.5.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.kordamp.ikonli</groupId>
-            <artifactId>ikonli-javafx</artifactId>
-            <version>12.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kordamp.bootstrapfx</groupId>
-            <artifactId>bootstrapfx-core</artifactId>
-            <version>0.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.hansolo</groupId>
-            <artifactId>tilesfx</artifactId>
-            <version>21.0.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.github.almasb</groupId>
-            <artifactId>fxgl</artifactId>
-            <version>17.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         
         <!-- Testing Dependencies -->
@@ -132,17 +63,49 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <source>24</source>
-                    <target>24</target>
+                    <source>17</source>
+                    <target>17</target>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                        <arg>-Xlint:none</arg>
+                    </compilerArgs>
+                    <fork>true</fork>
+                    <meminitial>128m</meminitial>
+                    <maxmem>512m</maxmem>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
-                        <configuration>
-                    <mainClass>com.coffeeshop.shopcoffeemanagement.DemoApplication</mainClass>
-                        </configuration>
+                <configuration>
+                    <mainClass>com.coffeeshop.shopcoffeemanagement.CoffeeShopApplication</mainClass>
+                    <options>
+                        <option>-Xms512m</option>
+                        <option>-Xmx1024m</option>
+                        <option>-XX:+UseG1GC</option>
+                        <option>-XX:MaxGCPauseMillis=200</option>
+                        <option>-XX:+UseStringDeduplication</option>
+                        <option>-XX:+OptimizeStringConcat</option>
+                        <option>-XX:+UseCompressedOops</option>
+                        <option>-XX:+UseCompressedClassPointers</option>
+                        <option>-Djavafx.css.validation=false</option>
+                        <option>-Dprism.order=hw</option>
+                        <option>-Dprism.vsync=false</option>
+                        <option>-Djavafx.animation.fullspeed=true</option>
+                        <option>--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED</option>
+                        <option>--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED</option>
+                    </options>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.coffeeshop.shopcoffeemanagement.CoffeeShopApplication</mainClass>
+                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                </configuration>
             </plugin>
         </plugins>
     </build>

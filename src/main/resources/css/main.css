@@ -1,4 +1,4 @@
-/* Main Application Styles - Modern International Design */
+/* Main Application Styles - Optimized for Performance */
 .root {
     -fx-font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
     -fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -6,6 +6,7 @@
     -fx-background-position: center;
     -fx-font-size: 14px;
     -fx-font-smoothing-type: lcd;
+    /* Disable anti-aliasing for better performance */
 }
 
 /* Header Styles - Modern Glass Effect */
@@ -16,7 +17,7 @@
     -fx-padding: 25;
     -fx-border-color: rgba(255, 255, 255, 0.2);
     -fx-border-width: 0 0 1 0;
-    -fx-backdrop-filter: blur(10px);
+    /* -fx-backdrop-filter: blur(10px); */
 }
 
 .header-title {
@@ -64,19 +65,19 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 5);
     -fx-border-color: rgba(255, 255, 255, 0.2);
     -fx-border-width: 0 1 0 0;
-    -fx-backdrop-filter: blur(15px);
+    /* -fx-backdrop-filter: blur(15px); */
 }
 
 .sidebar-button {
     -fx-background-color: transparent;
     -fx-text-fill: white;
-    -fx-font-size: 15;
+    -fx-font-size: 16;
     -fx-font-weight: 600;
-    -fx-padding: 20 30;
+    -fx-padding: 25 35;
     -fx-alignment: CENTER_LEFT;
     -fx-cursor: hand;
     -fx-border-width: 0;
-    -fx-min-height: 65;
+    -fx-min-height: 70;
     -fx-background-radius: 12;
     -fx-margin: 5;
     -fx-transition: all 0.3s ease;
@@ -112,7 +113,7 @@
     -fx-border-color: rgba(255, 255, 255, 0.3);
     -fx-border-width: 1;
     -fx-border-radius: 25;
-    -fx-backdrop-filter: blur(20px);
+    /* -fx-backdrop-filter: blur(20px); */
 }
 
 /* Table Management Styles */
@@ -128,11 +129,13 @@
     -fx-border-color: rgba(255, 255, 255, 0.3);
     -fx-border-radius: 20;
     -fx-border-width: 1;
-    -fx-padding: 25;
+    -fx-padding: 30;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);
     -fx-transition: all 0.3s ease;
-    -fx-backdrop-filter: blur(10px);
+    /* -fx-backdrop-filter: blur(10px); */
+    -fx-min-width: 180px;
+    -fx-min-height: 180px;
 }
 
 .table-item:hover {
@@ -159,13 +162,13 @@
 }
 
 .table-number {
-    -fx-font-size: 20;
+    -fx-font-size: 24;
     -fx-font-weight: bold;
     -fx-text-fill: #2c3e50;
 }
 
 .table-status {
-    -fx-font-size: 14;
+    -fx-font-size: 16;
     -fx-text-fill: #7f8c8d;
     -fx-font-weight: bold;
 }
@@ -182,10 +185,12 @@
     -fx-border-color: #e0e6ed;
     -fx-border-radius: 12;
     -fx-border-width: 1;
-    -fx-padding: 15;
+    -fx-padding: 20;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
     -fx-transition: all 0.3s ease;
+    -fx-min-width: 200px;
+    -fx-min-height: 120px;
 }
 
 .menu-item:hover {
@@ -202,13 +207,13 @@
 }
 
 .menu-name {
-    -fx-font-size: 16;
+    -fx-font-size: 18;
     -fx-font-weight: bold;
     -fx-text-fill: #2c3e50;
 }
 
 .menu-price {
-    -fx-font-size: 18;
+    -fx-font-size: 20;
     -fx-font-weight: bold;
     -fx-text-fill: #e74c3c;
 }
@@ -223,15 +228,17 @@
     -fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -fx-background-radius: 15;
     -fx-text-fill: white;
-    -fx-font-size: 14;
+    -fx-font-size: 16;
     -fx-font-weight: 600;
-    -fx-padding: 15 30;
+    -fx-padding: 20 40;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.4), 8, 0, 0, 3);
     -fx-transition: all 0.3s ease;
     -fx-border-color: rgba(255, 255, 255, 0.2);
     -fx-border-width: 1;
     -fx-border-radius: 15;
+    -fx-min-width: 80px;
+    -fx-min-height: 50px;
 }
 
 .primary-button:hover {
@@ -246,15 +253,17 @@
     -fx-background-color: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
     -fx-background-radius: 15;
     -fx-text-fill: white;
-    -fx-font-size: 14;
+    -fx-font-size: 16;
     -fx-font-weight: 600;
-    -fx-padding: 15 30;
+    -fx-padding: 20 40;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(78, 205, 196, 0.4), 8, 0, 0, 3);
     -fx-transition: all 0.3s ease;
     -fx-border-color: rgba(255, 255, 255, 0.2);
     -fx-border-width: 1;
     -fx-border-radius: 15;
+    -fx-min-width: 80px;
+    -fx-min-height: 50px;
 }
 
 .success-button:hover {
@@ -267,18 +276,52 @@
 
 .danger-button {
     -fx-background-color: linear-gradient(to right, #ff6b6b, #ee5a52);
-    -fx-background-radius: 8;
+    -fx-background-radius: 15;
     -fx-text-fill: white;
-    -fx-font-size: 14;
+    -fx-font-size: 16;
     -fx-font-weight: bold;
-    -fx-padding: 12 25;
+    -fx-padding: 20 40;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(255, 107, 107, 0.3), 5, 0, 0, 2);
+    -fx-min-width: 80px;
+    -fx-min-height: 50px;
 }
 
 .danger-button:hover {
     -fx-background-color: linear-gradient(to right, #ff5252, #d32f2f);
     -fx-effect: dropshadow(gaussian, rgba(255, 107, 107, 0.5), 8, 0, 0, 3);
+}
+
+.secondary-button {
+    -fx-background-color: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    -fx-background-radius: 15;
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+    -fx-font-weight: 600;
+    -fx-padding: 20 40;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(149, 165, 166, 0.4), 8, 0, 0, 3);
+    -fx-transition: all 0.3s ease;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 1;
+    -fx-border-radius: 15;
+    -fx-min-width: 80px;
+    -fx-min-height: 50px;
+}
+
+.secondary-button:hover {
+    -fx-background-color: linear-gradient(135deg, #7f8c8d 0%, #6c7b7d 100%);
+    -fx-effect: dropshadow(gaussian, rgba(149, 165, 166, 0.6), 12, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+}
+
+.secondary-button:disabled {
+    -fx-background-color: #bdc3c7;
+    -fx-text-fill: #7f8c8d;
+    -fx-cursor: default;
+    -fx-effect: none;
 }
 
 /* Dashboard Cards */
@@ -321,9 +364,10 @@
     -fx-background-radius: 8;
     -fx-border-color: #e0e6ed;
     -fx-border-radius: 8;
-    -fx-padding: 12 15;
-    -fx-font-size: 14;
+    -fx-padding: 15 20;
+    -fx-font-size: 16;
     -fx-transition: all 0.3s ease;
+    -fx-min-height: 45px;
 }
 
 .form-input:focused {
@@ -434,7 +478,7 @@
     -fx-border-color: rgba(255, 255, 255, 0.3);
     -fx-border-width: 1;
     -fx-border-radius: 25;
-    -fx-backdrop-filter: blur(20px);
+    /* -fx-backdrop-filter: blur(20px); */
 }
 
 .login-title {

@@ -15,6 +15,7 @@ public class Invoice {
     private String status; // PENDING, PAID, CANCELLED
     private BigDecimal totalAmount;
     private String paymentMethod; // CASH, CARD, TRANSFER
+    private String transactionId;
     private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -61,6 +62,9 @@ public class Invoice {
 
     public String getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+
+    public String getTransactionId() { return transactionId; }
+    public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }

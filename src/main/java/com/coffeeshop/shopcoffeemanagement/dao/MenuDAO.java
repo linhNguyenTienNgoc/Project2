@@ -29,8 +29,7 @@ public class MenuDAO {
             
         } catch (SQLException e) {
             e.printStackTrace();
-            // Fallback to demo data
-            menus = getDemoMenus();
+            throw new RuntimeException("Không thể kết nối database: " + e.getMessage());
         }
         
         return menus;
@@ -161,41 +160,5 @@ public class MenuDAO {
         return menu;
     }
     
-    // Demo fallback methods
-    private List<Menu> getDemoMenus() {
-        List<Menu> menus = new ArrayList<>();
-        
-        // Coffee
-        menus.add(new Menu("Cà phê đen", "Cà phê đen truyền thống, đậm đà hương vị", new java.math.BigDecimal("25000"), "COFFEE"));
-        menus.add(new Menu("Cà phê sữa", "Cà phê sữa đặc, ngọt ngào", new java.math.BigDecimal("30000"), "COFFEE"));
-        menus.add(new Menu("Cappuccino", "Cappuccino Ý, bọt sữa mịn", new java.math.BigDecimal("45000"), "COFFEE"));
-        menus.add(new Menu("Latte", "Latte mượt mà, hương vị nhẹ nhàng", new java.math.BigDecimal("50000"), "COFFEE"));
-        menus.add(new Menu("Espresso", "Espresso đậm đà, tinh khiết", new java.math.BigDecimal("35000"), "COFFEE"));
-        
-        // Tea
-        menus.add(new Menu("Trà sữa trân châu", "Trà sữa trân châu đường đen", new java.math.BigDecimal("35000"), "TEA"));
-        menus.add(new Menu("Trà đào", "Trà đào mát lạnh, thơm ngon", new java.math.BigDecimal("30000"), "TEA"));
-        menus.add(new Menu("Trà chanh", "Trà chanh tươi, giải nhiệt", new java.math.BigDecimal("25000"), "TEA"));
-        
-        // Juice
-        menus.add(new Menu("Nước ép cam", "Nước ép cam tươi, giàu vitamin C", new java.math.BigDecimal("40000"), "JUICE"));
-        menus.add(new Menu("Nước ép táo", "Nước ép táo tươi, ngọt tự nhiên", new java.math.BigDecimal("45000"), "JUICE"));
-        
-        // Dessert
-        menus.add(new Menu("Bánh tiramisu", "Bánh tiramisu Ý, hương vị đặc biệt", new java.math.BigDecimal("55000"), "DESSERT"));
-        menus.add(new Menu("Bánh cheesecake", "Cheesecake mịn màng, béo ngậy", new java.math.BigDecimal("50000"), "DESSERT"));
-        menus.add(new Menu("Bánh chocolate", "Bánh chocolate đậm đà", new java.math.BigDecimal("45000"), "DESSERT"));
-        menus.add(new Menu("Kem vanilla", "Kem vanilla mát lạnh", new java.math.BigDecimal("30000"), "DESSERT"));
-        menus.add(new Menu("Kem chocolate", "Kem chocolate đậm đà", new java.math.BigDecimal("35000"), "DESSERT"));
-        
-        // Food
-        menus.add(new Menu("Bánh mì sandwich", "Bánh mì sandwich thịt nguội", new java.math.BigDecimal("35000"), "FOOD"));
-        menus.add(new Menu("Bánh mì bơ", "Bánh mì bơ thơm béo", new java.math.BigDecimal("25000"), "FOOD"));
-        
-        // Smoothie
-        menus.add(new Menu("Sinh tố dâu", "Sinh tố dâu tươi, mát lạnh", new java.math.BigDecimal("40000"), "SMOOTHIE"));
-        menus.add(new Menu("Sinh tố xoài", "Sinh tố xoài chín, ngọt tự nhiên", new java.math.BigDecimal("45000"), "SMOOTHIE"));
-        
-        return menus;
-    }
+    // Removed demo data fallback - all data must come from database
 } 

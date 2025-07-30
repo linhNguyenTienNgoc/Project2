@@ -47,33 +47,14 @@ public class MenuController {
         try {
             menuItems = menuDAO.findAll();
             filteredItems = new ArrayList<>(menuItems);
+            if (menuItems.isEmpty()) {
+                CoffeeShopApplication.showInfo("Thông báo", "Chưa có món nào trong menu. Vui lòng thêm món mới.");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             CoffeeShopApplication.showError("Lỗi", "Không thể tải danh sách menu: " + e.getMessage());
-            // Fallback to demo data
             menuItems = new ArrayList<>();
-            menuItems.add(new Menu("Cà phê đen", "Cà phê đen truyền thống, đậm đà hương vị", new BigDecimal("25000"), "COFFEE"));
-            menuItems.add(new Menu("Cà phê sữa", "Cà phê sữa đặc, ngọt ngào", new BigDecimal("30000"), "COFFEE"));
-            menuItems.add(new Menu("Cappuccino", "Cappuccino Ý, bọt sữa mịn", new BigDecimal("45000"), "COFFEE"));
-            menuItems.add(new Menu("Latte", "Latte mượt mà, hương vị nhẹ nhàng", new BigDecimal("50000"), "COFFEE"));
-            menuItems.add(new Menu("Espresso", "Espresso đậm đà, tinh khiết", new BigDecimal("35000"), "COFFEE"));
-            menuItems.add(new Menu("Trà sữa trân châu", "Trà sữa trân châu đường đen", new BigDecimal("35000"), "TEA"));
-            menuItems.add(new Menu("Trà đào", "Trà đào mát lạnh, thơm ngon", new BigDecimal("30000"), "TEA"));
-            menuItems.add(new Menu("Trà chanh", "Trà chanh tươi, giải nhiệt", new BigDecimal("25000"), "TEA"));
-            menuItems.add(new Menu("Nước ép cam", "Nước ép cam tươi, giàu vitamin C", new BigDecimal("40000"), "JUICE"));
-            menuItems.add(new Menu("Nước ép táo", "Nước ép táo tươi, ngọt tự nhiên", new BigDecimal("45000"), "JUICE"));
-            menuItems.add(new Menu("Bánh tiramisu", "Bánh tiramisu Ý, hương vị đặc biệt", new BigDecimal("55000"), "DESSERT"));
-            menuItems.add(new Menu("Bánh cheesecake", "Cheesecake mịn màng, béo ngậy", new BigDecimal("50000"), "DESSERT"));
-            menuItems.add(new Menu("Bánh chocolate", "Bánh chocolate đậm đà", new BigDecimal("45000"), "DESSERT"));
-            menuItems.add(new Menu("Bánh mì sandwich", "Bánh mì sandwich thịt nguội", new BigDecimal("35000"), "FOOD"));
-            menuItems.add(new Menu("Bánh mì bơ", "Bánh mì bơ thơm béo", new BigDecimal("25000"), "FOOD"));
-            menuItems.add(new Menu("Kem vanilla", "Kem vanilla mát lạnh", new BigDecimal("30000"), "DESSERT"));
-            menuItems.add(new Menu("Kem chocolate", "Kem chocolate đậm đà", new BigDecimal("35000"), "DESSERT"));
-            menuItems.add(new Menu("Sinh tố dâu", "Sinh tố dâu tươi, mát lạnh", new BigDecimal("40000"), "SMOOTHIE"));
-            menuItems.add(new Menu("Sinh tố xoài", "Sinh tố xoài chín, ngọt tự nhiên", new BigDecimal("45000"), "SMOOTHIE"));
-            menuItems.add(new Menu("Cà phê đá xay", "Cà phê đá xay mát lạnh", new BigDecimal("55000"), "COFFEE"));
-            
-            filteredItems = new ArrayList<>(menuItems);
+            filteredItems = new ArrayList<>();
         }
     }
     

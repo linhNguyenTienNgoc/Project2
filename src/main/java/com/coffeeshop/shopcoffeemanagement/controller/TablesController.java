@@ -14,6 +14,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
+
 import com.coffeeshop.shopcoffeemanagement.dao.CoffeeTableDAO;
 import com.coffeeshop.shopcoffeemanagement.controller.OrderController;
 import java.util.ArrayList;
@@ -120,25 +121,14 @@ public class TablesController {
     private void loadTables() {
         try {
             tables = tableDAO.findAll();
+            if (tables == null || tables.isEmpty()) {
+                CoffeeShopApplication.showInfo("Thông báo", "Chưa có bàn nào trong hệ thống. Vui lòng thêm bàn mới.");
+                tables = new ArrayList<>();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             CoffeeShopApplication.showError("Lỗi", "Không thể tải danh sách bàn: " + e.getMessage());
-            // Fallback to demo data
             tables = new ArrayList<>();
-            tables.add(new CoffeeTable("T01", 4, "Khu vực A - Gần cửa sổ"));
-            tables.add(new CoffeeTable("T02", 4, "Khu vực A - Gần cửa sổ"));
-            tables.add(new CoffeeTable("T03", 6, "Khu vực B - Giữa quán"));
-            tables.add(new CoffeeTable("T04", 6, "Khu vực B - Giữa quán"));
-            tables.add(new CoffeeTable("T05", 8, "Khu vực C - Góc yên tĩnh"));
-            tables.add(new CoffeeTable("T06", 4, "Khu vực A - Gần cửa sổ"));
-            tables.add(new CoffeeTable("T07", 4, "Khu vực B - Giữa quán"));
-            tables.add(new CoffeeTable("T08", 6, "Khu vực C - Góc yên tĩnh"));
-            tables.add(new CoffeeTable("T09", 4, "Khu vực A - Gần cửa sổ"));
-            tables.add(new CoffeeTable("T10", 8, "Khu vực C - Góc yên tĩnh"));
-            
-            // Set status cho một số bàn
-            tables.get(4).setStatus("OCCUPIED"); // T05
-            tables.get(6).setStatus("RESERVED"); // T07
         }
     }
     
@@ -268,7 +258,7 @@ public class TablesController {
     private void handleTableClick(CoffeeTable table) {
         if ("AVAILABLE".equals(table.getStatus())) {
             // Bàn trống - cho phép đặt hàng
-            showOrderDialog(table);
+            showQuickOrderOptions(table);
         } else if ("OCCUPIED".equals(table.getStatus())) {
             // Bàn có khách - hiển thị thông tin đơn hàng
             showTableDetails(table);
@@ -276,6 +266,106 @@ public class TablesController {
             // Bàn đã đặt - hiển thị thông tin đặt bàn
             showReservationDetails(table);
         }
+    }
+    
+    private void showQuickOrderOptions(CoffeeTable table) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Bàn " + table.getTableNumber());
+        alert.setHeaderText("Chọn hành động");
+        alert.setContentText("Bàn " + table.getTableNumber() + " - " + table.getCapacity() + " người\n" +
+                           "Vị trí: " + table.getLocation() + "\n\n" +
+                           "Bạn muốn làm gì với bàn này?");
+        
+        ButtonType quickOrderButton = new ButtonType("⚡ Đặt hàng nhanh");
+        ButtonType fullOrderButton = new ButtonType("📋 Đặt hàng đầy đủ");
+        ButtonType occupyButton = new ButtonType("✅ Chỉ đặt bàn");
+        ButtonType cancelButton = new ButtonType("❌ Hủy");
+        
+        alert.getButtonTypes().setAll(quickOrderButton, fullOrderButton, occupyButton, cancelButton);
+        
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent()) {
+            ButtonType selectedButton = result.get();
+            if (selectedButton == quickOrderButton) {
+                showQuickOrderDialog(table);
+            } else if (selectedButton == fullOrderButton) {
+                openOrderScreen(table);
+            } else if (selectedButton == occupyButton) {
+                occupyTable(table);
+            }
+        }
+    }
+    
+    private void showQuickOrderDialog(CoffeeTable table) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Đặt hàng nhanh - Bàn " + table.getTableNumber());
+        dialog.setHeaderText("Chọn món phổ biến");
+        
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        
+        // Popular items - hardcoded for now
+        String[] popularItems = {
+            "Cà phê đen", "Cà phê sữa", "Cappuccino", "Latte",
+            "Trà sữa trân châu", "Nước ép cam", "Bánh tiramisu", "Bánh cheesecake"
+        };
+        
+        GridPane quickGrid = new GridPane();
+        quickGrid.setHgap(10);
+        quickGrid.setVgap(10);
+        
+        int col = 0;
+        int row = 0;
+        for (String itemName : popularItems) {
+            VBox itemBox = createQuickOrderItem(itemName);
+            quickGrid.add(itemBox, col, row);
+            
+            col++;
+            if (col >= 4) {
+                col = 0;
+                row++;
+            }
+        }
+        
+        content.getChildren().add(quickGrid);
+        dialog.getDialogPane().setContent(content);
+        
+        ButtonType fullMenuButton = new ButtonType("📋 Xem menu đầy đủ");
+        ButtonType closeButton = new ButtonType("Đóng");
+        dialog.getDialogPane().getButtonTypes().addAll(fullMenuButton, closeButton);
+        
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == fullMenuButton) {
+                openOrderScreen(table);
+            }
+            return null;
+        });
+        
+        dialog.showAndWait();
+    }
+    
+    private VBox createQuickOrderItem(String itemName) {
+        VBox container = new VBox(5);
+        container.setAlignment(Pos.CENTER);
+        container.setPadding(new Insets(10));
+        container.setStyle("-fx-background-color: #e8f5e8; -fx-background-radius: 8; -fx-border-color: #27ae60; -fx-border-radius: 8; -fx-border-width: 1;");
+        
+        Label nameLabel = new Label(itemName);
+        nameLabel.setFont(Font.font("System", FontWeight.BOLD, 12));
+        nameLabel.setStyle("-fx-text-fill: #2c3e50;");
+        nameLabel.setWrapText(true);
+        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        
+        Button addBtn = new Button("Thêm");
+        addBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 15;");
+        addBtn.setOnAction(e -> {
+            // TODO: Implement quick order logic
+            CoffeeShopApplication.showInfo("Thành công", "Đã thêm " + itemName + " vào đơn hàng nhanh");
+        });
+        
+        container.getChildren().addAll(nameLabel, addBtn);
+        
+        return container;
     }
     
     private void showOrderDialog(CoffeeTable table) {

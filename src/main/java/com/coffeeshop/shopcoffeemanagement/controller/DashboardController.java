@@ -99,19 +99,19 @@ public class DashboardController {
             tableChart.setLabelsVisible(true);
             
             if (tableStatusCount.containsKey("AVAILABLE")) {
-                PieChart.Data availableData = new PieChart.Data("Có sẵn", tableStatusCount.get("AVAILABLE"));
+                PieChart.Data availableData = new PieChart.Data(getStatusDisplayName("AVAILABLE"), tableStatusCount.get("AVAILABLE"));
                 availableData.getNode().setStyle("-fx-pie-color: #4ecdc4;");
                 tableChart.getData().add(availableData);
             }
             
             if (tableStatusCount.containsKey("OCCUPIED")) {
-                PieChart.Data occupiedData = new PieChart.Data("Đang sử dụng", tableStatusCount.get("OCCUPIED"));
+                PieChart.Data occupiedData = new PieChart.Data(getStatusDisplayName("OCCUPIED"), tableStatusCount.get("OCCUPIED"));
                 occupiedData.getNode().setStyle("-fx-pie-color: #ff6b6b;");
                 tableChart.getData().add(occupiedData);
             }
             
             if (tableStatusCount.containsKey("RESERVED")) {
-                PieChart.Data reservedData = new PieChart.Data("Đã đặt", tableStatusCount.get("RESERVED"));
+                PieChart.Data reservedData = new PieChart.Data(getStatusDisplayName("RESERVED"), tableStatusCount.get("RESERVED"));
                 reservedData.getNode().setStyle("-fx-pie-color: #ffa726;");
                 tableChart.getData().add(reservedData);
             }
@@ -158,6 +158,15 @@ public class DashboardController {
         }
     }
     
+    private String getStatusDisplayName(String status) {
+        switch (status) {
+            case "AVAILABLE": return "Có sẵn";
+            case "OCCUPIED": return "Đang sử dụng";
+            case "RESERVED": return "Đã đặt";
+            default: return status;
+        }
+    }
+    
     private void setupRecentActivity() {
         VBox activityContainer = new VBox(10);
         activityContainer.setPadding(new Insets(15));
@@ -169,11 +178,12 @@ public class DashboardController {
         
         activityContainer.getChildren().add(titleLabel);
         
-        // Add sample activities
-        addActivityItem(activityContainer, "Bàn T03 đã được đặt", "2 phút trước", "#4ecdc4");
-        addActivityItem(activityContainer, "Bàn T01 đã thanh toán", "5 phút trước", "#27ae60");
-        addActivityItem(activityContainer, "Thêm món mới: Cappuccino", "10 phút trước", "#3498db");
-        addActivityItem(activityContainer, "Bàn T05 đã được giải phóng", "15 phút trước", "#f39c12");
+        // TODO: Load recent activities from database
+        // For now, show empty state
+        Label emptyLabel = new Label("Chưa có hoạt động gần đây");
+        emptyLabel.setFont(Font.font("System", 12));
+        emptyLabel.setTextFill(Color.web("#95a5a6"));
+        activityContainer.getChildren().add(emptyLabel);
         
         recentActivityBox.getChildren().add(activityContainer);
     }

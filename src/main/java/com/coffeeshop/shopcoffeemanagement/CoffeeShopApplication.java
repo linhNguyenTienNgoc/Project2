@@ -2,6 +2,7 @@ package com.coffeeshop.shopcoffeemanagement;
 
 import com.coffeeshop.shopcoffeemanagement.model.Employee;
 import com.coffeeshop.shopcoffeemanagement.model.CoffeeTable;
+import com.coffeeshop.shopcoffeemanagement.controller.TouchFriendlyController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -21,6 +22,9 @@ public class CoffeeShopApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         primaryStage = stage;
+        
+        // Initialize TouchFriendlyController
+        TouchFriendlyController.getInstance().setPrimaryStage(stage);
         
         FXMLLoader fxmlLoader = new FXMLLoader(CoffeeShopApplication.class.getResource("/fxml/login.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 400, 500);
@@ -101,6 +105,19 @@ public class CoffeeShopApplication extends Application {
                 onConfirm.run();
             }
         });
+    }
+    
+    // Touch-friendly notification methods
+    public static void showTouchNotification(String message, String type) {
+        TouchFriendlyController.getInstance().showTouchNotification(message, type);
+    }
+    
+    public static void showTouchConfirmation(String title, String message, java.util.function.Consumer<Boolean> callback) {
+        TouchFriendlyController.getInstance().showTouchConfirmation(title, message, callback);
+    }
+    
+    public static void showTouchInput(String title, String message, String defaultValue, java.util.function.Consumer<String> callback) {
+        TouchFriendlyController.getInstance().showTouchInput(title, message, defaultValue, callback);
     }
     
     public static Stage getPrimaryStage() {

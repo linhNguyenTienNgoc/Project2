@@ -5,6 +5,10 @@ import com.coffeeshop.shopcoffeemanagement.dao.CoffeeTableDAO;
 import com.coffeeshop.shopcoffeemanagement.dao.MenuDAO;
 import com.coffeeshop.shopcoffeemanagement.model.CoffeeTable;
 import com.coffeeshop.shopcoffeemanagement.model.Menu;
+import com.coffeeshop.shopcoffeemanagement.model.Invoice;
+import com.coffeeshop.shopcoffeemanagement.model.InvoiceDetail;
+import com.coffeeshop.shopcoffeemanagement.service.PaymentService;
+import com.coffeeshop.shopcoffeemanagement.service.PerformanceOptimizer;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,6 +18,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Popup;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -52,14 +60,26 @@ public class OrderController {
     @FXML
     private Button quickOrderButton;
     
+    @FXML
+    private Button editOrderButton;
+    
+    @FXML
+    private Button saveOrderButton;
+    
     private CoffeeTableDAO tableDAO;
     private MenuDAO menuDAO;
     private List<Menu> menuItems;
     private List<Menu> filteredItems;
     private List<OrderItem> orderItems;
+    private boolean isEditMode = false;
+    private PerformanceOptimizer.Debouncer searchDebouncer;
+    private PerformanceOptimizer.Throttler filterThrottler;
     
     @FXML
     public void initialize() {
+        // Initialize performance optimizers
+        searchDebouncer = new PerformanceOptimizer.Debouncer(300); // 300ms delay
+        filterThrottler = new PerformanceOptimizer.Throttler(100); // 100ms interval
         tableDAO = new CoffeeTableDAO();
         menuDAO = new MenuDAO();
         orderItems = new ArrayList<>();
@@ -67,11 +87,61 @@ public class OrderController {
         loadTables();
         loadMenuItems();
         setupFilters();
+        setupKeyboardShortcuts();
         displayMenuItems();
         updateOrderSummary();
         
         // Tự động chọn bàn nếu có bàn được chọn từ màn hình bàn
         autoSelectTable();
+    }
+    
+    private void setupKeyboardShortcuts() {
+        // Keyboard shortcuts cho nhanh chóng
+        searchField.setOnKeyPressed(this::handleKeyPress);
+        menuGrid.setOnKeyPressed(this::handleKeyPress);
+        
+        // Enter để đặt hàng
+        placeOrderButton.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                placeOrder();
+            }
+        });
+        
+        // Escape để quay lại
+        backToTablesButton.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                backToTables();
+            }
+        });
+    }
+    
+    private void handleKeyPress(KeyEvent event) {
+        switch (event.getCode()) {
+            case ENTER:
+                if (event.getSource() == searchField) {
+                    // Tìm kiếm khi nhấn Enter
+                    filterMenuItems();
+                }
+                break;
+            case F1:
+                // F1 để đặt hàng nhanh
+                showQuickOrder();
+                break;
+            case F2:
+                // F2 để đặt hàng
+                if (!orderItems.isEmpty()) {
+                    placeOrder();
+                }
+                break;
+            case F3:
+                // F3 để xóa đơn hàng
+                clearOrder();
+                break;
+            case F4:
+                // F4 để quay lại bàn
+                backToTables();
+                break;
+        }
     }
     
     private void autoSelectTable() {
@@ -100,11 +170,15 @@ public class OrderController {
                     if (empty || item == null) {
                         setText(null);
                     } else {
-                        setText(item.getTableNumber() + " - " + item.getStatus() + " (" + item.getCapacity() + " người)");
+                        setText(item.getTableNumber() + " (" + getStatusText(item.getStatus()) + ")");
                     }
                 }
             });
-            tableComboBox.setButtonCell(tableComboBox.getCellFactory().call(null));
+            
+            // Auto-select bàn đầu tiên nếu có
+            if (!tables.isEmpty()) {
+                tableComboBox.setValue(tables.get(0));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             CoffeeShopApplication.showError("Lỗi", "Không thể tải danh sách bàn: " + e.getMessage());
@@ -117,34 +191,44 @@ public class OrderController {
             filteredItems = new ArrayList<>(menuItems);
         } catch (Exception e) {
             e.printStackTrace();
-            CoffeeShopApplication.showError("Lỗi", "Không thể tải danh sách menu: " + e.getMessage());
+            CoffeeShopApplication.showError("Lỗi", "Không thể tải menu: " + e.getMessage());
         }
     }
     
     private void setupFilters() {
-        categoryFilter.getItems().addAll("Tất cả danh mục", "COFFEE", "TEA", "JUICE", "DESSERT", "FOOD", "SMOOTHIE");
-        categoryFilter.setValue("Tất cả danh mục");
+        // Setup category filter
+        categoryFilter.getItems().addAll("Tất cả", "Cà phê", "Trà", "Nước ép", "Tráng miệng", "Đồ ăn", "Sinh tố");
+        categoryFilter.setValue("Tất cả");
         
-        categoryFilter.setOnAction(e -> filterMenuItems());
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> filterMenuItems());
+        // Setup search field
+        searchField.setPromptText("Tìm kiếm món... (Enter để tìm)");
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            searchDebouncer.debounce(this::filterMenuItems);
+        });
+        
+        // Setup category filter
+        categoryFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
+            filterThrottler.throttle(this::filterMenuItems);
+        });
     }
     
     private void filterMenuItems() {
-        String selectedCategory = categoryFilter.getValue();
         String searchText = searchField.getText().toLowerCase();
+        String selectedCategory = categoryFilter.getValue();
         
-        filteredItems.clear();
-        
-        for (Menu item : menuItems) {
-            boolean categoryMatch = "Tất cả danh mục".equals(selectedCategory) || 
-                                  selectedCategory.equals(item.getCategory());
-            boolean searchMatch = item.getName().toLowerCase().contains(searchText) ||
-                                item.getDescription().toLowerCase().contains(searchText);
-            
-            if (categoryMatch && searchMatch) {
-                filteredItems.add(item);
-            }
-        }
+        filteredItems = menuItems.stream()
+            .filter(item -> {
+                // Filter by search text
+                boolean matchesSearch = item.getName().toLowerCase().contains(searchText) ||
+                                      item.getDescription().toLowerCase().contains(searchText);
+                
+                // Filter by category
+                boolean matchesCategory = "Tất cả".equals(selectedCategory) ||
+                                        getCategoryText(item.getCategory()).equals(selectedCategory);
+                
+                return matchesSearch && matchesCategory;
+            })
+            .toList();
         
         displayMenuItems();
     }
@@ -152,7 +236,7 @@ public class OrderController {
     private void displayMenuItems() {
         menuGrid.getChildren().clear();
         
-        int columns = 4;
+        int columns = 4; // Tăng số cột để hiển thị nhiều món hơn
         int row = 0;
         int col = 0;
         
@@ -172,36 +256,93 @@ public class OrderController {
         VBox container = new VBox(8);
         container.setAlignment(Pos.CENTER);
         container.setPadding(new Insets(15));
-        container.getStyleClass().add("menu-item");
+        container.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #e0e0e0; -fx-border-radius: 12; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);");
         container.setMinWidth(200);
-        container.setMaxWidth(200);
+        container.setMinHeight(180);
         
-        Text nameText = new Text(item.getName());
-        nameText.setFont(Font.font("System", FontWeight.BOLD, 14));
-        nameText.setTextAlignment(TextAlignment.CENTER);
-        nameText.setWrappingWidth(170);
+        // Hover effect
+        container.setOnMouseEntered(e -> {
+            container.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-border-color: #3498db; -fx-border-radius: 12; -fx-border-width: 2; -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.3), 12, 0, 0, 5);");
+        });
         
-        Text descriptionText = new Text(item.getDescription());
-        descriptionText.setFont(Font.font("System", 11));
-        descriptionText.setTextAlignment(TextAlignment.CENTER);
-        descriptionText.setWrappingWidth(170);
+        container.setOnMouseExited(e -> {
+            container.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #e0e0e0; -fx-border-radius: 12; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);");
+        });
         
-        Text priceText = new Text(item.getFormattedPrice());
-        priceText.setFont(Font.font("System", FontWeight.BOLD, 16));
-        priceText.setTextAlignment(TextAlignment.CENTER);
+        // Click to add to order
+        container.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 1) {
+                addToOrder(item);
+            }
+        });
         
-        Text categoryText = new Text(getCategoryText(item.getCategory()));
-        categoryText.setFont(Font.font("System", 10));
-        categoryText.setTextAlignment(TextAlignment.CENTER);
+        // Double click for quick add
+        container.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                quickAddToOrder(item);
+            }
+        });
         
-        Button addButton = new Button("➕ Thêm vào đơn");
-        addButton.getStyleClass().add("primary-button");
-        addButton.setPrefWidth(150);
-        addButton.setOnAction(e -> addToOrder(item));
+        Label nameLabel = new Label(item.getName());
+        nameLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
+        nameLabel.setStyle("-fx-text-fill: #2c3e50;");
+        nameLabel.setWrapText(true);
+        nameLabel.setTextAlignment(TextAlignment.CENTER);
         
-        container.getChildren().addAll(nameText, descriptionText, priceText, categoryText, addButton);
+        Label descriptionLabel = new Label(item.getDescription());
+        descriptionLabel.setFont(Font.font("System", 11));
+        descriptionLabel.setStyle("-fx-text-fill: #7f8c8d;");
+        descriptionLabel.setWrapText(true);
+        descriptionLabel.setTextAlignment(TextAlignment.CENTER);
+        
+        Label priceLabel = new Label(String.format("%,.0f VNĐ", item.getPrice()));
+        priceLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
+        priceLabel.setStyle("-fx-text-fill: #e74c3c;");
+        
+        Label categoryLabel = new Label(getCategoryText(item.getCategory()));
+        categoryLabel.setFont(Font.font("System", 10));
+        categoryLabel.setStyle("-fx-text-fill: #95a5a6; -fx-background-color: #ecf0f1; -fx-padding: 2 6; -fx-background-radius: 8;");
+        
+        // Quick add button
+        Button quickAddBtn = new Button("+");
+        quickAddBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-min-width: 30; -fx-min-height: 30;");
+        quickAddBtn.setOnAction(e -> quickAddToOrder(item));
+        
+        container.getChildren().addAll(nameLabel, descriptionLabel, priceLabel, categoryLabel, quickAddBtn);
         
         return container;
+    }
+    
+    private void quickAddToOrder(Menu item) {
+        // Thêm nhanh với số lượng 1
+        addToOrder(item);
+        
+        // Hiển thị feedback
+        showQuickAddFeedback(item.getName());
+    }
+    
+    private void showQuickAddFeedback(String itemName) {
+        // Hiển thị thông báo nhanh
+        Label feedback = new Label("✓ " + itemName + " đã thêm!");
+        feedback.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 12;");
+        feedback.setAlignment(Pos.CENTER);
+        
+        // Tạo popup nhỏ
+        Popup popup = new Popup();
+        popup.getContent().add(feedback);
+        
+        // Hiển thị popup trong 1 giây
+        popup.show(CoffeeShopApplication.getPrimaryStage());
+        
+        // Tự động ẩn sau 1 giây
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                javafx.application.Platform.runLater(() -> popup.hide());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
     }
     
     private String getCategoryText(String category) {
@@ -217,7 +358,7 @@ public class OrderController {
     }
     
     private void addToOrder(Menu menu) {
-        // Check if item already exists in order
+        // Kiểm tra xem món đã có trong đơn hàng chưa
         Optional<OrderItem> existingItem = orderItems.stream()
             .filter(item -> item.getMenu().getId().equals(menu.getId()))
             .findFirst();
@@ -229,7 +370,14 @@ public class OrderController {
         }
         
         updateOrderSummary();
-        CoffeeShopApplication.showInfo("Thành công", "Đã thêm " + menu.getName() + " vào đơn hàng");
+        updateButtonStates();
+    }
+    
+    private void updateButtonStates() {
+        boolean hasItems = !orderItems.isEmpty();
+        placeOrderButton.setDisable(!hasItems);
+        clearOrderButton.setDisable(!hasItems);
+        editOrderButton.setDisable(!hasItems);
     }
     
     private void updateOrderSummary() {
@@ -237,16 +385,14 @@ public class OrderController {
         
         if (orderItems.isEmpty()) {
             Label emptyLabel = new Label("Chưa có món nào trong đơn hàng");
-            emptyLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-style: italic;");
+            emptyLabel.setStyle("-fx-text-fill: #95a5a6; -fx-font-style: italic;");
+            emptyLabel.setAlignment(Pos.CENTER);
             orderSummaryBox.getChildren().add(emptyLabel);
             totalAmountLabel.setText("0 VNĐ");
-            placeOrderButton.setDisable(true);
-            clearOrderButton.setDisable(true);
             return;
         }
         
         BigDecimal total = BigDecimal.ZERO;
-        
         for (OrderItem item : orderItems) {
             HBox itemBox = createOrderItemBox(item);
             orderSummaryBox.getChildren().add(itemBox);
@@ -254,47 +400,49 @@ public class OrderController {
         }
         
         totalAmountLabel.setText(String.format("%,.0f VNĐ", total));
-        placeOrderButton.setDisable(false);
-        clearOrderButton.setDisable(false);
+        updateButtonStates();
     }
     
     private HBox createOrderItemBox(OrderItem item) {
         HBox container = new HBox(10);
         container.setAlignment(Pos.CENTER_LEFT);
         container.setPadding(new Insets(8));
-        container.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 5;");
+        container.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-border-color: #e9ecef; -fx-border-radius: 8; -fx-border-width: 1;");
         
         VBox infoBox = new VBox(2);
+        infoBox.setAlignment(Pos.CENTER_LEFT);
+        
         Label nameLabel = new Label(item.getMenu().getName());
         nameLabel.setFont(Font.font("System", FontWeight.BOLD, 12));
-        Label priceLabel = new Label(item.getMenu().getFormattedPrice());
+        nameLabel.setStyle("-fx-text-fill: #2c3e50;");
+        
+        Label priceLabel = new Label(String.format("%,.0f VNĐ", item.getMenu().getPrice()));
         priceLabel.setFont(Font.font("System", 10));
-        priceLabel.setStyle("-fx-text-fill: #e74c3c;");
+        priceLabel.setStyle("-fx-text-fill: #7f8c8d;");
+        
         infoBox.getChildren().addAll(nameLabel, priceLabel);
         
         HBox quantityBox = new HBox(5);
         quantityBox.setAlignment(Pos.CENTER);
         
         Button minusBtn = new Button("-");
-        minusBtn.setPrefWidth(25);
-        minusBtn.setPrefHeight(25);
+        minusBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 15; -fx-min-width: 25; -fx-min-height: 25;");
         minusBtn.setOnAction(e -> {
-            if (item.getQuantity() > 1) {
-                item.decrementQuantity();
-            } else {
+            item.decrementQuantity();
+            if (item.getQuantity() <= 0) {
                 orderItems.remove(item);
             }
             updateOrderSummary();
         });
         
         Label quantityLabel = new Label(String.valueOf(item.getQuantity()));
-        quantityLabel.setPrefWidth(30);
-        quantityLabel.setAlignment(Pos.CENTER);
         quantityLabel.setFont(Font.font("System", FontWeight.BOLD, 12));
+        quantityLabel.setStyle("-fx-text-fill: #2c3e50;");
+        quantityLabel.setMinWidth(30);
+        quantityLabel.setAlignment(Pos.CENTER);
         
         Button plusBtn = new Button("+");
-        plusBtn.setPrefWidth(25);
-        plusBtn.setPrefHeight(25);
+        plusBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 15; -fx-min-width: 25; -fx-min-height: 25;");
         plusBtn.setOnAction(e -> {
             item.incrementQuantity();
             updateOrderSummary();
@@ -341,33 +489,80 @@ public class OrderController {
         
         orderDetails.append("\nTổng cộng: ").append(String.format("%,.0f VNĐ", total));
         
-        // Hiển thị dialog thanh toán
-        showPaymentDialog(orderDetails.toString(), total);
+        // Hiển thị dialog thanh toán cải tiến
+        showEnhancedPaymentDialog(orderDetails.toString(), total);
     }
     
-    private void showPaymentDialog(String orderDetails, BigDecimal total) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Thanh toán đơn hàng");
-        alert.setHeaderText("Xác nhận đặt hàng");
-        alert.setContentText(orderDetails + "\n\nChọn phương thức thanh toán:");
+    private void showEnhancedPaymentDialog(String orderDetails, BigDecimal total) {
+        // Create invoice for payment
+        Invoice invoice = createInvoiceFromOrder(total);
         
-        ButtonType cashButton = new ButtonType("💵 Tiền mặt");
-        ButtonType cardButton = new ButtonType("💳 Thẻ");
-        ButtonType cancelButton = new ButtonType("❌ Hủy");
+        // Show payment dialog
+        PaymentDialog paymentDialog = new PaymentDialog(invoice, CoffeeShopApplication.getCurrentUser());
+        boolean paymentSuccess = paymentDialog.showAndWait();
         
-        alert.getButtonTypes().setAll(cashButton, cardButton, cancelButton);
-        
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent()) {
-            if (result.get() == cashButton || result.get() == cardButton) {
-                String paymentMethod = result.get() == cashButton ? "Tiền mặt" : "Thẻ";
-                processPayment(orderDetails, total, paymentMethod);
-            }
+        if (paymentSuccess) {
+            processPaymentSuccess(invoice);
         }
     }
     
-    private void processPayment(String orderDetails, BigDecimal total, String paymentMethod) {
-        // TODO: Lưu đơn hàng vào database
+    private Invoice createInvoiceFromOrder(BigDecimal total) {
+        // Create a temporary invoice for payment processing
+        Invoice invoice = new Invoice();
+        invoice.setInvoiceNumber("TEMP_" + System.currentTimeMillis());
+        invoice.setTable(tableComboBox.getValue());
+        invoice.setEmployee(CoffeeShopApplication.getCurrentUser());
+        invoice.setTotalAmount(total);
+        invoice.setStatus("PENDING");
+        invoice.setOrderTime(java.time.LocalDateTime.now());
+        
+        // Add order details
+        for (OrderItem item : orderItems) {
+            InvoiceDetail detail = new InvoiceDetail();
+            detail.setMenu(item.getMenu());
+            detail.setQuantity(item.getQuantity());
+            detail.setUnitPrice(item.getMenu().getPrice());
+            detail.calculateTotal();
+            invoice.addDetail(detail);
+        }
+        
+        return invoice;
+    }
+    
+    private void processPaymentSuccess(Invoice invoice) {
+        try {
+            CoffeeTable selectedTable = tableComboBox.getValue();
+            
+            // Update table status
+            if (tableDAO.updateStatus(selectedTable.getId(), "OCCUPIED")) {
+                selectedTable.setStatus("OCCUPIED");
+                
+                // Show success message
+                StringBuilder successMessage = new StringBuilder();
+                successMessage.append("✅ Thanh toán thành công!\n\n");
+                successMessage.append("Bàn: ").append(selectedTable.getTableNumber()).append("\n");
+                successMessage.append("Phương thức: ").append(invoice.getPaymentMethod()).append("\n");
+                successMessage.append("Tổng tiền: ").append(PaymentService.formatCurrency(invoice.getTotalAmount())).append("\n");
+                
+                if (invoice.getTransactionId() != null) {
+                    successMessage.append("Mã giao dịch: ").append(invoice.getTransactionId()).append("\n");
+                }
+                
+                CoffeeShopApplication.showInfo("Thanh toán thành công", successMessage.toString());
+                
+                // Clear order and return to tables
+                clearOrder();
+                backToTables();
+            } else {
+                CoffeeShopApplication.showError("Lỗi", "Không thể cập nhật trạng thái bàn");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            CoffeeShopApplication.showError("Lỗi", "Không thể xử lý thanh toán: " + e.getMessage());
+        }
+    }
+    
+    private void processEnhancedPayment(String orderDetails, BigDecimal total, String paymentMethod, BigDecimal discountAmount) {
         try {
             CoffeeTable selectedTable = tableComboBox.getValue();
             
@@ -375,14 +570,20 @@ public class OrderController {
             if (tableDAO.updateStatus(selectedTable.getId(), "OCCUPIED")) {
                 selectedTable.setStatus("OCCUPIED");
                 
-                // Hiển thị thông báo thành công
-                String successMessage = "✅ Đơn hàng đã được tạo thành công!\n\n" +
-                                      "Bàn: " + selectedTable.getTableNumber() + "\n" +
-                                      "Phương thức thanh toán: " + paymentMethod + "\n" +
-                                      "Tổng tiền: " + String.format("%,.0f VNĐ", total) + "\n\n" +
-                                      "Bàn đã được đánh dấu là có khách.";
+                // Hiển thị thông báo thành công với thông tin chi tiết
+                StringBuilder successMessage = new StringBuilder();
+                successMessage.append("✅ Đơn hàng đã được tạo thành công!\n\n");
+                successMessage.append("Bàn: ").append(selectedTable.getTableNumber()).append("\n");
+                successMessage.append("Phương thức thanh toán: ").append(paymentMethod).append("\n");
                 
-                CoffeeShopApplication.showInfo("Thanh toán thành công", successMessage);
+                if (discountAmount.compareTo(BigDecimal.ZERO) > 0) {
+                    successMessage.append("Giảm giá: ").append(String.format("%,.0f VNĐ", discountAmount)).append("\n");
+                }
+                
+                successMessage.append("Tổng tiền: ").append(String.format("%,.0f VNĐ", total)).append("\n\n");
+                successMessage.append("Bàn đã được đánh dấu là có khách.");
+                
+                CoffeeShopApplication.showInfo("Thanh toán thành công", successMessage.toString());
                 
                 // Xóa đơn hàng và quay về màn hình bàn
                 clearOrder();
@@ -405,16 +606,26 @@ public class OrderController {
     
     @FXML
     private void backToTables() {
+        if (!orderItems.isEmpty()) {
+            CoffeeShopApplication.showConfirmation("Xác nhận", 
+                "Bạn có chắc chắn muốn quay lại? Đơn hàng hiện tại sẽ bị mất.", 
+                () -> {
+                    clearOrder();
+                    loadTablesScene();
+                });
+        } else {
+            loadTablesScene();
+        }
+    }
+    
+    private void loadTablesScene() {
         try {
-            // Chuyển về màn hình quản lý bàn
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/tables.fxml"));
             javafx.scene.Parent tablesRoot = loader.load();
             
-            // Tạo scene mới
             javafx.scene.Scene tablesScene = new javafx.scene.Scene(tablesRoot);
             tablesScene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
             
-            // Lấy stage hiện tại và thay đổi scene
             javafx.stage.Stage currentStage = (javafx.stage.Stage) menuGrid.getScene().getWindow();
             currentStage.setScene(tablesScene);
             currentStage.setTitle("Quản lý bàn");
@@ -437,48 +648,23 @@ public class OrderController {
         
         VBox content = new VBox(15);
         content.setPadding(new Insets(20));
-        content.setAlignment(Pos.CENTER);
-        
-        Text titleText = new Text("⚡ ĐẶT HÀNG NHANH");
-        titleText.setFont(Font.font("System", FontWeight.BOLD, 18));
-        titleText.setTextAlignment(TextAlignment.CENTER);
-        
-        // Popular items grid
-        GridPane popularGrid = new GridPane();
-        popularGrid.setHgap(10);
-        popularGrid.setVgap(10);
-        popularGrid.setAlignment(Pos.CENTER);
         
         // Popular items
-        String[] popularItems = {
-            "Cà phê đen", "Cà phê sữa", "Cappuccino", "Latte",
-            "Trà sữa trân châu", "Nước ép cam", "Bánh tiramisu", "Bánh cheesecake"
-        };
+        List<Menu> popularItems = menuItems.stream()
+            .filter(item -> item.getCategory().equals("COFFEE") || item.getCategory().equals("TEA"))
+            .limit(8)
+            .toList();
+        
+        GridPane quickGrid = new GridPane();
+        quickGrid.setHgap(10);
+        quickGrid.setVgap(10);
         
         int col = 0;
         int row = 0;
-        for (String itemName : popularItems) {
-            Button itemButton = new Button(itemName);
-            itemButton.setPrefWidth(120);
-            itemButton.setPrefHeight(40);
-            itemButton.getStyleClass().add("quick-order-button");
+        for (Menu item : popularItems) {
+            VBox itemBox = createQuickOrderItem(item);
+            quickGrid.add(itemBox, col, row);
             
-            itemButton.setOnAction(e -> {
-                // Find the menu item and add to order
-                Menu foundItem = menuItems.stream()
-                    .filter(item -> item.getName().equals(itemName))
-                    .findFirst()
-                    .orElse(null);
-                
-                if (foundItem != null) {
-                    addToOrder(foundItem);
-                    CoffeeShopApplication.showInfo("Thành công", "Đã thêm " + itemName + " vào đơn hàng");
-                } else {
-                    CoffeeShopApplication.showError("Lỗi", "Không tìm thấy món " + itemName);
-                }
-            });
-            
-            popularGrid.add(itemButton, col, row);
             col++;
             if (col >= 4) {
                 col = 0;
@@ -486,7 +672,7 @@ public class OrderController {
             }
         }
         
-        content.getChildren().addAll(titleText, popularGrid);
+        content.getChildren().add(quickGrid);
         dialog.getDialogPane().setContent(content);
         
         ButtonType closeButton = new ButtonType("Đóng", ButtonBar.ButtonData.OK_DONE);
@@ -495,7 +681,62 @@ public class OrderController {
         dialog.showAndWait();
     }
     
-    // Inner class to represent order items
+    private VBox createQuickOrderItem(Menu item) {
+        VBox container = new VBox(5);
+        container.setAlignment(Pos.CENTER);
+        container.setPadding(new Insets(10));
+        container.setStyle("-fx-background-color: #e8f5e8; -fx-background-radius: 8; -fx-border-color: #27ae60; -fx-border-radius: 8; -fx-border-width: 1;");
+        
+        Label nameLabel = new Label(item.getName());
+        nameLabel.setFont(Font.font("System", FontWeight.BOLD, 12));
+        nameLabel.setStyle("-fx-text-fill: #2c3e50;");
+        nameLabel.setWrapText(true);
+        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        
+        Label priceLabel = new Label(String.format("%,.0f VNĐ", item.getPrice()));
+        priceLabel.setFont(Font.font("System", 10));
+        priceLabel.setStyle("-fx-text-fill: #e74c3c;");
+        
+        Button addBtn = new Button("Thêm");
+        addBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 15;");
+        addBtn.setOnAction(e -> {
+            addToOrder(item);
+            showQuickAddFeedback(item.getName());
+        });
+        
+        container.getChildren().addAll(nameLabel, priceLabel, addBtn);
+        
+        return container;
+    }
+    
+    @FXML
+    private void editOrder() {
+        // Toggle edit mode
+        isEditMode = !isEditMode;
+        editOrderButton.setText(isEditMode ? "Lưu chỉnh sửa" : "Chỉnh sửa đơn hàng");
+        
+        if (isEditMode) {
+            CoffeeShopApplication.showInfo("Chế độ chỉnh sửa", "Bạn có thể chỉnh sửa số lượng món trong đơn hàng");
+        } else {
+            CoffeeShopApplication.showInfo("Thành công", "Đã lưu chỉnh sửa đơn hàng");
+        }
+    }
+    
+    private String getStatusText(String status) {
+        switch (status) {
+            case "AVAILABLE":
+                return "Trống";
+            case "OCCUPIED":
+                return "Có khách";
+            case "RESERVED":
+                return "Đã đặt";
+            case "CLEANING":
+                return "Đang dọn";
+            default:
+                return status;
+        }
+    }
+    
     private static class OrderItem {
         private Menu menu;
         private int quantity;
