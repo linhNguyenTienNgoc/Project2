@@ -182,49 +182,6 @@ CREATE TABLE order_promotions (
     FOREIGN KEY (promotion_id) REFERENCES promotions(promotion_id)
 );
 
--- =====================================================
--- 7. BẢNG NGUYÊN LIỆU VÀ TỒN KHO
--- =====================================================
-
--- Bảng nguyên liệu (ingredients)
-CREATE TABLE ingredients (
-    ingredient_id INT PRIMARY KEY AUTO_INCREMENT,
-    ingredient_name VARCHAR(100) NOT NULL,
-    unit VARCHAR(20) NOT NULL, -- kg, lít, cái, gói...
-    current_stock DECIMAL(10,2) DEFAULT 0.00,
-    min_stock DECIMAL(10,2) DEFAULT 0.00,
-    cost_per_unit DECIMAL(10,2),
-    supplier VARCHAR(100),
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Bảng công thức (recipes) - liên kết sản phẩm với nguyên liệu
-CREATE TABLE recipes (
-    recipe_id INT PRIMARY KEY AUTO_INCREMENT,
-    product_id INT NOT NULL,
-    ingredient_id INT NOT NULL,
-    quantity_required DECIMAL(10,2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES products(product_id),
-    FOREIGN KEY (ingredient_id) REFERENCES ingredients(ingredient_id)
-);
-
--- Bảng nhập kho (stock_in)
-CREATE TABLE stock_in (
-    stock_in_id INT PRIMARY KEY AUTO_INCREMENT,
-    ingredient_id INT NOT NULL,
-    quantity DECIMAL(10,2) NOT NULL,
-    unit_price DECIMAL(10,2) NOT NULL,
-    total_amount DECIMAL(10,2) NOT NULL,
-    supplier VARCHAR(100),
-    notes TEXT,
-    user_id INT NOT NULL, -- Nhân viên nhập kho
-    stock_in_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ingredient_id) REFERENCES ingredients(ingredient_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
-);
 
 -- =====================================================
 -- 8. BẢNG CHẤM CÔNG
@@ -271,11 +228,11 @@ INSERT INTO roles (role_name, description) VALUES
 
 -- Thêm người dùng mẫu
 INSERT INTO users (username, password, full_name, email, phone, role_id) VALUES
-('admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Nguyễn Tiến Ngọc Linh', 'admin@cafe.com', '0123456789', 1),
-('manager', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Trần Xuân Quang Minh', 'manager@cafe.com', '0123456790', 2),
-('cashier1', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Vũ Hoàng Nam', 'cashier@cafe.com', '0123456791', 3),
-('waiter1', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Dương Tuấn Minh', 'waiter@cafe.com', '0123456792', 4),
-('barista1', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Nguyễn Thị Nguyệt Nhi', 'barista@cafe.com', '0123456793', 5);
+('admin', '123', 'Nguyễn Tiến Ngọc Linh', 'admin@cafe.com', '0123456789', 1),
+('manager', '123', 'Trần Xuân Quang Minh', 'manager@cafe.com', '0123456790', 2),
+('cashier1', '123', 'Vũ Hoàng Nam', 'cashier@cafe.com', '0123456791', 3),
+('waiter1', '123', 'Dương Tuấn Minh', 'waiter@cafe.com', '0123456792', 4),
+('barista1', '123', 'Nguyễn Thị Nguyệt Nhi', 'barista@cafe.com', '0123456793', 5);
 
 -- Thêm danh mục
 INSERT INTO categories (category_name, description) VALUES
@@ -316,41 +273,6 @@ INSERT INTO products (product_name, category_id, price, cost_price, description)
 ('Khoai tây chiên', 5, 25000, 15000, 'Khoai tây chiên giòn'),
 ('Gà rán', 5, 35000, 20000, 'Gà rán giòn');
 
--- Thêm nguyên liệu
-INSERT INTO ingredients (ingredient_name, unit, current_stock, min_stock, cost_per_unit, supplier) VALUES
-('Cà phê bột', 'kg', 50.00, 10.00, 150000, 'Nhà cung cấp A'),
-('Sữa đặc', 'hộp', 100.00, 20.00, 15000, 'Nhà cung cấp B'),
-('Sữa tươi', 'lít', 20.00, 5.00, 25000, 'Nhà cung cấp B'),
-('Trà đen', 'kg', 10.00, 2.00, 80000, 'Nhà cung cấp C'),
-('Trân châu', 'kg', 15.00, 3.00, 60000, 'Nhà cung cấp D'),
-('Cam tươi', 'kg', 30.00, 5.00, 40000, 'Nhà cung cấp E'),
-('Chanh dây', 'kg', 20.00, 3.00, 35000, 'Nhà cung cấp E'),
-('Bột mì', 'kg', 25.00, 5.00, 20000, 'Nhà cung cấp F'),
-('Kem tươi', 'lít', 10.00, 2.00, 45000, 'Nhà cung cấp B'),
-('Khoai tây', 'kg', 40.00, 8.00, 15000, 'Nhà cung cấp G'),
-('Gà', 'kg', 30.00, 5.00, 80000, 'Nhà cung cấp H');
-
--- Thêm công thức
-INSERT INTO recipes (product_id, ingredient_id, quantity_required) VALUES
-(1, 1, 0.02), -- Cà phê đen: 20g cà phê bột
-(2, 1, 0.02), -- Cà phê sữa: 20g cà phê bột
-(2, 2, 0.03), -- Cà phê sữa: 30ml sữa đặc
-(3, 1, 0.02), -- Cappuccino: 20g cà phê bột
-(3, 3, 0.15), -- Cappuccino: 150ml sữa tươi
-(4, 1, 0.02), -- Latte: 20g cà phê bột
-(4, 3, 0.20), -- Latte: 200ml sữa tươi
-(5, 4, 0.01), -- Trà sữa: 10g trà đen
-(5, 2, 0.05), -- Trà sữa: 50ml sữa đặc
-(5, 5, 0.03), -- Trà sữa: 30g trân châu
-(6, 4, 0.01), -- Trà đá: 10g trà đen
-(7, 6, 0.15), -- Nước cam: 150g cam tươi
-(8, 7, 0.10), -- Nước chanh dây: 100g chanh dây
-(9, 8, 0.10), -- Tiramisu: 100g bột mì
-(9, 9, 0.05), -- Tiramisu: 50ml kem tươi
-(10, 8, 0.08), -- Cheesecake: 80g bột mì
-(10, 9, 0.03), -- Cheesecake: 30ml kem tươi
-(11, 10, 0.15), -- Khoai tây chiên: 150g khoai tây
-(12, 11, 0.20); -- Gà rán: 200g gà
 
 -- Thêm cài đặt hệ thống
 INSERT INTO system_settings (setting_key, setting_value, description) VALUES
