@@ -1,7 +1,7 @@
-package main.java.com.cafe.dao.base;
+package com.cafe.dao.base;
 
 
-import main.java.com.cafe.model.entity.Category;
+import com.cafe.model.entity.Category;
 import java.util.List;
 
 public interface CategoryDAO {

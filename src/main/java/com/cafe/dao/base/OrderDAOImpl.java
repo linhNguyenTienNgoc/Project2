@@ -1,6 +1,6 @@
-package main.java.com.cafe.dao.base;
-import main.java.com.cafe.config.MySQLConnect;
-import main.java.com.cafe.model.entity.Order;
+package com.cafe.dao.base;
+import com.cafe.config.MySQLConnect;
+import com.cafe.model.entity.Order;
 
 import java.sql.*;
 import java.util.ArrayList;

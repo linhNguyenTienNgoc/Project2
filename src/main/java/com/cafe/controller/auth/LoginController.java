@@ -12,7 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import org.mindrot.jbcrypt.BCrypt;
+import at.favre.lib.crypto.bcrypt.BCrypt;
 
 import java.net.URL;
 import java.sql.Connection;
@@ -122,7 +122,7 @@ public class LoginController implements Initializable {
         }
         
         // Disable login button to prevent double clicks
-        loginButton.setDisabled(true);
+                    loginButton.setDisable(true);
         
         try {
             // Authenticate user
@@ -150,7 +150,7 @@ public class LoginController implements Initializable {
             showError("Lỗi trong quá trình đăng nhập: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            loginButton.setDisabled(false);
+            loginButton.setDisable(false);
         }
     }
     
@@ -163,7 +163,7 @@ public class LoginController implements Initializable {
             
             if (user != null && user.isActive()) {
                 // Check password with BCrypt
-                if (BCrypt.checkpw(password, user.getPassword())) {
+                if (BCrypt.verifyer().verify(password.toCharArray(), user.getPassword()).verified) {
                     return user;
                 }
             }

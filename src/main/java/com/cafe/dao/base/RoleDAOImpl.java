@@ -1,6 +1,6 @@
-package main.java.com.cafe.dao.base;
+package com.cafe.dao.base;
 
-import main.java.com.cafe.model.entity.Role;
+import com.cafe.model.entity.Role;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

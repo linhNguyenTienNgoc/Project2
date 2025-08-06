@@ -56,7 +56,7 @@ Sau khi import database, bạn có thể sử dụng các tài khoản mẫu:
 | manager | password | Manager | Trần Xuân Quang Minh |
 | cashier1 | password | Cashier | Vũ Hoàng Nam |
 | waiter1 | password | Waiter | Dương Tuấn Minh |
-| barista1 | password | Barista | Nguyễn Thị Nguyệt Nhi |
+| barista1 | password | Barista | Dương Dức Thành |
 
 ## 🛠️ Troubleshooting
 

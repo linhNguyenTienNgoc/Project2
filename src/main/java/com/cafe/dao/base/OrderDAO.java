@@ -1,6 +1,6 @@
-package main.java.com.cafe.dao.base;
+package com.cafe.dao.base;
 
-import main.java.com.cafe.model.entity.Order;
+import com.cafe.model.entity.Order;
 
 import java.util.List;
 
