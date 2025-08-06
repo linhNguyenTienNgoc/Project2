@@ -9,7 +9,7 @@ và project này tuân thủ [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ### Added
 - Cấu trúc project JavaFX hoàn chỉnh
-- Maven configuration với dependencies
+- Maven _configuration_ với dependencies
 - Build scripts cho Windows và Linux/Mac
 - Application configuration file
 - Project documentation
