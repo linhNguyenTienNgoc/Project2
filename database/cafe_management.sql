@@ -228,11 +228,11 @@ INSERT INTO roles (role_name, description) VALUES
 
 -- Thêm người dùng mẫu
 INSERT INTO users (username, password, full_name, email, phone, role_id) VALUES
-('admin', '123', 'Nguyễn Tiến Ngọc Linh', 'admin@cafe.com', '0123456789', 1),
-('manager', '123', 'Trần Xuân Quang Minh', 'manager@cafe.com', '0123456790', 2),
-('cashier1', '123', 'Vũ Hoàng Nam', 'cashier@cafe.com', '0123456791', 3),
-('waiter1', '123', 'Dương Tuấn Minh', 'waiter@cafe.com', '0123456792', 4),
-('barista1', '123', 'Nguyễn Thị Nguyệt Nhi', 'barista@cafe.com', '0123456793', 5);
+('admin', '123456', 'Nguyễn Tiến Ngọc Linh', 'admin@cafe.com', '0123456789', 1),
+('manager', '123456', 'Trần Xuân Quang Minh', 'manager@cafe.com', '0123456790', 2),
+('cashier1', '123456', 'Vũ Hoàng Nam', 'cashier@cafe.com', '0123456791', 3),
+('waiter1', '123456', 'Dương Tuấn Minh', 'waiter@cafe.com', '0123456792', 4),
+('barista1', '123456', 'Dương Đức Thành', 'barista@cafe.com', '0123456793', 5);
 
 -- Thêm danh mục
 INSERT INTO categories (category_name, description) VALUES

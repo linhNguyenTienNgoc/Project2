@@ -32,7 +32,7 @@ Cập nhật file `src/main/resources/database_config.properties`:
 # Thay đổi thông tin phù hợp với setup của bạn
 database.url=jdbc:mysql://localhost:3306/cafe_management?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
 database.username=root
-database.password=YOUR_MYSQL_PASSWORD
+database.password=12345678
 ```
 
 ### 4. Test Connection

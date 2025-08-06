@@ -11,4 +11,6 @@ public interface UserDAO {
     boolean insertUser(User user);
     boolean updateUser(User user);
     boolean deleteUser(int id);
+    List<User> getAllUsers(int offset, int limit);
+    int getTotalUserCount();
 }

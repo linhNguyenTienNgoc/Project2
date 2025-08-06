@@ -139,8 +139,12 @@ public class LoginController implements Initializable {
                 
                 showSuccess("Đăng nhập thành công! Chào mừng " + user.getFullName());
                 
-                // Navigate to dashboard
-                CafeManagementApplication.showDashboard();
+                // Navigate based on user role
+                if ("admin".equalsIgnoreCase(user.getRole().getRoleName())) {
+                    CafeManagementApplication.showAdminDashboard();
+                } else {
+                    CafeManagementApplication.showDashboard();
+                }
                 
             } else {
                 showError("Tên đăng nhập hoặc mật khẩu không đúng!");
@@ -162,9 +166,19 @@ public class LoginController implements Initializable {
             User user = userDAO.getUserByUsername(username);
             
             if (user != null && user.isActive()) {
-                // Check password with BCrypt
-                if (BCrypt.verifyer().verify(password.toCharArray(), user.getPassword()).verified) {
-                    return user;
+                String storedPassword = user.getPassword();
+                
+                // Check if password is BCrypt hashed (starts with $2a$ or $2b$)
+                if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$")) {
+                    // Verify BCrypt password
+                    if (BCrypt.verifyer().verify(password.toCharArray(), storedPassword).verified) {
+                        return user;
+                    }
+                } else {
+                    // Plain text password (for development/testing)
+                    if (password.equals(storedPassword)) {
+                        return user;
+                    }
                 }
             }
             

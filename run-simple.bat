@@ -3,40 +3,43 @@ echo ========================================
 echo    Cafe Management System
 echo ========================================
 echo.
-echo Starting application...
-echo.
 
-REM Kiểm tra Java version
-java -version
+REM Kiểm tra Java
+echo Checking Java...
+java -version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ERROR: Java is not installed or not in PATH
+    echo Please install Java 21 or later
     pause
     exit /b 1
 )
 
 REM Kiểm tra Maven
-mvn -version
+echo Checking Maven...
+mvn -version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ERROR: Maven is not installed or not in PATH
+    echo Please install Maven
     pause
     exit /b 1
 )
 
-REM Clean và compile project
-echo.
-echo Cleaning and compiling project...
-mvn clean compile
-if %errorlevel% neq 0 (
-    echo ERROR: Compilation failed
-    pause
-    exit /b 1
-)
-
-REM Chạy ứng dụng bằng Maven
+echo All checks passed!
 echo.
 echo Starting application...
+echo.
+
+REM Chạy ứng dụng
 mvn javafx:run
 
+if %errorlevel% neq 0 (
+    echo.
+    echo ERROR: Application failed to start
+    echo Please check the error messages above
+    pause
+    exit /b 1
+)
+
 echo.
-echo Application closed.
+echo Application closed successfully.
 pause 

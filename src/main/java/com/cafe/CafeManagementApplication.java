@@ -56,6 +56,32 @@ public class CafeManagementApplication extends Application {
     }
     
     /**
+     * Hiển thị màn hình đăng nhập (static method)
+     */
+    public static void showLoginScreen() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(CafeManagementApplication.class.getResource(LOGIN_FXML));
+            
+            Scene scene = new Scene(fxmlLoader.load(), 400, 500);
+            
+            // Load CSS
+            String css = Objects.requireNonNull(CafeManagementApplication.class.getResource("/css/login.css")).toExternalForm();
+            scene.getStylesheets().add(css);
+            
+            primaryStage.setTitle(APP_TITLE);
+            primaryStage.setScene(scene);
+            primaryStage.setResizable(false);
+            primaryStage.centerOnScreen();
+            
+        } catch (IOException e) {
+            showErrorAlert("Lỗi tải giao diện", 
+                          "Không thể tải giao diện đăng nhập: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
      * Hiển thị màn hình chính (Dashboard)
      */
     public static void showDashboard() {
@@ -79,6 +105,29 @@ public class CafeManagementApplication extends Application {
         } catch (IOException e) {
             showErrorAlert("Lỗi tải giao diện", 
                           "Không thể tải giao diện chính: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Hiển thị màn hình Admin Dashboard
+     */
+    public static void showAdminDashboard() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(CafeManagementApplication.class.getResource("/fxml/admin/admin-dashboard.fxml"));
+            
+            Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
+            
+            primaryStage.setTitle(APP_TITLE + " - Admin Dashboard");
+            primaryStage.setScene(scene);
+            primaryStage.setResizable(true);
+            primaryStage.setMaximized(true);
+            primaryStage.centerOnScreen();
+            
+        } catch (IOException e) {
+            showErrorAlert("Lỗi tải giao diện", 
+                          "Không thể tải giao diện Admin: " + e.getMessage());
             e.printStackTrace();
         }
     }

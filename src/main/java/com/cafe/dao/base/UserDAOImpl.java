@@ -1,5 +1,6 @@
 package com.cafe.dao.base;
 import com.cafe.model.entity.User;
+import com.cafe.model.entity.Role;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -62,12 +63,14 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public User getUserByUsername(String username) {
-        String sql = "SELECT * FROM users WHERE username = ?";
+        String sql = "SELECT u.*, r.role_name FROM users u " +
+                    "LEFT JOIN roles r ON u.role_id = r.role_id " +
+                    "WHERE u.username = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return new User(
+                User user = new User(
                         rs.getInt("user_id"),
                         rs.getString("username"),
                         rs.getString("password"),
@@ -77,6 +80,14 @@ public class UserDAOImpl implements UserDAO {
                         rs.getInt("role_id"),
                         rs.getBoolean("is_active")
                 );
+                
+                // Load role information
+                Role role = new Role();
+                role.setRoleId(rs.getInt("role_id"));
+                role.setRoleName(rs.getString("role_name"));
+                user.setRole(role);
+                
+                return user;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -132,5 +143,54 @@ public class UserDAOImpl implements UserDAO {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    @Override
+    public List<User> getAllUsers(int offset, int limit) {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT u.*, r.role_name FROM users u " +
+                    "LEFT JOIN roles r ON u.role_id = r.role_id " +
+                    "LIMIT ? OFFSET ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User user = new User();
+                user.setUserId(rs.getInt("user_id"));
+                user.setUsername(rs.getString("username"));
+                user.setPassword(rs.getString("password"));
+                user.setFullName(rs.getString("full_name"));
+                user.setEmail(rs.getString("email"));
+                user.setPhone(rs.getString("phone"));
+                user.setRoleId(rs.getInt("role_id"));
+                user.setActive(rs.getBoolean("is_active"));
+                
+                // Load role information
+                Role role = new Role();
+                role.setRoleId(rs.getInt("role_id"));
+                role.setRoleName(rs.getString("role_name"));
+                user.setRole(role);
+                
+                list.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    @Override
+    public int getTotalUserCount() {
+        String sql = "SELECT COUNT(*) FROM users";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

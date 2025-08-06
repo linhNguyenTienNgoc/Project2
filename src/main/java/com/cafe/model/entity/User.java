@@ -8,6 +8,7 @@ public class User {
     private String email;
     private String phone;
     private int roleId;
+    private Role role; // Thêm reference đến Role object
     private boolean isActive;
 
     public User() {
@@ -21,6 +22,18 @@ public class User {
         this.email = email;
         this.phone = phone;
         this.roleId = roleId;
+        this.isActive = isActive;
+    }
+    
+    public User(int userId, String username, String password, String fullName, String email, String phone, int roleId, Role role, boolean isActive) {
+        this.userId = userId;
+        this.username = username;
+        this.password = password;
+        this.fullName = fullName;
+        this.email = email;
+        this.phone = phone;
+        this.roleId = roleId;
+        this.role = role;
         this.isActive = isActive;
     }
 
@@ -86,6 +99,14 @@ public class User {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+    
+    public Role getRole() {
+        return role;
+    }
+    
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     @Override
