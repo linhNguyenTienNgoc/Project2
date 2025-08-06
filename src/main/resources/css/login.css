@@ -1,0 +1,212 @@
+/* ===============================================
+ * LOGIN SCREEN STYLES
+ * =============================================== */
+
+/* Root styling */
+.root {
+    -fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -fx-font-family: "Roboto", "Segoe UI", Arial, sans-serif;
+}
+
+/* Main container */
+VBox {
+    -fx-background-color: transparent;
+}
+
+/* Login header styles */
+.login-header {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-background-radius: 15 15 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.3, 0, 2);
+}
+
+.app-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+}
+
+.app-subtitle {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 14px;
+}
+
+/* Login form styles */
+.login-form {
+    -fx-background-color: rgba(255, 255, 255, 0.98);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.3, 0, 2);
+}
+
+/* Field labels */
+.field-label {
+    -fx-text-fill: #34495e;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+/* Input fields */
+.input-field {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 12 15;
+    -fx-font-size: 14px;
+    -fx-text-fill: #2c3e50;
+    -fx-pref-height: 45;
+}
+
+.input-field:focused {
+    -fx-border-color: #3498db;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.3), 8, 0.3, 0, 0);
+}
+
+/* Checkbox */
+.checkbox {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 12px;
+}
+
+.checkbox .box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 3;
+    -fx-border-width: 1;
+}
+
+.checkbox:selected .mark {
+    -fx-background-color: #3498db;
+}
+
+.checkbox:selected .box {
+    -fx-border-color: #3498db;
+    -fx-background-color: #ffffff;
+}
+
+/* Links */
+.link {
+    -fx-text-fill: #3498db;
+    -fx-underline: false;
+    -fx-font-size: 12px;
+}
+
+.link:hover {
+    -fx-text-fill: #2980b9;
+    -fx-underline: true;
+}
+
+/* Buttons */
+.login-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-pref-height: 45;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(41, 128, 185, 0.3), 8, 0.3, 0, 2);
+}
+
+.login-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-effect: dropshadow(gaussian, rgba(41, 128, 185, 0.4), 10, 0.4, 0, 3);
+}
+
+.login-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #21618c);
+    -fx-effect: dropshadow(gaussian, rgba(41, 128, 185, 0.2), 5, 0.2, 0, 1);
+}
+
+.login-button:disabled {
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: #ecf0f1;
+    -fx-effect: none;
+    -fx-cursor: default;
+}
+
+.exit-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #95a5a6;
+    -fx-background-radius: 8;
+    -fx-border-color: #95a5a6;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-font-size: 14px;
+    -fx-pref-height: 40;
+    -fx-cursor: hand;
+}
+
+.exit-button:hover {
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: white;
+    -fx-border-color: #7f8c8d;
+}
+
+.exit-button:pressed {
+    -fx-background-color: #7f8c8d;
+    -fx-border-color: #6c7b7d;
+}
+
+/* Error label */
+.error-label {
+    -fx-text-fill: #e74c3c;
+    -fx-background-color: rgba(231, 76, 60, 0.1);
+    -fx-background-radius: 5;
+    -fx-padding: 8 12;
+    -fx-border-color: rgba(231, 76, 60, 0.3);
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Footer */
+.login-footer {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-background-radius: 0 0 15 15;
+}
+
+.version-label {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 11px;
+}
+
+.copyright-label {
+    -fx-text-fill: #95a5a6;
+    -fx-font-size: 10px;
+}
+
+/* Animations */
+.login-button {
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+}
+
+.login-button:hover {
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* Responsive design */
+@media screen and (max-width: 480px) {
+    .app-title {
+        -fx-font-size: 20px;
+    }
+    
+    .app-subtitle {
+        -fx-font-size: 12px;
+    }
+    
+    .input-field {
+        -fx-pref-height: 40px;
+        -fx-font-size: 13px;
+    }
+    
+    .login-button {
+        -fx-pref-height: 40px;
+        -fx-font-size: 13px;
+    }
+}

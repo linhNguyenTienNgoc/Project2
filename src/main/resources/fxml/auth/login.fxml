@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cafe.controller.auth.LoginController">
+   <children>
+      <!-- Header với logo -->
+      <VBox alignment="CENTER" spacing="20.0" styleClass="login-header">
+         <children>
+            <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../images/logo/cafe-logo.png" />
+               </image>
+            </ImageView>
+            <Label styleClass="app-title" text="CAFE MANAGEMENT">
+               <font>
+                  <Font name="Roboto Bold" size="24.0" />
+               </font>
+            </Label>
+            <Label styleClass="app-subtitle" text="Hệ thống quản lý quán cà phê">
+               <font>
+                  <Font name="Roboto Regular" size="14.0" />
+               </font>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="30.0" />
+         </padding>
+      </VBox>
+      
+      <!-- Form đăng nhập -->
+      <VBox alignment="CENTER" spacing="20.0" styleClass="login-form">
+         <children>
+            <!-- Username field -->
+            <VBox spacing="8.0">
+               <children>
+                  <Label styleClass="field-label" text="Tên đăng nhập:">
+                     <font>
+                        <Font name="Roboto Medium" size="14.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="usernameField" promptText="Nhập tên đăng nhập" styleClass="input-field">
+                     <font>
+                        <Font name="Roboto Regular" size="14.0" />
+                     </font>
+                  </TextField>
+               </children>
+            </VBox>
+            
+            <!-- Password field -->
+            <VBox spacing="8.0">
+               <children>
+                  <Label styleClass="field-label" text="Mật khẩu:">
+                     <font>
+                        <Font name="Roboto Medium" size="14.0" />
+                     </font>
+                  </Label>
+                  <PasswordField fx:id="passwordField" promptText="Nhập mật khẩu" styleClass="input-field">
+                     <font>
+                        <Font name="Roboto Regular" size="14.0" />
+                     </font>
+                  </PasswordField>
+               </children>
+            </VBox>
+            
+            <!-- Remember me checkbox -->
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <children>
+                  <CheckBox fx:id="rememberMeCheckBox" mnemonicParsing="false" styleClass="checkbox" text="Ghi nhớ đăng nhập">
+                     <font>
+                        <Font name="Roboto Regular" size="12.0" />
+                     </font>
+                  </CheckBox>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Hyperlink onAction="#handleForgotPassword" styleClass="link" text="Quên mật khẩu?">
+                     <font>
+                        <Font name="Roboto Regular" size="12.0" />
+                     </font>
+                  </Hyperlink>
+               </children>
+            </HBox>
+            
+            <!-- Error label -->
+            <Label fx:id="errorLabel" styleClass="error-label" text="" visible="false" wrapText="true">
+               <font>
+                  <Font name="Roboto Regular" size="12.0" />
+               </font>
+            </Label>
+            
+            <!-- Login button -->
+            <Button fx:id="loginButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" styleClass="login-button" text="ĐĂNG NHẬP">
+               <font>
+                  <Font name="Roboto Bold" size="14.0" />
+               </font>
+            </Button>
+            
+            <!-- Exit button -->
+            <Button fx:id="exitButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleExit" styleClass="exit-button" text="THOÁT">
+               <font>
+                  <Font name="Roboto Regular" size="14.0" />
+               </font>
+            </Button>
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="40.0" right="40.0" top="10.0" />
+         </padding>
+      </VBox>
+      
+      <!-- Footer -->
+      <VBox alignment="CENTER" spacing="5.0" styleClass="login-footer">
+         <children>
+            <Label styleClass="version-label" text="Version 1.0.0">
+               <font>
+                  <Font name="Roboto Regular" size="11.0" />
+               </font>
+            </Label>
+            <Label styleClass="copyright-label" text="© 2025 Team 2_C2406L. All rights reserved.">
+               <font>
+                  <Font name="Roboto Regular" size="10.0" />
+               </font>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="10.0" />
+         </padding>
+      </VBox>
+   </children>
+</VBox>
