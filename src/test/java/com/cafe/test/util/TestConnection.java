@@ -1,4 +1,4 @@
-package test.java.com.cafe.test.util;
+package com.cafe.test.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

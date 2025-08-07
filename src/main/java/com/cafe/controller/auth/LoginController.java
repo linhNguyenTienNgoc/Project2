@@ -163,21 +163,26 @@ public class LoginController implements Initializable {
      */
     private User authenticateUser(String username, String password) {
         try {
-            User user = userDAO.getUserByUsername(username);
+            // Sử dụng findByUsername thay vì getUserByUsername
+            java.util.Optional<User> userOptional = userDAO.findByUsername(username);
             
-            if (user != null && user.isActive()) {
-                String storedPassword = user.getPassword();
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
                 
-                // Check if password is BCrypt hashed (starts with $2a$ or $2b$)
-                if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$")) {
-                    // Verify BCrypt password
-                    if (BCrypt.verifyer().verify(password.toCharArray(), storedPassword).verified) {
-                        return user;
-                    }
-                } else {
-                    // Plain text password (for development/testing)
-                    if (password.equals(storedPassword)) {
-                        return user;
+                if (user.getIsActive()) {
+                    String storedPassword = user.getPassword();
+                    
+                    // Check if password is BCrypt hashed (starts with $2a$ or $2b$)
+                    if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$")) {
+                        // Verify BCrypt password
+                        if (BCrypt.verifyer().verify(password.toCharArray(), storedPassword).verified) {
+                            return user;
+                        }
+                    } else {
+                        // Plain text password (for development/testing)
+                        if (password.equals(storedPassword)) {
+                            return user;
+                        }
                     }
                 }
             }
