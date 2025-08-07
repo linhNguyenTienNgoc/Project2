@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" prefHeight="505.0" prefWidth="635.0" spacing="15.0" style="-fx-background-color: #f5d6ae;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.coffeapp.HelloController">
+
+    <padding>
+        <Insets bottom="30" left="40" right="40" top="30" />
+    </padding>
+
+    <!-- Logo -->
+    <ImageView fitHeight="150.0" fitWidth="300.0" preserveRatio="true">
+        <image>
+            <Image url="@../images/nopita-logo.png" />
+        </image>
+    </ImageView>
+
+    <!-- Tên đăng nhập -->
+    <VBox alignment="TOP_LEFT" spacing="5">
+        <Label style="-fx-font-weight: bold; -fx-text-fill: #4e342e; -fx-font-size: 14px;" text="Tên đăng nhập" />
+        <TextField fx:id="usernameField" style="-fx-background-radius: 10; -fx-padding: 8;" />
+    </VBox>
+
+    <!-- Mật khẩu -->
+    <VBox alignment="TOP_LEFT" spacing="5">
+        <Label style="-fx-font-weight: bold; -fx-text-fill: #4e342e; -fx-font-size: 14px;" text="Mật khẩu" />
+        <PasswordField fx:id="passwordField" style="-fx-background-radius: 10; -fx-padding: 8;" />
+    </VBox>
+
+    <!-- Đăng nhập -->
+    <Button fx:id="loginButton"
+            onAction="#onLoginButtonClicked"
+            style="-fx-background-color: #5d2b1c; -fx-text-fill: #fff9c4; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 20; -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.3), 4, 0, 2, 2);" text="ĐĂNG NHẬP" />
+</VBox>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.coffeapp.EmployeeController"
+            prefHeight="700.0" prefWidth="1100.0"
+            style="-fx-background-color: #EDEDED;">
+    <top>
+        <HBox style="-fx-background-color: #5C2C1D;">
+            <Button text="Nhân viên"
+                    style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-background-color: #FBECE3;" />
+            <Button text="Menu"
+                    style="-fx-font-size: 16px; -fx-text-fill: white; -fx-background-color: transparent;" />
+            <Button text="Bàn"
+                    style="-fx-font-size: 16px; -fx-text-fill: white; -fx-background-color: transparent;"
+                    fx:id="tableButton"
+                    onAction="#onTableButtonClicked" />
+            <Button text="Báo cáo"
+                    style="-fx-font-size: 16px; -fx-text-fill: white; -fx-background-color: transparent;" />
+            <Button text="Khuyến mãi"
+                    style="-fx-font-size: 16px; -fx-text-fill: white; -fx-background-color: transparent;" />
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="⏻"
+                    style="-fx-font-size: 20px; -fx-text-fill: white; -fx-background-color: transparent;" />
+        </HBox>
+    </top>
+    <center>
+        <VBox fx:id="mainVBox">
+            <TableView fx:id="staffTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="Mã nhân viên" prefWidth="150"/>
+                    <TableColumn fx:id="usernameColumn" text="Tên đăng nhập" prefWidth="150"/>
+                    <TableColumn fx:id="fullNameColumn" text="Tên Nhân viên" prefWidth="150"/>
+                    <TableColumn fx:id="dobColumn" text="Ngày sinh" prefWidth="120"/>
+                    <TableColumn fx:id="genderColumn" text="Giới tính" prefWidth="100"/>
+                    <TableColumn fx:id="shiftColumn" text="Ca làm việc" prefWidth="120"/>
+                    <TableColumn text="" prefWidth="80"/>
+                </columns>
+            </TableView>
+            <HBox prefHeight="36">
+                <TextField fx:id="idField" promptText="Mã NV" prefWidth="140" prefHeight="36"/>
+                <TextField fx:id="usernameField" promptText="Tên đăng nhập" prefWidth="140" prefHeight="36"/>
+                <TextField fx:id="fullNameField" promptText="Tên NV" prefWidth="140" prefHeight="36"/>
+                <DatePicker fx:id="birthDateField" prefWidth="110" prefHeight="36"/>
+                <ComboBox fx:id="genderField" prefWidth="90" prefHeight="36">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Nam"/>
+                            <String fx:value="Nữ"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <TextField fx:id="shiftField" promptText="Ca làm" prefWidth="110" prefHeight="36"/>
+                <Button text="Add nhân viên"
+                        fx:id="inlineAdd" onAction="#onInlineAddClicked"
+                        style="-fx-background-color: #FBECE3; -fx-font-weight: bold;" prefHeight="36"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>
