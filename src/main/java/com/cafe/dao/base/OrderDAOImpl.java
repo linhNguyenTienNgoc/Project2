@@ -32,7 +32,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findAll() {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -51,7 +51,7 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public Optional<Order> findById(Integer id) {
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -102,13 +102,12 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public boolean update(Order entity) {
-        String sql = "UPDATE orders SET order_number = ?, table_id = ?, customer_id = ?, user_id = ?, " +
-                    "total_amount = ?, discount_amount = ?, tax_amount = ?, final_amount = ?, payment_method = ?, " +
-                    "payment_status = ?, order_status = ?, notes = ?, updated_at = ? WHERE order_id = ?";
+        String sql = "UPDATE orders SET order_number=?, table_id=?, customer_id=?, user_id=?, total_amount=?, " +
+                    "discount_amount=?, tax_amount=?, final_amount=?, payment_method=?, payment_status=?, order_status=?, " +
+                    "notes=?, updated_at=? WHERE order_id=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             setOrderToPreparedStatement(entity, ps);
             ps.setInt(14, entity.getOrderId());
-            
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -165,7 +164,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findAll(int offset, int limit) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -187,12 +186,12 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> search(String keyword) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
                     "LEFT JOIN tables t ON o.table_id = t.table_id " +
-                    "WHERE o.order_number LIKE ? OR c.customer_name LIKE ? OR u.full_name LIKE ? " +
+                    "WHERE o.order_number LIKE ? OR c.full_name LIKE ? OR u.username LIKE ? " +
                     "ORDER BY o.created_at DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             String searchPattern = "%" + keyword + "%";
@@ -212,12 +211,12 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> search(String keyword, int offset, int limit) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
                     "LEFT JOIN tables t ON o.table_id = t.table_id " +
-                    "WHERE o.order_number LIKE ? OR c.customer_name LIKE ? OR u.full_name LIKE ? " +
+                    "WHERE o.order_number LIKE ? OR c.full_name LIKE ? OR u.username LIKE ? " +
                     "ORDER BY o.created_at DESC LIMIT ? OFFSET ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             String searchPattern = "%" + keyword + "%";
@@ -241,7 +240,7 @@ public class OrderDAOImpl implements OrderDAO {
         String sql = "SELECT COUNT(*) FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
-                    "WHERE o.order_number LIKE ? OR c.customer_name LIKE ? OR u.full_name LIKE ?";
+                    "WHERE o.order_number LIKE ? OR c.full_name LIKE ? OR u.username LIKE ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             String searchPattern = "%" + keyword + "%";
             ps.setString(1, searchPattern);
@@ -258,12 +257,12 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     // =====================================================
-    // ORDER SPECIFIC METHODS
+    // SPECIFIC ORDER METHODS
     // =====================================================
 
     @Override
     public Optional<Order> findByOrderNumber(String orderNumber) {
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -284,7 +283,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByCustomerId(Integer customerId) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -305,7 +304,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByCustomerId(Integer customerId, int offset, int limit) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -328,7 +327,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByUserId(Integer userId) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -349,7 +348,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByUserId(Integer userId, int offset, int limit) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -372,7 +371,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByTableId(Integer tableId) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -393,14 +392,14 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByStatus(OrderStatus status) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
                     "LEFT JOIN tables t ON o.table_id = t.table_id " +
                     "WHERE o.order_status = ? ORDER BY o.created_at DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, status.name());
+            ps.setString(1, status.getValue());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToOrder(rs));
@@ -414,14 +413,14 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByStatus(OrderStatus status, int offset, int limit) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
                     "LEFT JOIN tables t ON o.table_id = t.table_id " +
                     "WHERE o.order_status = ? ORDER BY o.created_at DESC LIMIT ? OFFSET ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, status.name());
+            ps.setString(1, status.getValue());
             ps.setInt(2, limit);
             ps.setInt(3, offset);
             ResultSet rs = ps.executeQuery();
@@ -437,14 +436,14 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByPaymentStatus(PaymentStatus paymentStatus) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
                     "LEFT JOIN tables t ON o.table_id = t.table_id " +
                     "WHERE o.payment_status = ? ORDER BY o.created_at DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, paymentStatus.name());
+            ps.setString(1, paymentStatus.getValue());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToOrder(rs));
@@ -458,14 +457,14 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByPaymentStatus(PaymentStatus paymentStatus, int offset, int limit) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
                     "LEFT JOIN tables t ON o.table_id = t.table_id " +
                     "WHERE o.payment_status = ? ORDER BY o.created_at DESC LIMIT ? OFFSET ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, paymentStatus.name());
+            ps.setString(1, paymentStatus.getValue());
             ps.setInt(2, limit);
             ps.setInt(3, offset);
             ResultSet rs = ps.executeQuery();
@@ -481,7 +480,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -503,7 +502,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByDateRange(LocalDateTime startDate, LocalDateTime endDate, int offset, int limit) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -527,7 +526,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByAmountRange(Double minAmount, Double maxAmount) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -549,7 +548,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByAmountRange(Double minAmount, Double maxAmount, int offset, int limit) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name " +
+        String sql = "SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name " +
                     "FROM orders o " +
                     "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                     "LEFT JOIN users u ON o.user_id = u.user_id " +
@@ -569,6 +568,10 @@ public class OrderDAOImpl implements OrderDAO {
         }
         return list;
     }
+
+    // =====================================================
+    // CONVENIENCE METHODS
+    // =====================================================
 
     @Override
     public List<Order> findPendingOrders() {
@@ -602,12 +605,12 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public List<Order> findUnpaidOrders() {
-        return findByPaymentStatus(PaymentStatus.UNPAID);
+        return findByPaymentStatus(PaymentStatus.PENDING);
     }
 
     @Override
     public List<Order> findUnpaidOrders(int offset, int limit) {
-        return findByPaymentStatus(PaymentStatus.UNPAID, offset, limit);
+        return findByPaymentStatus(PaymentStatus.PENDING, offset, limit);
     }
 
     @Override
@@ -654,7 +657,7 @@ public class OrderDAOImpl implements OrderDAO {
     public long countByStatus(OrderStatus status) {
         String sql = "SELECT COUNT(*) FROM orders WHERE order_status = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, status.name());
+            ps.setString(1, status.getValue());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getLong(1);
@@ -669,7 +672,7 @@ public class OrderDAOImpl implements OrderDAO {
     public long countByPaymentStatus(PaymentStatus paymentStatus) {
         String sql = "SELECT COUNT(*) FROM orders WHERE payment_status = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, paymentStatus.name());
+            ps.setString(1, paymentStatus.getValue());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getLong(1);
@@ -697,7 +700,7 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public long countUnpaidOrders() {
-        return countByPaymentStatus(PaymentStatus.UNPAID);
+        return countByPaymentStatus(PaymentStatus.PENDING);
     }
 
     @Override
@@ -709,7 +712,7 @@ public class OrderDAOImpl implements OrderDAO {
     public boolean updateOrderStatus(Integer orderId, OrderStatus status) {
         String sql = "UPDATE orders SET order_status = ?, updated_at = ? WHERE order_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, status.name());
+            ps.setString(1, status.getValue());
             ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
             ps.setInt(3, orderId);
             return ps.executeUpdate() > 0;
@@ -723,7 +726,7 @@ public class OrderDAOImpl implements OrderDAO {
     public boolean updatePaymentStatus(Integer orderId, PaymentStatus paymentStatus) {
         String sql = "UPDATE orders SET payment_status = ?, updated_at = ? WHERE order_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, paymentStatus.name());
+            ps.setString(1, paymentStatus.getValue());
             ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
             ps.setInt(3, orderId);
             return ps.executeUpdate() > 0;
@@ -762,13 +765,17 @@ public class OrderDAOImpl implements OrderDAO {
         return false;
     }
 
+    // =====================================================
+    // ADVANCED SEARCH METHODS
+    // =====================================================
+
     @Override
     public List<Order> searchOrders(String keyword, Integer customerId, Integer userId, Integer tableId, 
                                   OrderStatus status, PaymentStatus paymentStatus, LocalDateTime startDate, 
                                   LocalDateTime endDate, Double minAmount, Double maxAmount) {
         List<Order> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name ");
+        sql.append("SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name ");
         sql.append("FROM orders o ");
         sql.append("LEFT JOIN customers c ON o.customer_id = c.customer_id ");
         sql.append("LEFT JOIN users u ON o.user_id = u.user_id ");
@@ -778,7 +785,7 @@ public class OrderDAOImpl implements OrderDAO {
         List<Object> params = new ArrayList<>();
         
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append("AND (o.order_number LIKE ? OR c.customer_name LIKE ? OR u.full_name LIKE ?) ");
+            sql.append("AND (o.order_number LIKE ? OR c.full_name LIKE ? OR u.username LIKE ?) ");
             String searchPattern = "%" + keyword + "%";
             params.add(searchPattern);
             params.add(searchPattern);
@@ -802,12 +809,12 @@ public class OrderDAOImpl implements OrderDAO {
         
         if (status != null) {
             sql.append("AND o.order_status = ? ");
-            params.add(status.name());
+            params.add(status.getValue());
         }
         
         if (paymentStatus != null) {
             sql.append("AND o.payment_status = ? ");
-            params.add(paymentStatus.name());
+            params.add(paymentStatus.getValue());
         }
         
         if (startDate != null) {
@@ -852,7 +859,7 @@ public class OrderDAOImpl implements OrderDAO {
                                   LocalDateTime endDate, Double minAmount, Double maxAmount, int offset, int limit) {
         List<Order> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT o.*, c.customer_name, c.phone, u.username, u.full_name, t.table_number, t.table_name ");
+        sql.append("SELECT o.*, c.full_name as customer_name, c.phone, u.username, u.full_name, t.table_name ");
         sql.append("FROM orders o ");
         sql.append("LEFT JOIN customers c ON o.customer_id = c.customer_id ");
         sql.append("LEFT JOIN users u ON o.user_id = u.user_id ");
@@ -862,7 +869,7 @@ public class OrderDAOImpl implements OrderDAO {
         List<Object> params = new ArrayList<>();
         
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append("AND (o.order_number LIKE ? OR c.customer_name LIKE ? OR u.full_name LIKE ?) ");
+            sql.append("AND (o.order_number LIKE ? OR c.full_name LIKE ? OR u.username LIKE ?) ");
             String searchPattern = "%" + keyword + "%";
             params.add(searchPattern);
             params.add(searchPattern);
@@ -886,12 +893,12 @@ public class OrderDAOImpl implements OrderDAO {
         
         if (status != null) {
             sql.append("AND o.order_status = ? ");
-            params.add(status.name());
+            params.add(status.getValue());
         }
         
         if (paymentStatus != null) {
             sql.append("AND o.payment_status = ? ");
-            params.add(paymentStatus.name());
+            params.add(paymentStatus.getValue());
         }
         
         if (startDate != null) {
@@ -945,7 +952,7 @@ public class OrderDAOImpl implements OrderDAO {
         List<Object> params = new ArrayList<>();
         
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append("AND (o.order_number LIKE ? OR c.customer_name LIKE ? OR u.full_name LIKE ?) ");
+            sql.append("AND (o.order_number LIKE ? OR c.full_name LIKE ? OR u.username LIKE ?) ");
             String searchPattern = "%" + keyword + "%";
             params.add(searchPattern);
             params.add(searchPattern);
@@ -969,12 +976,12 @@ public class OrderDAOImpl implements OrderDAO {
         
         if (status != null) {
             sql.append("AND o.order_status = ? ");
-            params.add(status.name());
+            params.add(status.getValue());
         }
         
         if (paymentStatus != null) {
             sql.append("AND o.payment_status = ? ");
-            params.add(paymentStatus.name());
+            params.add(paymentStatus.getValue());
         }
         
         if (startDate != null) {
@@ -1012,7 +1019,7 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     // =====================================================
-    // LEGACY METHODS (for backward compatibility)
+    // DEPRECATED METHODS (for backward compatibility)
     // =====================================================
 
     /**
@@ -1024,7 +1031,7 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     /**
-     * @deprecated Use findById(id).orElse(null) instead
+     * @deprecated Use findById(id) instead
      */
     @Deprecated
     public Order getOrderById(int id) {
@@ -1032,7 +1039,7 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     /**
-     * @deprecated Use findByOrderNumber(orderNumber).orElse(null) instead
+     * @deprecated Use findByOrderNumber(orderNumber) instead
      */
     @Deprecated
     public Order getOrderByNumber(String orderNumber) {
@@ -1040,7 +1047,7 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     /**
-     * @deprecated Use insert(entity) instead
+     * @deprecated Use insert(order) instead
      */
     @Deprecated
     public boolean insertOrder(Order order) {
@@ -1048,7 +1055,7 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     /**
-     * @deprecated Use update(entity) instead
+     * @deprecated Use update(order) instead
      */
     @Deprecated
     public boolean updateOrder(Order order) {
@@ -1098,20 +1105,9 @@ public class OrderDAOImpl implements OrderDAO {
         order.setTaxAmount(rs.getDouble("tax_amount"));
         order.setFinalAmount(rs.getDouble("final_amount"));
         
-        String paymentMethodStr = rs.getString("payment_method");
-        if (paymentMethodStr != null) {
-            order.setPaymentMethod(PaymentMethod.valueOf(paymentMethodStr));
-        }
-        
-        String paymentStatusStr = rs.getString("payment_status");
-        if (paymentStatusStr != null) {
-            order.setPaymentStatus(PaymentStatus.valueOf(paymentStatusStr));
-        }
-        
-        String orderStatusStr = rs.getString("order_status");
-        if (orderStatusStr != null) {
-            order.setOrderStatus(OrderStatus.valueOf(orderStatusStr));
-        }
+        order.setPaymentMethod(rs.getString("payment_method"));
+        order.setPaymentStatus(rs.getString("payment_status"));
+        order.setOrderStatus(rs.getString("order_status"));
         
         order.setNotes(rs.getString("notes"));
         order.setCreatedAt(rs.getTimestamp("created_at"));
@@ -1120,7 +1116,7 @@ public class OrderDAOImpl implements OrderDAO {
         // Load related entities
         Customer customer = new Customer();
         customer.setCustomerId(rs.getInt("customer_id"));
-        customer.setCustomerName(rs.getString("customer_name"));
+        customer.setFullName(rs.getString("customer_name"));
         customer.setPhone(rs.getString("phone"));
         order.setCustomer(customer);
         
@@ -1132,7 +1128,6 @@ public class OrderDAOImpl implements OrderDAO {
         
         TableCafe table = new TableCafe();
         table.setTableId(rs.getInt("table_id"));
-        table.setTableNumber(rs.getString("table_number"));
         table.setTableName(rs.getString("table_name"));
         order.setTable(table);
         
@@ -1151,9 +1146,11 @@ public class OrderDAOImpl implements OrderDAO {
         ps.setDouble(6, order.getDiscountAmount());
         ps.setDouble(7, order.getTaxAmount());
         ps.setDouble(8, order.getFinalAmount());
-        ps.setString(9, order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null);
-        ps.setString(10, order.getPaymentStatus() != null ? order.getPaymentStatus().name() : null);
-        ps.setString(11, order.getOrderStatus() != null ? order.getOrderStatus().name() : null);
+        
+        ps.setString(9, order.getPaymentMethod());
+        ps.setString(10, order.getPaymentStatus());
+        ps.setString(11, order.getOrderStatus());
+        
         ps.setString(12, order.getNotes());
         ps.setTimestamp(13, order.getCreatedAt());
         ps.setTimestamp(14, order.getUpdatedAt());
