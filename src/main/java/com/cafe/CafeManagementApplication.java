@@ -16,7 +16,7 @@ import java.util.Objects;
  * @author Team 2_C2406L
  * @version 1.0.0
  */
-public class CafeManagementApplication extends Application {
+    public class CafeManagementApplication extends Application {
     
     private static final String APP_TITLE = "Cafe Management System v1.0.0";
     private static final String LOGIN_FXML = "/fxml/auth/login.fxml";

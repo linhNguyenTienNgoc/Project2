@@ -1,4 +1,9 @@
-# 🌳 Cấu trúc Thư mục Project - Cafe Management System (JavaFX)
+# 🌳 Cấu trúc Thư mục Project - Cafe Management System (JavaFX) v2.0
+
+## 📋 Tổng quan
+Hệ thống quản lý quán cafe được phát triển với kiến trúc MVC tối ưu, database schema hiệu suất cao và các tính năng nâng cao.
+
+## 🏗️ Cấu trúc Thư mục
 
 ```
 Project2/
@@ -9,31 +14,34 @@ Project2/
 │   │   │       └── 📁 cafe/
 │   │   │           ├── 📁 CafeManagementApplication.java          # Main Application
 │   │   │           ├── 📁 config/
-│   │   │           │   ├── 📁 DatabaseConfig.java                # Cấu hình kết nối DB
+│   │   │           │   ├── 📁 DatabaseConfig.java                # Cấu hình kết nối DB tối ưu
 │   │   │           │   ├── 📁 AppConfig.java                     # Cấu hình ứng dụng
-│   │   │           │   └── 📁 SecurityConfig.java                # Cấu hình bảo mật
+│   │   │           │   ├── 📁 SecurityConfig.java                # Cấu hình bảo mật
+│   │   │           │   └── 📁 MySQLConnect.java                  # Connection pooling
 │   │   │           ├── 📁 model/
 │   │   │           │   ├── 📁 entity/                            # Các entity/POJO
-│   │   │           │   │   ├── 📁 User.java
-│   │   │           │   │   ├── 📁 Role.java
-│   │   │           │   │   ├── 📁 Product.java
-│   │   │           │   │   ├── 📁 Category.java
-│   │   │           │   │   ├── 📁 Order.java
-│   │   │           │   │   ├── 📁 OrderDetail.java
-│   │   │           │   │   ├── 📁 Customer.java
-│   │   │           │   │   ├── 📁 Table.java
-│   │   │           │   │   ├── 📁 Area.java
-│   │   │           │   │   ├── 📁 Promotion.java
-│   │   │           │   │   ├── 📁 Ingredient.java
-│   │   │           │   │   ├── 📁 Recipe.java
-│   │   │           │   │   ├── 📁 Attendance.java
-│   │   │           │   │   └── 📁 SystemSetting.java
+│   │   │           │   │   ├── 📁 User.java                      # Người dùng với JSON permissions
+│   │   │           │   │   ├── 📁 Role.java                      # Vai trò (Admin, Waiter, Barista)
+│   │   │           │   │   ├── 📁 Product.java                   # Sản phẩm với SKU và inventory
+│   │   │           │   │   ├── 📁 Category.java                  # Danh mục với sort_order
+│   │   │           │   │   ├── 📁 Order.java                     # Đơn hàng với tax calculation
+│   │   │           │   │   ├── 📁 OrderDetail.java               # Chi tiết đơn hàng
+│   │   │           │   │   ├── 📁 Customer.java                  # Khách hàng với loyalty system
+│   │   │           │   │   ├── 📁 TableCafe.java                 # Bàn với unique constraints
+│   │   │           │   │   ├── 📁 Area.java                      # Khu vực với capacity
+│   │   │           │   │   ├── 📁 Promotion.java                 # Khuyến mãi nâng cao
+│   │   │           │   │   ├── 📁 OrderPromotion.java            # Áp dụng khuyến mãi
+│   │   │           │   │   ├── 📁 Attendance.java                # Chấm công với overtime
+│   │   │           │   │   ├── 📁 SystemSetting.java             # Cài đặt hệ thống
+│   │   │           │   │   └── 📁 SystemLog.java                 # Audit logging
 │   │   │           │   ├── 📁 dto/                               # Data Transfer Objects
 │   │   │           │   │   ├── 📁 OrderDTO.java
 │   │   │           │   │   ├── 📁 ProductDTO.java
 │   │   │           │   │   ├── 📁 CustomerDTO.java
 │   │   │           │   │   ├── 📁 RevenueDTO.java
-│   │   │           │   │   └── 📁 DashboardDTO.java
+│   │   │           │   │   ├── 📁 DashboardDTO.java
+│   │   │           │   │   ├── 📁 InventoryDTO.java              # Tồn kho
+│   │   │           │   │   └── 📁 AttendanceDTO.java             # Chấm công
 │   │   │           │   └── 📁 enums/                             # Các enum
 │   │   │           │       ├── 📁 OrderStatus.java
 │   │   │           │       ├── 📁 PaymentStatus.java
@@ -58,10 +66,10 @@ Project2/
 │   │   │           │   ├── 📁 CategoryDAOImpl.java
 │   │   │           │   ├── 📁 PromotionDAO.java
 │   │   │           │   ├── 📁 PromotionDAOImpl.java
-│   │   │           │   ├── 📁 IngredientDAO.java
-│   │   │           │   ├── 📁 IngredientDAOImpl.java
 │   │   │           │   ├── 📁 AttendanceDAO.java
-│   │   │           │   └── 📁 AttendanceDAOImpl.java
+│   │   │           │   ├── 📁 AttendanceDAOImpl.java
+│   │   │           │   ├── 📁 AreaDAO.java
+│   │   │           │   └── 📁 AreaDAOImpl.java
 │   │   │           ├── 📁 service/                               # Business Logic Layer
 │   │   │           │   ├── 📁 base/
 │   │   │           │   │   ├── 📁 BaseService.java
@@ -80,8 +88,6 @@ Project2/
 │   │   │           │   ├── 📁 CategoryServiceImpl.java
 │   │   │           │   ├── 📁 PromotionService.java
 │   │   │           │   ├── 📁 PromotionServiceImpl.java
-│   │   │           │   ├── 📁 IngredientService.java
-│   │   │           │   ├── 📁 IngredientServiceImpl.java
 │   │   │           │   ├── 📁 AttendanceService.java
 │   │   │           │   ├── 📁 AttendanceServiceImpl.java
 │   │   │           │   ├── 📁 AuthService.java                   # Xác thực & phân quyền
@@ -89,7 +95,11 @@ Project2/
 │   │   │           │   ├── 📁 ReportService.java                 # Báo cáo
 │   │   │           │   ├── 📁 ReportServiceImpl.java
 │   │   │           │   ├── 📁 NotificationService.java           # Thông báo
-│   │   │           │   └── 📁 NotificationServiceImpl.java
+│   │   │           │   ├── 📁 NotificationServiceImpl.java
+│   │   │           │   ├── 📁 InventoryService.java              # Quản lý tồn kho
+│   │   │           │   ├── 📁 InventoryServiceImpl.java
+│   │   │           │   ├── 📁 LoyaltyService.java                # Hệ thống tích điểm
+│   │   │           │   └── 📁 LoyaltyServiceImpl.java
 │   │   │           ├── 📁 controller/                            # Controllers (MVC)
 │   │   │           │   ├── 📁 base/
 │   │   │           │   │   ├── 📁 BaseController.java
@@ -97,327 +107,463 @@ Project2/
 │   │   │           │   ├── 📁 auth/
 │   │   │           │   │   ├── 📁 LoginController.java
 │   │   │           │   │   └── 📁 RegisterController.java
-│   │   │           │   ├── 📁 dashboard/
-│   │   │           │   │   └── 📁 DashboardController.java
-│   │   │           │   ├── 📁 order/
+│   │   │           │   ├── 📁 admin/
+│   │   │           │   │   ├── 📁 AdminDashboardController.java
+│   │   │           │   │   ├── 📁 UserManagementController.java
+│   │   │           │   │   ├── 📁 ProductManagementController.java
+│   │   │           │   │   ├── 📁 OrderManagementController.java
+│   │   │           │   │   ├── 📁 CustomerManagementController.java
+│   │   │           │   │   ├── 📁 TableManagementController.java
+│   │   │           │   │   ├── 📁 PromotionManagementController.java
+│   │   │           │   │   ├── 📁 InventoryController.java
+│   │   │           │   │   ├── 📁 AttendanceController.java
+│   │   │           │   │   ├── 📁 ReportController.java
+│   │   │           │   │   └── 📁 SystemSettingsController.java
+│   │   │           │   ├── 📁 waiter/
+│   │   │           │   │   ├── 📁 WaiterDashboardController.java
 │   │   │           │   │   ├── 📁 OrderController.java
-│   │   │           │   │   ├── 📁 OrderDetailController.java
-│   │   │           │   │   └── 📁 PaymentController.java
-│   │   │           │   ├── 📁 product/
-│   │   │           │   │   ├── 📁 ProductController.java
-│   │   │           │   │   ├── 📁 CategoryController.java
-│   │   │           │   │   └── 📁 ProductManagementController.java
-│   │   │           │   ├── 📁 customer/
-│   │   │           │   │   ├── 📁 CustomerController.java
-│   │   │           │   │   └── 📁 CustomerManagementController.java
-│   │   │           │   ├── 📁 table/
 │   │   │           │   │   ├── 📁 TableController.java
-│   │   │           │   │   └── 📁 TableManagementController.java
-│   │   │           │   ├── 📁 user/
-│   │   │           │   │   ├── 📁 UserController.java
-│   │   │           │   │   └── 📁 UserManagementController.java
-│   │   │           │   ├── 📁 inventory/
-│   │   │           │   │   ├── 📁 IngredientController.java
-│   │   │           │   │   ├── 📁 StockController.java
-│   │   │           │   │   └── 📁 RecipeController.java
-│   │   │           │   ├── 📁 promotion/
-│   │   │           │   │   └── 📁 PromotionController.java
-│   │   │           │   ├── 📁 attendance/
-│   │   │           │   │   └── 📁 AttendanceController.java
-│   │   │           │   ├── 📁 report/
-│   │   │           │   │   ├── 📁 RevenueReportController.java
-│   │   │           │   │   ├── 📁 SalesReportController.java
-│   │   │           │   │   ├── 📁 InventoryReportController.java
-│   │   │           │   │   └── 📁 AttendanceReportController.java
-│   │   │           │   └── 📁 settings/
-│   │   │           │       ├── 📁 SettingsController.java
-│   │   │           │       └── 📁 SystemSettingsController.java
+│   │   │           │   │   └── 📁 CustomerController.java
+│   │   │           │   └── 📁 barista/
+│   │   │           │       ├── 📁 BaristaDashboardController.java
+│   │   │           │       ├── 📁 ProductController.java
+│   │   │           │       └── 📁 InventoryController.java
 │   │   │           ├── 📁 util/                                  # Utilities
-│   │   │           │   ├── 📁 DatabaseUtil.java                  # Tiện ích database
-│   │   │           │   ├── 📁 AlertUtil.java                     # Hiển thị thông báo
-│   │   │           │   ├── 📁 ValidationUtil.java                # Kiểm tra dữ liệu
-│   │   │           │   ├── 📁 DateUtil.java                      # Xử lý ngày tháng
-│   │   │           │   ├── 📁 CurrencyUtil.java                  # Xử lý tiền tệ
+│   │   │           │   ├── 📁 DatabaseTestUtil.java              # Test database connection
+│   │   │           │   ├── 📁 SessionManager.java                # Quản lý session
 │   │   │           │   ├── 📁 PasswordUtil.java                  # Mã hóa mật khẩu
+│   │   │           │   ├── 📁 ValidationUtil.java                # Validation
+│   │   │           │   ├── 📁 DateUtil.java                      # Xử lý ngày tháng
+│   │   │           │   ├── 📁 CurrencyUtil.java                  # Format tiền tệ
 │   │   │           │   ├── 📁 FileUtil.java                      # Xử lý file
-│   │   │           │   ├── 📁 ImageUtil.java                     # Xử lý hình ảnh
-│   │   │           │   ├── 📁 PrintUtil.java                     # In ấn
 │   │   │           │   ├── 📁 EmailUtil.java                     # Gửi email
-│   │   │           │   ├── 📁 LogUtil.java                       # Ghi log
-│   │   │           │   └── 📁 Constants.java                     # Hằng số
-│   │   │           ├── 📁 exception/                             # Exception handling
-│   │   │           │   ├── 📁 DatabaseException.java
-│   │   │           │   ├── 📁 ValidationException.java
-│   │   │           │   ├── 📁 AuthenticationException.java
-│   │   │           │   └── 📁 BusinessException.java
-│   │   │           └── 📁 event/                                 # Custom Events
-│   │   │               ├── 📁 OrderEvent.java
-│   │   │               ├── 📁 TableEvent.java
-│   │   │               └── 📁 UserEvent.java
-│   │   ├── 📁 resources/
-│   │   │   ├── 📁 fxml/                                          # FXML Files (Views)
-│   │   │   │   ├── 📁 auth/
-│   │   │   │   │   ├── 📁 login.fxml
-│   │   │   │   │   └── 📁 register.fxml
-│   │   │   │   ├── 📁 dashboard/
-│   │   │   │   │   └── 📁 dashboard.fxml
-│   │   │   │   ├── 📁 order/
-│   │   │   │   │   ├── 📁 order.fxml
-│   │   │   │   │   ├── 📁 order-detail.fxml
-│   │   │   │   │   ├── 📁 payment.fxml
-│   │   │   │   │   └── 📁 receipt.fxml
-│   │   │   │   ├── 📁 product/
-│   │   │   │   │   ├── 📁 product.fxml
-│   │   │   │   │   ├── 📁 category.fxml
-│   │   │   │   │   └── 📁 product-management.fxml
-│   │   │   │   ├── 📁 customer/
-│   │   │   │   │   ├── 📁 customer.fxml
-│   │   │   │   │   └── 📁 customer-management.fxml
-│   │   │   │   ├── 📁 table/
-│   │   │   │   │   ├── 📁 table.fxml
-│   │   │   │   │   └── 📁 table-management.fxml
-│   │   │   │   ├── 📁 user/
-│   │   │   │   │   ├── 📁 user.fxml
-│   │   │   │   │   └── 📁 user-management.fxml
-│   │   │   │   ├── 📁 inventory/
-│   │   │   │   │   ├── 📁 ingredient.fxml
-│   │   │   │   │   ├── 📁 stock.fxml
-│   │   │   │   │   └── 📁 recipe.fxml
-│   │   │   │   ├── 📁 promotion/
-│   │   │   │   │   └── 📁 promotion.fxml
-│   │   │   │   ├── 📁 attendance/
-│   │   │   │   │   └── 📁 attendance.fxml
-│   │   │   │   ├── 📁 report/
-│   │   │   │   │   ├── 📁 revenue-report.fxml
-│   │   │   │   │   ├── 📁 sales-report.fxml
-│   │   │   │   │   ├── 📁 inventory-report.fxml
-│   │   │   │   │   └── 📁 attendance-report.fxml
-│   │   │   │   ├── 📁 settings/
-│   │   │   │   │   ├── 📁 settings.fxml
-│   │   │   │   │   └── 📁 system-settings.fxml
-│   │   │   │   ├── 📁 components/                                # Reusable Components
-│   │   │   │   │   ├── 📁 product-card.fxml
-│   │   │   │   │   ├── 📁 table-card.fxml
-│   │   │   │   │   ├── 📁 order-item.fxml
-│   │   │   │   │   ├── 📁 customer-card.fxml
-│   │   │   │   │   ├── 📁 user-card.fxml
-│   │   │   │   │   └── 📁 navigation.fxml
-│   │   │   │   └── 📁 dialogs/                                   # Dialog Windows
-│   │   │   │       ├── 📁 confirm-dialog.fxml
-│   │   │   │       ├── 📁 input-dialog.fxml
-│   │   │   │       ├── 📁 error-dialog.fxml
-│   │   │   │       └── 📁 success-dialog.fxml
-│   │   │   ├── 📁 css/                                           # Stylesheets
-│   │   │   │   ├── 📁 main.css                                   # CSS chính
-│   │   │   │   ├── 📁 components.css                             # CSS cho components
-│   │   │   │   ├── 📁 themes/
-│   │   │   │   │   ├── 📁 light.css
-│   │   │   │   │   ├── 📁 dark.css
-│   │   │   │   │   └── 📁 modern.css
-│   │   │   │   └── 📁 custom/
-│   │   │   │       ├── 📁 buttons.css
-│   │   │   │       ├── 📁 tables.css
-│   │   │   │       ├── 📁 forms.css
-│   │   │   │       └── 📁 cards.css
-│   │   │   ├── 📁 images/                                        # Hình ảnh
-│   │   │   │   ├── 📁 logo/
-│   │   │   │   │   ├── 📁 logo.png
-│   │   │   │   │   └── 📁 logo-dark.png
-│   │   │   │   ├── 📁 icons/
-│   │   │   │   │   ├── 📁 dashboard.png
-│   │   │   │   │   ├── 📁 order.png
-│   │   │   │   │   ├── 📁 product.png
-│   │   │   │   │   ├── 📁 customer.png
-│   │   │   │   │   ├── 📁 table.png
-│   │   │   │   │   ├── 📁 user.png
-│   │   │   │   │   ├── 📁 inventory.png
-│   │   │   │   │   ├── 📁 report.png
-│   │   │   │   │   ├── 📁 settings.png
-│   │   │   │   │   └── 📁 logout.png
-│   │   │   │   ├── 📁 products/                                  # Hình ảnh sản phẩm
-│   │   │   │   │   ├── 📁 coffee/
-│   │   │   │   │   ├── 📁 tea/
-│   │   │   │   │   ├── 📁 cake/
-│   │   │   │   │   └── 📁 food/
-│   │   │   │   ├── 📁 backgrounds/
-│   │   │   │   │   ├── 📁 login-bg.jpg
-│   │   │   │   │   └── 📁 dashboard-bg.jpg
-│   │   │   │   └── 📁 placeholders/
-│   │   │   │       ├── 📁 no-image.png
-│   │   │   │       └── 📁 avatar-default.png
-│   │   │   ├── 📁 fonts/                                         # Fonts
-│   │   │   │   ├── 📁 Roboto/
-│   │   │   │   ├── 📁 OpenSans/
-│   │   │   │   └── 📁 Poppins/
-│   │   │   ├── 📁 templates/                                     # Templates
-│   │   │   │   ├── 📁 receipt-template.html
-│   │   │   │   ├── 📁 invoice-template.html
-│   │   │   │   └── 📁 report-template.html
-│   │   │   ├── 📁 properties/                                    # Properties files
-│   │   │   │   ├── 📁 messages.properties                        # Đa ngôn ngữ
-│   │   │   │   ├── 📁 messages_vi.properties
-│   │   │   │   ├── 📁 messages_en.properties
-│   │   │   │   ├── 📁 validation.properties
-│   │   │   │   └── 📁 config.properties
-│   │   │   └── 📁 sql/                                           # SQL Scripts
-│   │   │       ├── 📁 init.sql                                   # Khởi tạo database
-│   │   │       ├── 📁 sample-data.sql                            # Dữ liệu mẫu
-│   │   │       └── 📁 queries/                                   # Các query phức tạp
-│   │   │           ├── 📁 reports.sql
-│   │   │           ├── 📁 analytics.sql
-│   │   │           └── 📁 maintenance.sql
-│   │   └── 📁 test/                                              # Test files
-│   │       ├── 📁 java/
-│   │       │   └── 📁 com/
-│   │       │       └── 📁 cafe/
-│   │       │           ├── 📁 test/
-│   │       │           │   ├── 📁 dao/
-│   │       │           │   │   ├── 📁 UserDAOTest.java
-│   │       │           │   │   ├── 📁 ProductDAOTest.java
-│   │       │           │   │   └── 📁 OrderDAOTest.java
-│   │       │           │   ├── 📁 service/
-│   │       │           │   │   ├── 📁 UserServiceTest.java
-│   │       │           │   │   ├── 📁 ProductServiceTest.java
-│   │       │           │   │   └── 📁 OrderServiceTest.java
-│   │       │           │   ├── 📁 controller/
-│   │       │           │   │   ├── 📁 LoginControllerTest.java
-│   │       │           │   │   ├── 📁 OrderControllerTest.java
-│   │       │           │   │   └── 📁 ProductControllerTest.java
-│   │       │           │   └── 📁 util/
-│   │       │           │       ├── 📁 ValidationUtilTest.java
-│   │       │           │       ├── 📁 DateUtilTest.java
-│   │       │           │       └── 📁 PasswordUtilTest.java
-│   │       │           └── 📁 integration/
-│   │       │               ├── 📁 DatabaseIntegrationTest.java
-│   │       │               └── 📁 ApplicationIntegrationTest.java
-│   │       └── 📁 resources/
-│   │           ├── 📁 test-data/
-│   │           │   ├── 📁 test-users.json
-│   │           │   ├── 📁 test-products.json
-│   │           │   └── 📁 test-orders.json
-│   │           └── 📁 test-config/
-│   │               └── 📁 test-database.properties
-├── 📁 database/                                                   # Database files (existing)
-│   ├── 📁 cafe_management.sql
-│   ├── 📁 cafe_management.sql~
-│   ├── 📁 database_config.properties
-│   ├── 📁 EER.mwb
-│   ├── 📁 EER.mwb.bak
-│   ├── 📁 ERD.md
-│   └── 📁 README.md
-├── 📁 docs/                                                       # Documentation
-│   ├── 📁 api/                                                    # API Documentation
-│   │   ├── 📁 controllers.md
-│   │   ├── 📁 services.md
-│   │   └── 📁 daos.md
-│   ├── 📁 user-guide/                                             # Hướng dẫn sử dụng
-│   │   ├── 📁 installation.md
+│   │   │           │   ├── 📁 PDFUtil.java                       # Tạo PDF
+│   │   │           │   ├── 📁 ExcelUtil.java                     # Export Excel
+│   │   │           │   ├── 📁 QRCodeUtil.java                    # Tạo QR code
+│   │   │           │   └── 📁 NotificationUtil.java              # Thông báo
+│   │   │           └── 📁 exception/                             # Exception handling
+│   │   │               ├── 📁 DatabaseConnectionException.java
+│   │   │               ├── 📁 ValidationException.java
+│   │   │               ├── 📁 AuthenticationException.java
+│   │   │               ├── 📁 BusinessLogicException.java
+│   │   │               └── 📁 SystemException.java
+│   │   └── 📁 resources/
+│   │       ├── 📁 fxml/                                          # FXML files
+│   │       │   ├── 📁 auth/
+│   │       │   │   ├── 📁 login.fxml
+│   │       │   │   └── 📁 register.fxml
+│   │       │   ├── 📁 admin/
+│   │       │   │   ├── 📁 admin-dashboard.fxml
+│   │       │   │   ├── 📁 user-management.fxml
+│   │       │   │   ├── 📁 product-management.fxml
+│   │       │   │   ├── 📁 order-management.fxml
+│   │       │   │   ├── 📁 customer-management.fxml
+│   │       │   │   ├── 📁 table-management.fxml
+│   │       │   │   ├── 📁 promotion-management.fxml
+│   │       │   │   ├── 📁 inventory.fxml
+│   │       │   │   ├── 📁 attendance.fxml
+│   │       │   │   ├── 📁 reports.fxml
+│   │       │   │   └── 📁 system-settings.fxml
+│   │       │   ├── 📁 waiter/
+│   │       │   │   ├── 📁 waiter-dashboard.fxml
+│   │       │   │   ├── 📁 order.fxml
+│   │       │   │   ├── 📁 table.fxml
+│   │       │   │   └── 📁 customer.fxml
+│   │       │   └── 📁 barista/
+│   │       │       ├── 📁 barista-dashboard.fxml
+│   │       │       ├── 📁 product.fxml
+│   │       │       └── 📁 inventory.fxml
+│   │       ├── 📁 css/                                           # Stylesheets
+│   │       │   ├── 📁 login.css
+│   │       │   ├── 📁 dashboard.css
+│   │       │   ├── 📁 components.css
+│   │       │   ├── 📁 forms.css
+│   │       │   ├── 📁 tables.css
+│   │       │   ├── 📁 buttons.css
+│   │       │   ├── 📁 modals.css
+│   │       │   └── 📁 themes/
+│   │       │       ├── 📁 light.css
+│   │       │       ├── 📁 dark.css
+│   │       │       └── 📁 custom.css
+│   │       ├── 📁 images/                                        # Images & Icons
+│   │       │   ├── 📁 logo/
+│   │       │   │   ├── 📁 nopita-logo.png
+│   │       │   │   └── 📁 favicon.ico
+│   │       │   ├── 📁 icons/
+│   │       │   │   ├── 📁 power-icon.png
+│   │       │   │   ├── 📁 menu-icon.png
+│   │       │   │   ├── 📁 user-icon.png
+│   │       │   │   ├── 📁 order-icon.png
+│   │       │   │   ├── 📁 product-icon.png
+│   │       │   │   ├── 📁 customer-icon.png
+│   │       │   │   ├── 📁 table-icon.png
+│   │       │   │   ├── 📁 report-icon.png
+│   │       │   │   └── 📁 settings-icon.png
+│   │       │   ├── 📁 products/                                  # Product images
+│   │       │   │   ├── 📁 coffee/
+│   │       │   │   ├── 📁 tea/
+│   │       │   │   ├── 📁 juice/
+│   │       │   │   ├── 📁 cake/
+│   │       │   │   └── 📁 snack/
+│   │       │   └── 📁 backgrounds/                               # Background images
+│   │       │       ├── 📁 login-bg.jpg
+│   │       │       ├── 📁 dashboard-bg.jpg
+│   │       │       └── 📁 pattern-bg.png
+│   │       ├── 📁 properties/                                    # Properties files
+│   │       │   ├── 📁 application.properties
+│   │       │   ├── 📁 database.properties
+│   │       │   ├── 📁 logback.xml
+│   │       │   └── 📁 messages.properties
+│   │       └── 📁 sql/                                           # SQL scripts
+│   │           ├── 📁 schema/
+│   │           │   ├── 📁 create_tables.sql
+│   │           │   ├── 📁 create_indexes.sql
+│   │           │   ├── 📁 create_views.sql
+│   │           │   ├── 📁 create_triggers.sql
+│   │           │   └── 📁 create_procedures.sql
+│   │           ├── 📁 data/
+│   │           │   ├── 📁 sample_data.sql
+│   │           │   ├── 📁 test_data.sql
+│   │           │   └── 📁 migration_data.sql
+│   │           └── 📁 reports/
+│   │               ├── 📁 revenue_report.sql
+│   │               ├── 📁 inventory_report.sql
+│   │               ├── 📁 customer_report.sql
+│   │               └── 📁 attendance_report.sql
+│   └── 📁 test/                                                  # Test files
+│       ├── 📁 java/
+│       │   └── 📁 com/
+│       │       └── 📁 cafe/
+│       │           ├── 📁 test/
+│       │           │   ├── 📁 TestDatabaseConnection.java
+│       │           │   ├── 📁 TestUserDAO.java
+│       │           │   ├── 📁 TestProductDAO.java
+│       │           │   ├── 📁 TestOrderDAO.java
+│       │           │   ├── 📁 TestCustomerDAO.java
+│       │           │   ├── 📁 TestTableDAO.java
+│       │           │   ├── 📁 TestCategoryDAO.java
+│       │           │   ├── 📁 TestPromotionDAO.java
+│       │           │   ├── 📁 TestAttendanceDAO.java
+│       │           │   ├── 📁 TestAreaDAO.java
+│       │           │   ├── 📁 TestUserService.java
+│       │           │   ├── 📁 TestProductService.java
+│       │           │   ├── 📁 TestOrderService.java
+│       │           │   ├── 📁 TestCustomerService.java
+│       │           │   ├── 📁 TestTableService.java
+│       │           │   ├── 📁 TestCategoryService.java
+│       │           │   ├── 📁 TestPromotionService.java
+│       │           │   ├── 📁 TestAttendanceService.java
+│       │           │   ├── 📁 TestAreaService.java
+│       │           │   ├── 📁 TestAuthService.java
+│       │           │   ├── 📁 TestReportService.java
+│       │           │   ├── 📁 TestNotificationService.java
+│       │           │   ├── 📁 TestInventoryService.java
+│       │           │   ├── 📁 TestLoyaltyService.java
+│       │           │   ├── 📁 TestLoginController.java
+│       │           │   ├── 📁 TestAdminDashboardController.java
+│       │           │   ├── 📁 TestWaiterDashboardController.java
+│       │           │   ├── 📁 TestBaristaDashboardController.java
+│       │           │   ├── 📁 TestUserManagementController.java
+│       │           │   ├── 📁 TestProductManagementController.java
+│       │           │   ├── 📁 TestOrderManagementController.java
+│       │           │   ├── 📁 TestCustomerManagementController.java
+│       │           │   ├── 📁 TestTableManagementController.java
+│       │           │   ├── 📁 TestPromotionManagementController.java
+│       │           │   ├── 📁 TestInventoryController.java
+│       │           │   ├── 📁 TestAttendanceController.java
+│       │           │   ├── 📁 TestReportController.java
+│       │           │   ├── 📁 TestSystemSettingsController.java
+│       │           │   ├── 📁 TestOrderController.java
+│       │           │   ├── 📁 TestTableController.java
+│       │           │   ├── 📁 TestCustomerController.java
+│       │           │   ├── 📁 TestProductController.java
+│       │           │   ├── 📁 TestDatabaseTestUtil.java
+│       │           │   ├── 📁 TestSessionManager.java
+│       │           │   ├── 📁 TestPasswordUtil.java
+│       │           │   ├── 📁 TestValidationUtil.java
+│       │           │   ├── 📁 TestDateUtil.java
+│       │           │   ├── 📁 TestCurrencyUtil.java
+│       │           │   ├── 📁 TestFileUtil.java
+│       │           │   ├── 📁 TestEmailUtil.java
+│       │           │   ├── 📁 TestPDFUtil.java
+│       │           │   ├── 📁 TestExcelUtil.java
+│       │           │   ├── 📁 TestQRCodeUtil.java
+│       │           │   ├── 📁 TestNotificationUtil.java
+│       │           │   ├── 📁 TestDatabaseConnectionException.java
+│       │           │   ├── 📁 TestValidationException.java
+│       │           │   ├── 📁 TestAuthenticationException.java
+│       │           │   ├── 📁 TestBusinessLogicException.java
+│       │           │   └── 📁 TestSystemException.java
+│       │           └── 📁 util/
+│       │               └── 📁 TestConnection.java
+│       └── 📁 resources/
+│           ├── 📁 test-data/
+│           │   ├── 📁 test_users.sql
+│           │   ├── 📁 test_products.sql
+│           │   ├── 📁 test_orders.sql
+│           │   ├── 📁 test_customers.sql
+│           │   ├── 📁 test_tables.sql
+│           │   ├── 📁 test_categories.sql
+│           │   ├── 📁 test_promotions.sql
+│           │   ├── 📁 test_attendance.sql
+│           │   └── 📁 test_areas.sql
+│           └── 📁 test-config/
+│               ├── 📁 test-database.properties
+│               ├── 📁 test-application.properties
+│               └── 📁 test-logback.xml
+├── 📁 database/                                                  # Database files
+│   ├── 📁 cafe_management.sql                                   # Optimized schema
+│   ├── 📁 data.sql                                              # Sample data
+│   ├── 📁 test_connection.sql                                   # Test connection
+│   ├── 📁 update_admin_password.sql                             # Update admin password
+│   ├── 📁 database_config.properties                            # Database configuration
+│   ├── 📁 README.md                                             # Database documentation
+│   ├── 📁 SETUP_GUIDE.md                                        # Setup guide
+│   ├── 📁 ERD.md                                                # Entity Relationship Diagram
+│   └── 📁 EER.mwb                                               # MySQL Workbench file
+├── 📁 lib/                                                       # External libraries
+│   └── 📁 javafx-sdk-24.0.2/                                    # JavaFX SDK
+│       ├── 📁 lib/                                              # JavaFX libraries
+│       ├── 📁 bin/                                              # JavaFX binaries
+│       └── 📁 legal/                                            # Legal files
+├── 📁 config/                                                    # Configuration files
+│   ├── 📁 application.properties                                # Application configuration
+│   ├── 📁 database.properties                                   # Database configuration
+│   ├── 📁 logback.xml                                           # Logging configuration
+│   └── 📁 messages.properties                                   # Internationalization
+├── 📁 scripts/                                                   # Build & run scripts
+│   ├── 📁 build.bat                                             # Windows build script
+│   ├── 📁 build.sh                                              # Linux/Mac build script
+│   ├── 📁 run.bat                                               # Windows run script
+│   └── 📁 run.sh                                                # Linux/Mac run script
+├── 📁 docs/                                                      # Documentation
+│   ├── 📁 user-guide/                                           # User documentation
 │   │   ├── 📁 user-manual.md
-│   │   └── 📁 troubleshooting.md
-│   ├── 📁 developer/                                              # Tài liệu developer
+│   │   ├── 📁 quick-start.md
+│   │   ├── 📁 troubleshooting.md
+│   │   └── 📁 faq.md
+│   ├── 📁 developer/                                            # Developer documentation
 │   │   ├── 📁 architecture.md
 │   │   ├── 📁 coding-standards.md
 │   │   ├── 📁 database-design.md
+│   │   ├── 📁 api-documentation.md
 │   │   └── 📁 deployment.md
-│   └── 📁 assets/                                                 # Hình ảnh cho docs
-│       ├── 📁 screenshots/
-│       ├── 📁 diagrams/
-│       └── 📁 mockups/
-├── 📁 build/                                                      # Build output
-│   ├── 📁 classes/
-│   ├── 📁 libs/
-│   └── 📁 reports/
-├── 📁 dist/                                                       # Distribution
-│   ├── 📁 lib/
-│   ├── 📁 bin/
-│   └── 📁 CafeManagement.jar
-├── 📁 logs/                                                       # Log files
-│   ├── 📁 application.log
-│   ├── 📁 error.log
-│   └── 📁 access.log
-├── 📁 backup/                                                     # Database backups
-│   └── 📁 auto-backup/
-├── 📁 temp/                                                       # Temporary files
-│   ├── 📁 uploads/
-│   ├── 📁 exports/
-│   └── 📁 cache/
-├── 📁 scripts/                                                    # Build & deployment scripts
-│   ├── 📁 build.bat                                              # Windows build script
-│   ├── 📁 build.sh                                               # Linux/Mac build script
-│   ├── 📁 run.bat                                                # Windows run script
-│   ├── 📁 run.sh                                                 # Linux/Mac run script
-│   ├── 📁 deploy.bat                                             # Windows deployment
-│   ├── 📁 deploy.sh                                              # Linux/Mac deployment
-│   └── 📁 database/
-│       ├── 📁 backup.bat
-│       ├── 📁 backup.sh
-│       ├── 📁 restore.bat
-│       └── 📁 restore.sh
-├── 📁 lib/                                                        # External libraries
-│   ├── 📁 javafx/
-│   ├── 📁 mysql/
-│   ├── 📁 apache/
-│   └── 📁 other/
-├── 📁 config/                                                     # Configuration files
-│   ├── 📁 application.properties
-│   ├── 📁 database.properties
-│   ├── 📁 logging.properties
-│   └── 📁 security.properties
-├── 📁 .gitignore                                                  # Git ignore file
-├── 📁 README.md                                                   # Project README
-├── 📁 CHANGELOG.md                                               # Version history
-├── 📁 LICENSE                                                     # License file
-├── 📁 pom.xml                                                     # Maven configuration
-├── 📁 build.gradle                                               # Gradle configuration
-├── 📁 Project.iml                                                # IntelliJ IDEA project
-├── 📁 .idea/                                                      # IntelliJ IDEA settings
-│   ├── 📁 modules.xml
-│   ├── 📁 misc.xml
-│   ├── 📁 workspace.xml
-│   └── 📁 runConfigurations/
-└── 📁 .vscode/                                                    # VS Code settings
-    ├── 📁 settings.json
-    ├── 📁 launch.json
-    └── 📁 tasks.json
+│   ├── 📁 api/                                                  # API documentation
+│   │   ├── 📁 controllers.md
+│   │   ├── 📁 services.md
+│   │   ├── 📁 daos.md
+│   │   └── 📁 models.md
+│   └── 📁 assets/                                               # Documentation assets
+│       ├── 📁 screenshots/                                      # Application screenshots
+│       │   ├── 📁 dashboard.png
+│       │   ├── 📁 order-management.png
+│       │   ├── 📁 product-management.png
+│       │   ├── 📁 customer-management.png
+│       │   ├── 📁 table-management.png
+│       │   ├── 📁 promotion-management.png
+│       │   ├── 📁 inventory.png
+│       │   ├── 📁 attendance.png
+│       │   ├── 📁 reports.png
+│       │   └── 📁 system-settings.png
+│       ├── 📁 diagrams/                                         # System diagrams
+│       │   ├── 📁 architecture-diagram.png
+│       │   ├── 📁 database-diagram.png
+│       │   ├── 📁 class-diagram.png
+│       │   ├── 📁 sequence-diagram.png
+│       │   └── 📁 use-case-diagram.png
+│       └── 📁 videos/                                           # Demo videos
+│           ├── 📁 installation.mp4
+│           ├── 📁 user-guide.mp4
+│           └── 📁 features-demo.mp4
+├── 📁 target/                                                    # Build output
+│   ├── 📁 classes/                                              # Compiled classes
+│   ├── 📁 test-classes/                                         # Test classes
+│   ├── 📁 generated-sources/                                    # Generated sources
+│   ├── 📁 maven-archiver/                                       # Maven archive
+│   ├── 📁 surefire-reports/                                     # Test reports
+│   ├── 📁 jacoco/                                               # Coverage reports
+│   └── 📁 cafe-management-2.0.0.jar                            # Final JAR file
+├── 📁 .gitignore                                                # Git ignore file
+├── 📁 pom.xml                                                   # Maven configuration
+├── 📁 README.md                                                 # Project README
+├── 📁 CHANGELOG.md                                              # Change log
+├── 📁 RUNNING_GUIDE.md                                          # Running guide
+├── 📁 project_structure.md                                      # This file
+├── 📁 build-and-run.bat                                         # Windows build & run
+├── 📁 run-app.bat                                               # Windows run app
+└── 📁 run-simple.bat                                            # Windows simple run
 ```
 
-## 📋 Mô tả các thư mục chính:
+## 🏗️ Kiến trúc Hệ thống
 
-### 🏗️ **src/main/java/com/cafe/**
-- **Cấu trúc MVC hoàn chỉnh** với Model, View, Controller
-- **Layered Architecture** với DAO, Service, Controller
-- **Package organization** theo chức năng nghiệp vụ
+### **1. Layered Architecture**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Presentation Layer                       │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │   Admin     │ │   Waiter    │ │   Barista   │           │
+│  │ Controllers │ │ Controllers │ │ Controllers │           │
+│  └─────────────┘ └─────────────┘ └─────────────┘           │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    Business Logic Layer                     │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │   User      │ │   Order     │ │   Product   │           │
+│  │  Service    │ │  Service    │ │  Service    │           │
+│  └─────────────┘ └─────────────┘ └─────────────┘           │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    Data Access Layer                        │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │   User      │ │   Order     │ │   Product   │           │
+│  │    DAO      │ │    DAO      │ │    DAO      │           │
+│  └─────────────┘ └─────────────┘ └─────────────┘           │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    Database Layer                           │
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │              MySQL Database (v2.0)                      │ │
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐       │ │
+│  │  │  Users  │ │ Orders  │ │Products │ │Customers│       │ │
+│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘       │ │
+│  └─────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
 
-### 🎨 **src/main/resources/**
-- **FXML files** cho giao diện JavaFX
-- **CSS stylesheets** cho styling
-- **Images & Icons** cho UI
-- **Properties files** cho đa ngôn ngữ
+### **2. Design Patterns**
+- **MVC (Model-View-Controller)** - Separation of concerns
+- **DAO (Data Access Object)** - Database abstraction
+- **Service Layer** - Business logic encapsulation
+- **Singleton** - Configuration management
+- **Factory** - Object creation
+- **Observer** - Event handling
+- **Strategy** - Payment methods
+- **Template Method** - Report generation
 
-### 🧪 **src/test/**
-- **Unit tests** cho từng layer
-- **Integration tests** cho toàn bộ hệ thống
-- **Test data** và configuration
+### **3. Database Optimization**
+- **45+ Indexes** - Query performance
+- **3 Views** - Fast reporting
+- **3 Triggers** - Data consistency
+- **2 Stored Procedures** - Complex operations
+- **2 Functions** - Reusable logic
+- **UTF8MB4** - Full Unicode support
+- **JSON Fields** - Flexible data storage
 
-### 📚 **docs/**
-- **API documentation** cho developers
-- **User guides** cho end users
-- **Architecture docs** cho maintainers
+## 🔧 Cấu hình & Deployment
 
-### 🔧 **Scripts & Config**
-- **Build scripts** cho nhiều platform
-- **Database scripts** cho backup/restore
-- **Configuration files** cho deployment
+### **Development Environment**
+- **Java:** 17+
+- **MySQL:** 8.0+
+- **JavaFX:** 17+
+- **Maven:** 3.6+
+- **IDE:** IntelliJ IDEA / Eclipse / VS Code
 
-## 🚀 **Lợi ích của cấu trúc này:**
+### **Production Environment**
+- **Java:** 17 LTS
+- **MySQL:** 8.0+
+- **OS:** Windows Server / Linux / macOS
+- **Memory:** 8GB+ RAM
+- **Storage:** 50GB+ SSD
 
-1. **Scalability:** Dễ dàng mở rộng và thêm tính năng mới
-2. **Maintainability:** Code được tổ chức rõ ràng, dễ bảo trì
-3. **Testability:** Hỗ trợ testing ở mọi level
-4. **Deployment:** Scripts tự động hóa việc build và deploy
-5. **Documentation:** Tài liệu đầy đủ cho mọi đối tượng
-6. **Internationalization:** Hỗ trợ đa ngôn ngữ
-7. **Security:** Tách biệt logic bảo mật
-8. **Performance:** Tối ưu hóa database và caching
+### **Build & Deploy**
+```bash
+# Build project
+mvn clean install
 
-Cấu trúc này sẽ giúp phát triển một hệ thống quản lý quán cà phê chuyên nghiệp, dễ bảo trì và mở rộng! 
+# Run application
+mvn javafx:run
+
+# Create executable JAR
+mvn package
+
+# Run JAR file
+java -jar target/cafe-management-2.0.0.jar
+```
+
+## 📊 Tính năng Chính
+
+### **1. Quản lý Người dùng**
+- Đăng nhập/Đăng xuất với bảo mật
+- Phân quyền theo vai trò (Admin, Waiter, Barista)
+- Audit logging mọi thay đổi
+- Session management
+
+### **2. Quản lý Sản phẩm**
+- CRUD operations với SKU
+- Inventory management với stock tracking
+- Category management với sort order
+- Fulltext search capabilities
+
+### **3. Quản lý Đơn hàng**
+- Tạo đơn hàng với stored procedures
+- Multiple payment methods
+- Tax calculation tự động
+- Promotion system nâng cao
+
+### **4. Quản lý Khách hàng**
+- Customer loyalty system
+- Purchase history tracking
+- VIP customer identification
+- Fulltext search
+
+### **5. Quản lý Bàn**
+- Real-time table status
+- Area management với capacity
+- Unique constraints
+- Auto-update status
+
+### **6. Báo cáo & Analytics**
+- Revenue reports với views
+- Inventory reports
+- Customer analytics
+- Attendance tracking
+
+## 🔒 Bảo mật
+
+### **Authentication & Authorization**
+- BCrypt password hashing
+- Role-based access control
+- Session management
+- IP address logging
+
+### **Data Protection**
+- Input validation
+- SQL injection prevention
+- XSS protection
+- CSRF protection
+
+### **Audit Trail**
+- System logs cho mọi thay đổi
+- User action tracking
+- Data modification history
+- Security event logging
+
+## 🚀 Performance
+
+### **Database Optimization**
+- Composite indexes
+- Query optimization
+- Connection pooling
+- Caching strategies
+
+### **Application Performance**
+- Lazy loading
+- Pagination
+- Background processing
+- Memory management
+
+### **UI/UX Optimization**
+- Responsive design
+- Fast loading
+- Smooth animations
+- Accessibility features
+
+## 📝 Ghi chú
+
+- **Version:** 2.0.0 (Optimized)
+- **Last Updated:** 2025-01-31
+- **Database:** MySQL 8.0+ với UTF8MB4
+- **JavaFX:** 17+ với modern UI
+- **Architecture:** Layered MVC với DAO pattern
+- **Security:** BCrypt + Role-based access
+- **Performance:** 45+ indexes + Views + Triggers 
