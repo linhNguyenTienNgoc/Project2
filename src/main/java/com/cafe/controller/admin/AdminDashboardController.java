@@ -162,8 +162,8 @@ public class AdminDashboardController implements Initializable {
             int offset = (currentPage - 1) * pageSize;
             
             // Lấy danh sách nhân viên từ database
-            List<User> users = userDAO.getAllUsers(offset, pageSize);
-            int totalUsers = userDAO.getTotalUserCount();
+            List<User> users = userDAO.findAll(offset, pageSize);
+            long totalUsers = userDAO.count();
             
             // Cập nhật danh sách
             employeeList.clear();
