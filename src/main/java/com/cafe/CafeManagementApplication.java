@@ -82,21 +82,21 @@ import java.util.Objects;
     }
     
     /**
-     * Hiển thị màn hình chính (Dashboard)
+     * Hiển thị màn hình chính (Menu Screen) cho Waiter/Barista
      */
     public static void showDashboard() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(CafeManagementApplication.class.getResource("/fxml/dashboard/dashboard.fxml"));
+            fxmlLoader.setLocation(CafeManagementApplication.class.getResource("/fxml/menu-screen.fxml"));
             
             Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
             
             // Load CSS
             String css = Objects.requireNonNull(CafeManagementApplication.class
-                    .getResource("/css/dashboard.css")).toExternalForm();
+                    .getResource("/css/menu.css")).toExternalForm();
             scene.getStylesheets().add(css);
             
-            primaryStage.setTitle(APP_TITLE + " - Dashboard");
+            primaryStage.setTitle(APP_TITLE + " - Menu Screen");
             primaryStage.setScene(scene);
             primaryStage.setResizable(true);
             primaryStage.setMaximized(true);
@@ -104,7 +104,7 @@ import java.util.Objects;
             
         } catch (IOException e) {
             showErrorAlert("Lỗi tải giao diện", 
-                          "Không thể tải giao diện chính: " + e.getMessage());
+                          "Không thể tải giao diện Menu: " + e.getMessage());
             e.printStackTrace();
         }
     }

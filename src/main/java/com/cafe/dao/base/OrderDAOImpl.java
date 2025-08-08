@@ -9,6 +9,7 @@ import com.cafe.model.enums.PaymentStatus;
 import com.cafe.model.enums.PaymentMethod;
 
 import java.sql.*;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -1098,7 +1099,13 @@ public class OrderDAOImpl implements OrderDAO {
         order.setOrderId(rs.getInt("order_id"));
         order.setOrderNumber(rs.getString("order_number"));
         order.setTableId(rs.getInt("table_id"));
-        order.setCustomerId(rs.getInt("customer_id"));
+        
+        // Handle null customerId
+        int customerId = rs.getInt("customer_id");
+        if (!rs.wasNull()) {
+            order.setCustomerId(customerId);
+        }
+        
         order.setUserId(rs.getInt("user_id"));
         order.setTotalAmount(rs.getDouble("total_amount"));
         order.setDiscountAmount(rs.getDouble("discount_amount"));
@@ -1114,11 +1121,13 @@ public class OrderDAOImpl implements OrderDAO {
         order.setUpdatedAt(rs.getTimestamp("updated_at"));
         
         // Load related entities
-        Customer customer = new Customer();
-        customer.setCustomerId(rs.getInt("customer_id"));
-        customer.setFullName(rs.getString("customer_name"));
-        customer.setPhone(rs.getString("phone"));
-        order.setCustomer(customer);
+        if (!rs.wasNull()) {
+            Customer customer = new Customer();
+            customer.setCustomerId(customerId);
+            customer.setFullName(rs.getString("customer_name"));
+            customer.setPhone(rs.getString("phone"));
+            order.setCustomer(customer);
+        }
         
         User user = new User();
         user.setUserId(rs.getInt("user_id"));
@@ -1140,7 +1149,12 @@ public class OrderDAOImpl implements OrderDAO {
     private void setOrderToPreparedStatement(Order order, PreparedStatement ps) throws SQLException {
         ps.setString(1, order.getOrderNumber());
         ps.setInt(2, order.getTableId());
-        ps.setInt(3, order.getCustomerId());
+        // Handle null customerId by setting it to null in the database
+        if (order.getCustomerId() != null) {
+            ps.setInt(3, order.getCustomerId());
+        } else {
+            ps.setNull(3, Types.INTEGER);
+        }
         ps.setInt(4, order.getUserId());
         ps.setDouble(5, order.getTotalAmount());
         ps.setDouble(6, order.getDiscountAmount());

@@ -4,7 +4,7 @@
 
 /* Root styling */
 .root {
-    -fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2);
     -fx-font-family: "Roboto", "Segoe UI", Arial, sans-serif;
 }
 

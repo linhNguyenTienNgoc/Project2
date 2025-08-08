@@ -8,11 +8,11 @@
 -- =====================================================
 
 -- Tạo database với charset và collation tối ưu cho tiếng Việt
-CREATE DATABASE IF NOT EXISTS cafe_management 
+CREATE DATABASE IF NOT EXISTS cafe_management1 
 CHARACTER SET utf8mb4 
 COLLATE utf8mb4_unicode_ci;
 
-USE cafe_management;
+USE cafe_management1;
 
 -- =====================================================
 -- 1. BẢNG NGƯỜI DÙNG VÀ PHÂN QUYỀN

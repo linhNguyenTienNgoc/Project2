@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 REM Đặt tiêu đề cho cửa sổ
-title Cafe Management System - Launcher
+title Cafe Management System - Quick Launch
 
 REM Chuyển đến thư mục chứa script này
 cd /d "%~dp0"
@@ -11,6 +11,7 @@ echo ========================================
 echo    Cafe Management System
 echo ========================================
 echo.
+echo Quick Launch Mode
 echo Current directory: %CD%
 echo.
 
@@ -23,11 +24,20 @@ if not exist "pom.xml" (
     exit /b 1
 )
 
+REM Kiểm tra xem đã compile chưa
+if not exist "target\classes" (
+    echo WARNING: Project not compiled yet
+    echo Running full build first...
+    echo.
+    call run-app.bat
+    exit /b %errorlevel%
+)
+
 echo Checking system requirements...
 echo.
 
 REM Kiểm tra Java version
-echo [1/4] Checking Java installation...
+echo [1/3] Checking Java installation...
 java -version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ERROR: Java is not installed or not in PATH
@@ -36,12 +46,11 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo [OK] Java is installed
-java -version 2>&1 | findstr "version"
+echo ✓ Java is installed
 
 REM Kiểm tra Maven
 echo.
-echo [2/4] Checking Maven installation...
+echo [2/3] Checking Maven installation...
 mvn -version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ERROR: Maven is not installed or not in PATH
@@ -50,27 +59,11 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo [OK] Maven is installed
-mvn -version 2>&1 | findstr "Apache Maven"
+echo ✓ Maven is installed
 
-REM Clean và compile project
+REM Chạy ứng dụng bằng Maven (không compile lại)
 echo.
-echo [3/4] Building project...
-echo Cleaning and compiling project...
-mvn clean compile -q
-if %errorlevel% neq 0 (
-    echo.
-    echo ERROR: Project compilation failed
-    echo Please check the error messages above
-    echo.
-    pause
-    exit /b 1
-)
-echo [OK] Project compiled successfully
-
-REM Chạy ứng dụng bằng Maven
-echo.
-echo [4/4] Starting application...
+echo [3/3] Starting application...
 echo ========================================
 echo    Launching Cafe Management System
 echo ========================================
@@ -92,4 +85,5 @@ echo ========================================
 echo.
 echo Thank you for using Cafe Management System!
 echo.
-pause 
+pause
+

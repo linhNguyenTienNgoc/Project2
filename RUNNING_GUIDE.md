@@ -1,321 +1,114 @@
-# 🚀 Hướng dẫn chạy ứng dụng Cafe Management System v2.0
+# Hướng Dẫn Chạy Ứng Dụng Cafe Management System
 
-## 📋 Yêu cầu hệ thống
+## Các File Chạy Ứng Dụng
 
-### **Minimum Requirements**
-- **Java**: JDK 17 hoặc cao hơn
-- **Maven**: 3.6.0 hoặc cao hơn
-- **MySQL**: 8.0 hoặc cao hơn
-- **RAM**: 4GB
-- **Storage**: 2GB free space
+### 1. `start-cafe.bat` (Khuyến nghị)
+- **Mô tả**: Menu chính để chạy ứng dụng với các tùy chọn
+- **Cách sử dụng**: Bấm đúp vào file này
+- **Tùy chọn**:
+  - `[1]` Run Application (Full Build) - Chạy với build đầy đủ
+  - `[2]` Quick Start (Skip Build) - Chạy nhanh (bỏ qua build)
+  - `[3]` Build Only (No Run) - Chỉ build, không chạy
+  - `[4]` Exit - Thoát
 
-### **Recommended Requirements**
-- **Java**: JDK 17 LTS
-- **Maven**: 3.8.0+
-- **MySQL**: 8.0+
-- **RAM**: 8GB
-- **Storage**: 5GB free space
-- **OS**: Windows 11, macOS 12+, Ubuntu 20.04+
+### 2. `run-app.bat` (Build và Chạy)
+- **Mô tả**: Chạy ứng dụng với build đầy đủ
+- **Cách sử dụng**: Bấm đúp vào file này
+- **Quy trình**:
+  1. Kiểm tra Java và Maven
+  2. Clean và compile project
+  3. Chạy ứng dụng JavaFX
 
-## 🗄️ Cài đặt Database (Bắt buộc)
+### 3. `run-quick.bat` (Chạy Nhanh)
+- **Mô tả**: Chạy ứng dụng nhanh (bỏ qua build nếu đã compile)
+- **Cách sử dụng**: Bấm đúp vào file này
+- **Lưu ý**: Nếu chưa build, sẽ tự động chuyển sang full build
 
-### **1. Tạo Database với Schema tối ưu**
-```bash
-# Import optimized schema (v2.0)
-mysql -u root -p < database/cafe_management.sql
+### 4. `build-only.bat` (Chỉ Build)
+- **Mô tả**: Chỉ compile project, không chạy ứng dụng
+- **Cách sử dụng**: Bấm đúp vào file này
+- **Mục đích**: Build trước để sau này chạy nhanh hơn
+
+## Yêu Cầu Hệ Thống
+
+### Java
+- **Phiên bản**: Java 21 hoặc mới hơn
+- **Kiểm tra**: `java -version`
+- **Tải về**: [Oracle JDK](https://www.oracle.com/java/technologies/downloads/) hoặc [OpenJDK](https://adoptium.net/)
+
+### Maven
+- **Phiên bản**: Apache Maven 3.6+ 
+- **Kiểm tra**: `mvn -version`
+- **Tải về**: [Apache Maven](https://maven.apache.org/download.cgi)
+
+### MySQL Database
+- **Phiên bản**: MySQL 8.0+
+- **Database**: `cafe_management`
+- **Cấu hình**: Xem file `config/application.properties`
+
+## Cách Sử Dụng
+
+### Lần Đầu Chạy
+1. Đảm bảo đã cài đặt Java và Maven
+2. Đảm bảo MySQL đang chạy và có database `cafe_management`
+3. Bấm đúp vào `start-cafe.bat`
+4. Chọn tùy chọn `[1]` để build và chạy lần đầu
+
+### Các Lần Chạy Sau
+1. Bấm đúp vào `start-cafe.bat`
+2. Chọn tùy chọn `[2]` để chạy nhanh
+3. Hoặc bấm đúp trực tiếp vào `run-quick.bat`
+
+## Xử Lý Lỗi
+
+### Lỗi "Java is not installed"
+- Cài đặt Java 21+ và thêm vào PATH
+- Restart Command Prompt sau khi cài đặt
+
+### Lỗi "Maven is not installed"
+- Cài đặt Apache Maven và thêm vào PATH
+- Restart Command Prompt sau khi cài đặt
+
+### Lỗi "pom.xml not found"
+- Đảm bảo đang chạy script từ thư mục gốc của project
+- Kiểm tra file `pom.xml` có tồn tại không
+
+### Lỗi Database Connection
+- Kiểm tra MySQL có đang chạy không
+- Kiểm tra thông tin kết nối trong `config/application.properties`
+- Đảm bảo database `cafe_management` đã được tạo
+
+### Lỗi Compilation
+- Kiểm tra Java version (cần Java 21+)
+- Xóa thư mục `target` và thử build lại
+- Kiểm tra lỗi syntax trong code
+
+## Cấu Trúc Thư Mục
+
+```
+Project2/
+├── start-cafe.bat          # Menu chính (khuyến nghị)
+├── run-app.bat            # Build và chạy đầy đủ
+├── run-quick.bat          # Chạy nhanh
+├── build-only.bat         # Chỉ build
+├── pom.xml                # Cấu hình Maven
+├── config/                # Cấu hình ứng dụng
+├── src/                   # Mã nguồn
+└── target/                # Thư mục build (tự động tạo)
 ```
 
-### **2. Import dữ liệu mẫu**
-```bash
-# Import sample data
-mysql -u root -p cafe_management < database/data.sql
-```
+## Lưu Ý
 
-### **3. Kiểm tra kết nối**
-```bash
-# Test database connection
-mysql -u root -p < database/test_connection.sql
-```
+- **Lần đầu**: Sử dụng `run-app.bat` hoặc `start-cafe.bat` → `[1]`
+- **Các lần sau**: Sử dụng `run-quick.bat` hoặc `start-cafe.bat` → `[2]`
+- **Cửa sổ**: Ứng dụng sẽ mở trong cửa sổ JavaFX riêng biệt
+- **Đóng ứng dụng**: Đóng cửa sổ JavaFX, không đóng Command Prompt
+- **Logs**: Xem thông tin chi tiết trong Command Prompt để debug
 
-## 🚀 Cách chạy ứng dụng
+## Hỗ Trợ
 
-### **Phương pháp 1: Sử dụng run-app.bat (Khuyến nghị)**
-```bash
-# Windows
-run-app.bat
-
-# Linux/Mac
-./run-app.sh
-```
-
-### **Phương pháp 2: Sử dụng run-simple.bat**
-```bash
-# Windows
-run-simple.bat
-
-# Linux/Mac
-./run-simple.sh
-```
-
-### **Phương pháp 3: Build và chạy JAR file**
-```bash
-# Windows
-build-and-run.bat
-
-# Linux/Mac
-./build-and-run.sh
-```
-
-### **Phương pháp 4: Chạy thủ công bằng Maven**
-```bash
-# Clean và compile
-mvn clean compile
-
-# Run với JavaFX
-mvn javafx:run
-
-# Hoặc build JAR và chạy
-mvn clean package
-java -jar target/cafe-management-2.0.0.jar
-```
-
-## 🔧 Cấu hình Database
-
-### **1. Cập nhật thông tin kết nối**
-```properties
-# config/database.properties
-database.url=jdbc:mysql://localhost:3306/cafe_management?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC
-database.username=root
-database.password=your_password
-database.driver=com.mysql.cj.jdbc.Driver
-database.pool.size=10
-database.pool.maxLifetime=1800000
-```
-
-### **2. Cấu hình ứng dụng**
-```properties
-# config/application.properties
-app.name=Cafe Management System
-app.version=2.0.0
-app.language=vi
-app.currency=VND
-app.tax.rate=10
-app.loyalty.points.rate=1
-```
-
-## 👥 Thông tin đăng nhập mặc định
-
-### **Tài khoản Admin:**
-- **Username**: `admin`
-- **Password**: `123456`
-- **Role**: Admin (Quản trị viên hệ thống)
-
-### **Tài khoản Waiter:**
-- **Username**: `waiter1`
-- **Password**: `123456`
-- **Role**: Waiter (Nhân viên phục vụ)
-
-- **Username**: `waiter2`
-- **Password**: `123456`
-- **Role**: Waiter (Nhân viên phục vụ)
-
-### **Tài khoản Barista:**
-- **Username**: `barista1`
-- **Password**: `123456`
-- **Role**: Barista (Nhân viên pha chế)
-
-- **Username**: `barista2`
-- **Password**: `123456`
-- **Role**: Barista (Nhân viên pha chế)
-
-## ⚠️ Xử lý lỗi thường gặp
-
-### **Lỗi 1: "Java is not installed or not in PATH"**
-**Giải pháp:**
-```bash
-# Cài đặt Java JDK 17+
-# Thêm Java vào PATH environment variable
-# Kiểm tra version
-java -version
-```
-
-### **Lỗi 2: "Maven is not installed or not in PATH"**
-**Giải pháp:**
-```bash
-# Cài đặt Maven 3.6.0+
-# Thêm Maven vào PATH environment variable
-# Kiểm tra version
-mvn -version
-```
-
-### **Lỗi 3: "Compilation failed"**
-**Giải pháp:**
-```bash
-# Kiểm tra Java version (phải là JDK 17+)
-java -version
-
-# Xóa thư mục target và thử lại
-rm -rf target/
-mvn clean compile
-```
-
-### **Lỗi 4: "Database connection failed"**
-**Giải pháp:**
-```bash
-# Đảm bảo MySQL Server đang chạy
-sudo systemctl start mysql  # Linux
-net start mysql             # Windows
-
-# Kiểm tra file config
-cat config/database.properties
-
-# Test connection
-mysql -u root -p -e "USE cafe_management; SHOW TABLES;"
-```
-
-### **Lỗi 5: "JavaFX runtime components are missing"**
-**Giải pháp:**
-```bash
-# Đảm bảo đang sử dụng Java 17+
-java -version
-
-# Clean và run lại
-mvn clean compile javafx:run
-```
-
-### **Lỗi 6: "Charset encoding issues"**
-**Giải pháp:**
-```bash
-# Đảm bảo database sử dụng UTF8MB4
-mysql -u root -p -e "ALTER DATABASE cafe_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-
-# Reimport schema
-mysql -u root -p < database/cafe_management.sql
-```
-
-### **Lỗi 7: "Permission denied"**
-**Giải pháp:**
-```bash
-# Cấp quyền thực thi cho scripts
-chmod +x *.sh
-
-# Windows: Chạy Command Prompt với quyền Administrator
-```
-
-## 🔍 Kiểm tra hệ thống
-
-### **1. Kiểm tra Database**
-```sql
--- Kiểm tra tables
-SHOW TABLES;
-
--- Kiểm tra users
-SELECT username, role_name FROM users u JOIN roles r ON u.role_id = r.role_id;
-
--- Kiểm tra products
-SELECT COUNT(*) as total_products FROM products;
-
--- Kiểm tra views
-SHOW FULL TABLES WHERE Table_type = 'VIEW';
-```
-
-### **2. Kiểm tra Triggers**
-```sql
--- Kiểm tra triggers
-SHOW TRIGGERS;
-
--- Test trigger functionality
-INSERT INTO order_details (order_id, product_id, quantity, unit_price, total_price) 
-VALUES (1, 1, 1, 25000, 25000);
-```
-
-### **3. Kiểm tra Procedures**
-```sql
--- Kiểm tra stored procedures
-SHOW PROCEDURE STATUS WHERE Db = 'cafe_management';
-
--- Test procedure
-CALL sp_create_order(1, 1, 1, 'Test order');
-```
-
-## 📊 Tính năng mới trong v2.0
-
-### **Database Optimization**
-- ✅ UTF8MB4 charset cho tiếng Việt và emoji
-- ✅ 45+ indexes cho hiệu suất tối đa
-- ✅ 3 Views cho báo cáo nhanh
-- ✅ 3 Triggers tự động hóa
-- ✅ 2 Stored Procedures xử lý logic phức tạp
-- ✅ 2 Functions tiện ích
-
-### **Advanced Features**
-- ✅ Quản lý tồn kho với min stock level
-- ✅ Auto-update stock khi tạo đơn hàng
-- ✅ Hệ thống khuyến mãi nâng cao
-- ✅ Audit logging mọi thay đổi
-- ✅ JSON permissions cho quản lý quyền
-- ✅ Fulltext search cho sản phẩm và khách hàng
-
-### **Security Enhancements**
-- ✅ Password hashing với BCrypt
-- ✅ Email/Phone validation với regex
-- ✅ Role-based access control
-- ✅ Session management cải tiến
-- ✅ IP address logging
-
-## 🔄 Migration từ v1.0
-
-### **Breaking Changes:**
-- Role system: Giảm từ 5 roles xuống 3 roles
-- Database charset: Chuyển sang UTF8MB4
-- New constraints: Có thể gây lỗi với dữ liệu cũ
-- Table structure: Thêm columns mới
-
-### **Migration Steps:**
-1. **Backup database hiện tại**
-   ```bash
-   mysqldump -u root -p cafe_management > backup_v1.sql
-   ```
-
-2. **Drop và recreate database**
-   ```sql
-   DROP DATABASE cafe_management;
-   CREATE DATABASE cafe_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   ```
-
-3. **Import optimized schema**
-   ```bash
-   mysql -u root -p < database/cafe_management.sql
-   ```
-
-4. **Import sample data**
-   ```bash
-   mysql -u root -p cafe_management < database/data.sql
-   ```
-
-5. **Update application configuration**
-   - Cập nhật database.properties
-   - Cập nhật application.properties
-
-6. **Test tất cả tính năng**
-   - Đăng nhập với tài khoản mới
-   - Test order creation
-   - Test inventory management
-   - Verify triggers và procedures
-
-## 📞 Support
-
-### **Tài liệu tham khảo:**
-- [README.md](README.md) - Tổng quan project
-- [CHANGELOG.md](CHANGELOG.md) - Lịch sử thay đổi
-- [Database README](database/README.md) - Tài liệu database
-- [Setup Guide](database/SETUP_GUIDE.md) - Hướng dẫn cài đặt
-
-### **Liên hệ:**
-- **Email:** cafe.management@example.com
-- **GitHub:** https://github.com/your-username/cafe-management
-- **Documentation:** https://cafe-management.example.com/docs
-
----
-
-**Lưu ý:** Đây là phiên bản 2.0.0 với nhiều cải tiến quan trọng. Vui lòng đọc kỹ hướng dẫn migration nếu đang sử dụng phiên bản cũ. 
+Nếu gặp vấn đề, hãy:
+1. Kiểm tra các yêu cầu hệ thống
+2. Xem thông báo lỗi trong Command Prompt
+3. Thử chạy lại với tùy chọn full build
+4. Kiểm tra cấu hình database 

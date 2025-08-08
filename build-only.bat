@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 REM Đặt tiêu đề cho cửa sổ
-title Cafe Management System - Launcher
+title Cafe Management System - Build Only
 
 REM Chuyển đến thư mục chứa script này
 cd /d "%~dp0"
@@ -11,6 +11,7 @@ echo ========================================
 echo    Cafe Management System
 echo ========================================
 echo.
+echo Build Only Mode
 echo Current directory: %CD%
 echo.
 
@@ -27,7 +28,7 @@ echo Checking system requirements...
 echo.
 
 REM Kiểm tra Java version
-echo [1/4] Checking Java installation...
+echo [1/3] Checking Java installation...
 java -version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ERROR: Java is not installed or not in PATH
@@ -36,12 +37,12 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo [OK] Java is installed
+echo ✓ Java is installed
 java -version 2>&1 | findstr "version"
 
 REM Kiểm tra Maven
 echo.
-echo [2/4] Checking Maven installation...
+echo [2/3] Checking Maven installation...
 mvn -version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ERROR: Maven is not installed or not in PATH
@@ -50,14 +51,14 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo [OK] Maven is installed
+echo ✓ Maven is installed
 mvn -version 2>&1 | findstr "Apache Maven"
 
 REM Clean và compile project
 echo.
-echo [3/4] Building project...
+echo [3/3] Building project...
 echo Cleaning and compiling project...
-mvn clean compile -q
+mvn clean compile
 if %errorlevel% neq 0 (
     echo.
     echo ERROR: Project compilation failed
@@ -66,30 +67,14 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo [OK] Project compiled successfully
-
-REM Chạy ứng dụng bằng Maven
-echo.
-echo [4/4] Starting application...
-echo ========================================
-echo    Launching Cafe Management System
-echo ========================================
-echo.
-echo The application is starting...
-echo Please wait for the login window to appear.
-echo.
-echo To close the application, close the JavaFX window.
-echo To stop this launcher, press Ctrl+C
-echo.
-
-REM Chạy ứng dụng với output đầy đủ
-mvn javafx:run
 
 echo.
 echo ========================================
-echo Application has been closed.
+echo ✓ Project built successfully!
 echo ========================================
 echo.
-echo Thank you for using Cafe Management System!
+echo The project has been compiled and is ready to run.
+echo You can now use 'run-quick.bat' for faster startup.
 echo.
-pause 
+pause
+

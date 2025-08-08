@@ -81,7 +81,7 @@ public class DatabaseConfig {
             
             // Load database properties
             url = properties.getProperty("database.url", 
-                "jdbc:mysql://localhost:3306/cafe_management?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh");
+                "jdbc:mysql://localhost:3306/cafe_management1?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh");
             username = properties.getProperty("database.username", "root");
             password = properties.getProperty("database.password", "12345678");
             driver = properties.getProperty("database.driver", "com.mysql.cj.jdbc.Driver");
@@ -110,7 +110,7 @@ public class DatabaseConfig {
     private void loadDefaultProperties() {
         System.out.println("⚠️ Using default database configuration");
         
-        url = "jdbc:mysql://localhost:3306/cafe_management?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh";
+        url = "jdbc:mysql://localhost:3306/cafe_management1?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh";
         username = "root";
         password = "12345678";
         driver = "com.mysql.cj.jdbc.Driver";

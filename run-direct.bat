@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 REM Đặt tiêu đề cho cửa sổ
-title Cafe Management System - Simple Launcher
+title Cafe Management System - Direct Launch
 
 REM Chuyển đến thư mục chứa script này
 cd /d "%~dp0"
@@ -23,37 +23,7 @@ if not exist "pom.xml" (
     exit /b 1
 )
 
-echo Checking system requirements...
-echo.
-
-REM Kiểm tra Java version
-echo [1/3] Checking Java installation...
-java -version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ERROR: Java is not installed or not in PATH
-    echo Please install Java 21 or later and add it to your PATH
-    echo.
-    pause
-    exit /b 1
-)
-echo [OK] Java is installed
-
-REM Kiểm tra Maven
-echo.
-echo [2/3] Checking Maven installation...
-mvn -version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ERROR: Maven is not installed or not in PATH
-    echo Please install Apache Maven and add it to your PATH
-    echo.
-    pause
-    exit /b 1
-)
-echo [OK] Maven is installed
-
-REM Chạy ứng dụng bằng Maven
-echo.
-echo [3/3] Starting application...
+echo Starting application...
 echo ========================================
 echo    Launching Cafe Management System
 echo ========================================
@@ -65,7 +35,7 @@ echo To close the application, close the JavaFX window.
 echo To stop this launcher, press Ctrl+C
 echo.
 
-REM Chạy ứng dụng với output đầy đủ
+REM Chạy ứng dụng trực tiếp
 mvn javafx:run
 
 echo.
@@ -75,4 +45,5 @@ echo ========================================
 echo.
 echo Thank you for using Cafe Management System!
 echo.
-pause 
+pause
+

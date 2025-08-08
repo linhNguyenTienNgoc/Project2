@@ -6,7 +6,7 @@
 -- Phiên bản: 2.0.1
 -- =====================================================
 
-USE cafe_management;
+USE cafe_management1;
 
 -- Tắt safe update mode để cho phép DELETE với JOIN
 SET SQL_SAFE_UPDATES = 0;
