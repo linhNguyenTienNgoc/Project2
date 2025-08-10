@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<VBox xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cafe.controller.admin.EditEmployeeController"
+      style="-fx-background-color: #f5d6ae;" spacing="0">
+
+    <!-- Header -->
+    <HBox style="-fx-background-color: #5d2b1c; -fx-padding: 15;" alignment="CENTER_LEFT" spacing="20">
+        <Label text="Sửa Thông Tin Nhân Viên"
+               style="-fx-text-fill: #fff9c4; -fx-font-size: 20px; -fx-font-weight: bold;" />
+        
+        <Region HBox.hgrow="ALWAYS" />
+        
+        <Button fx:id="backButton" text="← Quay lại"
+                style="-fx-background-color: transparent; -fx-text-fill: #fff9c4; -fx-font-size: 14px; -fx-underline: true;" />
+    </HBox>
+
+    <!-- Main Content -->
+    <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true">
+        <VBox style="-fx-background-color: #f8f9fa; -fx-padding: 30;" spacing="25" alignment="TOP_CENTER">
+            
+            <!-- Form Title -->
+            <Label text="Cập Nhật Thông Tin Nhân Viên" 
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4e342e;" />
+            
+            <!-- Form Container -->
+            <VBox style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 30;" 
+                   spacing="20" maxWidth="600">
+                
+                <!-- User ID (Read-only) -->
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Mã nhân viên" style="-fx-font-weight: bold; -fx-text-fill: #4e342e;" />
+                        <TextField fx:id="userIdField" editable="false" 
+                                   style="-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-padding: 10;" />
+                    </VBox>
+                    
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Tên đăng nhập" style="-fx-font-weight: bold; -fx-text-fill: #4e342e;" />
+                        <TextField fx:id="usernameField" editable="false" 
+                                   style="-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-padding: 10;" />
+                    </VBox>
+                </HBox>
+                
+                <!-- Password Row -->
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Mật khẩu mới" style="-fx-font-weight: bold; -fx-text-fill: #4e342e;" />
+                        <PasswordField fx:id="passwordField" promptText="Để trống nếu không đổi mật khẩu" 
+                                       style="-fx-background-radius: 8; -fx-padding: 10;" />
+                    </VBox>
+                    
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Xác nhận mật khẩu" style="-fx-font-weight: bold; -fx-text-fill: #4e342e;" />
+                        <PasswordField fx:id="confirmPasswordField" promptText="Nhập lại mật khẩu mới" 
+                                       style="-fx-background-radius: 8; -fx-padding: 10;" />
+                    </VBox>
+                </HBox>
+                
+                <!-- Full Name and Phone Row -->
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Họ và tên *" style="-fx-font-weight: bold; -fx-text-fill: #4e342e;" />
+                        <TextField fx:id="fullNameField" promptText="Nhập họ và tên" 
+                                   style="-fx-background-radius: 8; -fx-padding: 10;" />
+                    </VBox>
+                    
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Số điện thoại *" style="-fx-font-weight: bold; -fx-text-fill: #4e342e;" />
+                        <TextField fx:id="phoneField" promptText="Nhập số điện thoại" 
+                                   style="-fx-background-radius: 8; -fx-padding: 10;" />
+                    </VBox>
+                </HBox>
+                
+                <!-- Email and Role Row -->
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Email" style="-fx-font-weight: bold; -fx-text-fill: #4e342e;" />
+                        <TextField fx:id="emailField" promptText="Nhập email" 
+                                   style="-fx-background-radius: 8; -fx-padding: 10;" />
+                    </VBox>
+                    
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Chức vụ *" style="-fx-font-weight: bold; -fx-text-fill: #4e342e;" />
+                        <ComboBox fx:id="roleComboBox" promptText="Chọn chức vụ"
+                                   style="-fx-background-radius: 8; -fx-padding: 10;">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="Admin"/>
+                                    <String fx:value="Manager"/>
+                                    <String fx:value="Cashier"/>
+                                    <String fx:value="Waiter"/>
+                                    <String fx:value="Barista"/>
+                                </FXCollections>
+                            </items>
+                        </ComboBox>
+                    </VBox>
+                </HBox>
+                
+                <!-- Status Row -->
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Trạng thái" style="-fx-font-weight: bold; -fx-text-fill: #4e342e;" />
+                        <CheckBox fx:id="isActiveCheckBox" text="Kích hoạt tài khoản" 
+                                   selected="true" style="-fx-text-fill: #4e342e;" />
+                    </VBox>
+                    
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <!-- Empty space for alignment -->
+                    </VBox>
+                </HBox>
+                
+                <!-- Error Label -->
+                <Label fx:id="errorLabel" style="-fx-text-fill: #dc3545; -fx-font-size: 12px;" 
+                       text="" visible="false" wrapText="true" alignment="CENTER" />
+                
+                <!-- Action Buttons -->
+                <HBox spacing="15" alignment="CENTER">
+                    <Button fx:id="updateButton" text="Cập nhật" 
+                            style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 12 30; -fx-font-size: 14px;" />
+                    
+                    <Button fx:id="resetButton" text="Làm mới" 
+                            style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 12 30; -fx-font-size: 14px;" />
+                    
+                    <Button fx:id="cancelButton" text="Hủy" 
+                            style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 12 30; -fx-font-size: 14px;" />
+                </HBox>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</VBox>

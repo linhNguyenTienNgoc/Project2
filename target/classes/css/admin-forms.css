@@ -1,0 +1,275 @@
+/* Admin Forms CSS - Styling cho các form quản trị */
+
+/* Root styles */
+.root {
+    -fx-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -fx-background-color: #f5d6ae;
+}
+
+/* Header styling */
+.header {
+    -fx-background-color: #5d2b1c;
+    -fx-padding: 15;
+}
+
+.header-title {
+    -fx-text-fill: #fff9c4;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.back-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #fff9c4;
+    -fx-font-size: 14px;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-text-fill: #f5d6ae;
+}
+
+/* Main content area */
+.main-content {
+    -fx-background-color: #f8f9fa;
+    -fx-padding: 30;
+}
+
+.form-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4e342e;
+    -fx-alignment: center;
+}
+
+/* Form container */
+.form-container {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+    -fx-max-width: 600;
+}
+
+/* Form fields */
+.form-field {
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-border-width: 1;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 8;
+}
+
+.form-field:focused {
+    -fx-border-color: #5d2b1c;
+    -fx-border-width: 2;
+}
+
+.form-field:error {
+    -fx-border-color: #dc3545;
+    -fx-border-width: 2;
+}
+
+/* Labels */
+.field-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #4e342e;
+    -fx-font-size: 14px;
+}
+
+/* Required field indicator */
+.required-field::after {
+    content: " *";
+    -fx-text-fill: #dc3545;
+}
+
+/* ComboBox styling */
+.combo-box {
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-border-width: 1;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 8;
+}
+
+.combo-box:focused {
+    -fx-border-color: #5d2b1c;
+    -fx-border-width: 2;
+}
+
+.combo-box .list-cell {
+    -fx-padding: 10;
+}
+
+/* CheckBox styling */
+.check-box {
+    -fx-text-fill: #4e342e;
+    -fx-font-size: 14px;
+}
+
+.check-box .box {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #5d2b1c;
+    -fx-border-color: #5d2b1c;
+}
+
+/* Error label */
+.error-label {
+    -fx-text-fill: #dc3545;
+    -fx-font-size: 12px;
+    -fx-alignment: center;
+    -fx-wrap-text: true;
+}
+
+/* Success label */
+.success-label {
+    -fx-text-fill: #28a745;
+    -fx-font-size: 12px;
+    -fx-alignment: center;
+    -fx-wrap-text: true;
+}
+
+/* Action buttons */
+.action-button {
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 12 30;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-min-width: 100;
+}
+
+.save-button {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+}
+
+.save-button:hover {
+    -fx-background-color: #218838;
+}
+
+.update-button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+}
+
+.update-button:hover {
+    -fx-background-color: #0056b3;
+}
+
+.reset-button {
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+}
+
+.reset-button:hover {
+    -fx-background-color: #545b62;
+}
+
+.cancel-button {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+}
+
+.cancel-button:hover {
+    -fx-background-color: #c82333;
+}
+
+/* Button container */
+.button-container {
+    -fx-spacing: 15;
+    -fx-alignment: center;
+}
+
+/* Form row styling */
+.form-row {
+    -fx-spacing: 20;
+    -fx-alignment: center-left;
+}
+
+.form-field-container {
+    -fx-spacing: 5;
+    -fx-hgrow: always;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .form-container {
+        -fx-padding: 20;
+        -fx-max-width: 100%;
+    }
+    
+    .main-content {
+        -fx-padding: 15;
+    }
+    
+    .form-row {
+        -fx-spacing: 15;
+    }
+    
+    .action-button {
+        -fx-padding: 10 20;
+        -fx-font-size: 12px;
+    }
+}
+
+/* Animation effects */
+.form-container {
+    -fx-opacity: 0;
+    -fx-translate-y: 20;
+    -fx-animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        -fx-opacity: 1;
+        -fx-translate-y: 0;
+    }
+}
+
+/* Hover effects */
+.form-field:hover {
+    -fx-border-color: #5d2b1c;
+}
+
+.action-button:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-transition: scale 0.2s ease-in-out;
+}
+
+/* Focus effects */
+.form-field:focused {
+    -fx-effect: dropshadow(gaussian, rgba(93, 43, 28, 0.3), 5, 0, 0, 0);
+}
+
+/* Disabled state */
+.form-field:disabled {
+    -fx-background-color: #f8f9fa;
+    -fx-text-fill: #6c757d;
+    -fx-opacity: 0.6;
+}
+
+/* Loading state */
+.loading {
+    -fx-opacity: 0.7;
+    -fx-cursor: wait;
+}
+
+/* Success state */
+.success-state {
+    -fx-border-color: #28a745;
+    -fx-border-width: 2;
+}
+
+/* Error state */
+.error-state {
+    -fx-border-color: #dc3545;
+    -fx-border-width: 2;
+}
