@@ -140,7 +140,8 @@ public class LoginController implements Initializable {
                 showSuccess("Đăng nhập thành công! Chào mừng " + user.getFullName());
                 
                 // Navigate based on user role
-                if ("admin".equalsIgnoreCase(user.getRole().getRoleName())) {
+                //chưa sửa
+                if ("Admin".equalsIgnoreCase( user.getRole())) {
                     CafeManagementApplication.showAdminDashboard();
                 } else {
                     CafeManagementApplication.showDashboard();

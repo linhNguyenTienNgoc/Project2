@@ -13,7 +13,11 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" prefHeight="415.0" prefWidth="338.0" spacing="15.0" style="-fx-background-color: #f5d6ae;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cafe.controller.auth.LoginController">
+<VBox alignment="CENTER" prefHeight="415.0" prefWidth="338.0" spacing="15.0"
+      style="-fx-background-color: #f5d6ae;"
+      xmlns="http://javafx.com/javafx/24.0.1"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cafe.controller.auth.LoginController">
 
     <padding>
         <Insets bottom="30" left="40" right="40" top="30" />

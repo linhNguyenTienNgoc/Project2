@@ -61,50 +61,50 @@ public class SessionManager {
     /**
      * Lấy role ID người dùng hiện tại
      */
-    public static int getCurrentUserRoleId() {
-        return currentUser != null ? currentUser.getRoleId() : -1;
+    public static String getCurrentUserRole() {
+        return currentUser != null ? currentUser.getRole() : "";
     }
     
     /**
      * Kiểm tra role của người dùng hiện tại
      */
-    public static boolean hasRole(int roleId) {
-        return currentUser != null && currentUser.getRoleId() == roleId;
+    public static boolean hasRole(String role) {
+        return currentUser != null && currentUser.getRole() == role;
     }
     
     /**
      * Kiểm tra quyền admin
      */
     public static boolean isAdmin() {
-        return hasRole(1); // Assuming role_id 1 is Admin
+        return hasRole("Admin"); // Assuming role_id 1 is Admin
     }
     
     /**
      * Kiểm tra quyền manager
      */
     public static boolean isManager() {
-        return hasRole(2); // Assuming role_id 2 is Manager
+        return hasRole("Manager"); // Assuming role_id 2 is Manager
     }
     
     /**
      * Kiểm tra quyền cashier
      */
     public static boolean isCashier() {
-        return hasRole(3); // Assuming role_id 3 is Cashier
+        return hasRole("Cashier"); // Assuming role_id 3 is Cashier
     }
     
     /**
      * Kiểm tra quyền waiter
      */
     public static boolean isWaiter() {
-        return hasRole(4); // Assuming role_id 4 is Waiter
+        return hasRole("Waiter"); // Assuming role_id 4 is Waiter
     }
     
     /**
      * Kiểm tra quyền barista
      */
     public static boolean isBarista() {
-        return hasRole(5); // Assuming role_id 5 is Barista
+        return hasRole("Barista"); // Assuming role_id 5 is Barista
     }
     
     /**

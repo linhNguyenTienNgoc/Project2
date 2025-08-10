@@ -3,36 +3,33 @@ package com.cafe.model.entity;
 public class User {
     private int userId;
     private String username;
-    private String password;
     private String fullName;
     private String email;
     private String phone;
-    private int roleId;
-    private Role role; // Thêm reference đến Role object
+    private String role;
     private boolean isActive;
+    private String password;
 
     public User() {
     }
 
-    public User(int userId, String username, String password, String fullName, String email, String phone, int roleId, boolean isActive) {
+    public User(int userId, String username, String fullName, String email, String phone, String role, boolean isActive, String password) {
         this.userId = userId;
         this.username = username;
         this.password = password;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
-        this.roleId = roleId;
+        this.role = role;
         this.isActive = isActive;
     }
-    
-    public User(int userId, String username, String password, String fullName, String email, String phone, int roleId, Role role, boolean isActive) {
+
+    public User(int userId, String username, String fullName, String email, String phone, String role, boolean isActive) {
         this.userId = userId;
         this.username = username;
-        this.password = password;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
-        this.roleId = roleId;
         this.role = role;
         this.isActive = isActive;
     }
@@ -85,14 +82,6 @@ public class User {
         this.phone = phone;
     }
 
-    public int getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(int roleId) {
-        this.roleId = roleId;
-    }
-
     public boolean isActive() {
         return isActive;
     }
@@ -101,11 +90,11 @@ public class User {
         isActive = active;
     }
     
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
     
-    public void setRole(Role role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
@@ -118,7 +107,7 @@ public class User {
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
-                ", roleId=" + roleId +
+                ", role='" + role + '\'' +
                 ", isActive=" + isActive +
                 '}';
     }

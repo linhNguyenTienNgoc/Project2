@@ -200,7 +200,7 @@ public class AdminDashboardController implements Initializable {
      */
     private void checkUserPermissions() {
         User currentUser = SessionManager.getCurrentUser();
-        if (currentUser == null || !"admin".equalsIgnoreCase(currentUser.getRole().getRoleName())) {
+        if (currentUser == null || !"Admin".equalsIgnoreCase(currentUser.getRole())) {
             showError("Bạn không có quyền truy cập màn hình này!");
             handleLogout(null);
         }

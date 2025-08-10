@@ -56,7 +56,7 @@ public class DatabaseTestUtil {
             String[] requiredTables = {
                 "roles", "users", "categories", "products", 
                 "areas", "tables", "customers", "orders", 
-                "order_details", "promotions", "ingredients", "attendance"
+                "order_details", "promotions", "attendance"
             };
             
             System.out.println("📋 Checking required tables:");

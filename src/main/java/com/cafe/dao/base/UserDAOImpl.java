@@ -27,7 +27,6 @@ public class UserDAOImpl implements UserDAO {
                 user.setFullName(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
                 user.setPhone(rs.getString("phone"));
-                user.setRoleId(rs.getInt("role_id"));
                 user.setActive(rs.getBoolean("is_active"));
                 list.add(user);
             }
@@ -47,12 +46,12 @@ public class UserDAOImpl implements UserDAO {
                 return new User(
                         rs.getInt("user_id"),
                         rs.getString("username"),
-                        rs.getString("password"),
                         rs.getString("full_name"),
                         rs.getString("email"),
                         rs.getString("phone"),
-                        rs.getInt("role_id"),
-                        rs.getBoolean("is_active")
+                        rs.getString("role"),
+                        rs.getBoolean("is_active"),
+                        rs.getString("password")
                 );
             }
         } catch (SQLException e) {
@@ -63,8 +62,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public User getUserByUsername(String username) {
-        String sql = "SELECT u.*, r.role_name FROM users u " +
-                    "LEFT JOIN roles r ON u.role_id = r.role_id " +
+        String sql = "SELECT u.* FROM users u " +
                     "WHERE u.username = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
@@ -73,19 +71,13 @@ public class UserDAOImpl implements UserDAO {
                 User user = new User(
                         rs.getInt("user_id"),
                         rs.getString("username"),
-                        rs.getString("password"),
                         rs.getString("full_name"),
                         rs.getString("email"),
                         rs.getString("phone"),
-                        rs.getInt("role_id"),
-                        rs.getBoolean("is_active")
+                        rs.getString("role"),
+                        rs.getBoolean("is_active"),
+                        rs.getString("password")
                 );
-                
-                // Load role information
-                Role role = new Role();
-                role.setRoleId(rs.getInt("role_id"));
-                role.setRoleName(rs.getString("role_name"));
-                user.setRole(role);
                 
                 return user;
             }
@@ -98,14 +90,14 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean insertUser(User user) {
-        String sql = "INSERT INTO users (username, password, full_name, email, phone, role_id, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, full_name, email, phone, role, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getPassword());
             ps.setString(3, user.getFullName());
             ps.setString(4, user.getEmail());
             ps.setString(5, user.getPhone());
-            ps.setInt(6, user.getRoleId());
+            ps.setString(6, user.getRole());
             ps.setBoolean(7, user.isActive());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -116,14 +108,14 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean updateUser(User user) {
-        String sql = "UPDATE users SET username=?, password=?, full_name=?, email=?, phone=?, role_id=?, is_active=? WHERE user_id=?";
+        String sql = "UPDATE users SET username=?, password=?, full_name=?, email=?, phone=?, role=?, is_active=? WHERE user_id=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getPassword());
             ps.setString(3, user.getFullName());
             ps.setString(4, user.getEmail());
             ps.setString(5, user.getPhone());
-            ps.setInt(6, user.getRoleId());
+            ps.setString(6, user.getRole());
             ps.setBoolean(7, user.isActive());
             ps.setInt(8, user.getUserId());
             return ps.executeUpdate() > 0;
@@ -148,8 +140,7 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public List<User> getAllUsers(int offset, int limit) {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT u.*, r.role_name FROM users u " +
-                    "LEFT JOIN roles r ON u.role_id = r.role_id " +
+        String sql = "SELECT u.* FROM users u " +
                     "LIMIT ? OFFSET ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, limit);
@@ -163,14 +154,9 @@ public class UserDAOImpl implements UserDAO {
                 user.setFullName(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
                 user.setPhone(rs.getString("phone"));
-                user.setRoleId(rs.getInt("role_id"));
+                user.setRole(rs.getString("role"));
                 user.setActive(rs.getBoolean("is_active"));
-                
-                // Load role information
-                Role role = new Role();
-                role.setRoleId(rs.getInt("role_id"));
-                role.setRoleName(rs.getString("role_name"));
-                user.setRole(role);
+
                 
                 list.add(user);
             }
