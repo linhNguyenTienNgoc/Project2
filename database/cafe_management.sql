@@ -13,14 +13,6 @@ USE cafe_management;
 -- 1. BẢNG NGƯỜI DÙNG VÀ PHÂN QUYỀN
 -- =====================================================
 
--- Bảng vai trò (roles)
-CREATE TABLE roles (
-    role_id INT PRIMARY KEY AUTO_INCREMENT,
-    role_name VARCHAR(50) NOT NULL UNIQUE,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
 
 -- Bảng người dùng (users)
 CREATE TABLE users (
@@ -30,11 +22,10 @@ CREATE TABLE users (
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE,
     phone VARCHAR(20),
-    role_id INT NOT NULL,
+    role VARCHAR(50) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (role_id) REFERENCES roles(role_id)
 );
 
 -- =====================================================
@@ -91,7 +82,7 @@ CREATE TABLE tables (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (area_id) REFERENCES areas(area_id)
+    FOREIGN KEY (area_id) REFERENCES areas(area_id) ON DELETE CASCADE
 );
 
 -- =====================================================
@@ -218,21 +209,15 @@ CREATE TABLE system_settings (
 -- INSERT DỮ LIỆU MẪU
 -- =====================================================
 
--- Thêm vai trò
-INSERT INTO roles (role_name, description) VALUES
-('admin', 'Quản trị viên hệ thống'),
-('manager', 'Quản lý quán'),
-('cashier', 'Thu ngân'),
-('waiter', 'Phục vụ'),
-('barista', 'Pha chế');
+
 
 -- Thêm người dùng mẫu
-INSERT INTO users (username, password, full_name, email, phone, role_id) VALUES
-('admin', '123456', 'Nguyễn Tiến Ngọc Linh', 'admin@cafe.com', '0123456789', 1),
-('manager', '123456', 'Trần Xuân Quang Minh', 'manager@cafe.com', '0123456790', 2),
-('cashier1', '123456', 'Vũ Hoàng Nam', 'cashier@cafe.com', '0123456791', 3),
-('waiter1', '123456', 'Dương Tuấn Minh', 'waiter@cafe.com', '0123456792', 4),
-('barista1', '123456', 'Dương Đức Thành', 'barista@cafe.com', '0123456793', 5);
+INSERT INTO users (username, password, full_name, email, phone, role) VALUES
+('admin', '123456', 'Nguyễn Tiến Ngọc Linh', 'admin@cafe.com', '0123456789', "Admin"),
+('manager', '123456', 'Trần Xuân Quang Minh', 'manager@cafe.com', '0123456790', "Manager"),
+('cashier1', '123456', 'Vũ Hoàng Nam', 'cashier@cafe.com', '0123456791', "Cashier"),
+('waiter1', '123456', 'Dương Tuấn Minh', 'waiter@cafe.com', '0123456792', "Waiter"),
+('barista1', '123456', 'Dương Đức Thành', 'barista@cafe.com', '0123456793', "Barista");
 
 -- Thêm danh mục
 INSERT INTO categories (category_name, description) VALUES
