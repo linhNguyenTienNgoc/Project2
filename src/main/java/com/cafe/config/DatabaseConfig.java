@@ -2,6 +2,7 @@ package com.cafe.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -116,11 +117,11 @@ public class DatabaseConfig {
         driver = "com.mysql.cj.jdbc.Driver";
         
         initialSize = 5;
-        maxActive = 20;
-        maxIdle = 10;
+        maxActive = 50;  // Increased from 20 to 50
+        maxIdle = 20;    // Increased from 10 to 20
         minIdle = 5;
-        maxWait = 60000;
-        connectionTimeout = 30000;
+        maxWait = 120000;        // Increased from 60000 to 120000 (2 minutes)
+        connectionTimeout = 60000; // Increased from 30000 to 60000 (1 minute)
         idleTimeout = 600000;
         maxLifetime = 1800000;
     }
@@ -153,6 +154,9 @@ public class DatabaseConfig {
             
             // Auto commit
             config.setAutoCommit(true);
+            
+            // Connection leak detection
+            config.setLeakDetectionThreshold(30000); // 30 seconds
             
             // Additional properties for MySQL
             config.addDataSourceProperty("cachePrepStmts", "true");
@@ -188,6 +192,10 @@ public class DatabaseConfig {
         }
         
         if (dataSource != null) {
+            // Kiểm tra sức khỏe của pool trước khi lấy connection
+            DatabaseConfig instance = getInstance();
+            instance.checkPoolHealth();
+            
             return dataSource.getConnection();
         } else {
             throw new SQLException("DataSource is not initialized");
@@ -252,6 +260,60 @@ public class DatabaseConfig {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
             System.out.println("🔒 Connection pool closed");
+        }
+    }
+    
+    /**
+     * Đóng connection pool (static method)
+     */
+    public static void closePool() {
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
+            System.out.println("🔒 Connection pool closed");
+        }
+    }
+    
+    /**
+     * Kiểm tra xem connection pool có đang hoạt động không
+     */
+    public boolean isPoolActive() {
+        return dataSource != null && !dataSource.isClosed();
+    }
+    
+    /**
+     * Reset connection pool (đóng và khởi tạo lại)
+     */
+    public void resetPool() {
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
+            System.out.println("🔄 Connection pool closed for reset");
+        }
+        dataSource = null;
+        initializeConnectionPool();
+        System.out.println("🔄 Connection pool reset completed");
+    }
+    
+    /**
+     * Kiểm tra sức khỏe của connection pool và tự động reset nếu cần
+     */
+    public void checkPoolHealth() {
+        if (dataSource != null && !dataSource.isClosed()) {
+            try {
+                HikariPoolMXBean poolMXBean = dataSource.getHikariPoolMXBean();
+                int activeConnections = poolMXBean.getActiveConnections();
+                int totalConnections = poolMXBean.getTotalConnections();
+                int threadsAwaiting = poolMXBean.getThreadsAwaitingConnection();
+                
+                // Nếu có quá nhiều connection active hoặc có thread đang chờ quá lâu
+                if (activeConnections > maxActive * 0.8 || threadsAwaiting > 5) {
+                    System.out.println("⚠️ Pool health check: High connection usage detected");
+                    System.out.println("   Active: " + activeConnections + ", Total: " + totalConnections + ", Waiting: " + threadsAwaiting);
+                    System.out.println("🔄 Auto-resetting connection pool...");
+                    resetPool();
+                }
+            } catch (Exception e) {
+                System.err.println("❌ Error checking pool health: " + e.getMessage());
+            }
         }
     }
     

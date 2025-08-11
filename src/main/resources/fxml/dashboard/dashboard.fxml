@@ -6,181 +6,224 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="com.cafe.controller.dashboard.DashboardController"
-      prefHeight="800.0" prefWidth="1200.0" 
-      style="-fx-background-color: #f8f9fa;">
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:id="dashboardContainer"
+            fx:controller="com.cafe.controller.dashboard.DashboardController"
+            prefHeight="800.0" prefWidth="1200.0" 
+            style="-fx-background-color: #f8f9fa;">
     
-    <!-- Left Panel - Menu -->
-    <VBox HBox.hgrow="ALWAYS" spacing="10" style="-fx-padding: 15;">
-        
-        <!-- Top Navigation -->
-        <HBox spacing="0" alignment="CENTER_LEFT" style="-fx-background-color: #8B4513; -fx-background-radius: 8 8 0 0;">
-            <Button fx:id="menuButton" text="Menu" style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 8 0 0 0; -fx-border-width: 0;"/>
-            <Button fx:id="tableButton" text="Bàn" style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0;"/>
-            <Button fx:id="orderButton" text="Thực đơn" style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0;"/>
-            
-            <!-- Power button on the right -->
+    <!-- Top Navigation Bar -->
+    <top>
+        <HBox fx:id="navigationBar" spacing="0" alignment="CENTER_LEFT" 
+              style="-fx-background-color: #2E86AB; -fx-min-height: 50; -fx-padding: 0 20;">
+            <Label text="Cafe Management System" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button fx:id="logoutButton" style="-fx-background-color: #8B4513; -fx-background-radius: 0 8 0 0; -fx-padding: 8;">
-                <graphic>
-                    <Label text="⏻" style="-fx-text-fill: white; -fx-font-size: 16px;"/>
-                </graphic>
-            </Button>
+            <Label fx:id="userNameLabel" text="Người dùng" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 0 10;"/>
+            <Label fx:id="userRoleLabel" text="Nhân viên" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 0 10;"/>
         </HBox>
-        
-        <!-- Category Bar -->
-        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 8;">
-            <Button fx:id="allCategoryBtn" text="Cà phê" style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20;"/>
-            <Button fx:id="coffeeBtn" text="Trà" style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
-            <Button fx:id="teaBtn" text="Bánh" style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
-            <Button fx:id="cakeBtn" text="Khác" style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
-        </HBox>
-        
-        <!-- Search Bar -->
-        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 10;">
-            <TextField fx:id="searchField" promptText="Nhập mã/tên món cần tìm" 
-                      HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8;"/>
-            <Button fx:id="searchBtn" text="🔍" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 8; -fx-font-size: 16px;"/>
-        </HBox>
-        
-        <!-- Product Grid -->
-        <ScrollPane fx:id="productScrollPane" VBox.vgrow="ALWAYS" 
-                   fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
-            <content>
-                <GridPane fx:id="productGrid" hgap="15" vgap="15" style="-fx-padding: 10;">
-                    <!-- Sample Products -->
-                    <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
-                        <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
-                        <Label text="Cappuccino" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
-                        <Label text="65.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
-                    </VBox>
-                    
-                    <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
-                        <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
-                        <Label text="Espresso" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
-                        <Label text="39.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
-                    </VBox>
-                    
-                    <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
-                        <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
-                        <Label text="Black Coffee" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
-                        <Label text="25.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
-                    </VBox>
-                    
-                    <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
-                        <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
-                        <Label text="Cafe Latte" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
-                        <Label text="65.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
-                    </VBox>
-                    
-                    <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
-                        <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
-                        <Label text="Flat White" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
-                        <Label text="45.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
-                    </VBox>
-                    
-                    <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
-                        <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
-                        <Label text="Irish Coffee" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
-                        <Label text="50.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
-                    </VBox>
-                </GridPane>
-            </content>
-        </ScrollPane>
-        
-    </VBox>
+    </top>
     
-    <!-- Right Panel - Cart -->
-    <VBox prefWidth="350" spacing="10" style="-fx-background-color: #f8f9fa; -fx-padding: 15;">
-        
-        <!-- Table Selection -->
-        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 8;">
-            <Label text="Bàn 00/Tầng 1" style="-fx-font-weight: bold; -fx-text-fill: #333;"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <TextField fx:id="tableSearchField" promptText="Tìm bàn..." 
-                      style="-fx-background-color: #f0f0f0; -fx-background-radius: 5; -fx-padding: 5; -fx-border-width: 0; -fx-pref-width: 100;"/>
-        </HBox>
-        
-        <!-- Cart Header -->
-        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 8 10; -fx-background-radius: 8 8 0 0;">
-            <Label text="🛒" style="-fx-font-size: 16px;"/>
-            <Label text="Tên món" HBox.hgrow="ALWAYS" style="-fx-font-weight: bold; -fx-text-fill: #333; -fx-font-size: 12px;"/>
-            <Label text="Số lượng" style="-fx-font-weight: bold; -fx-text-fill: #333; -fx-font-size: 12px;"/>
-            <Label text="Thành tiền" style="-fx-font-weight: bold; -fx-text-fill: #333; -fx-font-size: 12px;"/>
-        </HBox>
-        
-        <!-- Cart Items -->
-        <ScrollPane fx:id="cartScrollPane" VBox.vgrow="ALWAYS" 
-                   fitToWidth="true" style="-fx-background-color: white; -fx-background-radius: 0 0 8 8;">
-            <content>
-                <VBox fx:id="cartItemsContainer" spacing="2" style="-fx-padding: 5; -fx-background-color: white;">
-                    <!-- Sample Cart Items -->
-                    <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
-                        <Label text="Trà thạch đào" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
-                        <Label text="1" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
-                        <Label text="49.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
-                        <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
-                    </HBox>
-                    
-                    <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
-                        <Label text="Black Coffee" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
-                        <Label text="1" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
-                        <Label text="25.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
-                        <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
-                    </HBox>
-                    
-                    <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
-                        <Label text="Cappuccino" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
-                        <Label text="2" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
-                        <Label text="65.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
-                        <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
-                    </HBox>
-                    
-                    <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
-                        <Label text="Irish Coffee" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
-                        <Label text="1" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
-                        <Label text="50.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
-                        <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
-                    </HBox>
-                    
-                    <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
-                        <Label text="Mousse Cacao" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
-                        <Label text="2" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
-                        <Label text="29.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
-                        <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
-                    </HBox>
-                    
-                    <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
-                        <Label text="Phô mai Caramel" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
-                        <Label text="1" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
-                        <Label text="29.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
-                        <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
-                    </HBox>
-                </VBox>
-            </content>
-        </ScrollPane>
-        
-        <!-- Cart Summary -->
-        <VBox spacing="8" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8;">
-            <HBox alignment="CENTER_LEFT">
-                <Label text="ℹ️" style="-fx-font-size: 16px;"/>
-                <Label text="Tổng tiền" HBox.hgrow="ALWAYS" style="-fx-font-weight: bold; -fx-text-fill: #333; -fx-font-size: 14px;"/>
-                <Label fx:id="totalAmountLabel" text="341.000 VNĐ" style="-fx-font-weight: bold; -fx-text-fill: #E67E22; -fx-font-size: 16px;"/>
-            </HBox>
-            
-            <!-- Action Buttons -->
-            <HBox spacing="8">
-                <Button fx:id="paymentBtn" text="Thanh toán" 
-                       HBox.hgrow="ALWAYS" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 12; -fx-background-radius: 5;"/>
-                <Button fx:id="orderBtn" text="Đặt món" 
-                       HBox.hgrow="ALWAYS" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 12; -fx-background-radius: 5;"/>
-            </HBox>
-            
-            <Button fx:id="cancelBtn" text="Hủy bỏ" 
-                   prefWidth="Infinity" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 12; -fx-background-radius: 5;"/>
+    <!-- Left Sidebar -->
+    <left>
+        <VBox fx:id="sidebar" prefWidth="200" style="-fx-background-color: #f8f9fa; -fx-border-color: #e9ecef; -fx-border-width: 0 1 0 0;">
+            <!-- Sidebar content can be added here if needed -->
         </VBox>
-        
-    </VBox>
+    </left>
     
-</HBox>
+    <!-- Center Content -->
+    <center>
+        <HBox prefHeight="800.0" prefWidth="1200.0" 
+              style="-fx-background-color: #f8f9fa;">
+            
+            <!-- Left Panel - Menu -->
+            <VBox fx:id="menuContainer" HBox.hgrow="ALWAYS" spacing="10" style="-fx-padding: 15;">
+                
+                <!-- Top Navigation -->
+                <HBox spacing="0" alignment="CENTER_LEFT" style="-fx-background-color: #8B4513; -fx-background-radius: 8 8 0 0;">
+                    <Button fx:id="menuButton" text="Menu" style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 8 0 0 0; -fx-border-width: 0;"/>
+                    <Button fx:id="tableButton" text="Bàn" style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0;"/>
+                    <Button fx:id="orderButton" text="Thực đơn" style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0;"/>
+                    <Button fx:id="customerButton" text="Khách hàng" style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0;"/>
+                    <Button fx:id="reportButton" text="Báo cáo" style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0;"/>
+                    <Button fx:id="settingsButton" text="Cài đặt" style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0;"/>
+                    
+                    <!-- Power button on the right -->
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="powerButton" style="-fx-background-color: #8B4513; -fx-background-radius: 0 8 0 0; -fx-padding: 8;">
+                        <graphic>
+                            <Label text="⏻" style="-fx-text-fill: white; -fx-font-size: 16px;"/>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="logoutButton" style="-fx-background-color: #8B4513; -fx-background-radius: 0 8 0 0; -fx-padding: 8;">
+                        <graphic>
+                            <Label text="⏻" style="-fx-text-fill: white; -fx-font-size: 16px;"/>
+                        </graphic>
+                    </Button>
+                </HBox>
+                
+                <!-- Category Bar -->
+                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 8;">
+                    <Button fx:id="allCategoryBtn" text="Cà phê" style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20;"/>
+                    <Button fx:id="coffeeBtn" text="Trà" style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
+                    <Button fx:id="teaBtn" text="Bánh" style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
+                    <Button fx:id="cakeBtn" text="Khác" style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
+                </HBox>
+                
+                <!-- Search Bar -->
+                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 10;">
+                    <TextField fx:id="searchField" promptText="Nhập mã/tên món cần tìm" 
+                              HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8;"/>
+                    <Button fx:id="searchBtn" text="🔍" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 8; -fx-font-size: 16px;"/>
+                </HBox>
+                
+                <!-- Status Bar -->
+                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 5 10;">
+                    <ProgressIndicator fx:id="loadingIndicator" style="-fx-max-size: 20; -fx-max-height: 20;"/>
+                    <Label fx:id="statusLabel" text="Sẵn sàng" style="-fx-text-fill: #666; -fx-font-size: 12px;"/>
+                </HBox>
+                
+                <!-- Product Grid -->
+                <ScrollPane fx:id="productScrollPane" VBox.vgrow="ALWAYS" 
+                           fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+                    <content>
+                        <VBox fx:id="productContainer" style="-fx-padding: 10;">
+                            <GridPane fx:id="productGrid" hgap="15" vgap="15" style="-fx-padding: 10;">
+                                <!-- Sample Products -->
+                                <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
+                                    <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
+                                    <Label text="Cappuccino" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                                    <Label text="65.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
+                                </VBox>
+                                
+                                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
+                                    <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
+                                    <Label text="Espresso" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                                    <Label text="39.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
+                                </VBox>
+                                
+                                <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
+                                    <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
+                                    <Label text="Black Coffee" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                                    <Label text="25.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
+                                </VBox>
+                                
+                                <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
+                                    <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
+                                    <Label text="Cafe Latte" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                                    <Label text="65.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
+                                </VBox>
+                                
+                                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
+                                    <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
+                                    <Label text="Flat White" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                                    <Label text="45.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
+                                </VBox>
+                                
+                                <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-alignment: center; -fx-spacing: 8; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8; -fx-pref-width: 140; -fx-pref-height: 180;">
+                                    <Rectangle width="80" height="80" fill="#f0f0f0" arcWidth="8" arcHeight="8"/>
+                                    <Label text="Irish Coffee" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                                    <Label text="50.000 VNĐ" style="-fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
+                                </VBox>
+                            </GridPane>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+                
+            </VBox>
+            
+            <!-- Right Panel - Cart -->
+            <VBox fx:id="orderCartContainer" prefWidth="350" spacing="10" style="-fx-background-color: #f8f9fa; -fx-padding: 15;">
+                
+                <!-- Table Selection -->
+                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 8;">
+                    <Label text="Bàn 00/Tầng 1" style="-fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <TextField fx:id="tableSearchField" promptText="Tìm bàn..." 
+                              style="-fx-background-color: #f0f0f0; -fx-background-radius: 5; -fx-padding: 5; -fx-border-width: 0; -fx-pref-width: 100;"/>
+                </HBox>
+                
+                <!-- Cart Header -->
+                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 8 10; -fx-background-radius: 8 8 0 0;">
+                    <Label text="🛒" style="-fx-font-size: 16px;"/>
+                    <Label text="Tên món" HBox.hgrow="ALWAYS" style="-fx-font-weight: bold; -fx-text-fill: #333; -fx-font-size: 12px;"/>
+                    <Label text="Số lượng" style="-fx-font-weight: bold; -fx-text-fill: #333; -fx-font-size: 12px;"/>
+                    <Label text="Thành tiền" style="-fx-font-weight: bold; -fx-text-fill: #333; -fx-font-size: 12px;"/>
+                </HBox>
+                
+                <!-- Cart Items -->
+                <ScrollPane fx:id="cartScrollPane" VBox.vgrow="ALWAYS" 
+                           fitToWidth="true" style="-fx-background-color: white; -fx-background-radius: 0 0 8 8;">
+                    <content>
+                        <VBox fx:id="orderItemsContainer" spacing="2" style="-fx-padding: 5; -fx-background-color: white;">
+                            <!-- Sample Cart Items -->
+                            <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
+                                <Label text="Trà thạch đào" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
+                                <Label text="1" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
+                                <Label text="49.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
+                                <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
+                            </HBox>
+                            
+                            <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
+                                <Label text="Black Coffee" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
+                                <Label text="1" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
+                                <Label text="25.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
+                                <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
+                            </HBox>
+                            
+                            <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
+                                <Label text="Cappuccino" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
+                                <Label text="2" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
+                                <Label text="65.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
+                                <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
+                            </HBox>
+                            
+                            <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
+                                <Label text="Irish Coffee" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
+                                <Label text="1" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
+                                <Label text="50.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
+                                <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
+                            </HBox>
+                            
+                            <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
+                                <Label text="Mousse Cacao" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
+                                <Label text="2" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
+                                <Label text="29.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
+                                <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
+                            </HBox>
+                            
+                            <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;">
+                                <Label text="Phô mai Caramel" style="-fx-font-size: 11px; -fx-pref-width: 100;"/>
+                                <Label text="1" style="-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;"/>
+                                <Label text="29.000 VNĐ" style="-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;"/>
+                                <Button text="×" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;"/>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+                
+                <!-- Cart Summary -->
+                <VBox spacing="8" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8;">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="ℹ️" style="-fx-font-size: 16px;"/>
+                        <Label text="Tổng tiền" HBox.hgrow="ALWAYS" style="-fx-font-weight: bold; -fx-text-fill: #333; -fx-font-size: 14px;"/>
+                        <Label fx:id="totalAmountLabel" text="341.000 VNĐ" style="-fx-font-weight: bold; -fx-text-fill: #E67E22; -fx-font-size: 16px;"/>
+                    </HBox>
+                    
+                    <!-- Action Buttons -->
+                    <HBox spacing="8">
+                        <Button fx:id="paymentButton" text="Thanh toán" 
+                               HBox.hgrow="ALWAYS" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 12; -fx-background-radius: 5;"/>
+                        <Button fx:id="placeOrderButton" text="Đặt món" 
+                               HBox.hgrow="ALWAYS" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 12; -fx-background-radius: 5;"/>
+                    </HBox>
+                    
+                    <Button fx:id="cancelButton" text="Hủy bỏ" 
+                           prefWidth="Infinity" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 12; -fx-background-radius: 5;"/>
+                </VBox>
+                
+            </VBox>
+            
+        </HBox>
+    </center>
+    
+</BorderPane>

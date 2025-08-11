@@ -46,17 +46,50 @@ public class DashboardController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
+            // Verify FXML injection
+            verifyFXMLInjection();
+            
             setupUserInfo();
             setupNavigation();
             setupEventHandlers();
             
             // Default content is already loaded in FXML
-            setActiveNavButton(menuButton);
+            if (menuButton != null) {
+                setActiveNavButton(menuButton);
+            }
             
             System.out.println("✅ DashboardController initialized successfully");
         } catch (Exception e) {
             System.err.println("Error initializing DashboardController: " + e.getMessage());
             e.printStackTrace();
+            // Show user-friendly error message
+            showError("Lỗi khởi tạo Dashboard: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Verify that all required FXML elements are properly injected
+     */
+    private void verifyFXMLInjection() {
+        StringBuilder missingElements = new StringBuilder();
+        
+        if (dashboardContainer == null) missingElements.append("dashboardContainer, ");
+        if (navigationBar == null) missingElements.append("navigationBar, ");
+        if (sidebar == null) missingElements.append("sidebar, ");
+        if (userNameLabel == null) missingElements.append("userNameLabel, ");
+        if (userRoleLabel == null) missingElements.append("userRoleLabel, ");
+        if (logoutButton == null) missingElements.append("logoutButton, ");
+        if (menuButton == null) missingElements.append("menuButton, ");
+        if (tableButton == null) missingElements.append("tableButton, ");
+        if (orderButton == null) missingElements.append("orderButton, ");
+        if (customerButton == null) missingElements.append("customerButton, ");
+        if (reportButton == null) missingElements.append("reportButton, ");
+        if (settingsButton == null) missingElements.append("settingsButton, ");
+        
+        if (missingElements.length() > 0) {
+            String missing = missingElements.substring(0, missingElements.length() - 2);
+            System.err.println("⚠️ Warning: Missing FXML elements: " + missing);
+            System.err.println("This may cause NullPointerException in some features");
         }
     }
     
@@ -103,24 +136,40 @@ public class DashboardController implements Initializable {
      * Setup navigation buttons
      */
     private void setupNavigation() {
-        // Set initial active state
-        setActiveNavButton(menuButton);
+        // Set initial active state - with null safety
+        if (menuButton != null) {
+            setActiveNavButton(menuButton);
+        }
     }
     
     /**
      * Setup event handlers
      */
     private void setupEventHandlers() {
-        // Navigation buttons
-        menuButton.setOnAction(event -> loadMenuModule());
-        tableButton.setOnAction(event -> loadTableModule());
-        orderButton.setOnAction(event -> loadOrderModule());
-        customerButton.setOnAction(event -> loadCustomerModule());
-        reportButton.setOnAction(event -> loadReportModule());
-        settingsButton.setOnAction(event -> loadSettingsModule());
+        // Navigation buttons - with null safety
+        if (menuButton != null) {
+            menuButton.setOnAction(event -> loadMenuModule());
+        }
+        if (tableButton != null) {
+            tableButton.setOnAction(event -> loadTableModule());
+        }
+        if (orderButton != null) {
+            orderButton.setOnAction(event -> loadOrderModule());
+        }
+        if (customerButton != null) {
+            customerButton.setOnAction(event -> loadCustomerModule());
+        }
+        if (reportButton != null) {
+            reportButton.setOnAction(event -> loadReportModule());
+        }
+        if (settingsButton != null) {
+            settingsButton.setOnAction(event -> loadSettingsModule());
+        }
         
-        // Logout button
-        logoutButton.setOnAction(event -> handleLogout());
+        // Logout button - with null safety
+        if (logoutButton != null) {
+            logoutButton.setOnAction(event -> handleLogout());
+        }
     }
     
     /**
@@ -200,17 +249,21 @@ public class DashboardController implements Initializable {
      * Set active navigation button
      */
     private void setActiveNavButton(Button activeButton) {
-        // Reset all buttons
+        // Reset all buttons - with null safety
         Button[] navButtons = {menuButton, tableButton, orderButton, customerButton, reportButton, settingsButton};
         
         for (Button button : navButtons) {
-            button.getStyleClass().remove("active-nav-button");
-            button.setStyle("-fx-background-color: transparent; -fx-text-fill: #333;");
+            if (button != null) {
+                button.getStyleClass().remove("active-nav-button");
+                button.setStyle("-fx-background-color: transparent; -fx-text-fill: #333;");
+            }
         }
         
-        // Set active button
-        activeButton.getStyleClass().add("active-nav-button");
-        activeButton.setStyle("-fx-background-color: #2E86AB; -fx-text-fill: white; -fx-background-radius: 5;");
+        // Set active button - with null safety
+        if (activeButton != null) {
+            activeButton.getStyleClass().add("active-nav-button");
+            activeButton.setStyle("-fx-background-color: #2E86AB; -fx-text-fill: white; -fx-background-radius: 5;");
+        }
     }
     
     /**

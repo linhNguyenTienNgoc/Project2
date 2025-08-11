@@ -91,6 +91,10 @@ public class CafeManagementApplication extends Application {
             fxmlLoader.setLocation(CafeManagementApplication.class.getResource("/fxml/dashboard/dashboard.fxml"));
 
             Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
+            
+            // Load CSS
+            String css = Objects.requireNonNull(CafeManagementApplication.class.getResource("/css/dashboard.css")).toExternalForm();
+            scene.getStylesheets().add(css);
 
             primaryStage.setTitle(APP_TITLE + " - Dashboard");
             primaryStage.setScene(scene);

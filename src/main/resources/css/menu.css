@@ -96,6 +96,23 @@
     -fx-effect: dropshadow(gaussian, rgba(46,134,171,0.3), 3, 0, 0, 0);
 }
 
+.search-button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-padding: 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-cursor: hand;
+    -fx-min-width: 50;
+    -fx-min-height: 40;
+}
+
+.search-button:hover {
+    -fx-background-color: #0056b3;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);
+}
+
 .search-icon {
     -fx-font-size: 16px;
     -fx-text-fill: #6c757d;

@@ -14,7 +14,7 @@
     <VBox HBox.hgrow="ALWAYS" spacing="10" style="-fx-padding: 15;">
         
         <!-- Top Navigation -->
-        <HBox spacing="0" alignment="CENTER_LEFT" styleClass="nav-tabs">
+        <HBox spacing="0" alignment="CENTER_LEFT" style="-fx-background-color: #8B4513; -fx-background-radius: 8 8 0 0;">
             <Button fx:id="menuTab" text="Menu" styleClass="nav-tab active-tab"/>
             <Button fx:id="tableTab" text="Bàn" styleClass="nav-tab"/>
             <Button fx:id="menuListTab" text="Thực đơn" styleClass="nav-tab"/>
@@ -42,45 +42,45 @@
         
         <!-- Product Grid -->
         <ScrollPane fx:id="productScrollPane" VBox.vgrow="ALWAYS" 
-                   fitToWidth="true" styleClass="product-scroll">
+                   fitToWidth="true" styleClass="product-scroll-pane">
             <content>
-                <VBox fx:id="productContainer" style="-fx-padding: 10;"/>
+                <VBox fx:id="productContainer" styleClass="product-container"/>
             </content>
         </ScrollPane>
         
     </VBox>
     
     <!-- Right Panel - Cart -->
-    <VBox prefWidth="380" spacing="10" styleClass="cart-panel">
+    <VBox prefWidth="380" spacing="10" styleClass="order-panel">
         <padding>
             <Insets top="15" right="15" bottom="15" left="15"/>
         </padding>
         
         <!-- Table Selection -->
         <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="Bàn 00/Tầng 1" styleClass="table-label"/>
+            <Label text="Bàn 00/Tầng 1" styleClass="cart-title"/>
             <TextField fx:id="tableSearchField" promptText="Tìm bàn..." 
-                      HBox.hgrow="ALWAYS" styleClass="table-search"/>
+                      HBox.hgrow="ALWAYS" styleClass="table-search-field"/>
         </HBox>
         
         <!-- Cart Header -->
-        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="cart-header">
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="order-header">
             <Label text="🛒" styleClass="cart-icon"/>
-            <Label text="Tên món" HBox.hgrow="ALWAYS" styleClass="cart-header-label"/>
-            <Label text="Số lượng" styleClass="cart-header-label"/>
-            <Label text="Thành tiền" styleClass="cart-header-label"/>
+            <Label text="Tên món" HBox.hgrow="ALWAYS" styleClass="order-header-label"/>
+            <Label text="Số lượng" styleClass="order-header-label"/>
+            <Label text="Thành tiền" styleClass="order-header-label"/>
         </HBox>
         
         <!-- Cart Items -->
         <ScrollPane fx:id="cartScrollPane" VBox.vgrow="ALWAYS" 
-                   fitToWidth="true" styleClass="cart-scroll">
+                   fitToWidth="true" styleClass="order-items-scroll-pane">
             <content>
-                <VBox fx:id="orderItemsContainer" spacing="5" style="-fx-padding: 5;"/>
+                <VBox fx:id="orderItemsContainer" spacing="5" styleClass="order-items-container"/>
             </content>
         </ScrollPane>
         
         <!-- Cart Summary -->
-        <VBox spacing="8" styleClass="cart-summary">
+        <VBox spacing="8" styleClass="order-summary">
             <HBox alignment="CENTER_LEFT">
                 <Label text="ℹ️" styleClass="info-icon"/>
                 <Label text="Tổng tiền" HBox.hgrow="ALWAYS" styleClass="total-label"/>
@@ -92,7 +92,7 @@
                 <Button fx:id="paymentButton" text="Thanh toán" 
                        HBox.hgrow="ALWAYS" styleClass="payment-button"/>
                 <Button fx:id="placeOrderButton" text="Đặt món" 
-                       HBox.hgrow="ALWAYS" styleClass="order-button"/>
+                       HBox.hgrow="ALWAYS" styleClass="place-order-button"/>
             </HBox>
             
             <Button fx:id="cancelButton" text="Hủy bỏ" 

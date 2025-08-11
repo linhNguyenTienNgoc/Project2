@@ -1,5 +1,6 @@
 package com.cafe.controller;
 
+import com.cafe.CafeManagementApplication;
 import com.cafe.model.entity.Category;
 import com.cafe.model.entity.Order;
 import com.cafe.model.entity.Product;
@@ -44,6 +45,7 @@ public class MenuController implements Initializable {
     @FXML private VBox menuContainer;
     @FXML private HBox categoryBar;
     @FXML private TextField searchField;
+    @FXML private Button searchBtn;
     @FXML private ScrollPane productScrollPane;
     @FXML private VBox productContainer;
     @FXML private VBox orderCartContainer;
@@ -55,6 +57,14 @@ public class MenuController implements Initializable {
     @FXML private Button powerButton;
     @FXML private ProgressIndicator loadingIndicator;
     @FXML private Label statusLabel;
+    
+    // Navigation buttons
+    @FXML private Button menuTab;
+    @FXML private Button tableTab;
+    @FXML private Button menuListTab;
+    
+    // Table search
+    @FXML private TextField tableSearchField;
 
     // Data collections
     private final ObservableList<Category> categories = FXCollections.observableArrayList();
@@ -67,10 +77,53 @@ public class MenuController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setupUI();
-        setupBindings();
-        setupEventHandlers();
-        loadInitialData();
+        try {
+            // Verify FXML injection
+            verifyFXMLInjection();
+            
+            setupUI();
+            setupBindings();
+            setupEventHandlers();
+            loadInitialData();
+            
+            System.out.println("✅ MenuController initialized successfully");
+        } catch (Exception e) {
+            System.err.println("Error initializing MenuController: " + e.getMessage());
+            e.printStackTrace();
+            // Show user-friendly error message
+            showError("Lỗi khởi tạo Menu: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Verify that all required FXML elements are properly injected
+     */
+    private void verifyFXMLInjection() {
+        StringBuilder missingElements = new StringBuilder();
+        
+        if (menuContainer == null) missingElements.append("menuContainer, ");
+        if (categoryBar == null) missingElements.append("categoryBar, ");
+        if (searchField == null) missingElements.append("searchField, ");
+        if (searchBtn == null) missingElements.append("searchBtn, ");
+        if (productScrollPane == null) missingElements.append("productScrollPane, ");
+        if (productContainer == null) missingElements.append("productContainer, ");
+        if (orderCartContainer == null) missingElements.append("orderCartContainer, ");
+        if (orderItemsContainer == null) missingElements.append("orderItemsContainer, ");
+        if (totalAmountLabel == null) missingElements.append("totalAmountLabel, ");
+        if (placeOrderButton == null) missingElements.append("placeOrderButton, ");
+        if (paymentButton == null) missingElements.append("paymentButton, ");
+        if (cancelButton == null) missingElements.append("cancelButton, ");
+        if (powerButton == null) missingElements.append("powerButton, ");
+        if (menuTab == null) missingElements.append("menuTab, ");
+        if (tableTab == null) missingElements.append("tableTab, ");
+        if (menuListTab == null) missingElements.append("menuListTab, ");
+        if (tableSearchField == null) missingElements.append("tableSearchField, ");
+        
+        if (missingElements.length() > 0) {
+            String missing = missingElements.substring(0, missingElements.length() - 2);
+            System.err.println("⚠️ Warning: Missing FXML elements: " + missing);
+            System.err.println("This may cause NullPointerException in some features");
+        }
     }
 
     private void setupUI() {
@@ -97,17 +150,40 @@ public class MenuController implements Initializable {
             searchField.setPromptText("Tìm kiếm sản phẩm...");
         }
         
+        // Setup table search field
+        if (tableSearchField != null) {
+            tableSearchField.setPromptText("Tìm bàn...");
+        }
+        
         // Setup total amount label
         if (totalAmountLabel != null) {
             totalAmountLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
             totalAmountLabel.setTextFill(Color.BLACK);
         }
         
+        // Setup navigation tabs
+        if (menuTab != null) {
+            menuTab.setText("Menu");
+            menuTab.getStyleClass().add("active-tab");
+        }
+        if (tableTab != null) {
+            tableTab.setText("Bàn");
+        }
+        if (menuListTab != null) {
+            menuListTab.setText("Thực đơn");
+        }
+        
         // Setup buttons
         if (placeOrderButton != null) placeOrderButton.setText("Đặt món");
         if (paymentButton != null) paymentButton.setText("Thanh toán");
         if (cancelButton != null) cancelButton.setText("Hủy bỏ");
-        if (powerButton != null) powerButton.setText("Tắt máy");
+        if (powerButton != null) powerButton.setText("⏻");
+        
+        // Setup search button
+        if (searchBtn != null) {
+            searchBtn.setText("🔍");
+            searchBtn.setTooltip(new Tooltip("Tìm kiếm sản phẩm"));
+        }
         
         // Setup loading indicator
         if (loadingIndicator != null) {
@@ -117,7 +193,7 @@ public class MenuController implements Initializable {
         
         // Setup status label
         if (statusLabel != null) {
-            statusLabel.setText("");
+            statusLabel.setText("Sẵn sàng");
             statusLabel.setTextFill(Color.GRAY);
         }
     }
@@ -153,6 +229,34 @@ public class MenuController implements Initializable {
                         Platform.runLater(() -> performSearch(newValue));
                     }
                 }, 300); // 300ms delay
+            });
+        }
+
+        // Search button
+        if (searchBtn != null) {
+            searchBtn.setOnAction(event -> {
+                String keyword = searchField != null ? searchField.getText() : "";
+                performSearch(keyword);
+            });
+        }
+
+        // Navigation buttons - with null safety
+        if (menuTab != null) {
+            menuTab.setOnAction(event -> handleMenuTab());
+        }
+        
+        if (tableTab != null) {
+            tableTab.setOnAction(event -> handleTableTab());
+        }
+        
+        if (menuListTab != null) {
+            menuListTab.setOnAction(event -> handleMenuListTab());
+        }
+
+        // Table search field
+        if (tableSearchField != null) {
+            tableSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                handleTableSearch(newValue);
             });
         }
 
@@ -604,6 +708,87 @@ public class MenuController implements Initializable {
                 }, 3000);
             }
         });
+    }
+
+    // ===== NAVIGATION HANDLERS =====
+    
+    /**
+     * Xử lý khi click vào tab Menu
+     */
+    private void handleMenuTab() {
+        // Already on menu tab, just refresh
+        loadProducts(null);
+        updateNavigationTabs(menuTab);
+        showSuccess("Đã chuyển đến Menu");
+    }
+    
+    /**
+     * Xử lý khi click vào tab Bàn
+     */
+    private void handleTableTab() {
+        try {
+            // Navigate to table management screen
+            CafeManagementApplication.showTable();
+        } catch (Exception e) {
+            showError("Không thể chuyển đến màn hình quản lý bàn: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Xử lý khi click vào tab Thực đơn
+     */
+    private void handleMenuListTab() {
+        try {
+            // Navigate to menu list screen (if exists)
+            // For now, just show a message
+            showSuccess("Chức năng Thực đơn đang được phát triển");
+        } catch (Exception e) {
+            showError("Không thể chuyển đến màn hình thực đơn: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Xử lý tìm kiếm bàn
+     */
+    private void handleTableSearch(String searchText) {
+        if (searchText == null || searchText.trim().isEmpty()) {
+            // Clear search, show all tables
+            showSuccess("Hiển thị tất cả bàn");
+            return;
+        }
+        
+        try {
+            // TODO: Implement table search functionality
+            // This would typically search through available tables
+            showSuccess("Tìm kiếm bàn: " + searchText);
+        } catch (Exception e) {
+            showError("Lỗi tìm kiếm bàn: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Cập nhật trạng thái active của navigation tabs
+     */
+    private void updateNavigationTabs(Button activeTab) {
+        // Reset all tabs - with null safety
+        if (menuTab != null) {
+            menuTab.getStyleClass().remove("active-tab");
+            menuTab.getStyleClass().add("nav-tab");
+        }
+        if (tableTab != null) {
+            tableTab.getStyleClass().remove("active-tab");
+            tableTab.getStyleClass().add("nav-tab");
+        }
+        if (menuListTab != null) {
+            menuListTab.getStyleClass().remove("active-tab");
+            menuListTab.getStyleClass().add("nav-tab");
+        }
+        
+        // Set active tab - with null safety
+        if (activeTab != null) {
+            activeTab.getStyleClass().remove("nav-tab");
+            activeTab.getStyleClass().add("active-tab");
+        }
     }
 
     // Cleanup method to be called when controller is destroyed
