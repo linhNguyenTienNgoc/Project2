@@ -8,6 +8,7 @@ import com.cafe.dao.base.ProductDAOImpl;
 import com.cafe.model.entity.Category;
 import com.cafe.model.entity.Product;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ public class MenuService {
     
     public MenuService() {
         try {
+            // Sử dụng connection pool, nhưng không giữ connection lâu
             this.productDAO = new ProductDAOImpl(DatabaseConfig.getConnection());
             this.categoryDAO = new CategoryDAOImpl(DatabaseConfig.getConnection());
         } catch (Exception e) {

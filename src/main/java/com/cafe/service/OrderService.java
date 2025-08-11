@@ -6,6 +6,7 @@ import com.cafe.dao.base.OrderDAOImpl;
 import com.cafe.model.entity.Order;
 import com.cafe.model.entity.Product;
 
+import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,6 +22,7 @@ public class OrderService {
     
     public OrderService() {
         try {
+            // Sử dụng connection pool, nhưng không giữ connection lâu
             this.orderDAO = new OrderDAOImpl(DatabaseConfig.getConnection());
             this.menuService = new MenuService();
         } catch (Exception e) {
