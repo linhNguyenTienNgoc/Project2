@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 
 <HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="com.cafe.controller.dashboard.MenuDashboardController"
+      fx:controller="com.cafe.controller.MenuController"
       prefHeight="800.0" prefWidth="1200.0" 
       style="-fx-background-color: #f8f9fa;">
     
@@ -29,12 +29,8 @@
         </HBox>
         
         <!-- Category Bar -->
-        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="category-bar">
-            <Button fx:id="allCategoryBtn" text="Tất cả" styleClass="category-btn selected"/>
-            <Button fx:id="coffeeBtn" text="Cà phê" styleClass="category-btn"/>
-            <Button fx:id="teaBtn" text="Trà" styleClass="category-btn"/>
-            <Button fx:id="cakeBtn" text="Bánh" styleClass="category-btn"/>
-            <Button fx:id="otherBtn" text="Khác" styleClass="category-btn"/>
+        <HBox fx:id="categoryBar" spacing="10" alignment="CENTER_LEFT" styleClass="category-bar">
+            <!-- Category buttons will be added dynamically -->
         </HBox>
         
         <!-- Search Bar -->
@@ -48,8 +44,7 @@
         <ScrollPane fx:id="productScrollPane" VBox.vgrow="ALWAYS" 
                    fitToWidth="true" styleClass="product-scroll">
             <content>
-                <FlowPane fx:id="productGrid" hgap="15" vgap="15" 
-                         prefWrapLength="400" style="-fx-padding: 10;"/>
+                <VBox fx:id="productContainer" style="-fx-padding: 10;"/>
             </content>
         </ScrollPane>
         
@@ -80,7 +75,7 @@
         <ScrollPane fx:id="cartScrollPane" VBox.vgrow="ALWAYS" 
                    fitToWidth="true" styleClass="cart-scroll">
             <content>
-                <VBox fx:id="cartItemsContainer" spacing="5" style="-fx-padding: 5;"/>
+                <VBox fx:id="orderItemsContainer" spacing="5" style="-fx-padding: 5;"/>
             </content>
         </ScrollPane>
         
@@ -94,13 +89,13 @@
             
             <!-- Action Buttons -->
             <HBox spacing="10">
-                <Button fx:id="paymentBtn" text="Thanh toán" 
+                <Button fx:id="paymentButton" text="Thanh toán" 
                        HBox.hgrow="ALWAYS" styleClass="payment-button"/>
-                <Button fx:id="orderBtn" text="Đặt món" 
+                <Button fx:id="placeOrderButton" text="Đặt món" 
                        HBox.hgrow="ALWAYS" styleClass="order-button"/>
             </HBox>
             
-            <Button fx:id="cancelBtn" text="Hủy bỏ" 
+            <Button fx:id="cancelButton" text="Hủy bỏ" 
                    prefWidth="Infinity" styleClass="cancel-button"/>
         </VBox>
         
