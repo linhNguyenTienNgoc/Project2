@@ -69,7 +69,7 @@ public class SessionManager {
      * Kiểm tra role của người dùng hiện tại
      */
     public static boolean hasRole(String role) {
-        return currentUser != null && currentUser.getRole() == role;
+        return currentUser != null && role != null && currentUser.getRole().equals(role);
     }
     
     /**

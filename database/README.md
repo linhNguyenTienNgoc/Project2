@@ -57,7 +57,7 @@ mysql -u root -p < cafe_management.sql
 ### 3. **Kết nối từ ứng dụng**
 ```java
 // Thông tin kết nối
-String url = "jdbc:mysql://localhost:3307/cafe_management";
+String url = "jdbc:mysql://localhost:3306/cafe_management";
 String username = "root";
 String password = "your_password";
 ```

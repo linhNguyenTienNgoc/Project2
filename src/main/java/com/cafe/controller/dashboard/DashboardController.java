@@ -68,7 +68,7 @@ public class DashboardController implements Initializable {
             // Use SessionManager static methods with safe fallback
             if (com.cafe.util.SessionManager.isLoggedIn()) {
                 userNameLabel.setText(com.cafe.util.SessionManager.getCurrentUserFullName());
-                String roleName = getRoleDisplayName(com.cafe.util.SessionManager.getCurrentUserRoleId());
+                String roleName = getRoleDisplayName(com.cafe.util.SessionManager.getCurrentUserRole());
                 userRoleLabel.setText(roleName);
             } else {
                 // Default fallback values
@@ -84,15 +84,17 @@ public class DashboardController implements Initializable {
     }
     
     /**
-     * Get role display name from role ID
+     * Get role display name from role string
      */
-    private String getRoleDisplayName(int roleId) {
-        switch (roleId) {
-            case 1: return "Quản trị viên";
-            case 2: return "Quản lý";
-            case 3: return "Thu ngân";
-            case 4: return "Phục vụ";
-            case 5: return "Pha chế";
+    private String getRoleDisplayName(String role) {
+        if (role == null) return "Nhân viên";
+        
+        switch (role.toLowerCase()) {
+            case "admin": return "Quản trị viên";
+            case "manager": return "Quản lý";
+            case "cashier": return "Thu ngân";
+            case "waiter": return "Phục vụ";
+            case "barista": return "Pha chế";
             default: return "Nhân viên";
         }
     }
@@ -127,7 +129,7 @@ public class DashboardController implements Initializable {
     @FXML
     private void loadMenuModule() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/menu-screen.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard/menu-dashboard.fxml"));
             Node menuContent = loader.load();
             
             // Set the content
