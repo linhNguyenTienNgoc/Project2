@@ -96,4 +96,9 @@ public class CategoryDAOImpl implements CategoryDAO {
         }
         return list;
     }
+
+    @Override
+    public List<Category> findAll() {
+        return getAllCategories();
+    }
 }

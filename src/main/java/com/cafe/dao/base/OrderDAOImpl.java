@@ -174,4 +174,21 @@ public class OrderDAOImpl implements OrderDAO {
         ps.setString(10, order.getOrderStatus());
         ps.setString(11, order.getNotes());
     }
+
+    // Additional methods implementation
+    @Override
+    public boolean save(Order order) {
+        return insertOrder(order);
+    }
+
+    @Override
+    public boolean update(Order order) {
+        return updateOrder(order);
+    }
+
+    @Override
+    public java.util.Optional<Order> findById(Integer id) {
+        Order order = getOrderById(id);
+        return order != null ? java.util.Optional.of(order) : java.util.Optional.empty();
+    }
 }

@@ -14,16 +14,6 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM Kiểm tra Maven
-echo Checking Maven...
-mvn -version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ERROR: Maven is not installed or not in PATH
-    echo Please install Maven
-    pause
-    exit /b 1
-)
-
 echo All checks passed!
 echo.
 echo Starting application...

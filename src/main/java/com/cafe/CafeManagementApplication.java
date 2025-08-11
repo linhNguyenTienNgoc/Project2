@@ -85,26 +85,23 @@ public class CafeManagementApplication extends Application {
     /**
      * Hiển thị màn hình chính (Dashboard)
      */
-    public static void showDashboard() {
+        public static void showDashboard() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(CafeManagementApplication.class.getResource("/fxml/dashboard/dashboard.fxml"));
-            
+
             Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
-            
-            // Load CSS
-            String css = Objects.requireNonNull(CafeManagementApplication.class
-                    .getResource("/css/dashboard.css")).toExternalForm();
-            scene.getStylesheets().add(css);
-            
+
             primaryStage.setTitle(APP_TITLE + " - Dashboard");
             primaryStage.setScene(scene);
             primaryStage.setResizable(true);
             primaryStage.setMaximized(true);
             primaryStage.centerOnScreen();
-            
+
+            System.out.println("✅ Dashboard loaded successfully");
+
         } catch (IOException e) {
-            showErrorAlert("Lỗi tải giao diện", 
+            showErrorAlert("Lỗi tải giao diện",
                           "Không thể tải giao diện chính: " + e.getMessage());
             e.printStackTrace();
         }

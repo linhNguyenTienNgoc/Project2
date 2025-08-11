@@ -9,6 +9,8 @@ public class Product {
     private String imageUrl;
     private boolean isAvailable;
     private boolean isActive;
+    private Integer stockQuantity; // Thêm field cho stock quantity
+    private String sku; // Thêm field cho SKU
 
     public Product() {
     }
@@ -95,6 +97,48 @@ public class Product {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public Integer getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(Integer stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    // Getter methods cho compatibility với view components
+    public Boolean getIsAvailable() {
+        return isAvailable;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    // Business logic methods
+    public String getFormattedPrice() {
+        return String.format("%,.0f VNĐ", price);
+    }
+
+    public boolean isOutOfStock() {
+        return stockQuantity == null || stockQuantity <= 0;
+    }
+
+    public boolean isLowStock() {
+        return stockQuantity != null && stockQuantity > 0 && stockQuantity <= 5;
+    }
+
+    public boolean canBeOrdered() {
+        return isAvailable && isActive && !isOutOfStock();
     }
 
     @Override

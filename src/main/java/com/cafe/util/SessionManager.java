@@ -80,6 +80,31 @@ public class SessionManager {
     }
     
     /**
+     * Xóa session hiện tại (logout)
+     */
+    public static void clearSession() {
+        if (currentUser != null) {
+            System.out.println("🔒 User logged out: " + currentUser.getUsername() + " (" + currentUser.getFullName() + ")");
+        }
+        currentUser = null;
+        loginTime = 0;
+    }
+    
+    /**
+     * Lấy thời gian đăng nhập
+     */
+    public static long getLoginTime() {
+        return loginTime;
+    }
+    
+    /**
+     * Lấy thời gian session (mili giây)
+     */
+    public static long getSessionDuration() {
+        return isLoggedIn() ? System.currentTimeMillis() - loginTime : 0;
+    }
+    
+    /**
      * Kiểm tra quyền manager
      */
     public static boolean isManager() {
@@ -107,19 +132,7 @@ public class SessionManager {
         return hasRole("Barista"); // Assuming role_id 5 is Barista
     }
     
-    /**
-     * Lấy thời gian đăng nhập
-     */
-    public static long getLoginTime() {
-        return loginTime;
-    }
-    
-    /**
-     * Lấy thời gian đã đăng nhập (milliseconds)
-     */
-    public static long getSessionDuration() {
-        return isLoggedIn() ? System.currentTimeMillis() - loginTime : 0;
-    }
+
     
     /**
      * Đăng xuất
