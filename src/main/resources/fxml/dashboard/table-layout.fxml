@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:id="tableLayoutContainer"
+      fx:controller="com.cafe.controller.table.TableController"
+      spacing="10" style="-fx-padding: 15;">
+    
+    <!-- Area Selection Bar -->
+    <HBox fx:id="areaBar" spacing="10" alignment="CENTER_LEFT" 
+          style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 8;">
+        <Label text="Khu vực:" style="-fx-font-weight: bold; -fx-text-fill: #333; -fx-padding: 0 10;"/>
+        <Button fx:id="allAreaBtn" text="Tất cả" 
+                style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20;"/>
+        <Button fx:id="floor1Btn" text="Tầng 1" 
+                style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
+        <Button fx:id="floor2Btn" text="Tầng 2" 
+                style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
+        <Button fx:id="vipBtn" text="VIP" 
+                style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
+        <Button fx:id="rooftopBtn" text="Sân thượng" 
+                style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
+    </HBox>
+    
+    <!-- Table Status Legend -->
+    <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-padding: 5 10;">
+        <HBox spacing="5" alignment="CENTER_LEFT">
+            <Rectangle width="20" height="20" fill="#28a745" arcWidth="5" arcHeight="5"/>
+            <Label text="Trống" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+        </HBox>
+        <HBox spacing="5" alignment="CENTER_LEFT">
+            <Rectangle width="20" height="20" fill="#dc3545" arcWidth="5" arcHeight="5"/>
+            <Label text="Có khách" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+        </HBox>
+        <HBox spacing="5" alignment="CENTER_LEFT">
+            <Rectangle width="20" height="20" fill="#ffc107" arcWidth="5" arcHeight="5"/>
+            <Label text="Đặt trước" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+        </HBox>
+        <HBox spacing="5" alignment="CENTER_LEFT">
+            <Rectangle width="20" height="20" fill="#6c757d" arcWidth="5" arcHeight="5"/>
+            <Label text="Dọn dẹp" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+        </HBox>
+    </HBox>
+    
+    <!-- Status Bar -->
+    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 5 10;">
+        <ProgressIndicator fx:id="loadingIndicator" style="-fx-max-size: 20; -fx-max-height: 20;"/>
+        <Label fx:id="statusLabel" text="Sẵn sàng" style="-fx-text-fill: #666; -fx-font-size: 12px;"/>
+    </HBox>
+    
+    <!-- Table Grid -->
+    <ScrollPane fx:id="tableScrollPane" VBox.vgrow="ALWAYS" 
+               fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+        <content>
+            <VBox fx:id="tableContainer" style="-fx-padding: 10;">
+                <GridPane fx:id="tableGrid" hgap="15" vgap="15" style="-fx-padding: 10;">
+                    <!-- Tables will be loaded dynamically here -->
+                </GridPane>
+            </VBox>
+        </content>
+    </ScrollPane>
+    
+</VBox>

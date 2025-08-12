@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:id="menuLayoutContainer"
+      fx:controller="com.cafe.controller.menu.MenuController"
+      spacing="10" style="-fx-padding: 15;">
+    
+    <!-- Category Bar - Dynamic categories will be loaded here -->
+    <HBox fx:id="categoryBar" spacing="10" alignment="CENTER_LEFT" 
+          style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 8;">
+        <!-- Category buttons will be dynamically created by MenuController -->
+        <!-- Default "All" button as fallback -->
+        <Button fx:id="allCategoryBtn" text="Tất cả" 
+                style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20;"/>
+    </HBox>
+    
+    <!-- Search Bar -->
+    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 10;">
+        <TextField fx:id="searchField" promptText="Nhập mã/tên món cần tìm" 
+                  HBox.hgrow="ALWAYS" 
+                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8;"/>
+        <Button fx:id="searchBtn" text="🔍" 
+                style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 8; -fx-font-size: 16px;"/>
+    </HBox>
+    
+    <!-- Status Bar -->
+    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 5 10;">
+        <ProgressIndicator fx:id="loadingIndicator" style="-fx-max-size: 20; -fx-max-height: 20;" visible="false"/>
+        <Label fx:id="statusLabel" text="Sẵn sàng" style="-fx-text-fill: #666; -fx-font-size: 12px;"/>
+    </HBox>
+    
+    <!-- Product Grid -->
+    <ScrollPane fx:id="productScrollPane" VBox.vgrow="ALWAYS" 
+               fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+        <content>
+            <VBox fx:id="productContainer" style="-fx-padding: 10;">
+                <GridPane fx:id="productGrid" hgap="15" vgap="15" style="-fx-padding: 10;">
+                    <!-- Products will be loaded dynamically here by MenuController -->
+                </GridPane>
+                
+                <!-- Empty state when no products found -->
+                <VBox fx:id="emptyStateContainer" alignment="CENTER" spacing="10" visible="false" 
+                      style="-fx-padding: 50;">
+                    <Label text="🔍" style="-fx-font-size: 48px; -fx-text-fill: #ccc;"/>
+                    <Label fx:id="emptyStateLabel" text="Không tìm thấy sản phẩm nào" 
+                           style="-fx-font-size: 16px; -fx-text-fill: #666;"/>
+                </VBox>
+            </VBox>
+        </content>
+    </ScrollPane>
+    
+</VBox>

@@ -40,48 +40,38 @@ public class CafeManagementApplication extends Application {
      * Hiển thị màn hình đăng nhập
      */
     public void showLoginScene() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource(LOGIN_FXML));
-        
-        Scene scene = new Scene(fxmlLoader.load(), 400, 500);
-        
-        // Load CSS
-        String css = Objects.requireNonNull(getClass().getResource("/css/login.css")).toExternalForm();
-        scene.getStylesheets().add(css);
-        
-        primaryStage.setTitle(APP_TITLE);
-        primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
-        primaryStage.centerOnScreen();
+        setLoginScene();
         primaryStage.show();
     }
     
     /**
-     * Hiển thị màn hình đăng nhập (static method)
+     * Hiển thị màn hình đăng nhập (static method) sau khi đăng xuất
      */
     public static void showLoginScreen() {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(CafeManagementApplication.class.getResource(LOGIN_FXML));
-            
-            Scene scene = new Scene(fxmlLoader.load(), 400, 500);
-            
-            // Load CSS
-            String css = Objects.requireNonNull(CafeManagementApplication.class.getResource("/css/login.css")).toExternalForm();
-            scene.getStylesheets().add(css);
-            
-            primaryStage.setTitle(APP_TITLE);
-            primaryStage.setScene(scene);
-            primaryStage.setResizable(false);
-            primaryStage.centerOnScreen();
-            
+            setLoginScene();
         } catch (IOException e) {
             showErrorAlert("Lỗi tải giao diện", 
                           "Không thể tải giao diện đăng nhập: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
+    /**
+     * Hàm private dùng chung để dựng Scene login
+     */
+    private static void setLoginScene() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(CafeManagementApplication.class.getResource(LOGIN_FXML));
+        Scene scene = new Scene(fxmlLoader.load(), 400, 500);
+
+        // Load CSS
+        String css = Objects.requireNonNull(CafeManagementApplication.class.getResource("/css/login.css")).toExternalForm();
+        scene.getStylesheets().add(css);
+
+        primaryStage.setTitle(APP_TITLE);
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
+        primaryStage.centerOnScreen();
+    }
     /**
      * Hiển thị màn hình chính (Dashboard)
      */
