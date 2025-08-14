@@ -61,7 +61,9 @@ public class TableController implements Initializable {
             showError("Lỗi khởi tạo Table: " + e.getMessage());
         }
     }
-    
+
+
+
     /**
      * Verify that all required FXML elements are properly injected
      */

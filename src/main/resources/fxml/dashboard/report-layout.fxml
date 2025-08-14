@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="20" style="-fx-background-color: #f8f9fa;"
+      xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cafe.controller.admin.ReportController">
+
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30" />
+    </padding>
+
+    <!-- Header -->
+    <VBox alignment="CENTER" spacing="10">
+        <Label text="📊 BÁO CÁO  THỐNG KÊ"
+               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2E86AB;" />
+        <Label text="Xem báo cáo doanh thu, sản phẩm và hoạt động kinh doanh" 
+               style="-fx-font-size: 14px; -fx-text-fill: #666;" />
+    </VBox>
+
+    <!-- Filter Controls -->
+    <HBox spacing="15" alignment="CENTER">
+        <DatePicker fx:id="startDatePicker" promptText="Từ ngày" />
+        <DatePicker fx:id="endDatePicker" promptText="Đến ngày" />
+        <ComboBox fx:id="reportTypeCombo" promptText="Loại báo cáo" 
+                  style="-fx-pref-width: 150;" />
+        <Button text="Tạo báo cáo" 
+                style="-fx-background-color: #2E86AB; -fx-text-fill: white;" />
+        <Button text="Xuất Excel" 
+                style="-fx-background-color: #28a745; -fx-text-fill: white;" />
+        <Button text="Xuất PDF" 
+                style="-fx-background-color: #dc3545; -fx-text-fill: white;" />
+    </HBox>
+
+    <!-- Statistics Cards -->
+    <HBox spacing="20" alignment="CENTER">
+        <VBox alignment="CENTER" style="-fx-background-color: #e8f5e8; -fx-padding: 20; -fx-background-radius: 10; -fx-min-width: 150;">
+            <Label text="15.2M" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2e7d32;" />
+            <Label text="Doanh thu hôm nay" style="-fx-font-size: 12px; -fx-text-fill: #666;" />
+            <Label text="+12.5%" style="-fx-font-size: 14px; -fx-text-fill: #2e7d32; -fx-font-weight: bold;" />
+        </VBox>
+        
+        <VBox alignment="CENTER" style="-fx-background-color: #fff3e0; -fx-padding: 20; -fx-background-radius: 10; -fx-min-width: 150;">
+            <Label text="156" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #f57c00;" />
+            <Label text="Đơn hàng hôm nay" style="-fx-font-size: 12px; -fx-text-fill: #666;" />
+            <Label text="+8.3%" style="-fx-font-size: 14px; -fx-text-fill: #f57c00; -fx-font-weight: bold;" />
+        </VBox>
+        
+        <VBox alignment="CENTER" style="-fx-background-color: #e3f2fd; -fx-padding: 20; -fx-background-radius: 10; -fx-min-width: 150;">
+            <Label text="89" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1976d2;" />
+            <Label text="Khách hàng mới" style="-fx-font-size: 12px; -fx-text-fill: #666;" />
+            <Label text="+15.2%" style="-fx-font-size: 14px; -fx-text-fill: #1976d2; -fx-font-weight: bold;" />
+        </VBox>
+        
+        <VBox alignment="CENTER" style="-fx-background-color: #fce4ec; -fx-padding: 20; -fx-background-radius: 10; -fx-min-width: 150;">
+            <Label text="4.8M" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #c2185b;" />
+            <Label text="Lợi nhuận tháng" style="-fx-font-size: 12px; -fx-text-fill: #666;" />
+            <Label text="+22.1%" style="-fx-font-size: 14px; -fx-text-fill: #c2185b; -fx-font-weight: bold;" />
+        </VBox>
+    </HBox>
+
+    <!-- Report Content -->
+    <TabPane VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10;">
+        
+        <!-- Sales Report Tab -->
+        <Tab text="Báo cáo doanh thu" closable="false">
+            <VBox spacing="15" style="-fx-padding: 20;">
+                <Label text="Biểu đồ doanh thu theo ngày" 
+                       style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                <Region style="-fx-background-color: #f0f0f0; -fx-min-height: 200; -fx-background-radius: 5;" />
+                
+                <TableView fx:id="salesTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn text="Ngày" fx:id="dateColumn" prefWidth="120" />
+                        <TableColumn text="Doanh thu" fx:id="revenueColumn" prefWidth="150" />
+                        <TableColumn text="Số đơn hàng" fx:id="orderCountColumn" prefWidth="120" />
+                        <TableColumn text="Trung bình/đơn" fx:id="avgOrderColumn" prefWidth="150" />
+                        <TableColumn text="Tăng trưởng" fx:id="growthColumn" prefWidth="100" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+        
+        <!-- Product Report Tab -->
+        <Tab text="Báo cáo sản phẩm" closable="false">
+            <VBox spacing="15" style="-fx-padding: 20;">
+                <Label text="Top sản phẩm bán chạy" 
+                       style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                <Region style="-fx-background-color: #f0f0f0; -fx-min-height: 200; -fx-background-radius: 5;" />
+                
+                <TableView fx:id="productTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn text="Sản phẩm" fx:id="productNameColumn" prefWidth="200" />
+                        <TableColumn text="Số lượng bán" fx:id="quantityColumn" prefWidth="120" />
+                        <TableColumn text="Doanh thu" fx:id="productRevenueColumn" prefWidth="150" />
+                        <TableColumn text=" Tổng doanh thu" fx:id="percentageColumn" prefWidth="150" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+        
+        <!-- Customer Report Tab -->
+        <Tab text="Báo cáo khách hàng" closable="false">
+            <VBox spacing="15" style="-fx-padding: 20;">
+                <Label text="Thống kê khách hàng" 
+                       style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                <Region style="-fx-background-color: #f0f0f0; -fx-min-height: 200; -fx-background-radius: 5;" />
+                
+                <TableView fx:id="customerTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn text="Khách hàng" fx:id="customerNameColumn" prefWidth="200" />
+                        <TableColumn text="Số đơn hàng" fx:id="customerOrderCountColumn" prefWidth="120" />
+                        <TableColumn text="Tổng chi tiêu" fx:id="customerTotalColumn" prefWidth="150" />
+                        <TableColumn text="Đơn hàng cuối" fx:id="lastOrderColumn" prefWidth="120" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+    </TabPane>
+
+</VBox>
