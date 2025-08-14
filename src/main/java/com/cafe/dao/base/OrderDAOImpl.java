@@ -1,5 +1,4 @@
 package com.cafe.dao.base;
-import com.cafe.config.MySQLConnect;
 import com.cafe.model.entity.Order;
 
 import java.sql.*;
@@ -61,13 +60,40 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public boolean insertOrder(Order order) {
         String sql = """
-            INSERT INTO orders (order_number, table_id, customer_id, user_id, total_amount, discount_amount, final_amount, 
-                                payment_method, payment_status, order_status, notes) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO orders (order_number, table_id, customer_id, user_id, order_date, total_amount, discount_amount, final_amount, 
+                                payment_method, payment_status, order_status, notes, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            setOrderToPreparedStatement(order, ps);
-            return ps.executeUpdate() > 0;
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, order.getOrderNumber());
+            ps.setInt(2, order.getTableId());
+            if (order.getCustomerId() != null) {
+                ps.setInt(3, order.getCustomerId());
+            } else {
+                ps.setNull(3, Types.INTEGER);
+            }
+            ps.setInt(4, order.getUserId());
+            ps.setTimestamp(5, order.getOrderDate());
+            ps.setDouble(6, order.getTotalAmount());
+            ps.setDouble(7, order.getDiscountAmount());
+            ps.setDouble(8, order.getFinalAmount());
+            ps.setString(9, order.getPaymentMethod());
+            ps.setString(10, order.getPaymentStatus());
+            ps.setString(11, order.getOrderStatus());
+            ps.setString(12, order.getNotes());
+            ps.setTimestamp(13, order.getCreatedAt());
+            ps.setTimestamp(14, order.getUpdatedAt());
+            
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                // Lấy generated ID
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        order.setOrderId(generatedKeys.getInt(1));
+                    }
+                }
+                return true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -78,13 +104,29 @@ public class OrderDAOImpl implements OrderDAO {
     public boolean updateOrder(Order order) {
         String sql = """
             UPDATE orders 
-            SET order_number=?, table_id=?, customer_id=?, user_id=?, total_amount=?, discount_amount=?, final_amount=?, 
-                payment_method=?, payment_status=?, order_status=?, notes=?
+            SET order_number=?, table_id=?, customer_id=?, user_id=?, order_date=?, total_amount=?, discount_amount=?, final_amount=?, 
+                payment_method=?, payment_status=?, order_status=?, notes=?, updated_at=?
             WHERE order_id=?
             """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            setOrderToPreparedStatement(order, ps);
-            ps.setInt(12, order.getOrderId());
+            ps.setString(1, order.getOrderNumber());
+            ps.setInt(2, order.getTableId());
+            if (order.getCustomerId() != null) {
+                ps.setInt(3, order.getCustomerId());
+            } else {
+                ps.setNull(3, Types.INTEGER);
+            }
+            ps.setInt(4, order.getUserId());
+            ps.setTimestamp(5, order.getOrderDate());
+            ps.setDouble(6, order.getTotalAmount());
+            ps.setDouble(7, order.getDiscountAmount());
+            ps.setDouble(8, order.getFinalAmount());
+            ps.setString(9, order.getPaymentMethod());
+            ps.setString(10, order.getPaymentStatus());
+            ps.setString(11, order.getOrderStatus());
+            ps.setString(12, order.getNotes());
+            ps.setTimestamp(13, order.getUpdatedAt());
+            ps.setInt(14, order.getOrderId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -154,6 +196,8 @@ public class OrderDAOImpl implements OrderDAO {
         o.setPaymentStatus(rs.getString("payment_status"));
         o.setOrderStatus(rs.getString("order_status"));
         o.setNotes(rs.getString("notes"));
+        o.setCreatedAt(rs.getTimestamp("created_at"));
+        o.setUpdatedAt(rs.getTimestamp("updated_at"));
         return o;
     }
 

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox fx:id="orderPanel" prefWidth="400" spacing="10"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cafe.controller.order.OrderPanelController"
+      style="-fx-background-color: #f8f9fa; -fx-padding: 15;">
+
+    <!-- Order Panel Header -->
+    <HBox spacing="10" alignment="CENTER_LEFT"
+          style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 8;">
+        <Label text="🛒" style="-fx-font-size: 16px;"/>
+        <Label text="Đơn hàng hiện tại" style="-fx-font-weight: bold; -fx-text-fill: #333;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="tableInfoLabel" text="Bàn: --"
+               style="-fx-text-fill: #666; -fx-font-size: 12px;"/>
+    </HBox>
+
+    <!-- Order Items -->
+    <ScrollPane fx:id="orderScrollPane" VBox.vgrow="ALWAYS"
+                fitToWidth="true" style="-fx-background-color: white; -fx-background-radius: 8;">
+        <content>
+            <VBox fx:id="orderItemsContainer" spacing="2" style="-fx-padding: 10;">
+                <Label text="Chưa có món nào được chọn"
+                       style="-fx-text-fill: #999; -fx-font-style: italic; -fx-alignment: center;"/>
+            </VBox>
+        </content>
+    </ScrollPane>
+
+    <!-- Order Summary -->
+    <VBox spacing="8" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8;">
+        <HBox alignment="CENTER_LEFT">
+            <Label text="Tổng tiền:" HBox.hgrow="ALWAYS"
+                   style="-fx-font-weight: bold; -fx-text-fill: #333; -fx-font-size: 14px;"/>
+            <Label fx:id="totalAmountLabel" text="0 VNĐ"
+                   style="-fx-font-weight: bold; -fx-text-fill: #E67E22; -fx-font-size: 16px;"/>
+        </HBox>
+
+        <!-- Action Buttons -->
+        <HBox spacing="8">
+            <Button fx:id="placeOrderButton" text="Đặt món"
+                    HBox.hgrow="ALWAYS" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 12; -fx-background-radius: 5;"/>
+            <Button fx:id="paymentButton" text="Thanh toán"
+                    HBox.hgrow="ALWAYS" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 12; -fx-background-radius: 5;"/>
+        </HBox>
+
+        <Button fx:id="clearOrderButton" text="Xóa đơn hàng"
+                prefWidth="Infinity" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 12; -fx-background-radius: 5;"/>
+    </VBox>
+
+</VBox>

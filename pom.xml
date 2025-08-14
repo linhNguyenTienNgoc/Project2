@@ -232,6 +232,16 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+
+            <!-- Exec Plugin for running demos -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.cafe.CafeManagementApplication</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

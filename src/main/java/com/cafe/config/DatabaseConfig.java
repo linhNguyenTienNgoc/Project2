@@ -192,10 +192,6 @@ public class DatabaseConfig {
         }
         
         if (dataSource != null) {
-            // Kiểm tra sức khỏe của pool trước khi lấy connection
-            DatabaseConfig instance = getInstance();
-            instance.checkPoolHealth();
-            
             return dataSource.getConnection();
         } else {
             throw new SQLException("DataSource is not initialized");
@@ -294,7 +290,7 @@ public class DatabaseConfig {
     }
     
     /**
-     * Kiểm tra sức khỏe của connection pool và tự động reset nếu cần
+     * Kiểm tra sức khỏe của connection pool (chỉ đọc, không reset)
      */
     public void checkPoolHealth() {
         if (dataSource != null && !dataSource.isClosed()) {
@@ -304,12 +300,10 @@ public class DatabaseConfig {
                 int totalConnections = poolMXBean.getTotalConnections();
                 int threadsAwaiting = poolMXBean.getThreadsAwaitingConnection();
                 
-                // Nếu có quá nhiều connection active hoặc có thread đang chờ quá lâu
-                if (activeConnections > maxActive * 0.8 || threadsAwaiting > 5) {
+                // Chỉ log thông tin, không tự động reset
+                if (activeConnections > maxActive * 0.8) {
                     System.out.println("⚠️ Pool health check: High connection usage detected");
                     System.out.println("   Active: " + activeConnections + ", Total: " + totalConnections + ", Waiting: " + threadsAwaiting);
-                    System.out.println("🔄 Auto-resetting connection pool...");
-                    resetPool();
                 }
             } catch (Exception e) {
                 System.err.println("❌ Error checking pool health: " + e.getMessage());

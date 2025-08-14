@@ -357,9 +357,15 @@ public class MenuController implements Initializable {
      * Add product to order
      */
     private void addToOrder(Product product) {
+        System.out.println("🛒 MenuController: Adding product to order: " + product.getProductName());
+        
         if (dashboardController != null) {
+            System.out.println("✅ MenuController: DashboardController found, calling addToOrder");
             dashboardController.addToOrder(product.getProductName(), product.getPrice(), 1);
             updateStatus("Đã thêm " + product.getProductName() + " vào đơn hàng");
+        } else {
+            System.err.println("❌ MenuController: DashboardController is null!");
+            showError("Không thể kết nối với Order Panel");
         }
     }
     
