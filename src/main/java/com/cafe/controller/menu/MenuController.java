@@ -354,7 +354,7 @@ public class MenuController implements Initializable {
     }
     
     /**
-     * Add product to order
+     * Add product to order (RESTORED FUNCTIONALITY)
      */
     private void addToOrder(Product product) {
         System.out.println("🛒 MenuController: Adding product to order: " + product.getProductName());

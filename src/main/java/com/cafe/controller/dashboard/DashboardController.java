@@ -15,10 +15,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.Parent;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,15 +45,14 @@ public class DashboardController implements Initializable {
     // Content area
     @FXML private StackPane contentPane;
     
-    // Order panel root node
-    @FXML private javafx.scene.layout.VBox orderPanelRoot;
+    // Order panel (loaded from FXML)
+    @FXML private VBox orderPanelRoot;
     
-    // Order panel controller (will be set manually)
+    // Order panel controller (will be set from FXML)
     private OrderPanelController orderPanelController;
     
     // Current state
     private String currentTab = "menu";
-    private Node currentContent;
     private Map<String, Node> loadedContent = new HashMap<>();
     private Map<String, Object> loadedControllers = new HashMap<>();
     
@@ -69,14 +66,13 @@ public class DashboardController implements Initializable {
             setupTabNavigation();
             setupEventHandlers();
             
-            // Setup order panel controller
+            // AUTO-SETUP OrderPanelController to enable order functionality
             setupOrderPanelController();
             
             // Load default content (Menu)
             loadTabContent("menu");
             
             System.out.println("✅ DashboardController initialized successfully");
-            System.out.println("🔗 OrderPanelController reference: " + (orderPanelController != null ? "✅ Connected" : "❌ NULL"));
         } catch (Exception e) {
             System.err.println("Error initializing DashboardController: " + e.getMessage());
             e.printStackTrace();
@@ -100,7 +96,6 @@ public class DashboardController implements Initializable {
         if (menuTabButton == null) missingElements.append("menuTabButton, ");
         if (tableTabButton == null) missingElements.append("tableTabButton, ");
         if (contentPane == null) missingElements.append("contentPane, ");
-        if (orderPanelRoot == null) missingElements.append("orderPanelRoot, ");
         
         if (missingElements.length() > 0) {
             String missing = missingElements.substring(0, missingElements.length() - 2);
@@ -211,7 +206,6 @@ public class DashboardController implements Initializable {
             // Display content
             contentPane.getChildren().clear();
             contentPane.getChildren().add(content);
-            currentContent = content;
             
             System.out.println("✅ Loaded content for tab: " + tabName);
             
@@ -249,175 +243,104 @@ public class DashboardController implements Initializable {
     }
     
     /**
-     * Setup order panel controller
+     * AUTO-SETUP OrderPanelController to enable order functionality
+     * This method is called automatically during DashboardController initialization
      */
     private void setupOrderPanelController() {
         try {
-            System.out.println("🔍 DashboardController: Setting up OrderPanelController...");
+            System.out.println("🔧 DashboardController: Auto-setting up OrderPanelController...");
             
+            // Get OrderPanelController from FXML (with full UI elements)
             if (orderPanelRoot != null) {
-                // Try to get the controller from the FXML loader
-                FXMLLoader loader = (FXMLLoader) orderPanelRoot.getUserData();
-                if (loader != null) {
-                    orderPanelController = loader.getController();
-                    System.out.println("✅ DashboardController: Got OrderPanelController from FXML loader");
+                // The controller is already created by FXML loader
+                // We need to get it from the FXMLLoader that loaded the included FXML
+                System.out.println("🔍 DashboardController: orderPanelRoot found, getting controller from FXML...");
+                
+                // Get the controller from the included FXML
+                // This is a bit tricky with fx:include, but we can access it
+                this.orderPanelController = getOrderPanelControllerFromFXML();
+                
+                if (this.orderPanelController != null) {
+                    System.out.println("✅ DashboardController: OrderPanelController loaded from FXML successfully");
+                    System.out.println("🔗 Order functionality is now ENABLED (with full UI)");
+                    System.out.println("🎯 UI mode: Full UI Mode (orderItemsContainer available)");
                 } else {
-                    // Fallback: create new instance and manually inject UI elements
-                    orderPanelController = new OrderPanelController();
-                    orderPanelController.initializeServices();
-                    
-                    // Manually inject UI elements using reflection
-                    injectUIElements();
-                    System.out.println("✅ DashboardController: Created new OrderPanelController and injected UI elements");
+                    System.out.println("⚠️ DashboardController: Could not get controller from FXML, creating new instance");
+                    // Fallback: create new instance
+                    this.orderPanelController = new OrderPanelController();
+                    this.orderPanelController.initializeServices();
+                    System.out.println("🔗 Order functionality is now ENABLED (logic-only mode)");
                 }
             } else {
-                // Create new instance without UI
-                orderPanelController = new OrderPanelController();
-                orderPanelController.initializeServices();
-                System.out.println("⚠️ DashboardController: orderPanelRoot is null, created controller without UI");
+                System.out.println("⚠️ DashboardController: orderPanelRoot is null, creating new instance");
+                // Fallback: create new instance
+                this.orderPanelController = new OrderPanelController();
+                this.orderPanelController.initializeServices();
+                System.out.println("🔗 Order functionality is now ENABLED (logic-only mode)");
             }
+            
         } catch (Exception e) {
-            System.err.println("❌ DashboardController: Error setting up OrderPanelController: " + e.getMessage());
+            System.err.println("❌ DashboardController: Error auto-setting up OrderPanelController: " + e.getMessage());
             e.printStackTrace();
+            // Don't fail initialization, just disable order functionality
+            this.orderPanelController = null;
         }
     }
     
     /**
-     * Manually inject UI elements into OrderPanelController
+     * Get OrderPanelController from the included FXML
+     * This is a workaround to access the controller from fx:include
      */
-    private void injectUIElements() {
+    private OrderPanelController getOrderPanelControllerFromFXML() {
         try {
-            if (orderPanelController == null || orderPanelRoot == null) {
-                System.err.println("❌ Cannot inject UI elements - controller or root is null");
-                return;
-            }
+            System.out.println("🔍 DashboardController: Attempting to get controller from FXML...");
             
-            System.out.println("🔧 DashboardController: Manually injecting UI elements...");
+            // Load the order panel FXML manually to get the controller
+            FXMLLoader loader = new FXMLLoader(CafeManagementApplication.class.getResource("/fxml/order/order_panel.fxml"));
+            Node orderPanelNode = loader.load();
+            OrderPanelController controller = loader.getController();
             
-            // Debug UI structure
-            System.out.println("🔍 Debugging UI structure:");
-            debugUIStructure(orderPanelRoot, 0);
-            
-            // Try to find orderItemsContainer in ScrollPane content
-            if (orderPanelRoot.getChildren().size() > 1) {
-                Node scrollPaneNode = orderPanelRoot.getChildren().get(1); // ScrollPane is at index 1
-                if (scrollPaneNode instanceof javafx.scene.control.ScrollPane) {
-                    javafx.scene.control.ScrollPane scrollPane = (javafx.scene.control.ScrollPane) scrollPaneNode;
-                    Node content = scrollPane.getContent();
-                    System.out.println("🔍 ScrollPane content: " + (content != null ? content.getClass().getSimpleName() : "null"));
-                    if (content instanceof VBox) {
-                        VBox orderItemsContainer = (VBox) content;
-                        setFieldValue(orderPanelController, "orderItemsContainer", orderItemsContainer);
-                        System.out.println("✅ Injected orderItemsContainer from ScrollPane content");
-                    } else {
-                        System.err.println("❌ ScrollPane content is not VBox: " + (content != null ? content.getClass().getSimpleName() : "null"));
+            if (controller != null) {
+                System.out.println("✅ DashboardController: Successfully loaded OrderPanelController from FXML");
+                System.out.println("🔍 DashboardController: Controller instance: " + controller.getClass().getSimpleName() + "@" + Integer.toHexString(controller.hashCode()));
+                
+                // Replace the existing orderPanelRoot with our loaded node
+                if (orderPanelRoot != null && orderPanelRoot.getParent() != null) {
+                    VBox parent = (VBox) orderPanelRoot.getParent();
+                    int index = parent.getChildren().indexOf(orderPanelRoot);
+                    if (index >= 0) {
+                        parent.getChildren().set(index, orderPanelNode);
+                        System.out.println("✅ DashboardController: Replaced orderPanelRoot with loaded FXML node");
                     }
-                } else {
-                    System.err.println("❌ Node at index 1 is not ScrollPane: " + scrollPaneNode.getClass().getSimpleName());
                 }
+                
+                return controller;
             } else {
-                System.err.println("❌ orderPanelRoot has less than 2 children: " + orderPanelRoot.getChildren().size());
-            }
-            
-            // Find and inject totalAmountLabel
-            Label totalAmountLabel = findNodeById(orderPanelRoot, "totalAmountLabel");
-            if (totalAmountLabel != null) {
-                setFieldValue(orderPanelController, "totalAmountLabel", totalAmountLabel);
-                System.out.println("✅ Injected totalAmountLabel");
-            }
-            
-            // Find and inject tableInfoLabel
-            Label tableInfoLabel = findNodeById(orderPanelRoot, "tableInfoLabel");
-            if (tableInfoLabel != null) {
-                setFieldValue(orderPanelController, "tableInfoLabel", tableInfoLabel);
-                System.out.println("✅ Injected tableInfoLabel");
-            }
-            
-            // Find and inject buttons
-            Button placeOrderButton = findNodeById(orderPanelRoot, "placeOrderButton");
-            if (placeOrderButton != null) {
-                setFieldValue(orderPanelController, "placeOrderButton", placeOrderButton);
-                System.out.println("✅ Injected placeOrderButton");
-            }
-            
-            Button paymentButton = findNodeById(orderPanelRoot, "paymentButton");
-            if (paymentButton != null) {
-                setFieldValue(orderPanelController, "paymentButton", paymentButton);
-                System.out.println("✅ Injected paymentButton");
-            }
-            
-            Button clearOrderButton = findNodeById(orderPanelRoot, "clearOrderButton");
-            if (clearOrderButton != null) {
-                setFieldValue(orderPanelController, "clearOrderButton", clearOrderButton);
-                System.out.println("✅ Injected clearOrderButton");
-            }
-            
-            // Call initialize on the controller
-            orderPanelController.verifyFXMLInjection();
-            
-            // Force refresh UI if we have items
-            if (orderPanelController.getOrderItemsCount() > 0) {
-                System.out.println("🔄 Force refreshing UI after injection...");
-                orderPanelController.refreshUIDisplay();
+                System.out.println("❌ DashboardController: Controller is null from FXML loader");
+                return null;
             }
             
         } catch (Exception e) {
-            System.err.println("❌ Error injecting UI elements: " + e.getMessage());
+            System.err.println("❌ DashboardController: Error getting controller from FXML: " + e.getMessage());
             e.printStackTrace();
+            return null;
         }
     }
     
     /**
-     * Find a node by its fx:id in the scene graph
+     * Set OrderPanelController reference (to be called externally if needed)
+     * This avoids UI injection issues while enabling order functionality
+     * 
+     * IMPORTANT: This method is now optional since auto-setup is enabled
+     * 
+     * Usage:
+     * OrderPanelController orderController = new OrderPanelController();
+     * dashboardController.setOrderPanelController(orderController);
      */
-    private <T extends Node> T findNodeById(Node root, String id) {
-        System.out.println("🔍 Searching for node with id: " + id);
-        System.out.println("🔍 Current node: " + root.getClass().getSimpleName() + " (id: " + root.getId() + ")");
-        
-        if (root.getId() != null && root.getId().equals(id)) {
-            System.out.println("✅ Found node: " + id);
-            return (T) root;
-        }
-        
-        if (root instanceof Parent) {
-            System.out.println("🔍 Checking children of: " + root.getClass().getSimpleName());
-            for (Node child : ((Parent) root).getChildrenUnmodifiable()) {
-                T result = findNodeById(child, id);
-                if (result != null) {
-                    return result;
-                }
-            }
-        }
-        
-        System.out.println("❌ Node not found: " + id);
-        return null;
-    }
-    
-    /**
-     * Set field value using reflection
-     */
-    private void setFieldValue(Object target, String fieldName, Object value) {
-        try {
-            Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            System.err.println("❌ Error setting field " + fieldName + ": " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Debug UI structure
-     */
-    private void debugUIStructure(Node root, int depth) {
-        String indent = "  ".repeat(depth);
-        System.out.println(indent + "📁 " + root.getClass().getSimpleName() + " (id: " + root.getId() + ")");
-        
-        if (root instanceof Parent) {
-            for (Node child : ((Parent) root).getChildrenUnmodifiable()) {
-                debugUIStructure(child, depth + 1);
-            }
-        }
+    public void setOrderPanelController(OrderPanelController orderPanelController) {
+        this.orderPanelController = orderPanelController;
+        System.out.println("✅ DashboardController: OrderPanelController reference set manually (no UI injection)");
+        System.out.println("🔗 Order functionality is now ENABLED");
     }
     
     /**
@@ -443,16 +366,7 @@ public class DashboardController implements Initializable {
     }
     
     /**
-     * Update table information in order panel
-     */
-    public void updateTableInfo(String tableName, TableStatus status) {
-        if (orderPanelController != null) {
-            orderPanelController.updateTableInfo(tableName, status);
-        }
-    }
-    
-    /**
-     * Add item to order
+     * Add item to order (restored functionality)
      */
     public void addToOrder(String productName, double price, int quantity) {
         System.out.println("🛒 DashboardController: Adding to order: " + productName + " x" + quantity);
@@ -462,7 +376,90 @@ public class DashboardController implements Initializable {
             orderPanelController.addToOrder(productName, price, quantity);
         } else {
             System.err.println("❌ DashboardController: OrderPanelController is null!");
+            System.err.println("💡 Hint: Call setOrderPanelController() to enable order functionality");
         }
+    }
+    
+    /**
+     * Update table information in order panel (restored functionality)
+     */
+    public void updateTableInfo(String tableName, TableStatus status) {
+        System.out.println("🪑 DashboardController: Updating table info: " + tableName + " (" + status + ")");
+        
+        if (orderPanelController != null) {
+            orderPanelController.updateTableInfo(tableName, status);
+            System.out.println("✅ DashboardController: Table info updated in OrderPanel");
+        } else {
+            System.err.println("❌ DashboardController: OrderPanelController is null!");
+            System.err.println("💡 Hint: Call setOrderPanelController() to enable table functionality");
+        }
+    }
+    
+    /**
+     * Get current table name (restored functionality)
+     */
+    public String getCurrentTableName() {
+        if (orderPanelController != null) {
+            return orderPanelController.getCurrentTableName();
+        } else {
+            System.err.println("❌ DashboardController: OrderPanelController is null!");
+            return "--";
+        }
+    }
+    
+    /**
+     * Get current table status (restored functionality)
+     */
+    public TableStatus getCurrentTableStatus() {
+        if (orderPanelController != null) {
+            return orderPanelController.getCurrentTableStatus();
+        } else {
+            System.err.println("❌ DashboardController: OrderPanelController is null!");
+            return TableStatus.AVAILABLE;
+        }
+    }
+    
+    /**
+     * Debug method to check order functionality connection
+     */
+    public void debugOrderConnection() {
+        System.out.println("\n🔍 ===== DASHBOARD ORDER CONNECTION DEBUG =====");
+        
+        // Basic status
+        System.out.println("📊 DashboardController Status:");
+        System.out.println("   - Class: " + this.getClass().getSimpleName());
+        System.out.println("   - Instance: " + this.getClass().getSimpleName() + "@" + Integer.toHexString(this.hashCode()));
+        
+        // Order panel connection
+        System.out.println("\n🔗 Order Connection Status:");
+        System.out.println("   - orderPanelController: " + (orderPanelController != null ? "✅ Connected" : "❌ NULL"));
+        
+        if (orderPanelController != null) {
+            System.out.println("   - OrderPanel instance: " + orderPanelController.getClass().getSimpleName() + "@" + Integer.toHexString(orderPanelController.hashCode()));
+            System.out.println("   - Order functionality: ✅ ENABLED");
+            
+            // Test order panel connection
+            System.out.println("\n🧪 Testing Order Panel Connection:");
+            try {
+                orderPanelController.debugConnectionStatus();
+            } catch (Exception e) {
+                System.err.println("❌ Error testing order panel: " + e.getMessage());
+            }
+        } else {
+            System.out.println("   - Order functionality: ❌ DISABLED");
+            System.out.println("💡 To enable: Call setupOrderPanelController() or setOrderPanelController()");
+        }
+        
+        // Controller connections
+        System.out.println("\n🔗 Controller Connections:");
+        System.out.println("   - Loaded controllers: " + loadedControllers.size());
+        for (String key : loadedControllers.keySet()) {
+            Object controller = loadedControllers.get(key);
+            System.out.println("   - " + key + ": " + (controller != null ? controller.getClass().getSimpleName() : "null"));
+        }
+        
+        System.out.println("\n🎯 Overall Order Status: " + (orderPanelController != null ? "✅ FUNCTIONAL" : "❌ NEEDS SETUP"));
+        System.out.println("===== DEBUG COMPLETE =====\n");
     }
     
     /**
@@ -481,17 +478,5 @@ public class DashboardController implements Initializable {
         CafeManagementApplication.showErrorAlert("Lỗi", message);
     }
     
-    /**
-     * Get current table name
-     */
-    public String getCurrentTableName() {
-        return orderPanelController != null ? orderPanelController.getCurrentTableName() : "--";
-    }
-    
-    /**
-     * Get current table status
-     */
-    public TableStatus getCurrentTableStatus() {
-        return orderPanelController != null ? orderPanelController.getCurrentTableStatus() : TableStatus.AVAILABLE;
-    }
+
 }

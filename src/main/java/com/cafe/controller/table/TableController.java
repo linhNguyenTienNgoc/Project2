@@ -278,9 +278,12 @@ public class TableController implements Initializable {
         selectedTable.setTableName(tableName);
         selectedTable.setStatus(status.name());
         
-        // Update order panel in dashboard
+        // Update order panel in dashboard (RESTORED FUNCTIONALITY)
         if (dashboardController != null) {
             dashboardController.updateTableInfo(tableName, status);
+            System.out.println("✅ TableController: Updated order panel with table info");
+        } else {
+            System.err.println("❌ TableController: DashboardController is null!");
         }
         
         updateStatus("Đã chọn " + tableName);

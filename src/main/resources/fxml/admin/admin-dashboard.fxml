@@ -5,97 +5,119 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<?import javafx.collections.FXCollections?>
-<?import java.lang.String?>
 
-<VBox xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.cafe.controller.user.UserController"
-      style="-fx-background-color: #f5d6ae;" spacing="0">
+<BorderPane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cafe.controller.admin.AdminDashboardController"
+            style="-fx-background-color: #f8f9fa;">
 
-    <!-- Top Navigation Bar -->
-    <HBox style="-fx-background-color: #5d2b1c; -fx-padding: 10;" alignment="CENTER_LEFT" spacing="20">
-        <Label text="Màn hình chính Admin"
-               style="-fx-text-fill: #fff9c4; -fx-font-size: 18px; -fx-font-weight: bold;" />
-
-        <Region HBox.hgrow="ALWAYS" />
-
-        <!-- Navigation Tabs -->
-        <HBox spacing="5">
-            <Button fx:id="userTab" text="Nhân viên"
-                    style="-fx-background-color: #f5d6ae; -fx-text-fill: #4e342e; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15;"
-                     />
-            <Button fx:id="menuTab" text="Menu"
-                    style="-fx-background-color: transparent; -fx-text-fill: #fff9c4; -fx-background-radius: 5; -fx-padding: 8 15;"
-                     />
-            <Button fx:id="tableTab" text="Bàn"
-                    style="-fx-background-color: transparent; -fx-text-fill: #fff9c4; -fx-background-radius: 5; -fx-padding: 8 15;"
-                    onAction="#showTable" />
-            <Button fx:id="reportTab" text="Báo cáo"
-                    style="-fx-background-color: transparent; -fx-text-fill: #fff9c4; -fx-background-radius: 5; -fx-padding: 8 15;"
-                    />
-            <Button fx:id="promotionTab" text="Khuyến mãi"
-                    style="-fx-background-color: transparent; -fx-text-fill: #fff9c4; -fx-background-radius: 5; -fx-padding: 8 15;"
-                    />
-        </HBox>
-
-        <Region HBox.hgrow="ALWAYS" />
-
-        <!-- Logout Button -->
-        <Button fx:id="logoutButton"
-                style="-fx-background-color: transparent; -fx-text-fill: #fff9c4; -fx-font-size: 16px;">
-            <graphic>
-                <ImageView fitHeight="20" fitWidth="20">
+    <!-- Top Header -->
+    <top>
+        <HBox fx:id="headerBar" style="-fx-background-color: #2E86AB; -fx-padding: 15;" 
+              alignment="CENTER_LEFT" spacing="20">
+            
+            <!-- Logo and Title -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <ImageView fitHeight="40" fitWidth="40">
                     <image>
-                        <Image url="@../../images/icons/power-icon.png" />
+                        <Image url="@../../images/logo/nopita-logo.png" />
                     </image>
                 </ImageView>
-            </graphic>
-        </Button>
-    </HBox>
+                <VBox alignment="CENTER_LEFT" spacing="2">
+                    <Label text="Cafe Management System" 
+                           style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
+                    <Label text="Admin Dashboard" 
+                           style="-fx-text-fill: #e3f2fd; -fx-font-size: 12px;" />
+                </VBox>
+            </HBox>
 
-    <!-- Main Content Area -->
-    <VBox style="-fx-background-color: #f8f9fa;" VBox.vgrow="ALWAYS" spacing="0">
+            <Region HBox.hgrow="ALWAYS" />
 
-        <!-- user Table -->
-        <TableView fx:id="staffTable" VBox.vgrow="ALWAYS"
-                   style="-fx-background-color: #ffffff; -fx-table-cell-border-color: #f5d6ae;">
-
-            <columns>
-                <TableColumn fx:id="idColumn" text="Mã nhân viên" prefWidth="150"/>
-                <TableColumn fx:id="usernameColumn" text="Tên đăng nhập" prefWidth="150"/>
-                <TableColumn fx:id="fullNameColumn" text="Tên Nhân viên" prefWidth="150"/>
-                <TableColumn fx:id="emailColumn" text="Email" prefWidth="150"/>
-                <TableColumn fx:id="phoneColumn" text="SĐT" prefWidth="150"/>
-                <TableColumn fx:id="roleColumn" text="Chức vụ" prefWidth="150"/>
-                <TableColumn fx:id="updateColumn" text="" prefWidth="100"/>
-                <TableColumn fx:id="deleteColumn" text="" prefWidth="100"/>
-            </columns>
-        </TableView>
-
-        <!-- Inline Add user Form -->
-        <HBox style="-fx-background-color: #5d2b1c; -fx-padding: 10;" alignment="CENTER_LEFT" spacing="10">
-            <TextField fx:id="idField" promptText="Mã NV" prefWidth="150" prefHeight="36"/>
-            <TextField fx:id="usernameField" promptText="Tên đăng nhập" prefWidth="150" prefHeight="36"/>
-
-            <TextField fx:id="fullNameField" promptText="Họ Tên" prefWidth="150" prefHeight="36"/>
-            <TextField fx:id="emailField" promptText="Email" prefWidth="150" prefHeight="36"/>
-            <TextField fx:id="phoneField" promptText="SĐT" prefWidth="150" prefHeight="36"/>
-            <ComboBox fx:id="roleComboBox" prefWidth="150" prefHeight="36">
-                <items>
-                    <FXCollections fx:factory="observableArrayList">
-                        <String fx:value="Admin"/>
-                        <String fx:value="Manager"/>
-                        <String fx:value="Cashier"/>
-                        <String fx:value="Waiter"/>
-                        <String fx:value="Barista"/>
-                    </FXCollections>
-                </items>
-            </ComboBox>
-            <TextField fx:id="passwordField" promptText="Mật khẩu" prefWidth="150" prefHeight="36"/>
-            <Button text="Create"
-                    fx:id="inlineSubmit"
-                    onAction="#onInlineSubmitClicked"
-                    style="-fx-background-color: #FBECE3; -fx-font-weight: bold;" prefHeight="36"/>
+            <!-- User Info -->
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+                <VBox alignment="CENTER_RIGHT" spacing="2">
+                    <Label fx:id="userNameLabel" text="Admin User" 
+                           style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;" />
+                    <Label fx:id="userRoleLabel" text="Administrator" 
+                           style="-fx-text-fill: #e3f2fd; -fx-font-size: 12px;" />
+                </VBox>
+                <Button fx:id="logoutButton" text="Đăng xuất"
+                        style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 5;" />
+            </HBox>
         </HBox>
-    </VBox>
-</VBox>
+    </top>
+
+    <!-- Navigation Tabs -->
+    <center>
+        <VBox spacing="0">
+            <!-- Tab Navigation -->
+            <HBox fx:id="tabNavigation" style="-fx-background-color: #f8f9fa; -fx-padding: 10; -fx-border-color: #dee2e6; -fx-border-width: 0 0 1 0;" 
+                  alignment="CENTER_LEFT" spacing="5">
+                
+                <Button fx:id="userTabButton" text="👥 Quản lý người dùng"
+                        style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+                
+                <Button fx:id="menuTabButton" text="🍽️ Quản lý Menu"
+                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+                
+                <Button fx:id="tableTabButton" text="🪑 Quản lý Bàn"
+                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+                
+                <Button fx:id="reportTabButton" text="📊 Báo cáo"
+                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+                
+                <Button fx:id="promotionTabButton" text="🎉 Khuyến mãi"
+                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+            </HBox>
+
+            <!-- Content Area -->
+            <StackPane fx:id="contentPane" VBox.vgrow="ALWAYS" style="-fx-background-color: white;">
+                <!-- Default content will be loaded here -->
+                <VBox alignment="CENTER" spacing="20">
+                    <Label text="👋 Chào mừng đến với Admin Dashboard" 
+                           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2E86AB;" />
+                    <Label text="Vui lòng chọn một tab để bắt đầu quản lý hệ thống" 
+                           style="-fx-font-size: 16px; -fx-text-fill: #666;" />
+                </VBox>
+            </StackPane>
+        </VBox>
+    </center>
+
+    <!-- Right Sidebar - Order Panel -->
+    <right>
+        <VBox fx:id="orderPanel" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-min-width: 300;" spacing="15">
+            
+            <!-- Order Header -->
+            <VBox alignment="CENTER" spacing="5" style="-fx-background-color: #2E86AB; -fx-padding: 15; -fx-background-radius: 8;">
+                <Label text="📋 ĐƠN HÀNG" 
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" />
+                <Label fx:id="tableInfoLabel" text="Bàn: --" 
+                       style="-fx-font-size: 14px; -fx-text-fill: #e3f2fd;" />
+            </VBox>
+
+            <!-- Order Items -->
+            <VBox fx:id="orderItemsContainer" spacing="5" VBox.vgrow="ALWAYS">
+                <Label text="Chưa có món nào được chọn" 
+                       style="-fx-text-fill: #999; -fx-font-style: italic; -fx-alignment: center;" />
+            </VBox>
+
+            <!-- Order Total -->
+            <VBox style="-fx-background-color: #e8f5e8; -fx-padding: 15; -fx-background-radius: 8;" spacing="5">
+                <Label text="Tổng cộng:" 
+                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2e7d32;" />
+                <Label fx:id="totalAmountLabel" text="0 VNĐ" 
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2e7d32;" />
+            </VBox>
+
+            <!-- Order Actions -->
+            <VBox spacing="8">
+                <Button fx:id="placeOrderButton" text="📝 Đặt món" 
+                        style="-fx-background-color: #2E86AB; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-background-radius: 5;" />
+                <Button fx:id="paymentButton" text="💳 Thanh toán" 
+                        style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-background-radius: 5;" />
+                <Button fx:id="clearOrderButton" text="🗑️ Xóa đơn hàng" 
+                        style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-background-radius: 5;" />
+            </VBox>
+        </VBox>
+    </right>
+
+</BorderPane>
