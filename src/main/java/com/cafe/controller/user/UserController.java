@@ -75,11 +75,11 @@ public class UserController {
             DatabaseConfig dbConfig = DatabaseConfig.getInstance();
 
             if (dbConfig.testConnection()) {
-                Connection connection = DatabaseConfig.getConnection();
-                userDAO = new UserDAOImpl(connection);
-
+                // Connection will be managed per operation
+                System.out.println("✅ Database connection test successful");
             } else {
                 // Database connection failed
+                System.err.println("❌ Database connection test failed");
             }
 
         } catch (Exception e) {
@@ -127,10 +127,16 @@ public class UserController {
 
 
 
-        if (updateID != -1)
-            userDAO.updateUser(new User(id, username, fullName, email, phone, role, true, password.isEmpty() ? staffTable.getItems().get(updateID).getPassword() : password));
-        else
-            userDAO.insertUser(new User(id, username, fullName, email, phone, role, true, password));
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            UserDAO userDAO = new UserDAOImpl(connection);
+            if (updateID != -1)
+                userDAO.updateUser(new User(id, username, fullName, email, phone, role, true, password.isEmpty() ? staffTable.getItems().get(updateID).getPassword() : password));
+            else
+                userDAO.insertUser(new User(id, username, fullName, email, phone, role, true, password));
+        } catch (Exception e) {
+            System.err.println("Error updating/inserting user: " + e.getMessage());
+            e.printStackTrace();
+        }
         staffTable.setItems(getUserList());
 
         if (updateID == -1) {

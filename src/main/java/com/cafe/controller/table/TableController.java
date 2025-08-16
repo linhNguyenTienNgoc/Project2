@@ -12,6 +12,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.concurrent.Task;
 
 import java.net.URL;
@@ -50,9 +52,9 @@ public class TableController implements Initializable, DashboardCommunicator {
     private TableCafe selectedTable = null; // ✅ Track selected table
 
     // Grid configuration
-    private static final int TABLES_PER_ROW = 6;
-    private static final double TABLE_CARD_WIDTH = 140;
-    private static final double TABLE_CARD_HEIGHT = 100;
+    private static final int TABLES_PER_ROW = 4; // Reduced from 6 to accommodate larger cards
+    private static final double TABLE_CARD_WIDTH = 320;
+    private static final double TABLE_CARD_HEIGHT = 110;
 
     // ✅ Dashboard communication
     private Object dashboardController;
@@ -263,16 +265,16 @@ public class TableController implements Initializable, DashboardCommunicator {
         }
 
         // Configure grid
-        tableGrid.setHgap(15);
-        tableGrid.setVgap(15);
-        tableGrid.setPadding(new Insets(10));
+        tableGrid.setHgap(20);
+        tableGrid.setVgap(20);
+        tableGrid.setPadding(new Insets(15));
 
         // Add tables to grid
         int row = 0;
         int col = 0;
 
         for (TableCafe table : tables) {
-            VBox tableCard = createTableCard(table);
+            VBox tableCard = createTableCard(table.getTableName(), table.getStatus(), table.getTableId(), table.getCapacity());
             tableGrid.add(tableCard, col, row);
 
             col++;
@@ -284,78 +286,125 @@ public class TableController implements Initializable, DashboardCommunicator {
     }
 
     /**
-     * ✅ ENHANCED: Create table card UI component với improved selection handling
+     * ✅ NEW DESIGN: Create table card UI component với improved modern design
      */
-    private VBox createTableCard(TableCafe table) {
-        VBox card = new VBox(8);
+    private VBox createTableCard(String tableName, String status, int tableId, int capacity) {
+        // Card container
+        VBox card = new VBox();
+        card.setPadding(new Insets(16));
         card.setPrefWidth(TABLE_CARD_WIDTH);
         card.setPrefHeight(TABLE_CARD_HEIGHT);
-        card.setAlignment(Pos.CENTER);
 
-        // Get status color and Vietnamese status text
-        String statusColor = getStatusColor(table.getStatus());
-        String statusText = getStatusText(table.getStatus());
+        // Check if this table is selected
+        boolean isSelected = selectedTable != null && selectedTable.getTableId() == tableId;
 
-        // ✅ Check if this table is selected
-        boolean isSelected = selectedTable != null && selectedTable.getTableId() == table.getTableId();
-        String borderStyle = isSelected ? "-fx-border-color: #007bff; -fx-border-width: 4;" : String.format("-fx-border-color: %s; -fx-border-width: 3;", statusColor);
+        // Beige background with soft corners, subtle shadow
+        String baseStyle = isSelected
+                ? "-fx-background-color: #c9a876; -fx-background-radius: 14; -fx-effect: dropshadow(gaussian, rgba(0,123,255,0.3), 12, 0, 0, 3); -fx-cursor: hand; -fx-border-color: #007bff; -fx-border-width: 3; -fx-border-radius: 14;"
+                : "-fx-background-color: #d9b59b; -fx-background-radius: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2); -fx-cursor: hand;";
+        card.setStyle(baseStyle);
 
-        card.setStyle(String.format("""
-            -fx-background-color: white;
-            %s
-            -fx-border-radius: 8;
-            -fx-background-radius: 8;
-            -fx-padding: 10;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
-            """, borderStyle));
+        // Internal content layout: left info, right status pill
+        HBox row = new HBox();
+        row.setSpacing(12);
+        row.setFillHeight(true);
 
-        // Table name
-        Label nameLabel = new Label(table.getTableName());
-        nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #333;");
+        VBox left = new VBox();
+        left.setSpacing(8);
 
-        // Capacity
-        Label capacityLabel = new Label(table.getCapacity() + " chỗ");
-        capacityLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
+        Label title = new Label("# " + tableName);
+        title.setFont(Font.font("System", FontWeight.BOLD, 20));
+        title.setStyle("-fx-text-fill: rgba(255,255,255,0.95);");
 
-        // Status
-        Label statusLabel = new Label(statusText);
-        statusLabel.setStyle(String.format("-fx-font-weight: bold; -fx-font-size: 11px; -fx-text-fill: %s;", statusColor));
+        HBox people = new HBox();
+        people.setSpacing(6);
+        Label peopleIcon = new Label("\uD83D\uDC65"); // 👥
+        peopleIcon.setStyle("-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px;");
+        Label peopleCount = new Label(String.valueOf(capacity));
+        peopleCount.setStyle("-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px;");
+        people.getChildren().addAll(peopleIcon, peopleCount);
 
-        // ✅ ENHANCED: Click action với Dashboard communication
-        card.setOnMouseClicked(e -> handleTableClick(table));
+        left.getChildren().addAll(title, people);
 
-        // Hover effect
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Status pill (dark background + colored dot + label)
+        HBox pill = new HBox();
+        pill.setSpacing(8);
+        pill.setPadding(new Insets(6, 12, 6, 10));
+        pill.setStyle("-fx-background-color: #1f1f1f; -fx-background-radius: 999; -fx-alignment: CENTER;");
+
+        Region dot = new Region();
+        dot.setMinSize(10, 10);
+        dot.setPrefSize(10, 10);
+        dot.setMaxSize(10, 10);
+        dot.setStyle("-fx-background-radius: 50%;");
+
+        Label statusText = new Label(getStatusText(status));
+        statusText.setFont(Font.font("System", FontWeight.BOLD, 12));
+
+        // Colors by status
+        String color;
+        switch (status.toLowerCase()) {
+            case "available":
+                color = "#5ad15a"; // green
+                break;
+            case "occupied":
+                color = "#ff3b30"; // red
+                break;
+            case "cleaning":
+                color = "#f4c20d"; // yellow
+                break;
+            case "reserved":
+            default:
+                color = "#ffa000"; // orange
+        }
+        dot.setStyle(dot.getStyle() + " -fx-background-color: " + color + ";");
+        statusText.setStyle("-fx-text-fill: " + color + ";");
+
+        pill.getChildren().addAll(dot, statusText);
+
+        row.getChildren().addAll(left, spacer, pill);
+        card.getChildren().add(row);
+
+        // Click + hover effects
+        card.setOnMouseClicked(e -> selectTable(tableId, tableName, status));
+
         card.setOnMouseEntered(e -> {
-            card.setStyle(card.getStyle() + "; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 3);");
+            String hoverStyle = isSelected
+                    ? "-fx-background-color: #c19d6b; -fx-background-radius: 14; -fx-effect: dropshadow(gaussian, rgba(0,123,255,0.4), 16, 0, 0, 4); -fx-cursor: hand; -fx-border-color: #007bff; -fx-border-width: 3; -fx-border-radius: 14;"
+                    : "-fx-background-color: #d6ad90; -fx-background-radius: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 14, 0, 0, 3); -fx-cursor: hand;";
+            card.setStyle(hoverStyle);
         });
 
-        card.setOnMouseExited(e -> {
-            String borderStyleHover = isSelected ? "-fx-border-color: #007bff; -fx-border-width: 4;" : String.format("-fx-border-color: %s; -fx-border-width: 3;", statusColor);
-            card.setStyle(String.format("""
-                -fx-background-color: white;
-                %s
-                -fx-border-radius: 8;
-                -fx-background-radius: 8;
-                -fx-padding: 10;
-                -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
-                """, borderStyleHover));
+        card.setOnMouseExited(e -> card.setStyle(baseStyle));
+
+        card.setOnMousePressed(e -> {
+            String pressedStyle = isSelected
+                    ? "-fx-background-color: #b8935f; -fx-background-radius: 14; -fx-effect: dropshadow(gaussian, rgba(0,123,255,0.5), 8, 0, 0, 1); -fx-cursor: hand; -fx-border-color: #007bff; -fx-border-width: 3; -fx-border-radius: 14;"
+                    : "-fx-background-color: #cfa582; -fx-background-radius: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 8, 0, 0, 1); -fx-cursor: hand;";
+            card.setStyle(pressedStyle);
         });
 
-        card.getChildren().addAll(nameLabel, capacityLabel, statusLabel);
+        card.setOnMouseReleased(e -> card.setStyle(baseStyle));
 
         return card;
     }
 
     /**
-     * Get color for table status
+     * ✅ Handle table selection
      */
-    private String getStatusColor(String status) {
-        switch (status.toLowerCase()) {
-            case "available": return "#28a745"; // Green
-            case "occupied": return "#dc3545";  // Red
-            case "reserved": return "#ffc107";  // Yellow
-            case "cleaning": return "#6c757d";  // Gray
-            default: return "#6c757d";
+    private void selectTable(int tableId, String tableName, String status) {
+        try {
+            // Find the table object
+            TableCafe table = getTableById(tableId);
+            if (table != null) {
+                handleTableClick(table);
+            }
+        } catch (Exception e) {
+            System.err.println("Error selecting table: " + e.getMessage());
+            showError("Không thể chọn bàn");
         }
     }
 
@@ -373,7 +422,7 @@ public class TableController implements Initializable, DashboardCommunicator {
     }
 
     /**
-     * ✅ ENHANCED: Handle table click với Dashboard communication
+     * ✅ SIMPLIFIED: Handle table click - Directly show order panel
      */
     private void handleTableClick(TableCafe table) {
         try {
@@ -383,12 +432,12 @@ public class TableController implements Initializable, DashboardCommunicator {
             selectedTable = table;
             displayTables(currentTables); // Refresh to show selection
 
-            // ✅ Notify Dashboard about table selection
+            // ✅ Notify Dashboard about table selection and show order panel
             DashboardHelper.notifyTableSelected(dashboardController, table);
             DashboardHelper.updateTableInfo(dashboardController, table.getTableName(), table.getStatus());
 
-            // Show table options dialog based on status
-            showTableOptionsDialog(table);
+            // ✅ Show order panel for this table immediately
+            showOrderPanelForTable(table);
 
         } catch (Exception e) {
             System.err.println("Error handling table click: " + e.getMessage());
@@ -397,197 +446,117 @@ public class TableController implements Initializable, DashboardCommunicator {
     }
 
     /**
-     * Show table options dialog
+     * ✅ NEW: Show order panel for selected table
      */
-    private void showTableOptionsDialog(TableCafe table) {
-        Alert dialog = new Alert(Alert.AlertType.CONFIRMATION);
-        dialog.setTitle("Quản lý bàn");
-        dialog.setHeaderText("Bàn: " + table.getTableName());
-        dialog.setContentText("Trạng thái hiện tại: " + getStatusText(table.getStatus()) +
-                "\nSức chứa: " + table.getCapacity() + " người" +
-                "\n\nBạn muốn làm gì?");
+    private void showOrderPanelForTable(TableCafe table) {
+        try {
+            // Special handling for cleaning status - show option to finish cleaning
+            if ("cleaning".equalsIgnoreCase(table.getStatus())) {
+                Alert cleaningAlert = new Alert(Alert.AlertType.CONFIRMATION);
+                cleaningAlert.setTitle("Bàn đang dọn dẹp");
+                cleaningAlert.setHeaderText("Bàn: " + table.getTableName());
+                cleaningAlert.setContentText("Bàn này đang được dọn dẹp. Bạn có muốn đánh dấu hoàn thành dọn dẹp không?");
 
-        // Custom buttons based on table status
-        dialog.getButtonTypes().clear();
-
-        switch (table.getStatus().toLowerCase()) {
-            case "available":
-                dialog.getButtonTypes().addAll(
-                        new ButtonType("Tạo đơn mới", ButtonBar.ButtonData.OK_DONE),
-                        new ButtonType("Đặt trước", ButtonBar.ButtonData.OTHER),
-                        new ButtonType("Hủy", ButtonBar.ButtonData.CANCEL_CLOSE)
-                );
-                break;
-            case "occupied":
-                dialog.getButtonTypes().addAll(
-                        new ButtonType("Xem đơn hàng", ButtonBar.ButtonData.OK_DONE),
-                        new ButtonType("Thanh toán", ButtonBar.ButtonData.OTHER),
-                        new ButtonType("Hủy", ButtonBar.ButtonData.CANCEL_CLOSE)
-                );
-                break;
-            case "reserved":
-                dialog.getButtonTypes().addAll(
-                        new ButtonType("Check-in", ButtonBar.ButtonData.OK_DONE),
-                        new ButtonType("Hủy đặt bàn", ButtonBar.ButtonData.OTHER),
-                        new ButtonType("Hủy", ButtonBar.ButtonData.CANCEL_CLOSE)
-                );
-                break;
-            case "cleaning":
-                dialog.getButtonTypes().addAll(
+                cleaningAlert.getButtonTypes().setAll(
                         new ButtonType("Hoàn thành dọn dẹp", ButtonBar.ButtonData.OK_DONE),
+                        new ButtonType("Xem order", ButtonBar.ButtonData.OTHER),
                         new ButtonType("Hủy", ButtonBar.ButtonData.CANCEL_CLOSE)
                 );
-                break;
-        }
 
-        dialog.showAndWait().ifPresent(buttonType -> {
-            handleTableAction(table, buttonType.getText());
-        });
-    }
+                cleaningAlert.showAndWait().ifPresent(buttonType -> {
+                    if (buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                        finishCleaning(table);
+                    } else if (buttonType.getButtonData() == ButtonBar.ButtonData.OTHER) {
+                        // Show order panel anyway
+                        DashboardHelper.showOrderPanel(dashboardController, table.getTableId());
+                    }
+                });
+                return;
+            }
 
-    /**
-     * ✅ ENHANCED: Handle table action với Dashboard notification
-     */
-    private void handleTableAction(TableCafe table, String action) {
-        String oldStatus = table.getStatus();
+            // For all other statuses, show order panel directly
+            DashboardHelper.showOrderPanel(dashboardController, table.getTableId());
 
-        switch (action) {
-            case "Tạo đơn mới":
-                createNewOrder(table);
-                break;
-            case "Đặt trước":
-                reserveTable(table);
-                break;
-            case "Xem đơn hàng":
-                viewCurrentOrder(table);
-                break;
-            case "Thanh toán":
-                processPayment(table);
-                break;
-            case "Check-in":
-                checkInReservedTable(table);
-                break;
-            case "Hủy đặt bàn":
-                cancelReservation(table);
-                break;
-            case "Hoàn thành dọn dẹp":
-                finishCleaning(table);
-                break;
-        }
-
-        // ✅ Notify Dashboard if status changed
-        if (!oldStatus.equals(table.getStatus())) {
-            DashboardHelper.notifyOrderStatusChanged(dashboardController, table.getStatus(), table.getTableId());
+        } catch (Exception e) {
+            System.err.println("Error showing order panel: " + e.getMessage());
+            showError("Không thể hiển thị panel order");
         }
     }
 
     /**
-     * Create new order for table
+     * ✅ IMPROVED: Update table status from external sources (like OrderPanel)
      */
-    private void createNewOrder(TableCafe table) {
+    public void updateTableStatus(int tableId, String newStatus) {
         try {
-            // Update table status to occupied
-            boolean success = tableService.updateTableStatus(table.getTableId(), "occupied");
+            // Validate new status
+            if (newStatus == null || newStatus.trim().isEmpty()) {
+                System.err.println("❌ Invalid status: status cannot be null or empty");
+                return;
+            }
+
+            // Validate status values and normalize
+            String[] validStatuses = {"available", "occupied", "cleaning", "reserved"};
+            boolean isValidStatus = false;
+            String normalizedStatus = newStatus;
+            for (String status : validStatuses) {
+                if (status.equalsIgnoreCase(newStatus)) {
+                    isValidStatus = true;
+                    normalizedStatus = status; // Normalize to lowercase
+                    break;
+                }
+            }
+            
+            if (!isValidStatus) {
+                System.err.println("❌ Invalid status: " + newStatus + ". Valid statuses: " + String.join(", ", validStatuses));
+                return;
+            }
+
+            // Find table in current list
+            TableCafe table = getTableById(tableId);
+            if (table == null) {
+                System.err.println("❌ Table not found with ID: " + tableId);
+                return;
+            }
+
+            String oldStatus = table.getStatus();
+
+            // Update in database
+            boolean success = tableService.updateTableStatus(tableId, normalizedStatus);
             if (success) {
-                table.setStatus("occupied"); // Update local object
-                showInfo("Đã tạo đơn mới cho " + table.getTableName());
-                refreshTables(); // Refresh UI
+                table.setStatus(normalizedStatus); // Update local object
+
+                // Refresh display to show new status
+                displayTables(currentTables);
+
+                System.out.println("✅ Table " + tableId + " status updated: " + oldStatus + " → " + normalizedStatus);
+
+                // ✅ Notify Dashboard about status change
+                DashboardHelper.notifyOrderStatusChanged(dashboardController, normalizedStatus, tableId);
+                
+                // Show success message to user
+                final String finalOldStatus = oldStatus;
+                final String finalNewStatus = normalizedStatus;
+                Platform.runLater(() -> {
+                    showInfo("Đã cập nhật trạng thái bàn " + table.getTableName() + 
+                           " từ " + getStatusText(finalOldStatus) + " thành " + getStatusText(finalNewStatus));
+                });
             } else {
-                showError("Không thể tạo đơn mới");
+                System.err.println("❌ Failed to update table status in database");
+                Platform.runLater(() -> {
+                    showError("Không thể cập nhật trạng thái bàn trong cơ sở dữ liệu");
+                });
             }
         } catch (Exception e) {
-            System.err.println("Error creating new order: " + e.getMessage());
-            showError("Lỗi tạo đơn mới");
+            System.err.println("Error updating table status: " + e.getMessage());
+            e.printStackTrace();
+            Platform.runLater(() -> {
+                showError("Lỗi cập nhật trạng thái bàn: " + e.getMessage());
+            });
         }
     }
 
     /**
-     * Reserve table
-     */
-    private void reserveTable(TableCafe table) {
-        try {
-            boolean success = tableService.updateTableStatus(table.getTableId(), "reserved");
-            if (success) {
-                table.setStatus("reserved"); // Update local object
-                showInfo("Đã đặt trước " + table.getTableName());
-                refreshTables();
-            } else {
-                showError("Không thể đặt trước bàn");
-            }
-        } catch (Exception e) {
-            System.err.println("Error reserving table: " + e.getMessage());
-            showError("Lỗi đặt trước bàn");
-        }
-    }
-
-    /**
-     * View current order for table
-     */
-    private void viewCurrentOrder(TableCafe table) {
-        // TODO: Implement view order functionality
-        showInfo("Xem đơn hàng cho " + table.getTableName());
-    }
-
-    /**
-     * Process payment for table
-     */
-    private void processPayment(TableCafe table) {
-        try {
-            // Update table status to cleaning after payment
-            boolean success = tableService.updateTableStatus(table.getTableId(), "cleaning");
-            if (success) {
-                table.setStatus("cleaning"); // Update local object
-                showInfo("Đã thanh toán cho " + table.getTableName() + ". Bàn đang được dọn dẹp.");
-                refreshTables();
-            } else {
-                showError("Không thể xử lý thanh toán");
-            }
-        } catch (Exception e) {
-            System.err.println("Error processing payment: " + e.getMessage());
-            showError("Lỗi xử lý thanh toán");
-        }
-    }
-
-    /**
-     * Check-in reserved table
-     */
-    private void checkInReservedTable(TableCafe table) {
-        try {
-            boolean success = tableService.updateTableStatus(table.getTableId(), "occupied");
-            if (success) {
-                table.setStatus("occupied"); // Update local object
-                showInfo("Đã check-in " + table.getTableName());
-                refreshTables();
-            } else {
-                showError("Không thể check-in");
-            }
-        } catch (Exception e) {
-            System.err.println("Error checking in table: " + e.getMessage());
-            showError("Lỗi check-in");
-        }
-    }
-
-    /**
-     * Cancel table reservation
-     */
-    private void cancelReservation(TableCafe table) {
-        try {
-            boolean success = tableService.updateTableStatus(table.getTableId(), "available");
-            if (success) {
-                table.setStatus("available"); // Update local object
-                showInfo("Đã hủy đặt bàn " + table.getTableName());
-                refreshTables();
-            } else {
-                showError("Không thể hủy đặt bàn");
-            }
-        } catch (Exception e) {
-            System.err.println("Error cancelling reservation: " + e.getMessage());
-            showError("Lỗi hủy đặt bàn");
-        }
-    }
-
-    /**
-     * Finish cleaning table
+     * Finish cleaning table (only remaining manual action)
      */
     private void finishCleaning(TableCafe table) {
         try {
@@ -596,6 +565,9 @@ public class TableController implements Initializable, DashboardCommunicator {
                 table.setStatus("available"); // Update local object
                 showInfo("Đã hoàn thành dọn dẹp " + table.getTableName());
                 refreshTables();
+
+                // ✅ Notify Dashboard about status change
+                DashboardHelper.notifyOrderStatusChanged(dashboardController, "available", table.getTableId());
             } else {
                 showError("Không thể cập nhật trạng thái bàn");
             }

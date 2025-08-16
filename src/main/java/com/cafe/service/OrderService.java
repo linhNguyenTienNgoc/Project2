@@ -30,22 +30,13 @@ import java.util.stream.Collectors;
  */
 public class OrderService {
 
-    private final OrderDAO orderDAO;
-    private final OrderDetailDAO orderDetailDAO; // ✅ NEW: OrderDetailDAO integration
     private final MenuService menuService;
 
     public OrderService() {
-        try {
-            Connection conn = DatabaseConfig.getConnection();
-            this.orderDAO = new OrderDAOImpl(conn);
-            this.orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+        // ✅ REMOVED: No longer getting connection in constructor
+        // Connections will be managed per operation using try-with-resources
             this.menuService = new MenuService();
-
-            System.out.println("✅ OrderService initialized with OrderDetailDAO integration");
-        } catch (Exception e) {
-            System.err.println("❌ Error initializing OrderService: " + e.getMessage());
-            throw new RuntimeException("Failed to initialize OrderService", e);
-        }
+        System.out.println("✅ OrderService initialized with proper connection management");
     }
 
     // =====================================================
@@ -65,9 +56,12 @@ public class OrderService {
             return null;
         }
 
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             // Check if there's already an active order for this table
-            Optional<Order> existingOrder = getActiveOrderByTable(tableId);
+            Optional<Order> existingOrder = getActiveOrderByTable(tableId, conn);
             if (existingOrder.isPresent()) {
                 System.out.println("⚠️ Table " + tableId + " already has an active order: " + existingOrder.get().getOrderNumber());
                 return existingOrder.get();
@@ -122,7 +116,10 @@ public class OrderService {
             return false;
         }
 
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             // Check if product already exists in order
             List<OrderDetail> existingDetails = orderDetailDAO.findByOrderId(order.getOrderId());
             Optional<OrderDetail> existingDetail = existingDetails.stream()
@@ -161,7 +158,7 @@ public class OrderService {
             }
 
             // Recalculate and update order total
-            if (!recalculateOrderTotal(order)) {
+            if (!recalculateOrderTotal(order, conn)) {
                 System.err.println("❌ Failed to recalculate order total");
                 return false;
             }
@@ -183,7 +180,10 @@ public class OrderService {
             return false;
         }
 
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             if (!orderDetailDAO.deleteByOrderAndProduct(order.getOrderId(), productId)) {
                 System.err.println("❌ Failed to delete order detail");
                 return false;
@@ -192,7 +192,7 @@ public class OrderService {
             System.out.println("✅ Removed product " + productId + " from order " + order.getOrderNumber());
 
             // Recalculate order total
-            return recalculateOrderTotal(order);
+            return recalculateOrderTotal(order, conn);
         } catch (Exception e) {
             System.err.println("❌ Error removing product from order: " + e.getMessage());
             e.printStackTrace();
@@ -209,7 +209,10 @@ public class OrderService {
             return false;
         }
 
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             if (newQuantity == 0) {
                 // Remove product if quantity is 0
                 return removeProductFromOrder(order, productId);
@@ -223,7 +226,7 @@ public class OrderService {
             System.out.println("✅ Updated product " + productId + " quantity to " + newQuantity);
 
             // Recalculate order total
-            return recalculateOrderTotal(order);
+            return recalculateOrderTotal(order, conn);
         } catch (Exception e) {
             System.err.println("❌ Error updating product quantity: " + e.getMessage());
             e.printStackTrace();
@@ -234,8 +237,11 @@ public class OrderService {
     /**
      * ✅ NEW: Recalculate order total from order details
      */
-    private boolean recalculateOrderTotal(Order order) {
+    private boolean recalculateOrderTotal(Order order, Connection conn) {
         try {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             List<OrderDetail> orderDetails = orderDetailDAO.findByOrderId(order.getOrderId());
 
             double totalAmount = orderDetails.stream()
@@ -281,7 +287,10 @@ public class OrderService {
             return false;
         }
 
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             order.setOrderStatus("preparing");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
@@ -304,7 +313,10 @@ public class OrderService {
             return false;
         }
 
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             order.setOrderStatus("ready");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             return orderDAO.update(order);
@@ -322,7 +334,10 @@ public class OrderService {
             return false;
         }
 
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             order.setOrderStatus("served");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             return orderDAO.update(order);
@@ -345,7 +360,10 @@ public class OrderService {
             return false;
         }
 
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             order.setOrderStatus("completed");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
@@ -373,7 +391,10 @@ public class OrderService {
             return false;
         }
 
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             order.setOrderStatus("cancelled");
             order.setNotes(reason != null ? reason : "Order cancelled");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
@@ -411,7 +432,10 @@ public class OrderService {
             return false;
         }
 
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             order.setPaymentMethod(paymentMethod);
             order.setPaymentStatus("paid");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
@@ -452,7 +476,8 @@ public class OrderService {
      * ✅ IMPLEMENTED: Lấy order theo ID
      */
     public Optional<Order> getOrderById(Integer orderId) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
             return orderDAO.findById(orderId);
         } catch (Exception e) {
             System.err.println("❌ Error getting order by ID " + orderId + ": " + e.getMessage());
@@ -464,7 +489,8 @@ public class OrderService {
      * ✅ IMPLEMENTED: Lấy tất cả orders theo trạng thái
      */
     public List<Order> getOrdersByStatus(String status) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
             return orderDAO.getAllOrders().stream()
                     .filter(order -> status.equals(order.getOrderStatus()))
                     .collect(Collectors.toList());
@@ -478,7 +504,8 @@ public class OrderService {
      * ✅ IMPLEMENTED: Lấy orders theo bàn
      */
     public List<Order> getOrdersByTable(int tableId) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
             return orderDAO.getAllOrders().stream()
                     .filter(order -> order.getTableId() == tableId)
                     .collect(Collectors.toList());
@@ -492,7 +519,20 @@ public class OrderService {
      * ✅ IMPLEMENTED: Lấy order đang active (pending/preparing/ready/served) theo bàn
      */
     public Optional<Order> getActiveOrderByTable(int tableId) {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            return getActiveOrderByTable(tableId, conn);
+        } catch (Exception e) {
+            System.err.println("❌ Error getting active order by table: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * ✅ NEW: Overloaded method for internal use with existing connection
+     */
+    private Optional<Order> getActiveOrderByTable(int tableId, Connection conn) {
         try {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
             List<String> activeStatuses = Arrays.asList("pending", "preparing", "ready", "served");
 
             return orderDAO.getAllOrders().stream()
@@ -509,7 +549,8 @@ public class OrderService {
      * ✅ NEW: Get order details for an order
      */
     public List<OrderDetail> getOrderDetails(int orderId) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn);
             return orderDetailDAO.findByOrderId(orderId);
         } catch (Exception e) {
             System.err.println("❌ Error getting order details: " + e.getMessage());
@@ -521,7 +562,8 @@ public class OrderService {
      * ✅ NEW: Get orders by date range
      */
     public List<Order> getOrdersByDateRange(Timestamp startDate, Timestamp endDate) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
             return orderDAO.getAllOrders().stream()
                     .filter(order -> order.getOrderDate().after(startDate) && order.getOrderDate().before(endDate))
                     .collect(Collectors.toList());
@@ -535,7 +577,8 @@ public class OrderService {
      * ✅ NEW: Get orders by user (staff member)
      */
     public List<Order> getOrdersByUser(int userId) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
             return orderDAO.getOrdersByUserId(userId);
         } catch (Exception e) {
             System.err.println("❌ Error getting orders by user: " + e.getMessage());
@@ -596,7 +639,10 @@ public class OrderService {
             return false;
         }
 
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
+
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             return orderDAO.update(order);
         } catch (Exception e) {
@@ -610,7 +656,8 @@ public class OrderService {
      */
     public Map<String, Object> getOrderStatistics() {
         Map<String, Object> stats = new HashMap<>();
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
             List<Order> allOrders = orderDAO.getAllOrders();
 
             stats.put("totalOrders", allOrders.size());
@@ -632,7 +679,8 @@ public class OrderService {
      * ✅ NEW: Clear all order details for an order
      */
     public boolean clearOrderDetails(int orderId) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn);
             return orderDetailDAO.deleteByOrderId(orderId);
         } catch (Exception e) {
             System.err.println("❌ Error clearing order details: " + e.getMessage());

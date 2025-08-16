@@ -89,11 +89,11 @@ public class DatabaseConfig {
             
             // Load connection pool properties
             initialSize = Integer.parseInt(properties.getProperty("database.initialSize", "5"));
-            maxActive = Integer.parseInt(properties.getProperty("database.maxActive", "20"));
+            maxActive = Integer.parseInt(properties.getProperty("database.maxActive", "50")); // Increased from 20 to 50
             maxIdle = Integer.parseInt(properties.getProperty("database.maxIdle", "10"));
             minIdle = Integer.parseInt(properties.getProperty("database.minIdle", "5"));
             maxWait = Long.parseLong(properties.getProperty("database.maxWait", "60000"));
-            connectionTimeout = Long.parseLong(properties.getProperty("database.connectionTimeout", "30000"));
+            connectionTimeout = Long.parseLong(properties.getProperty("database.connectionTimeout", "10000")); // Reduced from 30000 to 10000
             idleTimeout = Long.parseLong(properties.getProperty("database.idleTimeout", "600000"));
             maxLifetime = Long.parseLong(properties.getProperty("database.maxLifetime", "1800000"));
             
@@ -117,7 +117,7 @@ public class DatabaseConfig {
         maxIdle = 20;    // Increased from 10 to 20
         minIdle = 5;
         maxWait = 120000;        // Increased from 60000 to 120000 (2 minutes)
-        connectionTimeout = 60000; // Increased from 30000 to 60000 (1 minute)
+        connectionTimeout = 10000; // Reduced from 30000 to 10000 (10 seconds)
         idleTimeout = 600000;
         maxLifetime = 1800000;
     }
@@ -152,7 +152,7 @@ public class DatabaseConfig {
             config.setAutoCommit(true);
             
             // Connection leak detection
-            config.setLeakDetectionThreshold(30000); // 30 seconds
+            config.setLeakDetectionThreshold(60000); // 60 seconds - increased for better detection
             
             // Additional properties for MySQL
             config.addDataSourceProperty("cachePrepStmts", "true");

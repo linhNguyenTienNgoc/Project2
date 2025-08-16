@@ -15,25 +15,17 @@ import java.util.stream.Collectors;
 
 public class TableService {
 
-    private final TableDAO tableDAO;
-    private final AreaDAO areaDAO;
-
     public TableService() {
-        try {
-            Connection conn = DatabaseConfig.getConnection();
-            this.tableDAO = new TableDAOImpl(conn);
-            this.areaDAO = new AreaDAOImpl(conn);
-        } catch (Exception e) {
-            System.err.println("Error initializing TableService: " + e.getMessage());
-            throw new RuntimeException("Failed to initialize TableService", e);
-        }
+        // ✅ REMOVED: No longer getting connection in constructor
+        // Connections will be managed per operation using try-with-resources
     }
 
     /**
      * Lấy tất cả areas đang active
      */
     public List<Area> getAvailableAreas() {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            AreaDAO areaDAO = new AreaDAOImpl(conn);
             return areaDAO.findActiveAreas();
         } catch (Exception e) {
             System.err.println("Error loading areas: " + e.getMessage());
@@ -45,7 +37,8 @@ public class TableService {
      * Lấy tables theo area
      */
     public List<TableCafe> getTablesByArea(Integer areaId) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            TableDAO tableDAO = new TableDAOImpl(conn);
             if (areaId == null) {
                 return tableDAO.getAllTables().stream()
                         .filter(table -> table.isActive())
@@ -72,7 +65,8 @@ public class TableService {
      * Cập nhật trạng thái bàn
      */
     public boolean updateTableStatus(int tableId, String newStatus) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            TableDAO tableDAO = new TableDAOImpl(conn);
             Optional<TableCafe> tableOpt = Optional.ofNullable(tableDAO.getTableById(tableId));
             if (tableOpt.isPresent()) {
                 TableCafe table = tableOpt.get();
@@ -90,7 +84,8 @@ public class TableService {
      * Kiểm tra bàn có trống không
      */
     public boolean isTableAvailable(int tableId) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            TableDAO tableDAO = new TableDAOImpl(conn);
             TableCafe table = tableDAO.getTableById(tableId);
             return table != null && "available".equals(table.getStatus());
         } catch (Exception e) {
@@ -103,7 +98,8 @@ public class TableService {
      * Lấy table theo ID
      */
     public Optional<TableCafe> getTableById(int tableId) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            TableDAO tableDAO = new TableDAOImpl(conn);
             return Optional.ofNullable(tableDAO.getTableById(tableId));
         } catch (Exception e) {
             System.err.println("Error getting table by ID: " + e.getMessage());

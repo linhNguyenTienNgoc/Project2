@@ -1,12 +1,15 @@
 package com.cafe.controller.dashboard;
 
+import com.cafe.CafeManagementApplication;
 import com.cafe.controller.menu.MenuController;
 import com.cafe.controller.order.OrderPanelController;
 import com.cafe.controller.table.TableController;
 import com.cafe.controller.base.DashboardCommunicator;
 import com.cafe.controller.base.DashboardEventHandler;
+import com.cafe.controller.base.DashboardHelper;
 import com.cafe.model.entity.Product;
 import com.cafe.model.entity.TableCafe;
+import com.cafe.util.SessionManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -20,6 +23,7 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.lang.reflect.Method;
 
 /**
  * Main Dashboard Controller - Complete & Fixed
@@ -296,13 +300,10 @@ public class DashboardController implements Initializable, DashboardEventHandler
             // TODO: Save any pending data
             // TODO: Close open dialogs
 
-            // Close database connections
-            com.cafe.config.DatabaseConfig.closePool();
-            System.out.println("🔌 Database connections closed");
-
-            // Close application or return to login screen
-            System.out.println("👋 Goodbye!");
-            System.exit(0);
+            if (CafeManagementApplication.showConfirmAlert("Đăng xuất", "Bạn có chắc chắn muốn đăng xuất không?")) {
+                SessionManager.clearSession();
+                CafeManagementApplication.showLoginScreen();
+            }
 
         } catch (Exception e) {
             System.err.println("❌ Error during logout: " + e.getMessage());
@@ -472,6 +473,58 @@ public class DashboardController implements Initializable, DashboardEventHandler
     // =====================================================
     // PUBLIC UTILITY METHODS
     // =====================================================
+
+    /**
+     * ✅ NEW: Update table status - called by DashboardHelper via reflection
+     * This method is required for the reflection call in DashboardHelper.updateTableStatus()
+     */
+    public void updateTableStatus(int tableId, String newStatus) {
+        try {
+            System.out.println("🔄 DashboardController.updateTableStatus called: Table " + tableId + " -> " + newStatus);
+            
+            // Forward the update to TableController if it's loaded
+            if (currentTableController != null) {
+                currentTableController.updateTableStatus(tableId, newStatus);
+                System.out.println("✅ Table status update forwarded to TableController");
+            } else {
+                System.err.println("⚠️ TableController not loaded - cannot update table status");
+            }
+            
+            // Also notify OrderPanel if it's available
+            if (orderPanelRootController != null) {
+                // Update OrderPanel's current table if it matches
+                if (orderPanelRootController.getCurrentTableId() == tableId) {
+                    System.out.println("✅ OrderPanel notified of table status change");
+                }
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error in DashboardController.updateTableStatus: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * ✅ NEW: Show order panel for specific table
+     * This method is required for the reflection call in DashboardHelper.showOrderPanel()
+     */
+    public void showOrderPanel(int tableId) {
+        try {
+            System.out.println("📋 DashboardController.showOrderPanel called for table: " + tableId);
+            
+            // Set the table in OrderPanel
+            if (orderPanelRootController != null) {
+                orderPanelRootController.setCurrentTable(tableId);
+                System.out.println("✅ OrderPanel set to table " + tableId);
+            } else {
+                System.err.println("⚠️ OrderPanel not available");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error in DashboardController.showOrderPanel: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Refresh current content - useful for external calls

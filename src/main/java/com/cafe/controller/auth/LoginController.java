@@ -51,17 +51,17 @@ public class LoginController implements Initializable {
             DatabaseConfig dbConfig = DatabaseConfig.getInstance();
             
             if (dbConfig.testConnection()) {
-                Connection connection = DatabaseConfig.getConnection();
-                userDAO = new UserDAOImpl(connection);
-                
-                System.out.println("✅ Database connection established successfully");
-                System.out.println("🔗 " + dbConfig.getDatabaseInfo());
-                
-                // Optionally log pool info in debug mode
-                if (DatabaseConfig.getPropertyAsBoolean("debug.enabled", false)) {
-                    System.out.println("🏊 " + dbConfig.getPoolInfo());
+                try (Connection connection = DatabaseConfig.getConnection()) {
+                    userDAO = new UserDAOImpl(connection);
+                    
+                    System.out.println("✅ Database connection established successfully");
+                    System.out.println("🔗 " + dbConfig.getDatabaseInfo());
+                    
+                    // Optionally log pool info in debug mode
+                    if (DatabaseConfig.getPropertyAsBoolean("debug.enabled", false)) {
+                        System.out.println("🏊 " + dbConfig.getPoolInfo());
+                    }
                 }
-                
             } else {
                 showError("Không thể kết nối đến cơ sở dữ liệu!\nVui lòng kiểm tra:\n" +
                          "1. MySQL Server đã chạy chưa?\n" +
@@ -163,7 +163,8 @@ public class LoginController implements Initializable {
      * Xác thực người dùng
      */
     private User authenticateUser(String username, String password) {
-        try {
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            UserDAO userDAO = new UserDAOImpl(connection);
             User user = userDAO.getUserByUsername(username);
             
             if (user != null && user.isActive()) {

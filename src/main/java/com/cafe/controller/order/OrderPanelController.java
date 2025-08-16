@@ -1,6 +1,7 @@
 package com.cafe.controller.order;
 
 import com.cafe.controller.base.DashboardCommunicator;
+import com.cafe.controller.base.DashboardHelper;
 import com.cafe.model.entity.Order;
 import com.cafe.model.entity.OrderDetail;
 import com.cafe.model.entity.Product;
@@ -17,13 +18,14 @@ import javafx.concurrent.Task;
 
 import java.net.URL;
 import java.util.*;
+import java.lang.reflect.Method;
 
 /**
- * Controller cho order panel - UPDATED với OrderService Integration
- * Quản lý đơn hàng hiện tại và các thao tác order
+ * Controller cho order panel - UPDATED với Auto Table Status Updates
+ * Quản lý đơn hàng hiện tại và tự động cập nhật trạng thái bàn
  *
  * @author Team 2_C2406L
- * @version 2.0.0 (Complete Integration)
+ * @version 2.1.0 (Auto Table Status)
  */
 public class OrderPanelController implements Initializable, DashboardCommunicator {
 
@@ -62,7 +64,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             // Initialize UI state
             updateOrderDisplay();
 
-            System.out.println("✅ OrderPanelController initialized with OrderService integration");
+            System.out.println("✅ OrderPanelController initialized with Auto Table Status Updates");
 
         } catch (Exception e) {
             System.err.println("❌ Error initializing OrderPanelController: " + e.getMessage());
@@ -91,11 +93,11 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     // =====================================================
-    // ✅ CORE ORDER MANAGEMENT WITH ORDERSERVICE
+    // ✅ CORE ORDER MANAGEMENT WITH AUTO TABLE STATUS
     // =====================================================
 
     /**
-     * ✅ COMPLETE: Set current table và load existing order
+     * ✅ ENHANCED: Set current table và load existing order
      */
     public void setCurrentTable(int tableId) {
         System.out.println("🏢 Setting current table: " + tableId);
@@ -108,7 +110,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ NEW: Load existing order for current table
+     * ✅ ENHANCED: Load existing order with automatic table status detection
      */
     private void loadExistingOrderForTable() {
         if (currentTableId <= 0) {
@@ -131,12 +133,18 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                         currentOrder = orderOpt.get();
                         System.out.println("✅ Found existing order: " + currentOrder.getOrderNumber());
                         loadOrderDetails();
+
+                        // ✅ Auto-update table status based on order existence
+                        updateTableStatusBasedOnOrder();
                     } else {
                         System.out.println("📋 No existing order for table " + currentTableId);
                         // Clear current order state
                         currentOrder = null;
                         currentOrderDetails.clear();
                         updateOrderDisplay();
+
+                        // ✅ Update table to available if no order
+                        updateTableStatusIfNeeded("available");
                     }
                 });
             }
@@ -154,6 +162,89 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         };
 
         new Thread(loadOrderTask).start();
+    }
+
+    /**
+     * ✅ OPTIMIZED: Update table status based on current order state - only when needed
+     */
+    private void updateTableStatusBasedOnOrder() {
+        if (currentOrder == null) {
+            // Only update if current status is not already available
+            updateTableStatusIfNeeded("available");
+            return;
+        }
+
+        String orderStatus = currentOrder.getOrderStatus();
+        String targetStatus;
+        
+        switch (orderStatus.toLowerCase()) {
+            case "pending":
+            case "confirmed":
+            case "preparing":
+            case "ready":
+                targetStatus = "occupied";
+                break;
+            case "completed":
+                targetStatus = "cleaning";
+                break;
+            case "cancelled":
+                targetStatus = "available";
+                break;
+            default:
+                targetStatus = "occupied"; // Default to occupied if order exists
+        }
+        
+        // Only update if status actually needs to change
+        updateTableStatusIfNeeded(targetStatus);
+    }
+
+    /**
+     * ✅ NEW: Update table status only if it's different from current status
+     */
+    private void updateTableStatusIfNeeded(String newStatus) {
+        try {
+            // Get current table status from TableController if available
+            if (dashboardController != null) {
+                // Try to get current table status through reflection
+                try {
+                    Method getCurrentTableControllerMethod = dashboardController.getClass().getMethod("getCurrentTableController");
+                    Object tableController = getCurrentTableControllerMethod.invoke(dashboardController);
+                    
+                    if (tableController != null) {
+                        Method getTableByIdMethod = tableController.getClass().getMethod("getTableById", int.class);
+                        Object table = getTableByIdMethod.invoke(tableController, currentTableId);
+                        
+                        if (table != null) {
+                            Method getStatusMethod = table.getClass().getMethod("getStatus");
+                            String currentStatus = (String) getStatusMethod.invoke(table);
+                            
+                            // Only update if status is actually different
+                            if (newStatus.equalsIgnoreCase(currentStatus)) {
+                                System.out.println("⏭️ Table " + currentTableId + " status unchanged: " + currentStatus);
+                                return;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // If reflection fails, proceed with update (fallback)
+                    System.out.println("⚠️ Could not check current status, proceeding with update");
+                }
+            }
+            
+            // Update status through Dashboard
+            DashboardHelper.updateTableStatus(dashboardController, currentTableId, newStatus);
+            System.out.println("✅ Table " + currentTableId + " status updated to: " + newStatus);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error updating table status: " + e.getMessage());
+        }
+    }
+
+    /**
+     * ✅ LEGACY: Update table status through Dashboard (for backward compatibility)
+     */
+    private void updateTableStatus(String newStatus) {
+        updateTableStatusIfNeeded(newStatus);
     }
 
     /**
@@ -195,7 +286,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ COMPLETE: Add product to current order với OrderService
+     * ✅ ENHANCED: Add product with automatic table status update
      */
     public void addProduct(Product product, int quantity) {
         if (product == null || quantity <= 0) {
@@ -242,6 +333,9 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                     if (success) {
                         System.out.println("✅ Product added successfully: " + product.getProductName() + " x" + quantity);
 
+                        // ✅ Auto-update table status to occupied when first product added
+                        updateTableStatusIfNeeded("occupied");
+
                         // ✅ Reload order details to get updated data
                         loadOrderDetails();
 
@@ -283,6 +377,12 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                     if (success) {
                         System.out.println("✅ Product removed successfully");
                         loadOrderDetails(); // Refresh
+
+                        // ✅ Check if order is now empty and update table status
+                        if (currentOrderDetails.isEmpty()) {
+                            updateTableStatusIfNeeded("available");
+                        }
+
                         showInfo("Đã xóa sản phẩm khỏi đơn hàng");
                     }
                 });
@@ -460,11 +560,11 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     // =====================================================
-    // ✅ ORDER ACTIONS WITH ORDERSERVICE
+    // ✅ ORDER ACTIONS WITH AUTO TABLE STATUS
     // =====================================================
 
     /**
-     * ✅ COMPLETE: Handle place order action
+     * ✅ ENHANCED: Handle place order with table status update
      */
     private void handlePlaceOrder() {
         if (currentOrder == null || currentOrderDetails.isEmpty()) {
@@ -489,6 +589,9 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                     Boolean success = getValue();
                     if (success) {
                         showInfo("Đã đặt hàng thành công!");
+
+                        // ✅ Update table status to occupied (confirmed order)
+                        updateTableStatusIfNeeded("occupied");
 
                         // ✅ Update button states
                         placeOrderButton.setDisable(true);
@@ -604,7 +707,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ COMPLETE: Process payment với OrderService
+     * ✅ ENHANCED: Process payment with auto table status update
      */
     private void processPayment(String method, double amountReceived) {
         Task<Boolean> paymentTask = new Task<Boolean>() {
@@ -625,7 +728,10 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                         }
                         showInfo(message);
 
-                        // ✅ Complete the order and clear
+                        // ✅ Auto-update table status to cleaning after payment
+                        updateTableStatusIfNeeded("cleaning");
+
+                        // ✅ Complete the order and reset
                         completeOrderAndReset();
                     } else {
                         showError("Không thể xử lý thanh toán");
@@ -645,7 +751,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ NEW: Complete order and reset state
+     * ✅ ENHANCED: Complete order and reset state with table status
      */
     private void completeOrderAndReset() {
         if (currentOrder == null) return;
@@ -662,11 +768,12 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                     // ✅ Reset state
                     currentOrder = null;
                     currentOrderDetails.clear();
-                    currentTableId = -1;
+                    // Keep currentTableId for potential next order
 
                     // ✅ Update UI
-                    updateTableInfo();
                     updateOrderDisplay();
+
+                    // ✅ Table status already updated to "cleaning" in processPayment
 
                     System.out.println("✅ Order completed and state reset");
                 });
@@ -684,7 +791,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ ENHANCED: Handle clear order action
+     * ✅ ENHANCED: Handle clear order with table status update
      */
     private void handleClearOrder() {
         if (currentOrder == null && currentOrderDetails.isEmpty()) {
@@ -705,7 +812,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ NEW: Clear order completely
+     * ✅ ENHANCED: Clear order completely with table status update
      */
     private void clearOrderCompletely() {
         Task<Boolean> clearTask = new Task<Boolean>() {
@@ -725,11 +832,14 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                     currentOrder = null;
                     currentOrderDetails.clear();
 
+                    // ✅ Update table status to available when order is cleared
+                    updateTableStatusIfNeeded("available");
+
                     // ✅ Update UI
                     updateOrderDisplay();
 
                     showInfo("Đã xóa đơn hàng");
-                    System.out.println("✅ Order cleared successfully");
+                    System.out.println("✅ Order cleared successfully, table set to available");
                 });
             }
 

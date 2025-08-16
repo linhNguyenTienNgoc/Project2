@@ -19,25 +19,17 @@ import java.util.stream.Collectors;
  */
 public class MenuService {
     
-    private final ProductDAO productDAO;
-    private final CategoryDAO categoryDAO;
-    
     public MenuService() {
-        try {
-            // Sử dụng connection pool, nhưng không giữ connection lâu
-            this.productDAO = new ProductDAOImpl(DatabaseConfig.getConnection());
-            this.categoryDAO = new CategoryDAOImpl(DatabaseConfig.getConnection());
-        } catch (Exception e) {
-            System.err.println("Error initializing MenuService: " + e.getMessage());
-            throw new RuntimeException("Failed to initialize MenuService", e);
-        }
+        // ✅ REMOVED: No longer getting connection in constructor
+        // Connections will be managed per operation using try-with-resources
     }
     
     /**
      * Lấy tất cả categories đang active
      */
     public List<Category> getAvailableCategories() {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            CategoryDAO categoryDAO = new CategoryDAOImpl(conn);
             return categoryDAO.getAllCategories().stream()
                     .filter(category -> category.isActive())
                     .collect(Collectors.toList());
@@ -51,7 +43,8 @@ public class MenuService {
      * Lấy products theo category
      */
     public List<Product> getProductsByCategory(Integer categoryId) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            ProductDAO productDAO = new ProductDAOImpl(conn);
             // ✅ HỦY CHECK HẾT HÀNG - Chỉ check active
             return productDAO.findByCategoryId(categoryId).stream()
                     .filter(product -> product.getIsActive())
@@ -66,7 +59,8 @@ public class MenuService {
      * Lấy products theo category với phân trang
      */
     public List<Product> getProductsByCategory(Integer categoryId, int offset, int limit) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            ProductDAO productDAO = new ProductDAOImpl(conn);
             return productDAO.findByCategoryId(categoryId).stream()
                     .filter(product -> product.getIsAvailable() && product.getIsActive())
                     .skip(offset)
@@ -86,7 +80,8 @@ public class MenuService {
             return List.of();
         }
         
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            ProductDAO productDAO = new ProductDAOImpl(conn);
             return productDAO.searchProducts(keyword.trim(), null, true, null, null).stream()
                     .filter(product -> product.getIsAvailable() && product.getIsActive())
                     .collect(Collectors.toList());
@@ -104,7 +99,8 @@ public class MenuService {
             return getProductsByCategory(categoryId);
         }
         
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            ProductDAO productDAO = new ProductDAOImpl(conn);
             // ✅ HỦY CHECK HẾT HÀNG - Chỉ check active
             return productDAO.searchProducts(keyword.trim(), categoryId, true, null, null).stream()
                     .filter(product -> product.getIsActive())
@@ -119,7 +115,8 @@ public class MenuService {
      * Lấy product theo ID
      */
     public Optional<Product> getProductById(Integer productId) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            ProductDAO productDAO = new ProductDAOImpl(conn);
             return productDAO.findById(productId);
         } catch (Exception e) {
             System.err.println("Error getting product by ID " + productId + ": " + e.getMessage());
@@ -131,7 +128,8 @@ public class MenuService {
      * Lấy product theo SKU
      */
     public Optional<Product> getProductBySku(String sku) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            ProductDAO productDAO = new ProductDAOImpl(conn);
             return productDAO.findBySku(sku);
         } catch (Exception e) {
             System.err.println("Error getting product by SKU " + sku + ": " + e.getMessage());
@@ -151,7 +149,8 @@ public class MenuService {
      * Lấy tất cả available products
      */
     public List<Product> getAllAvailableProducts() {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            ProductDAO productDAO = new ProductDAOImpl(conn);
             // ✅ HỦY CHECK HẾT HÀNG - Lấy tất cả sản phẩm active
             return productDAO.findAvailableProducts().stream()
                     .filter(product -> product.getIsActive())
@@ -166,7 +165,8 @@ public class MenuService {
      * Lấy products có stock thấp
      */
     public List<Product> getLowStockProducts() {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            ProductDAO productDAO = new ProductDAOImpl(conn);
             return productDAO.findLowStockProducts().stream()
                     .filter(product -> product.getIsActive())
                     .collect(Collectors.toList());
@@ -180,7 +180,8 @@ public class MenuService {
      * Đếm số products theo category
      */
     public long countProductsByCategory(Integer categoryId) {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            ProductDAO productDAO = new ProductDAOImpl(conn);
             return productDAO.countByCategoryId(categoryId);
         } catch (Exception e) {
             System.err.println("Error counting products for category " + categoryId + ": " + e.getMessage());
@@ -192,7 +193,8 @@ public class MenuService {
      * Đếm số available products
      */
     public long countAvailableProducts() {
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            ProductDAO productDAO = new ProductDAOImpl(conn);
             return productDAO.countAvailableProducts();
         } catch (Exception e) {
             System.err.println("Error counting available products: " + e.getMessage());
