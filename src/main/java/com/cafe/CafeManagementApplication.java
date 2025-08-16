@@ -92,8 +92,6 @@ public class CafeManagementApplication extends Application {
             primaryStage.setMaximized(true);
             primaryStage.centerOnScreen();
 
-            System.out.println("✅ Dashboard loaded successfully");
-
         } catch (IOException e) {
             showErrorAlert("Lỗi tải giao diện",
                           "Không thể tải giao diện chính: " + e.getMessage());

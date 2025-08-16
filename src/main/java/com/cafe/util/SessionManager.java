@@ -19,8 +19,6 @@ public class SessionManager {
     public static void setCurrentUser(User user) {
         currentUser = user;
         loginTime = System.currentTimeMillis();
-        
-        System.out.println("🔑 User logged in: " + user.getUsername() + " (" + user.getFullName() + ")");
     }
     
     /**
@@ -84,7 +82,7 @@ public class SessionManager {
      */
     public static void clearSession() {
         if (currentUser != null) {
-            System.out.println("🔒 User logged out: " + currentUser.getUsername() + " (" + currentUser.getFullName() + ")");
+            // User logged out
         }
         currentUser = null;
         loginTime = 0;
@@ -139,7 +137,6 @@ public class SessionManager {
      */
     public static void logout() {
         if (currentUser != null) {
-            System.out.println("🚪 User logged out: " + currentUser.getUsername());
             currentUser = null;
             loginTime = 0;
         }

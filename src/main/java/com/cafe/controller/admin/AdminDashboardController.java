@@ -1,6 +1,7 @@
 package com.cafe.controller.admin;
 
 import com.cafe.CafeManagementApplication;
+import com.cafe.controller.base.DashboardCommunicator;
 import com.cafe.controller.dashboard.DashboardController;
 import com.cafe.controller.menu.MenuController;
 import com.cafe.controller.table.TableController;
@@ -175,7 +176,8 @@ public class AdminDashboardController extends DashboardController implements Ini
     /**
      * Switch to a specific tab
      */
-    private void switchToTab(String tabName) {
+    @Override
+    public void switchToTab(String tabName) {
         if (currentTab.equals(tabName)) {
             return; // Already on this tab
         }
@@ -311,24 +313,35 @@ public class AdminDashboardController extends DashboardController implements Ini
      */
     private void setupControllerCommunication(String tabName) {
         Object controller = loadedControllers.get(tabName);
-
-        if (controller instanceof TableController) {
-            TableController tableController = (TableController) controller;
-            tableController.setDashboardController(this);
+        
+        // Kiểm tra null trước khi xử lý
+        if (controller == null) {
+            System.err.println("Warning: Controller is null for tab: " + tabName);
+            return;
         }
 
-        if (controller instanceof MenuController) {
-            MenuController menuController = (MenuController) controller;
-            menuController.setDashboardController(this);
+        // Sử dụng interface để giao tiếp an toàn
+        if (controller instanceof DashboardCommunicator) {
+            DashboardCommunicator communicator = (DashboardCommunicator) controller;
+            communicator.setDashboardController(this);
+            System.out.println("✅ Communication setup for " + tabName + " controller");
+        } else {
+            System.err.println("Warning: Controller for " + tabName + " does not implement DashboardCommunicator");
         }
     }
 
     /**
      * Update table information in order panel
      */
-    public void updateTableInfo(String tableName, TableStatus status) {
+    @Override
+    public void updateTableInfo(String tableName, String status) {
         currentTableName = tableName;
-        currentTableStatus = status;
+        // Convert string status to TableStatus enum
+        try {
+            currentTableStatus = TableStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            currentTableStatus = TableStatus.AVAILABLE; // Default fallback
+        }
 
         if (tableInfoLabel != null) {
             tableInfoLabel.setText("Bàn: " + tableName);
@@ -341,6 +354,7 @@ public class AdminDashboardController extends DashboardController implements Ini
     /**
      * Add item to order
      */
+    @Override
     public void addToOrder(String productName, double price, int quantity) {
         // Remove placeholder if exists
         if (orderItemsContainer.getChildren().size() == 1 &&
@@ -445,7 +459,8 @@ public class AdminDashboardController extends DashboardController implements Ini
     /**
      * Clear order
      */
-    private void clearOrder() {
+    @Override
+    public void clearOrder() {
         orderItemsContainer.getChildren().clear();
         totalAmount = 0.0;
         updateTotalAmount();
@@ -485,5 +500,50 @@ public class AdminDashboardController extends DashboardController implements Ini
      */
     public TableStatus getCurrentTableStatus() {
         return currentTableStatus;
+    }
+
+    // =====================================================
+    // DASHBOARD EVENT HANDLER IMPLEMENTATIONS
+    // =====================================================
+
+    /**
+     * Add product to order (enhanced method)
+     */
+    @Override
+    public void addProductToOrder(com.cafe.model.entity.Product product, int quantity) {
+        addToOrder(product.getProductName(), product.getPrice(), quantity);
+    }
+
+    /**
+     * Handle table selection
+     */
+    @Override
+    public void onTableSelected(com.cafe.model.entity.TableCafe table) {
+        currentTableName = table.getTableName();
+        // Convert string status to TableStatus enum
+        try {
+            currentTableStatus = TableStatus.valueOf(table.getStatus().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            currentTableStatus = TableStatus.AVAILABLE; // Default fallback
+        }
+        updateTableInfo(table.getTableName(), table.getStatus());
+        System.out.println("✅ Table selected: " + table.getTableName());
+    }
+
+    /**
+     * Get current order total
+     */
+    @Override
+    public double getOrderTotal() {
+        return totalAmount;
+    }
+
+    /**
+     * Notify when order status changes
+     */
+    @Override
+    public void onOrderStatusChanged(String newStatus, int tableId) {
+        System.out.println("✅ Order status changed: " + newStatus + " for table " + tableId);
+        // TODO: Implement order status change handling
     }
 }

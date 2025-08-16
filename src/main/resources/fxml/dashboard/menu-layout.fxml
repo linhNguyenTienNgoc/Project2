@@ -8,35 +8,35 @@
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
       fx:id="menuLayoutContainer"
       fx:controller="com.cafe.controller.menu.MenuController"
-      spacing="10" style="-fx-padding: 15;">
+      spacing="15" styleClass="content-container">
     
     <!-- Category Bar - Dynamic categories will be loaded here -->
     <HBox fx:id="categoryBar" spacing="10" alignment="CENTER_LEFT" 
-          style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 8;">
+          styleClass="search-container">
         <!-- Category buttons will be dynamically created by MenuController -->
         <!-- Default "All" button as fallback -->
         <Button fx:id="allCategoryBtn" text="Tất cả" 
-                style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20;"/>
+                styleClass="category-button, category-button-selected"/>
     </HBox>
     
     <!-- Search Bar -->
-    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 10;">
+    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="search-container">
         <TextField fx:id="searchField" promptText="Nhập mã/tên món cần tìm" 
                   HBox.hgrow="ALWAYS" 
-                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 8;"/>
+                  styleClass="search-field"/>
         <Button fx:id="searchBtn" text="🔍" 
-                style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 8; -fx-font-size: 16px;"/>
+                styleClass="btn-primary"/>
     </HBox>
     
     <!-- Status Bar -->
-    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 5 10;">
-        <ProgressIndicator fx:id="loadingIndicator" style="-fx-max-size: 20; -fx-max-height: 20;" visible="false"/>
+    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="card">
+        <ProgressIndicator fx:id="loadingIndicator" styleClass="progress-indicator" visible="false"/>
         <Label fx:id="statusLabel" text="Sẵn sàng" style="-fx-text-fill: #666; -fx-font-size: 12px;"/>
     </HBox>
     
     <!-- Product Grid -->
     <ScrollPane fx:id="productScrollPane" VBox.vgrow="ALWAYS" 
-               fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+               fitToWidth="true" styleClass="scroll-pane">
         <content>
             <VBox fx:id="productContainer" style="-fx-padding: 10;">
                 <GridPane fx:id="productGrid" hgap="15" vgap="15" style="-fx-padding: 10;">
@@ -45,10 +45,10 @@
                 
                 <!-- Empty state when no products found -->
                 <VBox fx:id="emptyStateContainer" alignment="CENTER" spacing="10" visible="false" 
-                      style="-fx-padding: 50;">
+                      styleClass="card">
                     <Label text="🔍" style="-fx-font-size: 48px; -fx-text-fill: #ccc;"/>
                     <Label fx:id="emptyStateLabel" text="Không tìm thấy sản phẩm nào" 
-                           style="-fx-font-size: 16px; -fx-text-fill: #666;"/>
+                           styleClass="section-title"/>
                 </VBox>
             </VBox>
         </content>

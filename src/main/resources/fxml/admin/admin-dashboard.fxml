@@ -81,43 +81,4 @@
             </StackPane>
         </VBox>
     </center>
-
-    <!-- Right Sidebar - Order Panel -->
-    <right>
-        <VBox fx:id="orderPanel" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-min-width: 300;" spacing="15">
-            
-            <!-- Order Header -->
-            <VBox alignment="CENTER" spacing="5" style="-fx-background-color: #2E86AB; -fx-padding: 15; -fx-background-radius: 8;">
-                <Label text="📋 ĐƠN HÀNG" 
-                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" />
-                <Label fx:id="tableInfoLabel" text="Bàn: --" 
-                       style="-fx-font-size: 14px; -fx-text-fill: #e3f2fd;" />
-            </VBox>
-
-            <!-- Order Items -->
-            <VBox fx:id="orderItemsContainer" spacing="5" VBox.vgrow="ALWAYS">
-                <Label text="Chưa có món nào được chọn" 
-                       style="-fx-text-fill: #999; -fx-font-style: italic; -fx-alignment: center;" />
-            </VBox>
-
-            <!-- Order Total -->
-            <VBox style="-fx-background-color: #e8f5e8; -fx-padding: 15; -fx-background-radius: 8;" spacing="5">
-                <Label text="Tổng cộng:" 
-                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2e7d32;" />
-                <Label fx:id="totalAmountLabel" text="0 VNĐ" 
-                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2e7d32;" />
-            </VBox>
-
-            <!-- Order Actions -->
-            <VBox spacing="8">
-                <Button fx:id="placeOrderButton" text="📝 Đặt món" 
-                        style="-fx-background-color: #2E86AB; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-background-radius: 5;" />
-                <Button fx:id="paymentButton" text="💳 Thanh toán" 
-                        style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-background-radius: 5;" />
-                <Button fx:id="clearOrderButton" text="🗑️ Xóa đơn hàng" 
-                        style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-background-radius: 5;" />
-            </VBox>
-        </VBox>
-    </right>
-
 </BorderPane>

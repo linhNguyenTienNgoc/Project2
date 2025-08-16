@@ -78,23 +78,11 @@ public class UserController {
                 Connection connection = DatabaseConfig.getConnection();
                 userDAO = new UserDAOImpl(connection);
 
-                System.out.println("✅ Database connection established successfully");
-
-                // Optionally log pool info in debug mode
-                if (DatabaseConfig.getPropertyAsBoolean("debug.enabled", false)) {
-                    System.out.println("🏊 " + dbConfig.getPoolInfo());
-                }
-
             } else {
-                System.out.println("Không thể kết nối đến cơ sở dữ liệu!\nVui lòng kiểm tra:\n" +
-                        "1. MySQL Server đã chạy chưa?\n" +
-                        "2. Database 'cafe_management' đã tồn tại chưa?\n" +
-                        "3. Username/Password có đúng không?");
+                // Database connection failed
             }
 
         } catch (Exception e) {
-            System.out.println("Lỗi kết nối database: " + e.getMessage() +
-                    "\n\nVui lòng kiểm tra cấu hình trong file database_config.properties");
             e.printStackTrace();
         }
     }
@@ -137,7 +125,7 @@ public class UserController {
         String role = roleComboBox.getValue().trim();
         String password = passwordField.getText().trim();
 
-        System.out.println("Add inline: " + id + " - " + username + " - " + fullName + " - " + email + " - " + phone + " - " + role + " - " + password);
+
 
         if (updateID != -1)
             userDAO.updateUser(new User(id, username, fullName, email, phone, role, true, password.isEmpty() ? staffTable.getItems().get(updateID).getPassword() : password));

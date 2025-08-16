@@ -3,6 +3,8 @@ package com.cafe.service;
 import com.cafe.config.DatabaseConfig;
 import com.cafe.dao.base.OrderDAO;
 import com.cafe.dao.base.OrderDAOImpl;
+import com.cafe.dao.base.OrderDetailDAO;
+import com.cafe.dao.base.OrderDetailDAOImpl;
 import com.cafe.model.entity.Order;
 import com.cafe.model.entity.OrderDetail;
 import com.cafe.model.entity.Product;
@@ -13,34 +15,43 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Service class cho order operations
+ * Complete Order Service với OrderDetailDAO Integration
  * Chứa business logic cho việc quản lý orders và order details
- * 
+ *
  * Flow xử lý đơn hàng:
  * 1. Khách vào bàn → createOrder() (pending)
  * 2. Thêm món → addProductToOrder() (kiểm tra stock)
  * 3. Xác nhận đơn → placeOrder() (preparing)
  * 4. Hoàn thành → completeOrder() (completed)
  * 5. Thanh toán → processPayment() (paid)
- * 
+ *
  * @author Team 2_C2406L
- * @version 1.0.0
+ * @version 2.0.0 (Complete Integration)
  */
 public class OrderService {
-    
+
     private final OrderDAO orderDAO;
+    private final OrderDetailDAO orderDetailDAO; // ✅ NEW: OrderDetailDAO integration
     private final MenuService menuService;
-    
+
     public OrderService() {
         try {
-            this.orderDAO = new OrderDAOImpl(DatabaseConfig.getConnection());
+            Connection conn = DatabaseConfig.getConnection();
+            this.orderDAO = new OrderDAOImpl(conn);
+            this.orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
             this.menuService = new MenuService();
+
+            System.out.println("✅ OrderService initialized with OrderDetailDAO integration");
         } catch (Exception e) {
-            System.err.println("Error initializing OrderService: " + e.getMessage());
+            System.err.println("❌ Error initializing OrderService: " + e.getMessage());
             throw new RuntimeException("Failed to initialize OrderService", e);
         }
     }
-    
+
+    // =====================================================
+    // ✅ CORE ORDER MANAGEMENT
+    // =====================================================
+
     /**
      * Tạo order mới khi khách vào bàn
      * @param tableId ID của bàn
@@ -50,392 +61,501 @@ public class OrderService {
      */
     public Order createOrder(Integer tableId, Integer userId, Integer customerId) {
         if (tableId == null || userId == null) {
-            System.err.println("TableId and UserId cannot be null");
+            System.err.println("❌ TableId and UserId cannot be null");
             return null;
         }
-        
-        Order order = new Order();
-        order.setOrderNumber(generateOrderNumber());
-        order.setTableId(tableId);
-        order.setUserId(userId);
-        order.setCustomerId(customerId);
-        order.setOrderDate(new Timestamp(System.currentTimeMillis()));
-        order.setOrderStatus("pending");
-        order.setPaymentStatus("pending");
-        order.setTotalAmount(0.0);
-        order.setDiscountAmount(0.0);
-        order.setFinalAmount(0.0);
-        order.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        
+
         try {
+            // Check if there's already an active order for this table
+            Optional<Order> existingOrder = getActiveOrderByTable(tableId);
+            if (existingOrder.isPresent()) {
+                System.out.println("⚠️ Table " + tableId + " already has an active order: " + existingOrder.get().getOrderNumber());
+                return existingOrder.get();
+            }
+
+            Order order = new Order();
+            order.setOrderNumber(generateOrderNumber());
+            order.setTableId(tableId);
+            order.setUserId(userId);
+            order.setCustomerId(customerId);
+            order.setOrderDate(new Timestamp(System.currentTimeMillis()));
+            order.setOrderStatus("pending");
+            order.setPaymentStatus("pending");
+            order.setTotalAmount(0.0);
+            order.setDiscountAmount(0.0);
+            order.setFinalAmount(0.0);
+            order.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
             if (orderDAO.save(order)) {
-                System.out.println("Created new order: " + order.getOrderNumber());
+                System.out.println("✅ Order created successfully: " + order.getOrderNumber());
                 return order;
             } else {
-                System.err.println("Failed to save order");
+                System.err.println("❌ Failed to save order to database");
                 return null;
             }
         } catch (Exception e) {
-            System.err.println("Error creating order: " + e.getMessage());
+            System.err.println("❌ Error creating order: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
-    
+
     /**
-     * Thêm product vào order
-     * @param order Order cần thêm sản phẩm
-     * @param product Sản phẩm cần thêm
-     * @param quantity Số lượng
-     * @param notes Ghi chú cho sản phẩm (có thể null)
-     * @return true nếu thêm thành công, false nếu thất bại
+     * ✅ COMPLETE: Thêm product vào order với OrderDetailDAO
      */
     public boolean addProductToOrder(Order order, Product product, int quantity, String notes) {
         if (order == null || product == null || quantity <= 0) {
-            System.err.println("Invalid parameters for addProductToOrder");
+            System.err.println("❌ Invalid parameters for addProductToOrder");
             return false;
         }
-        
+
         // Kiểm tra trạng thái order
         if (!"pending".equals(order.getOrderStatus())) {
-            System.err.println("Cannot add product to order with status: " + order.getOrderStatus());
+            System.err.println("❌ Cannot add product to order with status: " + order.getOrderStatus());
             return false;
         }
-        
-        // Kiểm tra stock
+
+        // Kiểm tra stock availability
         if (!menuService.canOrderProduct(product, quantity)) {
-            System.err.println("Insufficient stock for product: " + product.getProductName());
+            System.err.println("❌ Insufficient stock for product: " + product.getProductName());
             return false;
         }
-        
+
         try {
-            // Tạo OrderDetail
-            OrderDetail orderDetail = new OrderDetail(
-                order.getOrderId(), 
-                product.getProductId(), 
-                quantity, 
-                product.getPrice(), 
-                notes
-            );
-            
-            // Cập nhật order total amount
-            double itemTotal = product.getPrice() * quantity;
-            order.setTotalAmount(order.getTotalAmount() + itemTotal);
-            order.calculateFinalAmount();
-            order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
-            // Lưu order detail và update order
-            // TODO: Implement OrderDetailDAO.save(orderDetail)
-            orderDAO.update(order);
-            
-            System.out.println("Added " + quantity + "x " + product.getProductName() + " to order " + order.getOrderNumber());
+            // Check if product already exists in order
+            List<OrderDetail> existingDetails = orderDetailDAO.findByOrderId(order.getOrderId());
+            Optional<OrderDetail> existingDetail = existingDetails.stream()
+                    .filter(detail -> detail.getProductId() == product.getProductId())
+                    .findFirst();
+
+            if (existingDetail.isPresent()) {
+                // Update existing order detail quantity
+                OrderDetail detail = existingDetail.get();
+                int newQuantity = detail.getQuantity() + quantity;
+                detail.setQuantity(newQuantity);
+                detail.calculateTotalPrice();
+
+                if (!orderDetailDAO.update(detail)) {
+                    System.err.println("❌ Failed to update existing order detail");
+                    return false;
+                }
+
+                System.out.println("✅ Updated existing order detail: " + product.getProductName() + " (+" + quantity + " = " + newQuantity + ")");
+            } else {
+                // Create new order detail
+                OrderDetail orderDetail = new OrderDetail(
+                        order.getOrderId(),
+                        product.getProductId(),
+                        quantity,
+                        product.getPrice(),
+                        notes
+                );
+
+                if (!orderDetailDAO.save(orderDetail)) {
+                    System.err.println("❌ Failed to save order detail");
+                    return false;
+                }
+
+                System.out.println("✅ Added new order detail: " + product.getProductName() + " x" + quantity);
+            }
+
+            // Recalculate and update order total
+            if (!recalculateOrderTotal(order)) {
+                System.err.println("❌ Failed to recalculate order total");
+                return false;
+            }
+
             return true;
         } catch (Exception e) {
-            System.err.println("Error adding product to order: " + e.getMessage());
+            System.err.println("❌ Error adding product to order: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
-    
+
     /**
-     * Thêm product vào order (overload method không có notes)
-     * @param order Order cần thêm sản phẩm
-     * @param product Sản phẩm cần thêm
-     * @param quantity Số lượng
-     * @return true nếu thêm thành công, false nếu thất bại
-     */
-    public boolean addProductToOrder(Order order, Product product, int quantity) {
-        return addProductToOrder(order, product, quantity, null);
-    }
-    
-    /**
-     * Xóa sản phẩm khỏi order
-     * @param order Order cần xóa sản phẩm
-     * @param productId ID sản phẩm cần xóa
-     * @return true nếu xóa thành công, false nếu thất bại
+     * ✅ COMPLETE: Xóa sản phẩm khỏi order
      */
     public boolean removeProductFromOrder(Order order, int productId) {
         if (order == null || !"pending".equals(order.getOrderStatus())) {
+            System.err.println("❌ Cannot remove product from order with status: " + order.getOrderStatus());
             return false;
         }
-        
+
         try {
-            // TODO: Implement OrderDetailDAO.deleteByOrderAndProduct(order.getOrderId(), productId)
-            // TODO: Recalculate order total amount
-            order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            orderDAO.update(order);
-            return true;
+            if (!orderDetailDAO.deleteByOrderAndProduct(order.getOrderId(), productId)) {
+                System.err.println("❌ Failed to delete order detail");
+                return false;
+            }
+
+            System.out.println("✅ Removed product " + productId + " from order " + order.getOrderNumber());
+
+            // Recalculate order total
+            return recalculateOrderTotal(order);
         } catch (Exception e) {
-            System.err.println("Error removing product from order: " + e.getMessage());
+            System.err.println("❌ Error removing product from order: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
-    
+
     /**
-     * Cập nhật số lượng sản phẩm trong order
-     * @param order Order cần cập nhật
-     * @param productId ID sản phẩm
-     * @param newQuantity Số lượng mới
-     * @return true nếu cập nhật thành công, false nếu thất bại
+     * ✅ COMPLETE: Cập nhật số lượng sản phẩm trong order
      */
     public boolean updateProductQuantity(Order order, int productId, int newQuantity) {
-        if (order == null || newQuantity <= 0 || !"pending".equals(order.getOrderStatus())) {
+        if (order == null || newQuantity < 0 || !"pending".equals(order.getOrderStatus())) {
+            System.err.println("❌ Invalid parameters for quantity update");
             return false;
         }
-        
+
         try {
-            // TODO: Implement OrderDetailDAO.updateQuantity(order.getOrderId(), productId, newQuantity)
-            // TODO: Recalculate order total amount
-            order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            orderDAO.update(order);
-            return true;
+            if (newQuantity == 0) {
+                // Remove product if quantity is 0
+                return removeProductFromOrder(order, productId);
+            }
+
+            if (!orderDetailDAO.updateQuantity(order.getOrderId(), productId, newQuantity)) {
+                System.err.println("❌ Failed to update product quantity");
+                return false;
+            }
+
+            System.out.println("✅ Updated product " + productId + " quantity to " + newQuantity);
+
+            // Recalculate order total
+            return recalculateOrderTotal(order);
         } catch (Exception e) {
-            System.err.println("Error updating product quantity: " + e.getMessage());
+            System.err.println("❌ Error updating product quantity: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
-    
+
+    /**
+     * ✅ NEW: Recalculate order total from order details
+     */
+    private boolean recalculateOrderTotal(Order order) {
+        try {
+            List<OrderDetail> orderDetails = orderDetailDAO.findByOrderId(order.getOrderId());
+
+            double totalAmount = orderDetails.stream()
+                    .mapToDouble(OrderDetail::getTotalPrice)
+                    .sum();
+
+            order.setTotalAmount(totalAmount);
+            order.calculateFinalAmount();
+            order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
+            if (!orderDAO.update(order)) {
+                System.err.println("❌ Failed to update order total");
+                return false;
+            }
+
+            System.out.println("✅ Order total recalculated: " + String.format("%.0f VND", totalAmount));
+            return true;
+        } catch (Exception e) {
+            System.err.println("❌ Error recalculating order total: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // =====================================================
+    // ✅ ORDER STATUS MANAGEMENT
+    // =====================================================
+
     /**
      * Place order (xác nhận đơn hàng)
-     * @param order Order cần xác nhận
-     * @return true nếu xác nhận thành công, false nếu thất bại
      */
     public boolean placeOrder(Order order) {
         if (order == null) {
             return false;
         }
-        
+
         if (!"pending".equals(order.getOrderStatus())) {
-            System.err.println("Cannot place order with status: " + order.getOrderStatus());
+            System.err.println("❌ Cannot place order with status: " + order.getOrderStatus());
             return false;
         }
-        
+
         if (order.getTotalAmount() <= 0) {
-            System.err.println("Cannot place order with zero total amount");
+            System.err.println("❌ Cannot place order with zero total amount");
             return false;
         }
-        
+
         try {
             order.setOrderStatus("preparing");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
-            orderDAO.update(order);
-            System.out.println("Order " + order.getOrderNumber() + " has been confirmed");
-            return true;
+
+            if (orderDAO.update(order)) {
+                System.out.println("✅ Order placed successfully: " + order.getOrderNumber());
+                return true;
+            }
+            return false;
         } catch (Exception e) {
-            System.err.println("Error placing order: " + e.getMessage());
+            System.err.println("❌ Error placing order: " + e.getMessage());
             return false;
         }
     }
-    
+
     /**
-     * Chuyển order sang trạng thái preparing (đang chuẩn bị)
-     * @param order Order cần chuyển trạng thái
-     * @return true nếu thành công, false nếu thất bại
+     * Chuyển order sang trạng thái ready (sẵn sàng phục vụ)
      */
-    public boolean startPreparing(Order order) {
+    public boolean markOrderReady(Order order) {
         if (order == null || !"preparing".equals(order.getOrderStatus())) {
             return false;
         }
-        
+
         try {
             order.setOrderStatus("ready");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            orderDAO.update(order);
-            return true;
+            return orderDAO.update(order);
         } catch (Exception e) {
-            System.err.println("Error starting preparation: " + e.getMessage());
+            System.err.println("❌ Error marking order ready: " + e.getMessage());
             return false;
         }
     }
-    
+
     /**
      * Chuyển order sang trạng thái served (đã phục vụ)
-     * @param order Order cần chuyển trạng thái
-     * @return true nếu thành công, false nếu thất bại
      */
     public boolean markAsServed(Order order) {
         if (order == null || !"ready".equals(order.getOrderStatus())) {
             return false;
         }
-        
+
         try {
             order.setOrderStatus("served");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            orderDAO.update(order);
-            return true;
+            return orderDAO.update(order);
         } catch (Exception e) {
-            System.err.println("Error marking as served: " + e.getMessage());
+            System.err.println("❌ Error marking as served: " + e.getMessage());
             return false;
         }
     }
-    
+
     /**
      * Complete order (hoàn thành đơn hàng)
-     * @param order Order cần hoàn thành
-     * @return true nếu hoàn thành thành công, false nếu thất bại
      */
     public boolean completeOrder(Order order) {
         if (order == null) {
             return false;
         }
-        
+
         if (!order.canBeCompleted()) {
-            System.err.println("Cannot complete order with status: " + order.getOrderStatus());
+            System.err.println("❌ Cannot complete order with status: " + order.getOrderStatus());
             return false;
         }
-        
+
         try {
             order.setOrderStatus("completed");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
-            orderDAO.update(order);
-            System.out.println("Order " + order.getOrderNumber() + " has been completed");
-            return true;
+
+            if (orderDAO.update(order)) {
+                System.out.println("✅ Order completed: " + order.getOrderNumber());
+                return true;
+            }
+            return false;
         } catch (Exception e) {
-            System.err.println("Error completing order: " + e.getMessage());
+            System.err.println("❌ Error completing order: " + e.getMessage());
             return false;
         }
     }
-    
+
     /**
      * Cancel order (hủy đơn hàng)
-     * @param order Order cần hủy
-     * @param reason Lý do hủy (có thể null)
-     * @return true nếu hủy thành công, false nếu thất bại
      */
     public boolean cancelOrder(Order order, String reason) {
         if (order == null) {
             return false;
         }
-        
+
         if (!order.canBeCancelled()) {
-            System.err.println("Cannot cancel order with status: " + order.getOrderStatus());
+            System.err.println("❌ Cannot cancel order with status: " + order.getOrderStatus());
             return false;
         }
-        
+
         try {
             order.setOrderStatus("cancelled");
             order.setNotes(reason != null ? reason : "Order cancelled");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
-            orderDAO.update(order);
-            System.out.println("Order " + order.getOrderNumber() + " has been cancelled");
-            return true;
+
+            if (orderDAO.update(order)) {
+                System.out.println("✅ Order cancelled: " + order.getOrderNumber() + " - " + reason);
+                return true;
+            }
+            return false;
         } catch (Exception e) {
-            System.err.println("Error cancelling order: " + e.getMessage());
+            System.err.println("❌ Error cancelling order: " + e.getMessage());
             return false;
         }
     }
-    
+
+    // =====================================================
+    // ✅ PAYMENT MANAGEMENT
+    // =====================================================
+
     /**
      * Process payment (xử lý thanh toán)
-     * @param order Order cần thanh toán
-     * @param paymentMethod Phương thức thanh toán
-     * @param amountReceived Số tiền khách đưa
-     * @return true nếu thanh toán thành công, false nếu thất bại
      */
     public boolean processPayment(Order order, String paymentMethod, double amountReceived) {
         if (order == null) {
             return false;
         }
-        
+
         if (!order.canBePaid()) {
-            System.err.println("Cannot process payment for order with status: " + order.getOrderStatus());
+            System.err.println("❌ Cannot process payment for order with status: " + order.getOrderStatus());
             return false;
         }
-        
+
         if (amountReceived < order.getFinalAmount()) {
-            System.err.println("Insufficient payment amount");
+            System.err.println("❌ Insufficient payment amount. Required: " + order.getFinalAmount() + ", Received: " + amountReceived);
             return false;
         }
-        
+
         try {
             order.setPaymentMethod(paymentMethod);
             order.setPaymentStatus("paid");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
-            orderDAO.update(order);
-            System.out.println("Payment processed for order " + order.getOrderNumber() + 
-                             ". Amount: " + formatTotalAmount(order.getFinalAmount()) +
-                             ", Method: " + paymentMethod);
-            return true;
+
+            if (orderDAO.update(order)) {
+                System.out.println("✅ Payment processed successfully for order: " + order.getOrderNumber());
+                System.out.println("💰 Amount: " + order.getFinalAmount() + " VND, Method: " + paymentMethod);
+
+                double change = calculateChange(order, amountReceived);
+                if (change > 0) {
+                    System.out.println("💵 Change: " + change + " VND");
+                }
+
+                return true;
+            }
+            return false;
         } catch (Exception e) {
-            System.err.println("Error processing payment: " + e.getMessage());
+            System.err.println("❌ Error processing payment: " + e.getMessage());
             return false;
         }
     }
-    
+
     /**
-     * Lấy order theo ID
-     * @param orderId ID của order
-     * @return Optional<Order> chứa order nếu tìm thấy
+     * Tính tiền thối cho khách
+     */
+    public double calculateChange(Order order, double amountReceived) {
+        if (order == null || amountReceived < order.getFinalAmount()) {
+            return 0.0;
+        }
+        return amountReceived - order.getFinalAmount();
+    }
+
+    // =====================================================
+    // ✅ QUERY METHODS - IMPLEMENTED
+    // =====================================================
+
+    /**
+     * ✅ IMPLEMENTED: Lấy order theo ID
      */
     public Optional<Order> getOrderById(Integer orderId) {
         try {
             return orderDAO.findById(orderId);
         } catch (Exception e) {
-            System.err.println("Error getting order by ID " + orderId + ": " + e.getMessage());
+            System.err.println("❌ Error getting order by ID " + orderId + ": " + e.getMessage());
             return Optional.empty();
         }
     }
-    
+
     /**
-     * Lấy tất cả orders theo trạng thái
-     * @param status Trạng thái cần lọc
-     * @return List<Order> danh sách orders
+     * ✅ IMPLEMENTED: Lấy tất cả orders theo trạng thái
      */
     public List<Order> getOrdersByStatus(String status) {
         try {
-            // TODO: Implement orderDAO.findByStatus(status)
-            return new ArrayList<>();
+            return orderDAO.getAllOrders().stream()
+                    .filter(order -> status.equals(order.getOrderStatus()))
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("Error getting orders by status: " + e.getMessage());
+            System.err.println("❌ Error getting orders by status: " + e.getMessage());
             return new ArrayList<>();
         }
     }
-    
+
     /**
-     * Lấy orders theo bàn
-     * @param tableId ID của bàn
-     * @return List<Order> danh sách orders
+     * ✅ IMPLEMENTED: Lấy orders theo bàn
      */
     public List<Order> getOrdersByTable(int tableId) {
         try {
-            // TODO: Implement orderDAO.findByTable(tableId)
-            return new ArrayList<>();
+            return orderDAO.getAllOrders().stream()
+                    .filter(order -> order.getTableId() == tableId)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("Error getting orders by table: " + e.getMessage());
+            System.err.println("❌ Error getting orders by table: " + e.getMessage());
             return new ArrayList<>();
         }
     }
-    
+
     /**
-     * Lấy order đang active (pending/preparing/ready/served) theo bàn
-     * @param tableId ID của bàn
-     * @return Optional<Order> order đang active
+     * ✅ IMPLEMENTED: Lấy order đang active (pending/preparing/ready/served) theo bàn
      */
     public Optional<Order> getActiveOrderByTable(int tableId) {
         try {
-            // TODO: Implement orderDAO.findActiveByTable(tableId)
-            return Optional.empty();
+            List<String> activeStatuses = Arrays.asList("pending", "preparing", "ready", "served");
+
+            return orderDAO.getAllOrders().stream()
+                    .filter(order -> order.getTableId() == tableId)
+                    .filter(order -> activeStatuses.contains(order.getOrderStatus()))
+                    .findFirst();
         } catch (Exception e) {
-            System.err.println("Error getting active order by table: " + e.getMessage());
+            System.err.println("❌ Error getting active order by table: " + e.getMessage());
             return Optional.empty();
         }
     }
-    
+
     /**
-     * Generate order number
-     * @return String order number
+     * ✅ NEW: Get order details for an order
+     */
+    public List<OrderDetail> getOrderDetails(int orderId) {
+        try {
+            return orderDetailDAO.findByOrderId(orderId);
+        } catch (Exception e) {
+            System.err.println("❌ Error getting order details: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * ✅ NEW: Get orders by date range
+     */
+    public List<Order> getOrdersByDateRange(Timestamp startDate, Timestamp endDate) {
+        try {
+            return orderDAO.getAllOrders().stream()
+                    .filter(order -> order.getOrderDate().after(startDate) && order.getOrderDate().before(endDate))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("❌ Error getting orders by date range: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * ✅ NEW: Get orders by user (staff member)
+     */
+    public List<Order> getOrdersByUser(int userId) {
+        try {
+            return orderDAO.getOrdersByUserId(userId);
+        } catch (Exception e) {
+            System.err.println("❌ Error getting orders by user: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    // =====================================================
+    // ✅ UTILITY METHODS
+    // =====================================================
+
+    /**
+     * Generate unique order number
      */
     private String generateOrderNumber() {
         return "ORD" + System.currentTimeMillis();
     }
-    
+
     /**
      * Tính total amount từ list products
-     * @param productQuantities Map<Product, Integer> sản phẩm và số lượng
-     * @return double tổng tiền
      */
     public double calculateTotalAmount(Map<Product, Integer> productQuantities) {
         return productQuantities.entrySet().stream()
@@ -446,42 +566,23 @@ public class OrderService {
                 })
                 .sum();
     }
-    
+
     /**
      * Format total amount
-     * @param amount Số tiền cần format
-     * @return String đã format
      */
     public String formatTotalAmount(double amount) {
         return String.format("%,.0f VNĐ", amount);
     }
-    
-    /**
-     * Tính tiền thối cho khách
-     * @param order Order cần tính
-     * @param amountReceived Số tiền khách đưa
-     * @return double số tiền thối
-     */
-    public double calculateChange(Order order, double amountReceived) {
-        if (order == null || amountReceived < order.getFinalAmount()) {
-            return 0.0;
-        }
-        return amountReceived - order.getFinalAmount();
-    }
-    
+
     /**
      * Kiểm tra xem order có thể chỉnh sửa không
-     * @param order Order cần kiểm tra
-     * @return true nếu có thể chỉnh sửa
      */
     public boolean canModifyOrder(Order order) {
         return order != null && "pending".equals(order.getOrderStatus());
     }
-    
+
     /**
      * Kiểm tra xem order có thể thanh toán không
-     * @param order Order cần kiểm tra
-     * @return true nếu có thể thanh toán
      */
     public boolean canPayOrder(Order order) {
         return order != null && order.canBePaid();
@@ -489,28 +590,63 @@ public class OrderService {
 
     /**
      * Update order in database
-     * @param order Order cần cập nhật
-     * @return true nếu cập nhật thành công, false nếu thất bại
      */
     public boolean updateOrder(Order order) {
         if (order == null) {
             return false;
         }
-        
+
         try {
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             return orderDAO.update(order);
         } catch (Exception e) {
-            System.err.println("Error updating order: " + e.getMessage());
+            System.err.println("❌ Error updating order: " + e.getMessage());
             return false;
         }
     }
 
     /**
-     * Update order status
-     * @param order Order cần cập nhật status
-     * @return true nếu cập nhật thành công, false nếu thất bại
+     * ✅ NEW: Get order statistics
      */
+    public Map<String, Object> getOrderStatistics() {
+        Map<String, Object> stats = new HashMap<>();
+        try {
+            List<Order> allOrders = orderDAO.getAllOrders();
+
+            stats.put("totalOrders", allOrders.size());
+            stats.put("pendingOrders", allOrders.stream().filter(o -> "pending".equals(o.getOrderStatus())).count());
+            stats.put("preparingOrders", allOrders.stream().filter(o -> "preparing".equals(o.getOrderStatus())).count());
+            stats.put("completedOrders", allOrders.stream().filter(o -> "completed".equals(o.getOrderStatus())).count());
+            stats.put("totalRevenue", allOrders.stream()
+                    .filter(o -> "completed".equals(o.getOrderStatus()) && "paid".equals(o.getPaymentStatus()))
+                    .mapToDouble(Order::getFinalAmount)
+                    .sum());
+
+        } catch (Exception e) {
+            System.err.println("❌ Error getting order statistics: " + e.getMessage());
+        }
+        return stats;
+    }
+
+    /**
+     * ✅ NEW: Clear all order details for an order
+     */
+    public boolean clearOrderDetails(int orderId) {
+        try {
+            return orderDetailDAO.deleteByOrderId(orderId);
+        } catch (Exception e) {
+            System.err.println("❌ Error clearing order details: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * ✅ NEW: Convenient overload methods
+     */
+    public boolean addProductToOrder(Order order, Product product, int quantity) {
+        return addProductToOrder(order, product, quantity, null);
+    }
+
     public boolean updateOrderStatus(Order order) {
         return updateOrder(order);
     }

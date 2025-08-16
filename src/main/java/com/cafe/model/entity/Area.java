@@ -1,4 +1,5 @@
 package com.cafe.model.entity;
+
 import java.sql.Timestamp;
 
 public class Area {
@@ -9,6 +10,7 @@ public class Area {
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
+    // Constructors
     public Area() {}
 
     public Area(String areaName, String description, boolean isActive) {
@@ -27,54 +29,24 @@ public class Area {
         this.updatedAt = updatedAt;
     }
 
-    // Getters and setters
-    public int getAreaId() {
-        return areaId;
-    }
+    // Getters and Setters
+    public int getAreaId() { return areaId; }
+    public void setAreaId(int areaId) { this.areaId = areaId; }
 
-    public void setAreaId(int areaId) {
-        this.areaId = areaId;
-    }
+    public String getAreaName() { return areaName; }
+    public void setAreaName(String areaName) { this.areaName = areaName; }
 
-    public String getAreaName() {
-        return areaName;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public void setAreaName(String areaName) {
-        this.areaName = areaName;
-    }
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) { isActive = active; }
 
-    public String getDescription() {
-        return description;
-    }
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+    public Timestamp getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 
     @Override
     public String toString() {
@@ -83,8 +55,6 @@ public class Area {
                 ", areaName='" + areaName + '\'' +
                 ", description='" + description + '\'' +
                 ", isActive=" + isActive +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
                 '}';
     }
 }

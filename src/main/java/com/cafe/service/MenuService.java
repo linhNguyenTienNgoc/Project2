@@ -52,8 +52,9 @@ public class MenuService {
      */
     public List<Product> getProductsByCategory(Integer categoryId) {
         try {
+            // ✅ HỦY CHECK HẾT HÀNG - Chỉ check active
             return productDAO.findByCategoryId(categoryId).stream()
-                    .filter(product -> product.getIsAvailable() && product.getIsActive())
+                    .filter(product -> product.getIsActive())
                     .collect(Collectors.toList());
         } catch (Exception e) {
             System.err.println("Error loading products for category " + categoryId + ": " + e.getMessage());
@@ -104,8 +105,9 @@ public class MenuService {
         }
         
         try {
+            // ✅ HỦY CHECK HẾT HÀNG - Chỉ check active
             return productDAO.searchProducts(keyword.trim(), categoryId, true, null, null).stream()
-                    .filter(product -> product.getIsAvailable() && product.getIsActive())
+                    .filter(product -> product.getIsActive())
                     .collect(Collectors.toList());
         } catch (Exception e) {
             System.err.println("Error searching products: " + e.getMessage());
@@ -141,15 +143,8 @@ public class MenuService {
      * Kiểm tra product có thể order được không
      */
     public boolean canOrderProduct(Product product, int quantity) {
-        if (product == null || !product.getIsAvailable() || !product.getIsActive()) {
-            return false;
-        }
-        
-        if (product.getStockQuantity() == null || product.getStockQuantity() < quantity) {
-            return false;
-        }
-        
-        return true;
+        // ✅ HỦY CHECK HẾT HÀNG - Luôn cho phép order
+        return product != null;
     }
     
     /**
@@ -157,6 +152,7 @@ public class MenuService {
      */
     public List<Product> getAllAvailableProducts() {
         try {
+            // ✅ HỦY CHECK HẾT HÀNG - Lấy tất cả sản phẩm active
             return productDAO.findAvailableProducts().stream()
                     .filter(product -> product.getIsActive())
                     .collect(Collectors.toList());

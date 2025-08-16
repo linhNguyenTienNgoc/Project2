@@ -138,7 +138,8 @@ public class Product {
     }
 
     public boolean canBeOrdered() {
-        return isAvailable && isActive && !isOutOfStock();
+        // ✅ HỦY CHECK HẾT HÀNG - Luôn trả về true
+        return true;
     }
 
     @Override

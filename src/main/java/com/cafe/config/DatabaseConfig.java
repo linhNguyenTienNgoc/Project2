@@ -97,8 +97,6 @@ public class DatabaseConfig {
             idleTimeout = Long.parseLong(properties.getProperty("database.idleTimeout", "600000"));
             maxLifetime = Long.parseLong(properties.getProperty("database.maxLifetime", "1800000"));
             
-            System.out.println("✅ Database configuration loaded successfully");
-            
         } catch (IOException e) {
             System.err.println("❌ Error loading database configuration: " + e.getMessage());
             loadDefaultProperties();
@@ -109,8 +107,6 @@ public class DatabaseConfig {
      * Tải cấu hình mặc định nếu không tìm thấy file properties
      */
     private void loadDefaultProperties() {
-        System.out.println("⚠️ Using default database configuration");
-        
         url = "jdbc:mysql://localhost:3306/cafe_management?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh";
         username = "root";
         password = "12345678";
