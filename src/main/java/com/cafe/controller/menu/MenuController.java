@@ -34,6 +34,7 @@ public class MenuController implements Initializable, DashboardCommunicator {
     @FXML private Button allCategoryBtn;
     @FXML private TextField searchField;
     @FXML private Button searchBtn;
+    @FXML private Button refreshButton;
     @FXML private ProgressIndicator loadingIndicator;
     @FXML private Label statusLabel;
     @FXML private ScrollPane productScrollPane;
@@ -96,13 +97,26 @@ public class MenuController implements Initializable, DashboardCommunicator {
      * Setup search field behavior
      */
     private void setupSearchField() {
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            currentSearchKeyword = newValue != null ? newValue.trim() : "";
-            // Delay search to avoid too many requests
-            delayedSearch();
-        });
+        // Handle both dashboard and admin layouts
+        if (searchField != null) {
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                currentSearchKeyword = newValue != null ? newValue.trim() : "";
+                // Delay search to avoid too many requests
+                delayedSearch();
+            });
+        }
 
-        searchBtn.setOnAction(e -> performSearch());
+        if (searchBtn != null) {
+            searchBtn.setOnAction(e -> performSearch());
+        }
+        
+        // Handle refresh button in admin layout
+        if (refreshButton != null) {
+            refreshButton.setOnAction(e -> {
+                loadInitialData();
+                System.out.println("🔄 Menu data refreshed");
+            });
+        }
     }
 
     /**
