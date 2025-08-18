@@ -1,0 +1,375 @@
+/* =====================================================
+   PAYMENT SYSTEM STYLES - Professional Design
+   ===================================================== */
+
+/* Root Variables */
+.root {
+    -fx-primary-color: #2c3e50;
+    -fx-secondary-color: #3498db;
+    -fx-success-color: #27ae60;
+    -fx-danger-color: #e74c3c;
+    -fx-warning-color: #f39c12;
+    -fx-light-bg: #f8f9fa;
+    -fx-white: #ffffff;
+    -fx-gray-100: #f8f9fa;
+    -fx-gray-200: #e9ecef;
+    -fx-gray-300: #dee2e6;
+    -fx-gray-600: #6c757d;
+    -fx-gray-800: #343a40;
+}
+
+/* =====================================================
+   LAYOUT COMPONENTS
+   ===================================================== */
+
+.header-section {
+    -fx-background-color: -fx-white;
+    -fx-border-color: -fx-gray-200;
+    -fx-border-width: 0 0 2 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+}
+
+.page-title {
+    -fx-text-fill: -fx-primary-color;
+    -fx-font-weight: bold;
+}
+
+.panel {
+    -fx-background-color: -fx-white;
+    -fx-background-radius: 8;
+    -fx-border-color: -fx-gray-200;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 4, 0, 0, 2);
+}
+
+.section-title {
+    -fx-text-fill: -fx-primary-color;
+    -fx-font-weight: bold;
+}
+
+/* =====================================================
+   TABLE STYLES
+   ===================================================== */
+
+.table-view {
+    -fx-background-color: -fx-white;
+    -fx-border-color: -fx-gray-300;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.table-view .column-header {
+    -fx-background-color: -fx-gray-100;
+    -fx-border-color: -fx-gray-300;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+    -fx-padding: 8 5;
+}
+
+.table-view .table-cell {
+    -fx-border-color: -fx-gray-200;
+    -fx-padding: 8 5;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.table-view .table-cell:selected {
+    -fx-background-color: #e3f2fd;
+}
+
+.total-items {
+    -fx-text-fill: -fx-gray-600;
+    -fx-font-style: italic;
+}
+
+/* =====================================================
+   FORM CONTROLS
+   ===================================================== */
+
+.text-field, .text-area {
+    -fx-background-color: -fx-white;
+    -fx-border-color: -fx-gray-300;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-padding: 8;
+    -fx-font-size: 13px;
+}
+
+.text-field:focused, .text-area:focused {
+    -fx-border-color: -fx-secondary-color;
+    -fx-border-width: 2;
+}
+
+.percent-field {
+    -fx-alignment: CENTER_RIGHT;
+    -fx-max-width: 60;
+}
+
+.discount-field {
+    -fx-alignment: CENTER_RIGHT;
+    -fx-max-width: 100;
+}
+
+.money-field {
+    -fx-alignment: CENTER_RIGHT;
+    -fx-font-weight: bold;
+}
+
+.field-error {
+    -fx-border-color: -fx-danger-color !important;
+    -fx-border-width: 2 !important;
+    -fx-background-color: #ffeaea !important;
+}
+
+/* =====================================================
+   LABELS & TEXT
+   ===================================================== */
+
+.info-value {
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-gray-800;
+}
+
+.amount-value {
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-gray-800;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.discount-amount {
+    -fx-text-fill: -fx-danger-color;
+}
+
+.kpi-amount {
+    -fx-text-fill: -fx-success-color;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.grand-total-label {
+    -fx-text-fill: -fx-primary-color;
+}
+
+.change-amount {
+    -fx-text-fill: -fx-success-color;
+    -fx-font-weight: bold;
+}
+
+.cash-total {
+    -fx-text-fill: -fx-primary-color;
+    -fx-font-weight: bold;
+}
+
+/* =====================================================
+   BUTTON BAR (FOOTER) STYLES
+   ===================================================== */
+
+.button-bar {
+    -fx-padding: 10;
+    -fx-spacing: 15;
+    -fx-alignment: CENTER_RIGHT;
+    -fx-background-color: -fx-light-bg;
+    -fx-border-color: -fx-gray-200;
+    -fx-border-width: 1 0 0 0;
+}
+
+.error-text {
+    -fx-text-fill: -fx-danger-color;
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+}
+
+/* =====================================================
+   RADIO BUTTONS & CHECKBOXES
+   ===================================================== */
+
+.radio-button, .check-box {
+    -fx-font-size: 13px;
+    -fx-text-fill: -fx-gray-800;
+}
+
+.radio-button:selected .radio, .check-box:selected .check-box {
+    -fx-background-color: -fx-secondary-color;
+}
+
+.radio-button .radio, .check-box .check-box {
+    -fx-border-color: -fx-gray-300;
+    -fx-border-width: 2;
+}
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+.button {
+    -fx-cursor: hand;
+    -fx-padding: 12 20;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-font-size: 13px;
+    -fx-pref-height: 40;
+    -fx-max-height: 40;
+}
+
+.btn-primary {
+    -fx-background-color: -fx-success-color;
+    -fx-text-fill: -fx-white;
+    -fx-border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(39,174,96,0.3), 4, 0, 0, 2);
+}
+
+.btn-primary:hover {
+    -fx-background-color: #229954;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #1e8449;
+}
+
+.btn-primary:disabled {
+    -fx-background-color: -fx-gray-300;
+    -fx-text-fill: -fx-gray-600;
+    -fx-effect: none;
+}
+
+.btn-secondary {
+    -fx-background-color: -fx-gray-100;
+    -fx-text-fill: -fx-gray-800;
+    -fx-border-color: -fx-gray-300;
+    -fx-border-width: 1;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: -fx-gray-200;
+    -fx-border-color: -fx-gray-600;
+}
+
+.btn-secondary:pressed {
+    -fx-background-color: -fx-gray-300;
+}
+
+/* =====================================================
+   SEPARATORS
+   ===================================================== */
+
+.separator .line {
+    -fx-border-color: -fx-gray-200;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* =====================================================
+   RESPONSIVE DESIGN
+   ===================================================== */
+
+/* Layout responsiveness */
+.grid-pane {
+    -fx-hgap: 20;
+    -fx-vgap: 15;
+}
+
+.table-view {
+    -fx-pref-height: 300;
+    -fx-min-height: 200;
+}
+
+/* Ensure panels fit well */
+.panel {
+    -fx-max-width: 450;
+}
+
+/* Button responsiveness */
+.button-bar .button {
+    -fx-min-width: 120;
+    -fx-pref-width: 140;
+}
+
+@media screen and (max-width: 900px) {
+    .button {
+        -fx-min-width: 100;
+        -fx-font-size: 12px;
+        -fx-padding: 8 15;
+    }
+    
+    .section-title {
+        -fx-font-size: 14px;
+    }
+    
+    .kpi-amount {
+        -fx-font-size: 18px;
+    }
+    
+    .button-bar {
+        -fx-spacing: 10;
+    }
+    
+    .button-bar .button {
+        -fx-min-width: 90;
+        -fx-pref-width: 110;
+    }
+}
+
+/* =====================================================
+   ANIMATIONS & TRANSITIONS
+   ===================================================== */
+
+.text-field, .button {
+    -fx-transition: all 0.2s ease;
+}
+
+.button:hover {
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.panel {
+    -fx-transition: all 0.3s ease;
+}
+
+.panel:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 6, 0, 0, 3);
+}
+
+/* =====================================================
+   SCROLL PANE
+   ===================================================== */
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-fit-to-width: true;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .content {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-pref-width: 12;
+    -fx-background-color: -fx-gray-100;
+}
+
+.scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: -fx-gray-200;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: -fx-gray-600;
+    -fx-background-radius: 6;
+}
+
+/* =====================================================
+   ACCESSIBILITY
+   ===================================================== */
+
+.text-field:focused, .text-area:focused, .button:focused {
+    -fx-effect: dropshadow(gaussian, -fx-secondary-color, 0, 0, 0, 0), 
+                inset-shadow(gaussian, -fx-secondary-color, 2, 0, 0, 0);
+}
+
+.radio-button:focused .radio, .check-box:focused .check-box {
+    -fx-effect: dropshadow(gaussian, -fx-secondary-color, 0, 0, 0, 0);
+}

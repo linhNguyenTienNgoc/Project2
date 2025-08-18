@@ -168,7 +168,20 @@ public class Order {
     }
 
     public boolean canBePaid() {
-        return "completed".equals(orderStatus) && "pending".equals(paymentStatus);
+        // ✅ FIXED: Allow payment for confirmed orders (not just completed)
+        String[] payableStatuses = {"confirmed", "preparing", "ready", "served", "completed"};
+        boolean hasPayableStatus = false;
+        
+        for (String status : payableStatuses) {
+            if (status.equals(orderStatus)) {
+                hasPayableStatus = true;
+                break;
+            }
+        }
+        
+        return hasPayableStatus && 
+               ("pending".equals(paymentStatus) || paymentStatus == null) &&
+               finalAmount > 0;
     }
 
     public void calculateFinalAmount() {

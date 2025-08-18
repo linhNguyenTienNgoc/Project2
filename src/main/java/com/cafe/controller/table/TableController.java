@@ -9,13 +9,13 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.concurrent.Task;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -422,26 +422,117 @@ public class TableController implements Initializable, DashboardCommunicator {
     }
 
     /**
-     * ✅ SIMPLIFIED: Handle table click - Directly show order panel
+     * ✅ UPDATED: Handle table click - Reserve table and switch to menu
      */
     private void handleTableClick(TableCafe table) {
         try {
             System.out.println("Table clicked: " + table.getTableName() + " - Status: " + table.getStatus());
 
-            // ✅ Update selected table và refresh UI
+            // Check if table is available for booking
+            if (!"available".equalsIgnoreCase(table.getStatus())) {
+                // For non-available tables, show order panel directly (existing behavior)
+                selectedTable = table;
+                displayTables(currentTables); // Refresh to show selection
+                
+                DashboardHelper.notifyTableSelected(dashboardController, table);
+                DashboardHelper.updateTableInfo(dashboardController, table.getTableName(), table.getStatus());
+                showOrderPanelForTable(table);
+                return;
+            }
+
+            // ✅ OPTIMIZED WORKFLOW: For available tables, reserve and switch to menu
+            // 1. Update table status to 'reserved' - SINGLE UPDATE POINT
+            boolean statusUpdated = tableService.updateTableStatus(table.getTableId(), "reserved");
+            if (!statusUpdated) {
+                showError("Không thể đặt bàn. Vui lòng thử lại.");
+                return;
+            }
+
+            // 2. Update local table object and UI
+            table.setStatus("reserved");
             selectedTable = table;
-            displayTables(currentTables); // Refresh to show selection
+            displayTables(currentTables); // Refresh to show new status
 
-            // ✅ Notify Dashboard about table selection and show order panel
+            // 3. Notify Dashboard about table selection (WITHOUT status update to avoid duplicate)
             DashboardHelper.notifyTableSelected(dashboardController, table);
-            DashboardHelper.updateTableInfo(dashboardController, table.getTableName(), table.getStatus());
+            DashboardHelper.updateTableInfo(dashboardController, table.getTableName(), "reserved");
 
-            // ✅ Show order panel for this table immediately
-            showOrderPanelForTable(table);
+            // 4. Switch to menu tab to start ordering (with no-auto-update flag)
+            switchToMenuTabWithoutStatusUpdate(table);
+
+            // 5. Show success message
+            showInfo("Đã đặt bàn " + table.getTableName() + ". Chuyển sang menu để chọn món.");
 
         } catch (Exception e) {
             System.err.println("Error handling table click: " + e.getMessage());
-            showError("Không thể xử lý thao tác với bàn");
+            showError("Không thể xử lý thao tác với bàn: " + e.getMessage());
+        }
+    }
+
+    /**
+     * ✅ OPTIMIZED: Switch to menu tab after selecting table - WITHOUT auto status update
+     */
+    private void switchToMenuTabWithoutStatusUpdate(TableCafe table) {
+        try {
+            System.out.println("🔄 Switching to menu tab for table: " + table.getTableName() + " (no auto-update)");
+            
+            // Use reflection to call switchToTab method on DashboardController
+            if (dashboardController != null) {
+                Method switchToTabMethod = dashboardController.getClass().getMethod("switchToTab", String.class);
+                switchToTabMethod.invoke(dashboardController, "menu");
+                
+                // Set up the order panel for the selected table - use reserved method
+                try {
+                    // Use the new method for reserved tables to preserve status
+                    Method showOrderPanelForReservedMethod = dashboardController.getClass().getMethod("showOrderPanelForReserved", int.class);
+                    showOrderPanelForReservedMethod.invoke(dashboardController, table.getTableId());
+                    System.out.println("✅ Using showOrderPanelForReserved method");
+                } catch (NoSuchMethodException e) {
+                    // Fallback to old method if new method doesn't exist yet
+                    Method oldShowOrderPanelMethod = dashboardController.getClass().getMethod("showOrderPanel", int.class);
+                    oldShowOrderPanelMethod.invoke(dashboardController, table.getTableId());
+                    System.out.println("⚠️ Using fallback showOrderPanel method");
+                }
+                
+                System.out.println("✅ Successfully switched to menu tab and set up order panel (status preserved)");
+            } else {
+                System.err.println("⚠️ Dashboard controller not available");
+                showError("Không thể chuyển sang menu. Vui lòng thử lại.");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error switching to menu tab: " + e.getMessage());
+            e.printStackTrace();
+            showError("Không thể chuyển sang menu: " + e.getMessage());
+        }
+    }
+
+    /**
+     * ✅ LEGACY: Switch to menu tab after selecting table (with potential auto status update)
+     */
+    private void switchToMenuTab(TableCafe table) {
+        try {
+            System.out.println("🔄 Switching to menu tab for table: " + table.getTableName());
+            
+            // Use reflection to call switchToTab method on DashboardController
+            if (dashboardController != null) {
+                Method switchToTabMethod = dashboardController.getClass().getMethod("switchToTab", String.class);
+                switchToTabMethod.invoke(dashboardController, "menu");
+                
+                // Also set up the order panel for the selected table
+                Method showOrderPanelMethod = dashboardController.getClass().getMethod("showOrderPanel", int.class);
+                showOrderPanelMethod.invoke(dashboardController, table.getTableId());
+                
+                System.out.println("✅ Successfully switched to menu tab and set up order panel");
+            } else {
+                System.err.println("⚠️ Dashboard controller not available");
+                showError("Không thể chuyển sang menu. Vui lòng thử lại.");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error switching to menu tab: " + e.getMessage());
+            e.printStackTrace();
+            showError("Không thể chuyển sang menu: " + e.getMessage());
         }
     }
 

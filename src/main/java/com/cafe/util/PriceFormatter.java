@@ -21,6 +21,13 @@ public class PriceFormatter {
     }
     
     /**
+     * Default format method - same as formatVND for convenience
+     */
+    public static String format(double amount) {
+        return formatVND(amount);
+    }
+    
+    /**
      * Format number to VND currency format with unit
      */
     public static String formatVNDWithUnit(double amount) {

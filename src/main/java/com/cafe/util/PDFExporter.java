@@ -20,6 +20,7 @@ public class PDFExporter {
     private static final Font TITLE_FONT = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
     private static final Font HEADER_FONT = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
     private static final Font NORMAL_FONT = new Font(Font.FontFamily.HELVETICA, 10);
+    private static final Font RECEIPT_FONT = new Font(Font.FontFamily.COURIER, 9);
 
     public void exportSalesReport(List<SalesData> salesList, LocalDate startDate, LocalDate endDate) throws IOException, DocumentException {
         Document document = new Document();
@@ -282,6 +283,24 @@ public class PDFExporter {
         Paragraph footer = new Paragraph("Báo cáo được tạo vào: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")), NORMAL_FONT);
         footer.setAlignment(Element.ALIGN_RIGHT);
         document.add(footer);
+
+        document.close();
+    }
+
+    /**
+     * Export receipt content to PDF
+     * @param receiptContent Receipt content as string
+     * @param filePath Output file path
+     */
+    public static void exportReceiptToPDF(String receiptContent, String filePath) throws DocumentException, IOException {
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, new FileOutputStream(filePath));
+        document.open();
+
+        // Add receipt content as preformatted text
+        Paragraph receiptPara = new Paragraph(receiptContent, RECEIPT_FONT);
+        receiptPara.setAlignment(Element.ALIGN_LEFT);
+        document.add(receiptPara);
 
         document.close();
     }

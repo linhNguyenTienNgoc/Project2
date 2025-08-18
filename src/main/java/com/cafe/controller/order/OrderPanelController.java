@@ -2,14 +2,21 @@ package com.cafe.controller.order;
 
 import com.cafe.controller.base.DashboardCommunicator;
 import com.cafe.controller.base.DashboardHelper;
+import com.cafe.controller.payment.PaymentController;
 import com.cafe.model.entity.Order;
 import com.cafe.model.entity.OrderDetail;
 import com.cafe.model.entity.Product;
 import com.cafe.service.OrderService;
 import com.cafe.service.MenuService;
+import com.cafe.service.PaymentService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -41,12 +48,16 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     // ✅ Services - Complete Integration
     private OrderService orderService;
     private MenuService menuService;
+    private PaymentService paymentService;
 
     // Current state
     private Order currentOrder;
     private int currentTableId = -1;
     private int currentUserId = 1; // TODO: Get from session
     private List<OrderDetail> currentOrderDetails = new ArrayList<>();
+    
+    // ✅ NEW: Flag to prevent auto-update when table just reserved
+    private boolean skipAutoStatusUpdate = false;
 
     // ✅ Dashboard communication
     private Object dashboardController;
@@ -57,6 +68,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             // ✅ Initialize services
             orderService = new OrderService();
             menuService = new MenuService();
+            paymentService = new PaymentService();
 
             // Setup button actions
             setupButtonActions();
@@ -103,10 +115,36 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         System.out.println("🏢 Setting current table: " + tableId);
 
         this.currentTableId = tableId;
+        this.skipAutoStatusUpdate = false; // Reset flag for normal operation
         updateTableInfo();
 
         // ✅ Load existing order for this table
         loadExistingOrderForTable();
+    }
+
+    /**
+     * ✅ NEW: Set current table for just-reserved table (skip auto-update)
+     */
+    public void setCurrentTableForReserved(int tableId) {
+        System.out.println("🏢 Setting current table (reserved): " + tableId);
+
+        this.currentTableId = tableId;
+        this.skipAutoStatusUpdate = true; // Skip auto-update to preserve "reserved" status
+        updateTableInfo();
+
+        // ✅ Load existing order for this table
+        loadExistingOrderForTable();
+    }
+
+    /**
+     * ✅ NEW: Enable auto-update when user starts ordering (reserved → occupied)
+     */
+    public void enableAutoStatusUpdate() {
+        this.skipAutoStatusUpdate = false;
+        System.out.println("🔄 Auto-update enabled for table " + currentTableId);
+        
+        // Trigger status update now that auto-update is enabled
+        updateTableStatusBasedOnOrder();
     }
 
     /**
@@ -143,8 +181,8 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                         currentOrderDetails.clear();
                         updateOrderDisplay();
 
-                        // ✅ Update table to available if no order
-                        updateTableStatusIfNeeded("available");
+                        // ✅ Auto-update table status based on order existence
+                        updateTableStatusBasedOnOrder();
                     }
                 });
             }
@@ -165,12 +203,29 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ OPTIMIZED: Update table status based on current order state - only when needed
+     * ✅ FIXED: Update table status based on current order state - RESPECTS RESERVED STATUS
      */
     private void updateTableStatusBasedOnOrder() {
+        // ✅ SKIP auto-update if table was just reserved
+        if (skipAutoStatusUpdate) {
+            System.out.println("⏭️ Table " + currentTableId + " auto-update skipped (just reserved)");
+            return;
+        }
+        
+        // Get current table status first to make informed decisions
+        String currentTableStatus = getCurrentTableStatus();
+        System.out.println("🔍 Debug: currentTableStatus = " + currentTableStatus + ", currentOrder = " + (currentOrder != null ? "exists" : "null"));
+        
         if (currentOrder == null) {
-            // Only update if current status is not already available
-            updateTableStatusIfNeeded("available");
+            // ✅ FIXED: Don't auto-change reserved tables to available
+            // Only change to available if currently occupied/cleaning
+            if ("occupied".equalsIgnoreCase(currentTableStatus) || 
+                "cleaning".equalsIgnoreCase(currentTableStatus)) {
+                updateTableStatusIfNeeded("available");
+            } else {
+                // Preserve reserved/available status when no order
+                System.out.println("⏭️ Table " + currentTableId + " status preserved: " + currentTableStatus + " (no order)");
+            }
             return;
         }
 
@@ -182,16 +237,23 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             case "confirmed":
             case "preparing":
             case "ready":
+                // ✅ From reserved → occupied when order is active
                 targetStatus = "occupied";
                 break;
             case "completed":
                 targetStatus = "cleaning";
                 break;
             case "cancelled":
+                // ✅ From any status → available when order is cancelled
                 targetStatus = "available";
                 break;
             default:
-                targetStatus = "occupied"; // Default to occupied if order exists
+                // ✅ Default: respect current status for unknown order states
+                if ("reserved".equalsIgnoreCase(currentTableStatus)) {
+                    targetStatus = "reserved"; // Keep reserved
+                } else {
+                    targetStatus = "occupied"; // Default to occupied if order exists
+                }
         }
         
         // Only update if status actually needs to change
@@ -199,41 +261,48 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ NEW: Update table status only if it's different from current status
+     * ✅ NEW: Get current table status from TableController
+     */
+    private String getCurrentTableStatus() {
+        try {
+            if (dashboardController != null) {
+                Method getCurrentTableControllerMethod = dashboardController.getClass().getMethod("getCurrentTableController");
+                Object tableController = getCurrentTableControllerMethod.invoke(dashboardController);
+                
+                if (tableController != null) {
+                    Method getTableByIdMethod = tableController.getClass().getMethod("getTableById", int.class);
+                    Object table = getTableByIdMethod.invoke(tableController, currentTableId);
+                    
+                    if (table != null) {
+                        Method getStatusMethod = table.getClass().getMethod("getStatus");
+                        return (String) getStatusMethod.invoke(table);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("⚠️ Could not get current table status: " + e.getMessage());
+        }
+        
+        return "available"; // Default fallback
+    }
+
+    /**
+     * ✅ OPTIMIZED: Update table status only if it's different from current status
      */
     private void updateTableStatusIfNeeded(String newStatus) {
         try {
-            // Get current table status from TableController if available
-            if (dashboardController != null) {
-                // Try to get current table status through reflection
-                try {
-                    Method getCurrentTableControllerMethod = dashboardController.getClass().getMethod("getCurrentTableController");
-                    Object tableController = getCurrentTableControllerMethod.invoke(dashboardController);
-                    
-                    if (tableController != null) {
-                        Method getTableByIdMethod = tableController.getClass().getMethod("getTableById", int.class);
-                        Object table = getTableByIdMethod.invoke(tableController, currentTableId);
-                        
-                        if (table != null) {
-                            Method getStatusMethod = table.getClass().getMethod("getStatus");
-                            String currentStatus = (String) getStatusMethod.invoke(table);
-                            
-                            // Only update if status is actually different
-                            if (newStatus.equalsIgnoreCase(currentStatus)) {
-                                System.out.println("⏭️ Table " + currentTableId + " status unchanged: " + currentStatus);
-                                return;
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    // If reflection fails, proceed with update (fallback)
-                    System.out.println("⚠️ Could not check current status, proceeding with update");
-                }
+            // Get current table status using the dedicated method
+            String currentStatus = getCurrentTableStatus();
+            
+            // Only update if status is actually different
+            if (newStatus.equalsIgnoreCase(currentStatus)) {
+                System.out.println("⏭️ Table " + currentTableId + " status unchanged: " + currentStatus);
+                return;
             }
             
             // Update status through Dashboard
             DashboardHelper.updateTableStatus(dashboardController, currentTableId, newStatus);
-            System.out.println("✅ Table " + currentTableId + " status updated to: " + newStatus);
+            System.out.println("✅ Table " + currentTableId + " status updated: " + currentStatus + " → " + newStatus);
             
         } catch (Exception e) {
             System.err.println("❌ Error updating table status: " + e.getMessage());
@@ -332,6 +401,11 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                     Boolean success = getValue();
                     if (success) {
                         System.out.println("✅ Product added successfully: " + product.getProductName() + " x" + quantity);
+
+                        // ✅ Enable auto-update when user actually starts ordering (reserved → occupied)
+                        if (skipAutoStatusUpdate) {
+                            enableAutoStatusUpdate();
+                        }
 
                         // ✅ Auto-update table status to occupied when first product added
                         updateTableStatusIfNeeded("occupied");
@@ -480,8 +554,21 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             boolean canModify = currentOrder != null && orderService.canModifyOrder(currentOrder);
             boolean canPay = currentOrder != null && orderService.canPayOrder(currentOrder);
 
+            // ✅ DEBUG: Log button states
+            System.out.println("🔧 Button states debug:");
+            System.out.println("  - currentOrder: " + (currentOrder != null ? currentOrder.getOrderNumber() : "null"));
+            System.out.println("  - orderStatus: " + (currentOrder != null ? currentOrder.getOrderStatus() : "null"));
+            System.out.println("  - paymentStatus: " + (currentOrder != null ? currentOrder.getPaymentStatus() : "null"));
+            System.out.println("  - finalAmount: " + (currentOrder != null ? currentOrder.getFinalAmount() : 0));
+            System.out.println("  - canModify: " + canModify);
+            System.out.println("  - canPay: " + canPay);
+            System.out.println("  - orderDetails.size(): " + currentOrderDetails.size());
+
             placeOrderButton.setDisable(!canModify || currentOrderDetails.isEmpty());
             paymentButton.setDisable(!canPay);
+            
+            System.out.println("  - placeOrderButton.disabled: " + placeOrderButton.isDisabled());
+            System.out.println("  - paymentButton.disabled: " + paymentButton.isDisabled());
         }
     }
 
@@ -596,6 +683,11 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                         // ✅ Update button states
                         placeOrderButton.setDisable(true);
                         paymentButton.setDisable(false);
+                        
+                        // ✅ DEBUG: Confirm button states after place order
+                        System.out.println("🔧 Post-place order button states:");
+                        System.out.println("  - placeOrderButton.disabled: " + placeOrderButton.isDisabled());
+                        System.out.println("  - paymentButton.disabled: " + paymentButton.isDisabled());
 
                         System.out.println("✅ Order placed: " + currentOrder.getOrderNumber());
                     } else {
@@ -616,7 +708,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ COMPLETE: Handle payment action
+     * ✅ ENHANCED: Handle payment action with modern PaymentController
      */
     private void handlePayment() {
         if (currentOrder == null) {
@@ -624,130 +716,105 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             return;
         }
 
-        // ✅ Show enhanced payment dialog
-        showPaymentDialog();
-    }
-
-    /**
-     * ✅ ENHANCED: Show payment dialog với better UX
-     */
-    private void showPaymentDialog() {
-        Dialog<Map<String, Object>> dialog = new Dialog<>();
-        dialog.setTitle("Thanh toán");
-        dialog.setHeaderText("Đơn hàng: " + (currentOrder != null ? currentOrder.getOrderNumber() : ""));
-
-        // Create payment form
-        VBox content = new VBox(15);
-        content.setPadding(new Insets(20));
-
-        // Order summary
-        Label orderSummaryLabel = new Label("Chi tiết đơn hàng:");
-        orderSummaryLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-
-        VBox orderSummary = new VBox(5);
-        for (OrderDetail detail : currentOrderDetails) {
-            String itemText = String.format("%s x%d = %s",
-                    detail.getProductName() != null ? detail.getProductName() : "Sản phẩm " + detail.getProductId(),
-                    detail.getQuantity(),
-                    formatAmount(detail.getTotalPrice()));
-            Label itemLabel = new Label(itemText);
-            itemLabel.setStyle("-fx-font-size: 12px;");
-            orderSummary.getChildren().add(itemLabel);
+        if (currentOrderDetails.isEmpty()) {
+            showError("Đơn hàng trống, không thể thanh toán");
+            return;
         }
 
-        Separator separator = new Separator();
-
-        Label totalLabel = new Label("Tổng tiền: " + formatAmount(currentOrder.getFinalAmount()));
-        totalLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #E67E22;");
-
-        Label methodLabel = new Label("Phương thức thanh toán:");
-        methodLabel.setStyle("-fx-font-weight: bold;");
-        ComboBox<String> methodCombo = new ComboBox<>();
-        methodCombo.getItems().addAll("cash", "card", "momo", "vnpay", "zalopay");
-        methodCombo.setValue("cash");
-        methodCombo.setMaxWidth(Double.MAX_VALUE);
-
-        Label amountLabel = new Label("Số tiền khách đưa:");
-        amountLabel.setStyle("-fx-font-weight: bold;");
-        TextField amountField = new TextField();
-        amountField.setText(String.valueOf(currentOrder.getFinalAmount()));
-        amountField.setMaxWidth(Double.MAX_VALUE);
-
-        content.getChildren().addAll(
-                orderSummaryLabel, orderSummary, separator, totalLabel,
-                methodLabel, methodCombo, amountLabel, amountField
-        );
-
-        dialog.getDialogPane().setContent(content);
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        // ✅ Enhanced result processing
-        dialog.setResultConverter(buttonType -> {
-            if (buttonType == ButtonType.OK) {
-                Map<String, Object> result = new HashMap<>();
-                result.put("method", methodCombo.getValue());
-                try {
-                    result.put("amount", Double.parseDouble(amountField.getText()));
-                    return result;
-                } catch (NumberFormatException e) {
-                    showError("Số tiền không hợp lệ");
-                    return null;
-                }
-            }
-            return null;
-        });
-
-        dialog.showAndWait().ifPresent(result -> {
-            String method = (String) result.get("method");
-            Double amount = (Double) result.get("amount");
-            if (method != null && amount != null) {
-                processPayment(method, amount);
-            }
-        });
+        // ✅ Show modern payment window
+        showModernPaymentWindow();
     }
 
     /**
-     * ✅ ENHANCED: Process payment with auto table status update
+     * ✅ NEW: Show modern payment window using PaymentController
      */
-    private void processPayment(String method, double amountReceived) {
-        Task<Boolean> paymentTask = new Task<Boolean>() {
-            @Override
-            protected Boolean call() throws Exception {
-                return orderService.processPayment(currentOrder, method, amountReceived);
+    private void showModernPaymentWindow() {
+        try {
+            System.out.println("🔧 showModernPaymentWindow() started");
+            System.out.println("  - currentOrder: " + (currentOrder != null ? currentOrder.getOrderNumber() : "null"));
+            System.out.println("  - currentTableId: " + currentTableId);
+            System.out.println("  - currentOrderDetails.size(): " + currentOrderDetails.size());
+            
+            // ✅ ENHANCED DEBUG: Kiểm tra resource paths trước khi load
+            debugResourcePaths();
+            
+            // Load payment FXML
+            System.out.println("🔧 Loading payment FXML...");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/payment/payment.fxml"));
+            
+            // ✅ FIXED: Root is now BorderPane from new design
+            System.out.println("🔧 Loading FXML content...");
+            BorderPane paymentRoot = loader.load();
+            System.out.println("✅ FXML loaded successfully");
+            
+            // Get controller and set up data
+            System.out.println("🔧 Getting PaymentController...");
+            PaymentController paymentController = loader.getController();
+            System.out.println("✅ PaymentController obtained");
+            
+            // Initialize payment data with new API
+            System.out.println("🔧 Initializing payment data...");
+            paymentController.initData(currentOrder, currentTableId, 8.0); // ✅ VAT = 8%, no service fee
+            System.out.println("✅ Payment data initialized");
+            
+            // Create and show payment window
+            System.out.println("🔧 Creating payment stage...");
+            Stage paymentStage = new Stage();
+            paymentStage.setTitle("Thanh toán - " + currentOrder.getOrderNumber());
+            paymentStage.initModality(Modality.APPLICATION_MODAL);
+            paymentStage.setResizable(true); // ✅ Allow resize to see all content
+            
+            // ✅ Set minimum size to ensure all content is visible
+            paymentStage.setMinWidth(900);
+            paymentStage.setMinHeight(700);
+            
+            // Load CSS
+            System.out.println("🔧 Creating scene and loading CSS...");
+            Scene paymentScene = new Scene(paymentRoot, 950, 750); // ✅ Set explicit size
+            paymentScene.getStylesheets().add(getClass().getResource("/css/payment.css").toExternalForm());
+            
+            paymentStage.setScene(paymentScene);
+            paymentStage.centerOnScreen();
+            
+            // ✅ Debug: Log window dimensions
+            System.out.println("🔧 Payment window size: " + paymentScene.getWidth() + "x" + paymentScene.getHeight());
+            
+            System.out.println("🔧 Showing payment window...");
+            paymentStage.showAndWait();
+            System.out.println("✅ Payment window closed");
+            
+            // ✅ Handle payment completion
+            handlePaymentCompleted();
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error showing payment window: " + e.getMessage());
+            e.printStackTrace();
+            showError("Không thể mở cửa sổ thanh toán: " + e.getMessage());
+        }
+    }
+
+    /**
+     * ✅ NEW: Handle payment completion from PaymentController
+     */
+    private void handlePaymentCompleted() {
+        Platform.runLater(() -> {
+            try {
+                // ✅ Auto-update table status to cleaning after payment
+                updateTableStatusIfNeeded("cleaning");
+                
+                // ✅ Complete the order and reset
+                completeOrderAndReset();
+                
+                // ✅ Show success message
+                showInfo("Thanh toán hoàn tất! Bàn đã được chuyển sang trạng thái dọn dẹp.");
+                
+                System.out.println("✅ Payment completed for order: " + currentOrder.getOrderNumber());
+                
+            } catch (Exception e) {
+                System.err.println("❌ Error handling payment completion: " + e.getMessage());
+                e.printStackTrace();
             }
-
-            @Override
-            protected void succeeded() {
-                Platform.runLater(() -> {
-                    Boolean success = getValue();
-                    if (success) {
-                        double change = orderService.calculateChange(currentOrder, amountReceived);
-                        String message = "Thanh toán thành công!";
-                        if (change > 0) {
-                            message += "\nTiền thối: " + formatAmount(change);
-                        }
-                        showInfo(message);
-
-                        // ✅ Auto-update table status to cleaning after payment
-                        updateTableStatusIfNeeded("cleaning");
-
-                        // ✅ Complete the order and reset
-                        completeOrderAndReset();
-                    } else {
-                        showError("Không thể xử lý thanh toán");
-                    }
-                });
-            }
-
-            @Override
-            protected void failed() {
-                Platform.runLater(() -> {
-                    showError("Lỗi thanh toán: " + getException().getMessage());
-                });
-            }
-        };
-
-        new Thread(paymentTask).start();
+        });
     }
 
     /**
@@ -938,5 +1005,76 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
      */
     public boolean canModifyOrder() {
         return currentOrder != null && orderService.canModifyOrder(currentOrder);
+    }
+    
+    /**
+     * ✅ DEBUG: Kiểm tra resource paths và dependencies
+     */
+    private void debugResourcePaths() {
+        System.out.println("🔍 =====DEBUGGING PAYMENT RESOURCES=====");
+        
+        try {
+            // Test FXML path
+            java.net.URL fxmlUrl = getClass().getResource("/fxml/payment/payment.fxml");
+            if (fxmlUrl == null) {
+                System.err.println("❌ FXML không tìm thấy: /fxml/payment/payment.fxml");
+                // Thử các path khác
+                fxmlUrl = getClass().getResource("../../../fxml/payment/payment.fxml");
+                System.out.println("🔍 Trying relative path: " + (fxmlUrl != null ? "FOUND" : "NOT FOUND"));
+            } else {
+                System.out.println("✅ FXML found: " + fxmlUrl);
+            }
+            
+            // Test CSS path
+            java.net.URL cssUrl = getClass().getResource("/css/payment.css");
+            if (cssUrl == null) {
+                System.err.println("❌ CSS không tìm thấy: /css/payment.css");
+            } else {
+                System.out.println("✅ CSS found: " + cssUrl);
+            }
+            
+            // Test current order data
+            if (currentOrder == null) {
+                System.err.println("❌ CRITICAL: currentOrder is NULL");
+                return;
+            }
+            
+            System.out.println("✅ Order data:");
+            System.out.println("  - Order ID: " + currentOrder.getOrderId());
+            System.out.println("  - Order Number: " + currentOrder.getOrderNumber());
+            System.out.println("  - Table ID: " + currentOrder.getTableId());
+            System.out.println("  - Status: " + currentOrder.getOrderStatus());
+            System.out.println("  - Payment Status: " + currentOrder.getPaymentStatus());
+            System.out.println("  - Total Amount: " + currentOrder.getTotalAmount());
+            
+            // Test order details
+            System.out.println("✅ Order Details:");
+            System.out.println("  - Details count: " + currentOrderDetails.size());
+            for (int i = 0; i < Math.min(3, currentOrderDetails.size()); i++) {
+                OrderDetail detail = currentOrderDetails.get(i);
+                System.out.println("  - Item " + (i+1) + ": " + detail.getProductName() + 
+                                   " x" + detail.getQuantity() + " = " + detail.getTotalPrice());
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error in debugResourcePaths: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        System.out.println("🔍 =================================");
+    }
+    
+    /**
+     * ✅ DEBUG: Test method để debug payment window riêng
+     */
+    public void debugPaymentWindow() {
+        System.out.println("🔧 DEBUG: Testing payment window separately...");
+        
+        if (currentOrder == null) {
+            System.err.println("❌ No current order for debugging");
+            return;
+        }
+        
+        showModernPaymentWindow();
     }
 }

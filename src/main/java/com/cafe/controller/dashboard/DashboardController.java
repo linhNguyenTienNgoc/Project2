@@ -527,6 +527,27 @@ public class DashboardController implements Initializable, DashboardEventHandler
     }
 
     /**
+     * ✅ NEW: Show order panel for just-reserved table (preserve reserved status)
+     */
+    public void showOrderPanelForReserved(int tableId) {
+        try {
+            System.out.println("📋 DashboardController.showOrderPanelForReserved called for table: " + tableId);
+            
+            // Set the table in OrderPanel with reserved flag
+            if (orderPanelRootController != null) {
+                orderPanelRootController.setCurrentTableForReserved(tableId);
+                System.out.println("✅ OrderPanel set to reserved table " + tableId);
+            } else {
+                System.err.println("⚠️ OrderPanel not available");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error in DashboardController.showOrderPanelForReserved: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Refresh current content - useful for external calls
      */
     public void refreshCurrentContent() {
