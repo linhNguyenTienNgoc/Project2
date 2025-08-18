@@ -1,164 +1,201 @@
-# 🗄️ Database - Hệ thống Quản lý Quán Cafe
+# 🎯 Complete Café Management Database
 
-## 📋 Mô tả
-Database được thiết kế cho phần mềm quản lý quán cafe với đầy đủ các chức năng cần thiết.
+Hệ thống database hoàn chỉnh cho ứng dụng quản lý quán café với sample data đầy đủ.
 
-## 🏗️ Cấu trúc Database
+## 📋 **Tổng quan**
 
-### 1. **Quản lý Người dùng & Phân quyền**
-- `roles` - Vai trò trong hệ thống
-- `users` - Thông tin người dùng
+File `complete_cafe_management.sql` là phiên bản gộp và nâng cấp từ tất cả các file SQL trước đó, bao gồm:
+- ✅ Schema cơ bản từ `cafe_management.sql`
+- ✅ Promotion system từ `promotions_migration.sql`
+- ✅ Sample data phong phú cho tất cả bảng
+- ✅ Indexes và optimizations
 
-### 2. **Quản lý Menu & Sản phẩm**
-- `categories` - Danh mục sản phẩm
-- `products` - Thông tin sản phẩm
+## 🗄️ **Cấu trúc Database**
 
-### 3. **Quản lý Khu vực & Bàn**
-- `areas` - Khu vực trong quán
-- `tables` - Thông tin bàn
+### **Core Tables**
+- `users` - Người dùng và phân quyền (7 accounts)
+- `categories` - Danh mục sản phẩm (7 categories)
+- `products` - Sản phẩm (50+ items)
+- `areas` - Khu vực (5 areas)
+- `tables` - Bàn (25+ tables)
+- `customers` - Khách hàng (8 customers)
 
-### 4. **Quản lý Khách hàng**
-- `customers` - Thông tin khách hàng
-
-### 5. **Quản lý Đơn hàng**
-- `orders` - Đơn hàng
+### **Orders System**
+- `orders` - Đơn hàng (10 sample orders)
 - `order_details` - Chi tiết đơn hàng
+- `promotions` - Khuyến mãi (7 promotions)
+- `order_promotions` - Áp dụng khuyến mãi
 
-### 6. **Quản lý Khuyến mãi**
-- `promotions` - Chương trình khuyến mãi
-- `order_promotions` - Áp dụng khuyến mãi cho đơn hàng
-
-### 7. **Quản lý Nguyên liệu & Tồn kho**
-- `ingredients` - Nguyên liệu
-- `recipes` - Công thức (liên kết sản phẩm - nguyên liệu)
-- `stock_in` - Nhập kho
-
-### 8. **Quản lý Nhân viên**
+### **Additional Systems**
 - `attendance` - Chấm công
+- `system_settings` - Cài đặt hệ thống
 
-### 9. **Cài đặt Hệ thống**
-- `system_settings` - Cài đặt chung
+## 🚀 **Cách Setup**
 
-## 🚀 Cách sử dụng
-
-### 1. **Cài đặt MySQL**
+### **Windows:**
 ```bash
-# Tải và cài đặt MySQL Server
-# Hoặc sử dụng XAMPP/WAMP
+cd database
+setup_database.bat
 ```
 
-### 2. **Tạo Database**
+### **Linux/Mac:**
 ```bash
-# Mở MySQL Command Line hoặc phpMyAdmin
-# Chạy file cafe_management.sql
-mysql -u root -p < cafe_management.sql
+cd database
+chmod +x setup_database.sh
+./setup_database.sh
 ```
 
-### 3. **Kết nối từ ứng dụng**
-```java
-// Thông tin kết nối
-String url = "jdbc:mysql://localhost:3306/cafe_management";
-String username = "root";
-String password = "your_password";
+### **Manual Setup:**
+```bash
+mysql -u root -p < complete_cafe_management.sql
 ```
 
-## 📊 Dữ liệu mẫu
+## 📊 **Sample Data Chi tiết**
 
-Database đã bao gồm dữ liệu mẫu:
+### **👥 User Accounts**
+| Username | Password | Role | Mô tả |
+|----------|----------|------|-------|
+| admin | 123456 | Admin | Quản trị viên |
+| manager | 123456 | Manager | Quản lý |
+| cashier1 | 123456 | Cashier | Thu ngân 1 |
+| waiter1 | 123456 | Waiter | Phục vụ 1 |
+| barista1 | 123456 | Barista | Pha chế |
+| waiter2 | 123456 | Waiter | Phục vụ 2 |
+| cashier2 | 123456 | Cashier | Thu ngân 2 |
 
-### **Người dùng mẫu:**
-- **Admin:** `admin` / `password` - Nguyễn Tiến Ngọc Linh
-- **Manager:** `manager` / `password` - Trần Xuân Quang Minh
-- **Cashier:** `cashier1` / `password` - Vũ Hoàng Nam
-- **Waiter:** `waiter1` / `password` - Dương Tuấn Minh
-- **Barista:** `barista1` / `password` - Nguyễn Thị Nguyệt Nhi
+### **🍰 Product Categories**
+1. **Cà phê** - 10 sản phẩm (25k-55k)
+2. **Trà & Trà sữa** - 10 sản phẩm (20k-42k)
+3. **Nước ép & Sinh tố** - 10 sản phẩm (32k-52k)
+4. **Bánh ngọt** - 10 sản phẩm (20k-50k)
+5. **Đồ ăn nhẹ** - 10 sản phẩm (18k-35k)
+6. **Món chính** - 8 sản phẩm (38k-65k)
+7. **Đồ uống đá xay** - 5 sản phẩm (48k-60k)
 
-### **Sản phẩm mẫu:**
-- Cà phê đen, cà phê sữa, Cappuccino, Latte
-- Trà sữa trân châu, trà đá
-- Nước cam ép, nước chanh dây
-- Bánh tiramisu, bánh cheesecake
-- Khoai tây chiên, gà rán
+### **🏠 Areas & Tables**
+- **Tầng trệt**: 8 bàn (2-6 chỗ)
+- **Tầng 2**: 7 bàn (2-8 chỗ)
+- **Sân thượng**: 5 bàn (2-8 chỗ)
+- **VIP**: 3 phòng riêng (6-10 chỗ)
+- **Quầy bar**: 4 ghế bar
 
-### **Khu vực & Bàn:**
-- Tầng 1: Bàn 1, 2, 3
-- Tầng 2: Bàn 4, 5
-- VIP: Bàn VIP 1
-- Sân thượng
+### **👤 Sample Customers**
+8 khách hàng với loyalty points và history:
+- Nguyễn Văn An: 150 điểm, đã chi 850k
+- Trần Thị Bình: 200 điểm, đã chi 1.2M
+- Phạm Thị Dung: 300 điểm, đã chi 1.85M (VIP)
 
-## 🔧 Cấu hình
+### **📝 Sample Orders**
+10 đơn hàng với các trạng thái khác nhau:
+- **Completed**: 4 đơn đã hoàn thành
+- **Served**: 2 đơn đã phục vụ
+- **Ready**: 1 đơn sẵn sàng
+- **Preparing**: 1 đơn đang pha chế
+- **Pending**: 2 đơn đang chờ
 
-### **Thay đổi mật khẩu:**
+### **🎟️ Active Promotions**
+1. **Giảm 10%** - Đơn từ 100k (max 50k)
+2. **Giảm 15% VIP** - Đơn từ 50k (max 100k)
+3. **Giảm 5%** - Mọi đơn hàng (max 20k, limit 1000)
+4. **Giảm 20k** - Đơn từ 150k (limit 500)
+5. **Giảm 50k** - Đơn từ 300k (limit 100)
+6. **Cuối tuần 12%** - Đơn từ 80k (max 60k)
+7. **Happy Hour 25k** - Đơn từ 200k (limit 200)
+
+## 🎨 **Features Nổi bật**
+
+### **Enhanced Payment System**
+- ✅ 6 payment methods: Cash, Card, MoMo, VNPay, ZaloPay, Bank Transfer
+- ✅ QR code generation support
+- ✅ Auto-fill cash amounts
+- ✅ Promotion system integration
+
+### **Professional Order Management**
+- ✅ Order status tracking (7 states)
+- ✅ Payment status tracking
+- ✅ Table status management
+- ✅ Order details with notes
+
+### **Smart Promotion System**
+- ✅ Percentage và fixed amount discounts
+- ✅ Min order amount validation
+- ✅ Usage limits và tracking
+- ✅ Time-based promotions
+- ✅ Analytics view
+
+### **Comprehensive Analytics**
+- ✅ Customer loyalty tracking
+- ✅ Sales statistics
+- ✅ Promotion performance
+- ✅ Table utilization
+- ✅ Staff activity tracking
+
+## 🔍 **Verification Queries**
+
+Sau khi setup, bạn có thể chạy các query sau để kiểm tra:
+
 ```sql
-UPDATE users SET password = 'new_hashed_password' WHERE username = 'admin';
-```
+-- Xem tổng quan tables
+SELECT table_name, table_rows 
+FROM information_schema.tables 
+WHERE table_schema = 'cafe_management';
 
-### **Cập nhật thông tin quán:**
-```sql
-UPDATE system_settings SET setting_value = 'Tên quán mới' WHERE setting_key = 'cafe_name';
-UPDATE system_settings SET setting_value = 'Địa chỉ mới' WHERE setting_key = 'cafe_address';
-```
+-- Xem sản phẩm theo category
+SELECT c.category_name, COUNT(p.product_id) as product_count
+FROM categories c 
+LEFT JOIN products p ON c.category_id = p.category_id 
+GROUP BY c.category_id;
 
-## 📈 Báo cáo SQL
-
-### **Doanh thu theo ngày:**
-```sql
+-- Xem orders summary
 SELECT 
-    DATE(order_date) as date,
-    COUNT(*) as total_orders,
-    SUM(final_amount) as total_revenue
+    order_status,
+    payment_status,
+    COUNT(*) as count,
+    SUM(final_amount) as total_amount
 FROM orders 
-WHERE payment_status = 'paid'
-GROUP BY DATE(order_date)
-ORDER BY date DESC;
+GROUP BY order_status, payment_status;
+
+-- Xem promotion performance
+SELECT * FROM promotion_stats;
 ```
 
-### **Sản phẩm bán chạy:**
-```sql
-SELECT 
-    p.product_name,
-    SUM(od.quantity) as total_sold,
-    SUM(od.total_price) as total_revenue
-FROM order_details od
-JOIN products p ON od.product_id = p.product_id
-JOIN orders o ON od.order_id = o.order_id
-WHERE o.payment_status = 'paid'
-GROUP BY p.product_id
-ORDER BY total_sold DESC;
-```
+## 🛠️ **Technical Notes**
 
-### **Tồn kho nguyên liệu:**
-```sql
-SELECT 
-    ingredient_name,
-    current_stock,
-    min_stock,
-    unit,
-    CASE 
-        WHEN current_stock <= min_stock THEN 'Cần nhập'
-        ELSE 'Đủ'
-    END as status
-FROM ingredients
-WHERE is_active = 1
-ORDER BY current_stock ASC;
-```
+### **Indexes Created**
+- Performance indexes cho orders, products, customers
+- Composite indexes cho common queries
+- Foreign key indexes
 
-## 🔒 Bảo mật
+### **Views Created**
+- `promotion_stats` - Thống kê khuyến mãi realtime
 
-### **Backup Database:**
+### **Data Integrity**
+- Foreign key constraints
+- ENUM validations
+- Proper timestamps
+- Logical relationships
+
+## 📱 **Integration với JavaFX App**
+
+Database này được thiết kế để work seamlessly với:
+- ✅ Enhanced PaymentController
+- ✅ PromotionService  
+- ✅ QRCodeService
+- ✅ All existing DAOs
+- ✅ Order management system
+
+## 🎉 **Ready to Use!**
+
+Database setup xong là có thể chạy JavaFX application ngay:
+
 ```bash
-mysqldump -u root -p cafe_management > backup_$(date +%Y%m%d).sql
+mvn clean install
+mvn javafx:run
 ```
 
-### **Restore Database:**
+Hoặc:
 ```bash
-mysql -u root -p cafe_management < backup_file.sql
+./run-app.bat
 ```
 
-## 📝 Ghi chú
-
-- Tất cả mật khẩu trong dữ liệu mẫu là: `password`
-- Database sử dụng UTF-8 để hỗ trợ tiếng Việt
-- Các bảng đều có timestamps để theo dõi thời gian tạo/cập nhật
-- Foreign keys được thiết lập để đảm bảo tính toàn vẹn dữ liệu
-
+**Happy coding! ☕**

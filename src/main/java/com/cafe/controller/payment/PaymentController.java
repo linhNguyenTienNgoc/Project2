@@ -2,11 +2,14 @@ package com.cafe.controller.payment;
 
 import com.cafe.model.entity.Order;
 import com.cafe.model.entity.OrderDetail;
+import com.cafe.model.entity.Promotion;
 import com.cafe.model.dto.PaymentRequest;
 import com.cafe.model.dto.PaymentResponse;
 import com.cafe.service.OrderService;
 import com.cafe.service.PaymentService;
 import com.cafe.service.ReceiptService;
+import com.cafe.service.PromotionService;
+import com.cafe.service.QRCodeService;
 import com.cafe.util.PaymentValidator;
 import com.cafe.util.PriceFormatter;
 
@@ -21,6 +24,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -83,13 +88,18 @@ public class PaymentController implements Initializable {
     @FXML private Label vatAmountLabel;
     // ✅ Removed service fee controls
     
-    // Discount Section
+    // ✅ ENHANCED: Promotion Section (Replace manual discount)
+    @FXML private ComboBox<Promotion> promotionComboBox;
+    @FXML private Button applyPromotionButton;
+    @FXML private Label appliedPromotionLabel;
+    @FXML private Label discountAmountLabel;
+    
+    // Legacy discount section (keep for backward compatibility)
     @FXML private ToggleGroup discountTypeGroup;
     @FXML private RadioButton discountPercentRadio;
     @FXML private RadioButton discountAmountRadio;
     @FXML private TextField discountValueField;
     @FXML private Label discountUnitLabel;
-    @FXML private Label discountAmountLabel;
     @FXML private Label discountErrorLabel;
     
     @FXML private Label grandTotalLabel;
@@ -103,16 +113,25 @@ public class PaymentController implements Initializable {
     @FXML private RadioButton zalopayRadio;
     @FXML private RadioButton transferRadio;
     
-    // Cash Payment
+    // ✅ ENHANCED: Cash Payment (Auto-fill)
     @FXML private VBox cashPaymentSection;
     @FXML private Label cashTotalLabel;
-    @FXML private TextField customerAmountField;
+    @FXML private TextField customerAmountField; // Read-only for cash
     @FXML private Label changeAmountLabel;
-    @FXML private Label cashErrorLabel;
     
-    // Card/Transfer Payment
-    @FXML private VBox cardTransferSection;
+    // ✅ NEW: Card Payment Section
+    @FXML private VBox cardPaymentSection;
     @FXML private TextField transactionCodeField;
+    
+    // ✅ NEW: QR Code Section
+    @FXML private VBox qrCodeSection;
+    @FXML private ImageView qrCodeImageView;
+    @FXML private Label qrCodeInstructionLabel;
+    @FXML private TextField qrTransactionCodeField;
+    
+    // Legacy fields (keep for compatibility)
+    @FXML private Label cashErrorLabel;
+    @FXML private VBox cardTransferSection;
     @FXML private TextArea paymentNotesArea;
     
     // Action Buttons
@@ -126,6 +145,8 @@ public class PaymentController implements Initializable {
     private OrderService orderService;
     private PaymentService paymentService;
     private ReceiptService receiptService;
+    private PromotionService promotionService; // ✅ NEW
+    private QRCodeService qrCodeService; // ✅ NEW
     
     // Payment callback
     private PaymentCompletionCallback paymentCallback;
@@ -135,6 +156,7 @@ public class PaymentController implements Initializable {
     private int currentTableId;
     private String currentTableName;
     private ObservableList<OrderDetail> orderItems = FXCollections.observableArrayList();
+    private ObservableList<Promotion> availablePromotions = FXCollections.observableArrayList(); // ✅ NEW
     
     // Calculation Properties
     private DoubleProperty subtotalProperty = new SimpleDoubleProperty(0);
@@ -146,8 +168,11 @@ public class PaymentController implements Initializable {
     private DoubleProperty customerAmountProperty = new SimpleDoubleProperty(0);
     private DoubleProperty changeAmountProperty = new SimpleDoubleProperty(0);
     
+    // ✅ NEW: Selected promotion
+    private ObjectProperty<Promotion> selectedPromotionProperty = new SimpleObjectProperty<>();
+    
     // Format
-    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
     private final DecimalFormat numberFormat = new DecimalFormat("#,###");
 
     @Override
@@ -162,6 +187,10 @@ public class PaymentController implements Initializable {
             // Setup table view
             setupTableView();
             System.out.println("✅ Table view configured");
+            
+            // ✅ NEW: Setup promotion section
+            setupPromotionSection();
+            System.out.println("✅ Promotion section configured");
             
             // Setup input fields
             setupInputFields();
@@ -231,6 +260,8 @@ public class PaymentController implements Initializable {
         this.orderService = new OrderService();
         this.paymentService = new PaymentService();
         this.receiptService = new ReceiptService();
+        this.promotionService = new PromotionService(); // ✅ NEW
+        this.qrCodeService = new QRCodeService(); // ✅ NEW
     }
     
     private void setupTableView() {
@@ -252,6 +283,44 @@ public class PaymentController implements Initializable {
         // Update total items label
         totalItemsLabel.textProperty().bind(Bindings.createStringBinding(() -> 
             "Tổng: " + orderItems.size() + " món", orderItems));
+    }
+    
+    // ✅ NEW: Setup promotion section
+    private void setupPromotionSection() {
+        // Load available promotions
+        loadAvailablePromotions();
+        
+        // Setup promotion combo box
+        promotionComboBox.setItems(availablePromotions);
+        promotionComboBox.setPromptText("Chọn khuyến mãi...");
+        
+        // Custom cell factory for promotion display
+        promotionComboBox.setCellFactory(listView -> new ListCell<Promotion>() {
+            @Override
+            protected void updateItem(Promotion promotion, boolean empty) {
+                super.updateItem(promotion, empty);
+                if (empty || promotion == null) {
+                    setText(null);
+                } else {
+                    setText(promotion.getPromotionName() + " - " + promotion.getFormattedDiscountValue());
+                }
+            }
+        });
+        
+        promotionComboBox.setButtonCell(new ListCell<Promotion>() {
+            @Override
+            protected void updateItem(Promotion promotion, boolean empty) {
+                super.updateItem(promotion, empty);
+                if (empty || promotion == null) {
+                    setText("Chọn khuyến mãi...");
+                } else {
+                    setText(promotion.getPromotionName() + " - " + promotion.getFormattedDiscountValue());
+                }
+            }
+        });
+        
+        // Apply promotion button action
+        applyPromotionButton.setOnAction(e -> applySelectedPromotion());
     }
     
     private void setupInputFields() {
@@ -323,10 +392,19 @@ public class PaymentController implements Initializable {
     private void setupPaymentMethodListeners() {
         paymentMethodGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             boolean isCash = cashRadio.isSelected();
-            cashPaymentSection.setVisible(isCash);
-            cashPaymentSection.setManaged(isCash);
-            cardTransferSection.setVisible(!isCash);
-            cardTransferSection.setManaged(!isCash);
+            
+            // Legacy compatibility
+            if (cashPaymentSection != null) {
+                cashPaymentSection.setVisible(isCash);
+                cashPaymentSection.setManaged(isCash);
+            }
+            if (cardTransferSection != null) {
+                cardTransferSection.setVisible(!isCash);
+                cardTransferSection.setManaged(!isCash);
+            }
+            
+            // ✅ Enhanced payment sections handling
+            updatePaymentSections();
             
             // ✅ Tự động set amount cho tiền mặt
             if (isCash) {
@@ -768,5 +846,189 @@ public class PaymentController implements Initializable {
      */
     public void setPaymentCallback(PaymentCompletionCallback callback) {
         this.paymentCallback = callback;
+    }
+    
+    // =====================================================
+    // PROMOTION METHODS
+    // =====================================================
+    
+    /**
+     * Load available promotions from database
+     */
+    private void loadAvailablePromotions() {
+        try {
+            List<Promotion> promotions = promotionService.getActivePromotions();
+            availablePromotions.setAll(promotions);
+            System.out.println("✅ Loaded " + promotions.size() + " available promotions");
+        } catch (Exception e) {
+            System.err.println("❌ Error loading promotions: " + e.getMessage());
+            // Load sample promotions for demo
+            loadSamplePromotions();
+        }
+    }
+    
+    /**
+     * Load sample promotions for demo
+     */
+    private void loadSamplePromotions() {
+        Promotion promo1 = new Promotion("Giảm 10%", "Giảm giá 10% cho đơn hàng từ 100k", 
+            Promotion.DiscountType.PERCENTAGE, 10, 100000);
+        Promotion promo2 = new Promotion("Giảm 20k", "Giảm 20,000đ cho đơn hàng từ 150k", 
+            Promotion.DiscountType.FIXED_AMOUNT, 20000, 150000);
+        Promotion promo3 = new Promotion("Giảm 15%", "Giảm giá 15% cho khách VIP", 
+            Promotion.DiscountType.PERCENTAGE, 15, 50000);
+        
+        availablePromotions.addAll(promo1, promo2, promo3);
+        System.out.println("✅ Loaded sample promotions");
+    }
+    
+    /**
+     * Apply selected promotion
+     */
+    private void applySelectedPromotion() {
+        Promotion selectedPromotion = promotionComboBox.getValue();
+        if (selectedPromotion == null) {
+            showError("Vui lòng chọn khuyến mãi");
+            return;
+        }
+        
+        double currentSubtotal = subtotalProperty.get();
+        
+        // Check if promotion can be applied
+        if (!selectedPromotion.canApplyToOrder(currentSubtotal)) {
+            showError("Không thể áp dụng khuyến mãi này. Đơn hàng tối thiểu: " + 
+                formatCurrency(selectedPromotion.getMinOrderAmount()));
+            return;
+        }
+        
+        // Calculate discount amount
+        double discountAmount = selectedPromotion.calculateDiscountAmount(currentSubtotal);
+        
+        // Apply discount
+        discountAmountProperty.set(discountAmount);
+        selectedPromotionProperty.set(selectedPromotion);
+        
+        // Update UI
+        appliedPromotionLabel.setText("Đã áp dụng: " + selectedPromotion.getPromotionName());
+        appliedPromotionLabel.setVisible(true);
+        
+        // Disable promotion selection
+        promotionComboBox.setDisable(true);
+        applyPromotionButton.setText("Hủy KM");
+        applyPromotionButton.setOnAction(e -> removePromotion());
+        
+        showSuccess("Đã áp dụng khuyến mãi: " + formatCurrency(discountAmount));
+        System.out.println("✅ Applied promotion: " + selectedPromotion.getPromotionName() + 
+            " - Discount: " + formatCurrency(discountAmount));
+    }
+    
+    /**
+     * Remove applied promotion
+     */
+    private void removePromotion() {
+        discountAmountProperty.set(0);
+        selectedPromotionProperty.set(null);
+        
+        appliedPromotionLabel.setVisible(false);
+        promotionComboBox.setDisable(false);
+        promotionComboBox.setValue(null);
+        
+        applyPromotionButton.setText("Áp dụng");
+        applyPromotionButton.setOnAction(e -> applySelectedPromotion());
+        
+        showSuccess("Đã hủy khuyến mãi");
+        System.out.println("✅ Removed promotion");
+    }
+    
+    // =====================================================
+    // QR CODE METHODS
+    // =====================================================
+    
+    /**
+     * Update payment sections based on selected method
+     */
+    private void updatePaymentSections() {
+        boolean isCash = cashRadio.isSelected();
+        boolean isCard = cardRadio.isSelected();
+        boolean isElectronic = momoRadio.isSelected() || vnpayRadio.isSelected() || 
+                              zalopayRadio.isSelected() || transferRadio.isSelected();
+        
+        // Show/hide sections
+        if (cashPaymentSection != null) {
+            cashPaymentSection.setVisible(isCash);
+            cashPaymentSection.setManaged(isCash);
+        }
+        
+        if (cardPaymentSection != null) {
+            cardPaymentSection.setVisible(isCard);
+            cardPaymentSection.setManaged(isCard);
+        }
+        
+        if (qrCodeSection != null) {
+            qrCodeSection.setVisible(isElectronic);
+            qrCodeSection.setManaged(isElectronic);
+        }
+        
+        // ✅ Generate QR code for electronic payments
+        if (isElectronic) {
+            generateQRCode();
+        }
+        
+        // ✅ Auto-fill cash amount when cash is selected
+        if (isCash && customerAmountField != null) {
+            customerAmountProperty.set(grandTotalProperty.get());
+            customerAmountField.setDisable(true); // Read-only for cash
+        } else if (customerAmountField != null) {
+            customerAmountField.setDisable(false);
+        }
+        
+        System.out.println("✅ Payment sections updated - Cash: " + isCash + 
+            ", Card: " + isCard + ", Electronic: " + isElectronic);
+    }
+    
+    /**
+     * Generate QR code for electronic payments
+     */
+    private void generateQRCode() {
+        String paymentMethod = getSelectedPaymentMethod();
+        double amount = grandTotalProperty.get();
+        String orderNumber = currentOrder != null ? currentOrder.getOrderNumber() : "ORDER_" + System.currentTimeMillis();
+        
+        try {
+            // Generate QR code image
+            Image qrImage = qrCodeService.generatePaymentQRCode(paymentMethod, amount, orderNumber);
+            if (qrCodeImageView != null) {
+                qrCodeImageView.setImage(qrImage);
+            }
+            
+            // Update instruction label
+            if (qrCodeInstructionLabel != null) {
+                qrCodeInstructionLabel.setText(getQRInstructionText(paymentMethod));
+            }
+            
+            System.out.println("✅ QR Code generated for " + paymentMethod + " - Amount: " + formatCurrency(amount));
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error generating QR code: " + e.getMessage());
+            showError("Không thể tạo mã QR. Vui lòng thử lại.");
+        }
+    }
+    
+    /**
+     * Get QR instruction text
+     */
+    private String getQRInstructionText(String paymentMethod) {
+        switch (paymentMethod.toLowerCase()) {
+            case "momo":
+                return "Mở ứng dụng MoMo, quét mã QR để thanh toán";
+            case "vnpay":
+                return "Sử dụng ứng dụng ngân hàng hoặc VNPay để quét mã";
+            case "zalopay":
+                return "Mở ứng dụng ZaloPay, quét mã QR để thanh toán";
+            case "bank_transfer":
+                return "Chuyển khoản theo thông tin QR hoặc nhập mã giao dịch";
+            default:
+                return "Quét mã QR để thanh toán";
+        }
     }
 }

@@ -1,253 +1,269 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+Enhanced Payment FXML - Auto Cash + QR Code + Promotions
+File: src/main/resources/fxml/payment/payment.fxml
+-->
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
 
-<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cafe.controller.payment.PaymentController">
-   <top>
-      <!-- Header -->
-      <HBox alignment="CENTER_LEFT" styleClass="header-section">
-         <padding>
-            <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
-         </padding>
-         <Label styleClass="page-title" text="💳 THANH TOÁN">
-            <font>
-               <Font name="System Bold" size="24.0" />
-            </font>
-         </Label>
-      </HBox>
-   </top>
-   <center>
-      <GridPane hgap="20.0" vgap="15.0">
-         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="450.0" prefWidth="450.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="400.0" prefWidth="400.0" maxWidth="450.0" />
-         </columnConstraints>
-         <rowConstraints>
-            <RowConstraints vgrow="ALWAYS" />
-         </rowConstraints>
-         <padding>
-            <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
-         </padding>
-         
-         <!-- LEFT COLUMN: Order Details -->
-         <VBox spacing="15.0" GridPane.columnIndex="0">
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.cafe.controller.payment.PaymentController"
+            stylesheets="@../../css/payment.css">
+
+    <!-- Header -->
+    <top>
+        <VBox styleClass="payment-header">
+            <padding>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </padding>
             
-            <!-- Table/Order Info Section -->
-            <VBox spacing="10.0" styleClass="panel">
-               <padding>
-                  <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-               </padding>
-               <Label styleClass="section-title" text="Thông tin đơn hàng">
-                  <font>
-                     <Font name="System Bold" size="16.0" />
-                  </font>
-               </Label>
-               <GridPane hgap="10.0" vgap="8.0">
-                  <columnConstraints>
-                     <ColumnConstraints hgrow="NEVER" minWidth="80.0" />
-                     <ColumnConstraints hgrow="ALWAYS" />
-                  </columnConstraints>
-                  <Label text="Bàn số:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                  <Label fx:id="tableIdLabel" styleClass="info-value" text="--" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                  <Label text="Mã đơn:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                  <Label fx:id="orderIdLabel" styleClass="info-value" text="--" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label text="Phục vụ:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                  <Label fx:id="serverNameLabel" styleClass="info-value" text="--" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Label text="Thời gian:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                  <Label fx:id="orderTimeLabel" styleClass="info-value" text="--" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-               </GridPane>
-            </VBox>
+            <Label text="💳 THANH TOÁN" styleClass="payment-title">
+                <font>
+                    <Font name="System Bold" size="24"/>
+                </font>
+            </Label>
             
-            <!-- Order Items Table -->
-            <VBox spacing="10.0" styleClass="panel" VBox.vgrow="ALWAYS">
-               <padding>
-                  <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-               </padding>
-               <Label styleClass="section-title" text="Chi tiết đơn hàng">
-                  <font>
-                     <Font name="System Bold" size="16.0" />
-                  </font>
-               </Label>
-               <TableView fx:id="itemsTableView" VBox.vgrow="ALWAYS" minHeight="200.0" prefHeight="300.0">
-                  <columns>
-                     <TableColumn fx:id="sttColumn" maxWidth="50.0" minWidth="40.0" prefWidth="45.0" text="STT" />
-                     <TableColumn fx:id="itemNameColumn" minWidth="150.0" prefWidth="180.0" text="Tên món" />
-                     <TableColumn fx:id="quantityColumn" maxWidth="60.0" minWidth="50.0" prefWidth="55.0" text="SL" />
-                     <TableColumn fx:id="unitPriceColumn" maxWidth="100.0" minWidth="80.0" prefWidth="90.0" text="Đơn giá" />
-                     <TableColumn fx:id="totalPriceColumn" maxWidth="120.0" minWidth="90.0" prefWidth="110.0" text="Thành tiền" />
-                  </columns>
-               </TableView>
-               <HBox alignment="CENTER_RIGHT">
-                  <Label fx:id="totalItemsLabel" styleClass="total-items" text="Tổng: 0 món">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                  </Label>
-               </HBox>
+            <!-- Order Info -->
+            <HBox spacing="20" styleClass="order-info-section">
+                <VBox spacing="5">
+                    <Label text="Mã đơn hàng:" styleClass="info-label"/>
+                    <Label fx:id="orderIdLabel" text="ORD-001" styleClass="info-value"/>
+                </VBox>
+                <VBox spacing="5">
+                    <Label text="Bàn:" styleClass="info-label"/>
+                    <Label fx:id="tableIdLabel" text="Bàn 1" styleClass="info-value"/>
+                </VBox>
+                <VBox spacing="5">
+                    <Label text="Nhân viên:" styleClass="info-label"/>
+                    <Label fx:id="serverNameLabel" text="Admin" styleClass="info-value"/>
+                </VBox>
+                <VBox spacing="5">
+                    <Label text="Thời gian:" styleClass="info-label"/>
+                    <Label fx:id="orderTimeLabel" text="14:30 19/12/2024" styleClass="info-value"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="payment-scroll">
+            <VBox spacing="20" styleClass="payment-content">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+
+                <!-- Order Items Table -->
+                <VBox spacing="10" styleClass="section">
+                    <Label text="📋 Chi tiết đơn hàng" styleClass="section-title"/>
+                    <TableView fx:id="itemsTableView" styleClass="order-table" prefHeight="200">
+                        <columns>
+                            <TableColumn fx:id="sttColumn" text="STT" prefWidth="40"/>
+                            <TableColumn fx:id="itemNameColumn" text="Món" prefWidth="200"/>
+                            <TableColumn fx:id="quantityColumn" text="SL" prefWidth="60"/>
+                            <TableColumn fx:id="unitPriceColumn" text="Đơn giá" prefWidth="100"/>
+                            <TableColumn fx:id="totalPriceColumn" text="Thành tiền" prefWidth="120"/>
+                        </columns>
+                    </TableView>
+                    <Label fx:id="totalItemsLabel" text="Tổng: 0 món" styleClass="total-items"/>
+                </VBox>
+
+                <!-- ✅ ENHANCED: Promotion Section (Replace manual discount) -->
+                <VBox spacing="15" styleClass="section">
+                    <Label text="🎟️ Khuyến mãi" styleClass="section-title"/>
+                    
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <ComboBox fx:id="promotionComboBox" prefWidth="300" promptText="Chọn khuyến mãi..."/>
+                        <Button fx:id="applyPromotionButton" text="Áp dụng" styleClass="promotion-button"/>
+                    </HBox>
+                    
+                    <Label fx:id="appliedPromotionLabel" text="Đã áp dụng: Giảm 10%" 
+                           styleClass="applied-promotion" visible="false"/>
+                    
+                    <!-- Legacy discount section for backward compatibility -->
+                    <VBox spacing="10" visible="false" managed="false">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Loại giảm giá:" minWidth="100"/>
+                            <ToggleGroup fx:id="discountTypeGroup"/>
+                            <RadioButton fx:id="discountPercentRadio" text="%" toggleGroup="$discountTypeGroup" selected="true"/>
+                            <RadioButton fx:id="discountAmountRadio" text="VNĐ" toggleGroup="$discountTypeGroup"/>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Giá trị:" minWidth="100"/>
+                            <TextField fx:id="discountValueField" text="0" prefWidth="150"/>
+                            <Label fx:id="discountUnitLabel" text="%"/>
+                        </HBox>
+                        <Label fx:id="discountErrorLabel" styleClass="error-label" text="" visible="false"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Payment Calculation -->
+                <VBox spacing="15" styleClass="section">
+                    <Label text="💰 Tính toán thanh toán" styleClass="section-title"/>
+                    
+                    <GridPane hgap="15" vgap="10" styleClass="calculation-grid">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                            <ColumnConstraints hgrow="NEVER" prefWidth="120"/>
+                        </columnConstraints>
+
+                        <!-- Subtotal -->
+                        <Label text="Tạm tính:" styleClass="calc-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <Label fx:id="subtotalLabel" text="0 ₫" styleClass="calc-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                        <!-- VAT (Fixed 8%) -->
+                        <Label text="Thuế VAT (8%):" styleClass="calc-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <Label fx:id="vatAmountLabel" text="0 ₫" styleClass="calc-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        
+                        <!-- ✅ HIDDEN: VAT input field (read-only) -->
+                        <TextField fx:id="vatPercentField" text="8%" disable="true" visible="false" managed="false"/>
+
+                        <!-- Discount -->
+                        <Label text="Giảm giá:" styleClass="calc-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <Label fx:id="discountAmountLabel" text="- 0 ₫" styleClass="discount-value" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                        <!-- Grand Total -->
+                        <Separator GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2"/>
+                        <Label text="TỔNG CỘNG:" styleClass="grand-total-label" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                        <Label fx:id="grandTotalLabel" text="0 ₫" styleClass="grand-total-value" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                    </GridPane>
+                </VBox>
+
+                <!-- Payment Methods -->
+                <VBox spacing="15" styleClass="section">
+                    <Label text="💳 Phương thức thanh toán" styleClass="section-title"/>
+                    
+                    <VBox spacing="10">
+                        <ToggleGroup fx:id="paymentMethodGroup"/>
+                        
+                        <!-- Payment method options -->
+                        <HBox spacing="20">
+                            <VBox spacing="8">
+                                <RadioButton fx:id="cashRadio" text="💵 Tiền mặt" styleClass="payment-method" 
+                                           selected="true" toggleGroup="$paymentMethodGroup"/>
+                                <RadioButton fx:id="cardRadio" text="💳 Thẻ tín dụng/ghi nợ" styleClass="payment-method" 
+                                           toggleGroup="$paymentMethodGroup"/>
+                                <RadioButton fx:id="momoRadio" text="📱 Ví MoMo" styleClass="payment-method" 
+                                           toggleGroup="$paymentMethodGroup"/>
+                            </VBox>
+                            <VBox spacing="8">
+                                <RadioButton fx:id="vnpayRadio" text="🏛️ VNPay" styleClass="payment-method" 
+                                           toggleGroup="$paymentMethodGroup"/>
+                                <RadioButton fx:id="zalopayRadio" text="💙 ZaloPay" styleClass="payment-method" 
+                                           toggleGroup="$paymentMethodGroup"/>
+                                <RadioButton fx:id="transferRadio" text="🏦 Chuyển khoản" styleClass="payment-method" 
+                                           toggleGroup="$paymentMethodGroup"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- ✅ ENHANCED: Cash Payment Section (Auto-fill) -->
+                <VBox fx:id="cashPaymentSection" spacing="15" styleClass="section payment-section">
+                    <Label text="💵 Thanh toán tiền mặt" styleClass="section-title"/>
+                    
+                    <GridPane hgap="15" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                            <ColumnConstraints hgrow="NEVER" prefWidth="120"/>
+                        </columnConstraints>
+
+                        <Label text="Tổng tiền:" styleClass="cash-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <Label fx:id="cashTotalLabel" text="0 ₫" styleClass="cash-total" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                        <Label text="Khách đưa:" styleClass="cash-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <TextField fx:id="customerAmountField" text="0" styleClass="cash-amount" 
+                                 disable="true" promptText="Tự động" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                        <Label text="Tiền thừa:" styleClass="cash-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <Label fx:id="changeAmountLabel" text="0 ₫" styleClass="change-amount" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    </GridPane>
+                    
+                    <!-- Legacy error label -->
+                    <Label fx:id="cashErrorLabel" styleClass="error-label" text="" visible="false"/>
+                </VBox>
+
+                <!-- ✅ NEW: Card Payment Section -->
+                <VBox fx:id="cardPaymentSection" spacing="15" styleClass="section payment-section" 
+                      visible="false" managed="false">
+                    <Label text="💳 Thanh toán thẻ" styleClass="section-title"/>
+                    
+                    <VBox spacing="10">
+                        <Label text="Vui lòng quẹt thẻ và nhập mã giao dịch:" styleClass="instruction-text"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Mã giao dịch:"/>
+                            <TextField fx:id="transactionCodeField" promptText="Nhập mã giao dịch từ máy POS..." 
+                                     prefWidth="300"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- ✅ NEW: QR Code Payment Section -->
+                <VBox fx:id="qrCodeSection" spacing="15" styleClass="section payment-section" 
+                      visible="false" managed="false">
+                    <Label text="📱 Thanh toán QR Code" styleClass="section-title"/>
+                    
+                    <HBox spacing="20" alignment="CENTER">
+                        <!-- QR Code Image -->
+                        <VBox spacing="10" alignment="CENTER">
+                            <ImageView fx:id="qrCodeImageView" fitWidth="200" fitHeight="200" 
+                                     preserveRatio="true" styleClass="qr-code-image"/>
+                            <Label fx:id="qrCodeInstructionLabel" text="Quét mã QR để thanh toán" 
+                                   styleClass="qr-instruction" textAlignment="CENTER" wrapText="true" maxWidth="200"/>
+                        </VBox>
+                        
+                        <!-- Transaction input -->
+                        <VBox spacing="10" prefWidth="300">
+                            <Label text="Sau khi thanh toán thành công, vui lòng nhập mã giao dịch:" 
+                                   styleClass="instruction-text" wrapText="true"/>
+                            <TextField fx:id="qrTransactionCodeField" promptText="Nhập mã giao dịch..." 
+                                     styleClass="transaction-code-field"/>
+                            <Label text="💡 Mã giao dịch thường có 6-12 ký tự" 
+                                   styleClass="hint-text"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Legacy card/transfer section for compatibility -->
+                <VBox fx:id="cardTransferSection" spacing="15" styleClass="section" 
+                      visible="false" managed="false">
+                    <Label text="Thông tin giao dịch" styleClass="section-title"/>
+                    <VBox spacing="10">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Mã giao dịch:" minWidth="100"/>
+                            <TextField fx:id="transactionCodeField" prefWidth="200" promptText="Nhập mã giao dịch..."/>
+                        </HBox>
+                        <VBox spacing="5">
+                            <Label text="Ghi chú (tùy chọn):"/>
+                            <TextArea fx:id="paymentNotesArea" prefRowCount="3" wrapText="true" 
+                                    promptText="Nhập ghi chú về giao dịch..."/>
+                        </VBox>
+                    </VBox>
+                </VBox>
+
             </VBox>
-         </VBox>
-         
-         <!-- RIGHT COLUMN: Payment Calculation -->
-         <ScrollPane fitToWidth="true" GridPane.columnIndex="1">
-            <VBox spacing="15.0">
+        </ScrollPane>
+    </center>
+
+    <!-- Footer Buttons -->
+    <bottom>
+        <HBox spacing="15" alignment="CENTER_RIGHT" styleClass="button-section">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
             
-            <!-- Calculation Section -->
-            <VBox spacing="12.0" styleClass="panel">
-               <padding>
-                  <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-               </padding>
-               <Label styleClass="section-title" text="Tính tiền">
-                  <font>
-                     <Font name="System Bold" size="16.0" />
-                  </font>
-               </Label>
-               
-               <!-- Subtotal -->
-               <HBox alignment="CENTER_LEFT" spacing="10.0">
-                  <Label text="Tạm tính:" />
-                  <Region HBox.hgrow="ALWAYS" />
-                  <Label fx:id="subtotalLabel" styleClass="amount-value" text="0 ₫" />
-               </HBox>
-               
-               <!-- VAT -->
-               <HBox alignment="CENTER_LEFT" spacing="10.0">
-                  <Label text="Thuế VAT:" />
-                  <TextField fx:id="vatPercentField" maxWidth="60.0" promptText="\%" styleClass="percent-field" text="8" />
-                  <Label text="\%" />
-                  <Region HBox.hgrow="ALWAYS" />
-                  <Label fx:id="vatAmountLabel" styleClass="amount-value" text="0 ₫" />
-               </HBox>
-               
-               <!-- Discount -->
-               <VBox spacing="5.0">
-                  <fx:define>
-                     <ToggleGroup fx:id="discountTypeGroup" />
-                  </fx:define>
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <Label text="Giảm giá:" />
-                     <RadioButton fx:id="discountPercentRadio" selected="true" text="\%" toggleGroup="$discountTypeGroup" />
-                     <RadioButton fx:id="discountAmountRadio" text="VND" toggleGroup="$discountTypeGroup" />
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <TextField fx:id="discountValueField" maxWidth="100.0" promptText="0" styleClass="discount-field" text="0" />
-                     <Label fx:id="discountUnitLabel" text="\%" />
-                     <Region HBox.hgrow="ALWAYS" />
-                     <Label fx:id="discountAmountLabel" styleClass="amount-value discount-amount" text="0 ₫" />
-                  </HBox>
-                  <Label fx:id="discountErrorLabel" styleClass="error-text" text="" />
-               </VBox>
-               
-               <Separator />
-               
-               <!-- Grand Total -->
-               <HBox alignment="CENTER_LEFT" spacing="10.0">
-                  <Label styleClass="grand-total-label" text="TỔNG CỘNG:">
-                     <font>
-                        <Font name="System Bold" size="18.0" />
-                     </font>
-                  </Label>
-                  <Region HBox.hgrow="ALWAYS" />
-                  <Label fx:id="grandTotalLabel" styleClass="kpi-amount" text="0 ₫">
-                     <font>
-                        <Font name="System Bold" size="20.0" />
-                     </font>
-                  </Label>
-               </HBox>
-            </VBox>
-            
-                           <!-- Payment Method Section -->
-            <VBox spacing="12.0" styleClass="panel">
-               <padding>
-                  <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-               </padding>
-               <Label styleClass="section-title" text="Phương thức thanh toán">
-                  <font>
-                     <Font name="System Bold" size="16.0" />
-                  </font>
-               </Label>
-               
-               <fx:define>
-                  <ToggleGroup fx:id="paymentMethodGroup" />
-               </fx:define>
-               <VBox spacing="8.0">
-                  <RadioButton fx:id="cashRadio" selected="true" text="💵 Tiền mặt" toggleGroup="$paymentMethodGroup" />
-                  <RadioButton fx:id="cardRadio" text="💳 Thẻ tín dụng/ghi nợ" toggleGroup="$paymentMethodGroup" />
-                  <RadioButton fx:id="momoRadio" text="📱 Ví MoMo" toggleGroup="$paymentMethodGroup" />
-                  <RadioButton fx:id="vnpayRadio" text="🏛️ VNPay" toggleGroup="$paymentMethodGroup" />
-                  <RadioButton fx:id="zalopayRadio" text="💙 ZaloPay" toggleGroup="$paymentMethodGroup" />
-                  <RadioButton fx:id="transferRadio" text="🏦 Chuyển khoản" toggleGroup="$paymentMethodGroup" />
-               </VBox>
-               
-               <!-- Cash Payment Section -->
-               <VBox fx:id="cashPaymentSection" spacing="8.0">
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <Label text="Tổng tiền:" />
-                     <Region HBox.hgrow="ALWAYS" />
-                     <Label fx:id="cashTotalLabel" styleClass="cash-total" text="0 ₫">
-                        <font>
-                           <Font name="System Bold" size="16.0" />
-                        </font>
-                     </Label>
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <Label text="Tiền khách đưa:" />
-                     <Region HBox.hgrow="ALWAYS" />
-                     <TextField fx:id="customerAmountField" maxWidth="120.0" promptText="Tự động" styleClass="money-field" disable="true" />
-                     <Label text="₫" />
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <Label text="Tiền thừa:" />
-                     <Region HBox.hgrow="ALWAYS" />
-                     <Label fx:id="changeAmountLabel" styleClass="change-amount" text="0 ₫">
-                        <font>
-                           <Font name="System Bold" size="14.0" />
-                        </font>
-                     </Label>
-                  </HBox>
-                  <Label fx:id="cashErrorLabel" styleClass="error-text" text="" />
-               </VBox>
-               
-               <!-- Card/Transfer Payment Section -->
-               <VBox fx:id="cardTransferSection" spacing="8.0" visible="false">
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <Label text="Mã giao dịch:" />
-                     <TextField fx:id="transactionCodeField" promptText="Nhập mã giao dịch" HBox.hgrow="ALWAYS" />
-                  </HBox>
-                  <VBox spacing="5.0">
-                     <Label text="Ghi chú:" />
-                     <TextArea fx:id="paymentNotesArea" maxHeight="60.0" prefRowCount="3" promptText="Ghi chú thêm (không bắt buộc)" />
-                  </VBox>
-               </VBox>
-            </VBox>
-            </VBox>
-         </ScrollPane>
-      </GridPane>
-   </center>
-   
-   <!-- Footer: Action Buttons -->
-   <bottom>
-      <HBox styleClass="button-bar" spacing="15.0" alignment="CENTER_RIGHT">
-         <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="15.0" />
-         </padding>
-         <Button fx:id="cancelButton" mnemonicParsing="false" styleClass="btn-secondary" text="Hủy (Esc)" minWidth="120.0">
-            <font>
-               <Font name="System Bold" size="14.0" />
-            </font>
-         </Button>
-         <Button fx:id="printReceiptButton" mnemonicParsing="false" styleClass="btn-secondary" text="In hóa đơn (Ctrl+P)" minWidth="140.0">
-            <font>
-               <Font name="System Bold" size="14.0" />
-            </font>
-         </Button>
-         <Button fx:id="payButton" mnemonicParsing="false" styleClass="btn-primary" text="Thanh toán (Enter)" minWidth="140.0">
-            <font>
-               <Font name="System Bold" size="14.0" />
-            </font>
-         </Button>
-      </HBox>
-   </bottom>
+            <Button fx:id="printReceiptButton" text="🖨️ In hóa đơn" styleClass="secondary-button"/>
+            <Button fx:id="cancelButton" text="❌ Hủy" styleClass="cancel-button"/>
+            <Button fx:id="payButton" text="💰 THANH TOÁN" styleClass="primary-button" defaultButton="true">
+                <font>
+                    <Font name="System Bold" size="14"/>
+                </font>
+            </Button>
+        </HBox>
+    </bottom>
+
 </BorderPane>
