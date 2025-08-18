@@ -11,10 +11,22 @@ CREATE DATABASE IF NOT EXISTS cafe_management;
 USE cafe_management;
 
 -- =====================================================
--- 1. DROP EXISTING TABLES (if any) - IN REVERSE ORDER
+-- DISABLE SAFE UPDATE MODE & FOREIGN KEY CHECKS
 -- =====================================================
 
+SET SQL_SAFE_UPDATES = 0;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- =====================================================
+-- 1. DROP EXISTING VIEWS AND TABLES - IN REVERSE ORDER
+-- =====================================================
+
+-- Drop any existing views first
+DROP VIEW IF EXISTS promotion_stats;
+DROP VIEW IF EXISTS view_categories_with_image;
+DROP VIEW IF EXISTS view_menu_items;
+DROP VIEW IF EXISTS view_order_summary;
+DROP VIEW IF EXISTS view_sales_report;
 
 DROP TABLE IF EXISTS order_promotions;
 DROP TABLE IF EXISTS promotions;
@@ -675,7 +687,8 @@ UPDATE customers c SET
         FROM orders o 
         WHERE o.customer_id = c.customer_id 
         AND o.payment_status = 'paid'
-    );
+    )
+WHERE c.customer_id > 0;
 
 -- Add some order promotions usage
 INSERT INTO order_promotions (order_id, promotion_id, discount_amount) VALUES
@@ -776,3 +789,10 @@ SELECT
     '🎉 CAFÉ MANAGEMENT DATABASE SETUP COMPLETED!' AS message,
     'Ready for JavaFX Application' AS status,
     NOW() AS timestamp;
+
+-- =====================================================
+-- RE-ENABLE SAFE UPDATE MODE & FOREIGN KEY CHECKS
+-- =====================================================
+
+SET SQL_SAFE_UPDATES = 1;
+SET FOREIGN_KEY_CHECKS = 1;
