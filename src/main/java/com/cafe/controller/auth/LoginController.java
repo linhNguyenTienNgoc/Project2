@@ -185,6 +185,7 @@ public class LoginController implements Initializable {
             }
             
         } catch (Exception e) {
+            System.err.println("❌ Error in authentication: " + e.getMessage());
             e.printStackTrace();
         }
         

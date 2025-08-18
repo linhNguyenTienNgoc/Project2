@@ -390,6 +390,23 @@ public class PaymentController implements Initializable {
     }
     
     private void setupPaymentMethodListeners() {
+        // ✅ Setup ToggleGroups for RadioButtons
+        if (paymentMethodGroup != null) {
+            cashRadio.setToggleGroup(paymentMethodGroup);
+            cardRadio.setToggleGroup(paymentMethodGroup);
+            momoRadio.setToggleGroup(paymentMethodGroup);
+            vnpayRadio.setToggleGroup(paymentMethodGroup);
+            zalopayRadio.setToggleGroup(paymentMethodGroup);
+            transferRadio.setToggleGroup(paymentMethodGroup);
+            cashRadio.setSelected(true); // Default selection
+        }
+        
+        if (discountTypeGroup != null) {
+            discountPercentRadio.setToggleGroup(discountTypeGroup);
+            discountAmountRadio.setToggleGroup(discountTypeGroup);
+            discountPercentRadio.setSelected(true); // Default selection
+        }
+        
         paymentMethodGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             boolean isCash = cashRadio.isSelected();
             
