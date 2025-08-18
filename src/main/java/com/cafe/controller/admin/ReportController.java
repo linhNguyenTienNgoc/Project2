@@ -1,5 +1,6 @@
 package com.cafe.controller.admin;
 
+import com.cafe.controller.base.DashboardCommunicator;
 import com.cafe.dao.base.OrderDAO;
 import com.cafe.dao.base.ProductDAO;
 import com.cafe.dao.base.CustomerDAO;
@@ -33,9 +34,9 @@ import java.sql.*;
  * Controller cho màn hình báo cáo và thống kê với biểu đồ từ database
  *
  * @author Team 2_C2406L
- * @version 2.0.0
+ * @version 2.0.0 (Enhanced with Dashboard Communication)
  */
-public class ReportController implements Initializable {
+public class ReportController implements Initializable, DashboardCommunicator {
 
     // Filter Controls
     @FXML private DatePicker startDatePicker;
@@ -85,6 +86,9 @@ public class ReportController implements Initializable {
     private OrderDAO orderDAO;
     private ProductDAO productDAO;
     private CustomerDAO customerDAO;
+    
+    // ✅ Dashboard communication
+    private Object dashboardController;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -765,6 +769,21 @@ public class ReportController implements Initializable {
 
     // =====================================================
     // DATA CLASSES
+    // =====================================================
+    // DASHBOARD COMMUNICATION IMPLEMENTATION
+    // =====================================================
+    
+    @Override
+    public void setDashboardController(Object dashboardController) {
+        this.dashboardController = dashboardController;
+        System.out.println("✅ ReportController connected to Dashboard");
+    }
+
+    @Override
+    public Object getDashboardController() {
+        return dashboardController;
+    }
+    
     // =====================================================
 
     /**

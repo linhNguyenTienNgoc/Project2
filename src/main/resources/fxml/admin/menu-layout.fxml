@@ -32,23 +32,57 @@
     <!-- Main Content Area -->
     <VBox style="-fx-background-color: #f8f9fa;" VBox.vgrow="ALWAYS" spacing="0">
 
+        <!-- Search and Filter Bar -->
+        <HBox style="-fx-background-color: white; -fx-padding: 15;" alignment="CENTER_LEFT" spacing="15">
+            <Label text="🔍 Tìm kiếm:" style="-fx-font-weight: bold; -fx-text-fill: #333;"/>
+            <TextField fx:id="searchField" promptText="Tìm theo tên món..." prefWidth="200" prefHeight="32"/>
+            <ComboBox fx:id="categoryFilter" promptText="Chọn danh mục" prefWidth="150" prefHeight="32"/>
+            <Button fx:id="refreshButton" text="🔄 Refresh" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold;" prefHeight="32"/>
+        </HBox>
+
         <TableView fx:id="menuTable" VBox.vgrow="ALWAYS">
             <columns>
-                <TableColumn text="Mã món" prefWidth="150"/>
-                <TableColumn text="Tên món" prefWidth="150"/>
-                <TableColumn text="Loại" prefWidth="150"/>
-                <TableColumn text="Giá" prefWidth="150"/>
-                <TableColumn text="Sửa" prefWidth="100"/>
-                <TableColumn text="Xóa" prefWidth="100"/>
+                <TableColumn fx:id="productIdColumn" text="Mã món" prefWidth="120"/>
+                <TableColumn fx:id="productNameColumn" text="Tên món" prefWidth="200"/>
+                <TableColumn fx:id="categoryColumn" text="Danh mục" prefWidth="130"/>
+                <TableColumn fx:id="priceColumn" text="Giá (VND)" prefWidth="120"/>
+                <TableColumn fx:id="stockColumn" text="Tồn kho" prefWidth="100"/>
+                <TableColumn fx:id="statusColumn" text="Trạng thái" prefWidth="100"/>
+                <TableColumn fx:id="actionColumn" text="Thao tác" prefWidth="150"/>
             </columns>
         </TableView>
 
-        <HBox style="-fx-background-color: #5d2b1c; -fx-padding: 10;" alignment="CENTER_LEFT" spacing="10">
-            <TextField promptText="Mã món" prefWidth="150" prefHeight="36"/>
-            <TextField promptText="Tên món" prefWidth="150" prefHeight="36"/>
-            <TextField promptText="Loại" prefWidth="150" prefHeight="36"/>
-            <TextField promptText="Giá" prefWidth="150" prefHeight="36"/>
-            <Button text="Thêm món" style="-fx-background-color: #FBECE3; -fx-font-weight: bold;" prefHeight="36"/>
-        </HBox>
+        <!-- Add/Edit Form -->
+        <VBox style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-border-color: #dee2e6; -fx-border-width: 1 0 0 0;" spacing="10">
+            <Label text="📝 Thêm/Sửa món ăn" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+            
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <VBox spacing="5">
+                    <Label text="Tên món:" style="-fx-font-weight: bold; -fx-text-fill: #555;"/>
+                    <TextField fx:id="productNameField" promptText="Nhập tên món..." prefWidth="200" prefHeight="36"/>
+                </VBox>
+                
+                <VBox spacing="5">
+                    <Label text="Danh mục:" style="-fx-font-weight: bold; -fx-text-fill: #555;"/>
+                    <ComboBox fx:id="categoryCombo" promptText="Chọn danh mục" prefWidth="150" prefHeight="36"/>
+                </VBox>
+                
+                <VBox spacing="5">
+                    <Label text="Giá (VND):" style="-fx-font-weight: bold; -fx-text-fill: #555;"/>
+                    <TextField fx:id="priceField" promptText="0" prefWidth="120" prefHeight="36"/>
+                </VBox>
+                
+                <VBox spacing="5">
+                    <Label text="Mô tả:" style="-fx-font-weight: bold; -fx-text-fill: #555;"/>
+                    <TextField fx:id="descriptionField" promptText="Mô tả món ăn..." prefWidth="200" prefHeight="36"/>
+                </VBox>
+            </HBox>
+            
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="addButton" text="➕ Thêm món" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold;" prefHeight="36"/>
+                <Button fx:id="updateButton" text="✏️ Cập nhật" style="-fx-background-color: #ffc107; -fx-text-fill: #333; -fx-font-weight: bold;" prefHeight="36"/>
+                <Button fx:id="clearButton" text="🗑️ Xóa form" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold;" prefHeight="36"/>
+            </HBox>
+        </VBox>
     </VBox>
 </VBox>

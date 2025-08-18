@@ -53,8 +53,11 @@
             <HBox fx:id="tabNavigation" style="-fx-background-color: #f8f9fa; -fx-padding: 10; -fx-border-color: #dee2e6; -fx-border-width: 0 0 1 0;" 
                   alignment="CENTER_LEFT" spacing="5">
                 
-                <Button fx:id="userTabButton" text="👥 Quản lý người dùng"
+                <Button fx:id="overviewTabButton" text="🏠 Tổng quan"
                         style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+                
+                <Button fx:id="userTabButton" text="👥 Quản lý người dùng"
+                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
                 
                 <Button fx:id="menuTabButton" text="🍽️ Quản lý Menu"
                         style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />

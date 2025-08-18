@@ -1,5 +1,7 @@
 package com.cafe.controller.admin;
 
+import com.cafe.controller.base.DashboardCommunicator;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -15,9 +17,9 @@ import java.util.ResourceBundle;
  * Controller cho màn hình quản lý khuyến mãi
  * 
  * @author Team 2_C2406L
- * @version 1.0.0
+ * @version 2.0.0 (Enhanced with Dashboard Communication)
  */
-public class PromotionController implements Initializable {
+public class PromotionController implements Initializable, DashboardCommunicator {
     
     @FXML private TextField searchField;
     @FXML private ComboBox<String> statusFilter;
@@ -33,6 +35,9 @@ public class PromotionController implements Initializable {
     @FXML private TableColumn<Object, String> actionColumn;
     
     private ObservableList<Object> promotionList = FXCollections.observableArrayList();
+    
+    // ✅ Dashboard communication
+    private Object dashboardController;
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -156,6 +161,21 @@ public class PromotionController implements Initializable {
                 System.out.println("Deleted promotion: " + promotion);
             }
         });
+    }
+    
+    // =====================================================
+    // DASHBOARD COMMUNICATION IMPLEMENTATION
+    // =====================================================
+    
+    @Override
+    public void setDashboardController(Object dashboardController) {
+        this.dashboardController = dashboardController;
+        System.out.println("✅ PromotionController connected to Dashboard");
+    }
+
+    @Override
+    public Object getDashboardController() {
+        return dashboardController;
     }
     
     /**

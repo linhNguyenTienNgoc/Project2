@@ -41,6 +41,7 @@ public class AdminDashboardController extends DashboardController implements Ini
     @FXML private Button logoutButton;
 
     // Tab buttons
+    @FXML private Button overviewTabButton;
     @FXML private Button userTabButton;
     @FXML private Button menuTabButton;
     @FXML private Button tableTabButton;
@@ -60,7 +61,7 @@ public class AdminDashboardController extends DashboardController implements Ini
     @FXML private Button clearOrderButton;
 
     // Current state
-    private String currentTab = "user";
+    private String currentTab = "overview";
     private Node currentContent;
     private Map<String, Node> loadedContent = new HashMap<>();
     private Map<String, Object> loadedControllers = new HashMap<>();
@@ -80,8 +81,8 @@ public class AdminDashboardController extends DashboardController implements Ini
             setupTabNavigation();
             setupEventHandlers();
 
-            // Load default content (User Management)
-            loadTabContent("user");
+            // Load default content (Overview Dashboard)
+            loadTabContent("overview");
 
             System.out.println("✅ AdminDashboardController initialized successfully");
         } catch (Exception e) {
@@ -150,7 +151,7 @@ public class AdminDashboardController extends DashboardController implements Ini
      */
     private void setupTabNavigation() {
         // Set initial active tab
-        setActiveTabButton(userTabButton);
+        setActiveTabButton(overviewTabButton);
     }
 
     /**
@@ -158,6 +159,7 @@ public class AdminDashboardController extends DashboardController implements Ini
      */
     private void setupEventHandlers() {
         // Tab button handlers
+        overviewTabButton.setOnAction(e -> switchToTab("overview"));
         userTabButton.setOnAction(e -> switchToTab("user"));
         menuTabButton.setOnAction(e -> switchToTab("menu"));
         tableTabButton.setOnAction(e -> switchToTab("table"));
@@ -233,6 +235,7 @@ public class AdminDashboardController extends DashboardController implements Ini
         String defaultStyle = "-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;";
         String activeStyle = "-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;";
 
+        overviewTabButton.setStyle(defaultStyle);
         userTabButton.setStyle(defaultStyle);
         menuTabButton.setStyle(defaultStyle);
         tableTabButton.setStyle(defaultStyle);
@@ -280,6 +283,9 @@ public class AdminDashboardController extends DashboardController implements Ini
         String fxmlPath;
 
         switch (tabName) {
+            case "overview":
+                fxmlPath = "/fxml/admin/admin-overview.fxml";
+                break;
             case "user":
                 fxmlPath = "/fxml/admin/user-layout.fxml";
                 break;
@@ -287,7 +293,7 @@ public class AdminDashboardController extends DashboardController implements Ini
                 fxmlPath = "/fxml/admin/menu-layout.fxml";
                 break;
             case "table":
-                fxmlPath = "/fxml/admin/table-layout.fxml";
+                fxmlPath = "/fxml/dashboard/table-layout.fxml";
                 break;
             case "report":
                 fxmlPath = "/fxml/admin/report-layout.fxml";

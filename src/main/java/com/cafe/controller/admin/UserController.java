@@ -1,5 +1,7 @@
 package com.cafe.controller.admin;
 
+import com.cafe.controller.base.DashboardCommunicator;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -15,9 +17,9 @@ import java.util.ResourceBundle;
  * Controller cho màn hình quản lý người dùng
  * 
  * @author Team 2_C2406L
- * @version 1.0.0
+ * @version 2.0.0 (Enhanced with Dashboard Communication)
  */
-public class UserController implements Initializable {
+public class UserController implements Initializable, DashboardCommunicator {
     
     @FXML private TextField searchField;
     @FXML private ComboBox<String> roleFilter;
@@ -35,6 +37,9 @@ public class UserController implements Initializable {
     @FXML private TableColumn<Object, String> actionColumn;
     
     private ObservableList<Object> userList = FXCollections.observableArrayList();
+    
+    // ✅ Dashboard communication
+    private Object dashboardController;
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -200,6 +205,21 @@ public class UserController implements Initializable {
                 successAlert.showAndWait();
             }
         });
+    }
+    
+    // =====================================================
+    // DASHBOARD COMMUNICATION IMPLEMENTATION
+    // =====================================================
+    
+    @Override
+    public void setDashboardController(Object dashboardController) {
+        this.dashboardController = dashboardController;
+        System.out.println("✅ UserController connected to Dashboard");
+    }
+
+    @Override
+    public Object getDashboardController() {
+        return dashboardController;
     }
     
     /**
