@@ -1,12 +1,6 @@
 package com.cafe.controller.admin;
 
 import com.cafe.controller.base.DashboardCommunicator;
-import com.cafe.dao.base.OrderDAO;
-import com.cafe.dao.base.ProductDAO;
-import com.cafe.dao.base.TableDAO;
-import com.cafe.dao.base.OrderDAOImpl;
-import com.cafe.dao.base.ProductDAOImpl;
-import com.cafe.dao.base.TableDAOImpl;
 import com.cafe.config.DatabaseConfig;
 import com.cafe.util.PriceFormatter;
 
@@ -63,10 +57,8 @@ public class AdminOverviewController implements Initializable, DashboardCommunic
     @FXML private ListView<String> activitiesListView;
     @FXML private Button refreshActivitiesButton;
     
-    // DAOs
-    private OrderDAO orderDAO;
-    private ProductDAO productDAO;
-    private TableDAO tableDAO;
+    // Note: Using direct database connections per operation to prevent connection leaks
+    // No persistent DAO instances to avoid holding connections
     
     // Dashboard communication
     private Object dashboardController;
@@ -102,12 +94,12 @@ public class AdminOverviewController implements Initializable, DashboardCommunic
     
     /**
      * Initialize database access objects
+     * Note: Using connection per operation to avoid connection leaks
      */
     private void initializeDAOs() throws Exception {
-        Connection connection = DatabaseConfig.getConnection();
-        this.orderDAO = new OrderDAOImpl(connection);
-        this.productDAO = new ProductDAOImpl(connection);
-        this.tableDAO = new TableDAOImpl(connection);
+        // We'll create connections per operation instead of keeping them open
+        // This prevents connection leaks and ensures proper resource management
+        System.out.println("✅ DAO initialization configured for per-operation connections");
     }
     
     /**
@@ -226,7 +218,7 @@ public class AdminOverviewController implements Initializable, DashboardCommunic
             }
             
             // Total products
-            String productsSQL = "SELECT COUNT(*) as count FROM products WHERE status = 'available'";
+            String productsSQL = "SELECT COUNT(*) as count FROM products WHERE is_available = TRUE AND is_active = TRUE";
             try (PreparedStatement stmt = conn.prepareStatement(productsSQL);
                  ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
