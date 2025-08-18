@@ -123,8 +123,9 @@ public class PaymentController implements Initializable {
     @FXML private VBox cardPaymentSection;
     @FXML private TextField transactionCodeField;
     
-    // ✅ NEW: QR Code Section
+    // ✅ ENHANCED: QR Code Section
     @FXML private VBox qrCodeSection;
+    @FXML private VBox qrCodeContainer;
     @FXML private ImageView qrCodeImageView;
     @FXML private Label qrCodeInstructionLabel;
     @FXML private TextField qrTransactionCodeField;
@@ -230,7 +231,7 @@ public class PaymentController implements Initializable {
     }
     
     /**
-     * ✅ UPDATED: Initialize payment data with callback
+     * ✅ ENHANCED: Initialize payment data with callback and auto-fill setup
      * @param order Order to process payment for
      * @param tableId Table ID
      * @param vatPercent VAT percentage (default 8%)
@@ -240,16 +241,23 @@ public class PaymentController implements Initializable {
         this.currentOrder = order;
         this.currentTableId = tableId;
         this.currentTableName = "Bàn " + tableId;
-        this.paymentCallback = callback; // ← Add this line
+        this.paymentCallback = callback;
         
-        // Set VAT percentage
-        vatPercentProperty.set(vatPercent);
+        // ✅ FIXED VAT: Set to 8% and disable editing
+        vatPercentProperty.set(8.0);
+        if (vatPercentField != null) {
+            vatPercentField.setText("8");
+            vatPercentField.setDisable(true); // ✅ Cannot change VAT
+        }
         
         // Load order data
         loadOrderInfo();
         loadOrderItems();
         
-        System.out.println("✅ Payment data initialized: Order " + order.getOrderNumber());
+        // ✅ Setup cash auto-fill after data is loaded
+        setupCashAutoFill();
+        
+        System.out.println("✅ Enhanced payment data initialized for order: " + order.getOrderNumber());
     }
     
     // =====================================================
@@ -713,36 +721,7 @@ public class PaymentController implements Initializable {
     // ENHANCED PAYMENT METHODS
     // =====================================================
     
-    /**
-     * Enhanced payment processing using new service architecture
-     */
-    private void handlePaymentEnhanced() {
-        try {
-            // Clear previous errors
-            clearErrors();
-            
-            // Create payment request
-            PaymentRequest request = createPaymentRequest();
-            
-            // Validate request
-            if (!validatePaymentRequest(request)) {
-                return;
-            }
-            
-            // Process payment
-            PaymentResponse response = paymentService.processPayment(request);
-            
-            if (response.isSuccess()) {
-                handlePaymentSuccess(response);
-            } else {
-                handlePaymentFailure(response);
-            }
-            
-        } catch (Exception e) {
-            System.err.println("❌ Payment processing error: " + e.getMessage());
-            showError("Lỗi xử lý thanh toán: " + e.getMessage());
-        }
-    }
+
     
     /**
      * Create payment request from UI
@@ -1046,6 +1025,211 @@ public class PaymentController implements Initializable {
                 return "Chuyển khoản theo thông tin QR hoặc nhập mã giao dịch";
             default:
                 return "Quét mã QR để thanh toán";
+        }
+    }
+    
+    // =====================================================
+    // ENHANCED PAYMENT METHODS FROM PAYMENT.TXT
+    // =====================================================
+    
+    /**
+     * ✅ NEW: Setup auto-fill for cash payments (from payment.txt)
+     */
+    private void setupCashAutoFill() {
+        // Auto-fill customer amount when cash is selected
+        cashRadio.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal && customerAmountField != null) {
+                // Set amount = total amount for cash
+                customerAmountProperty.set(grandTotalProperty.get());
+                customerAmountField.setText(String.format("%.0f", grandTotalProperty.get()));
+                customerAmountField.setDisable(true); // ✅ Read-only for cash
+                customerAmountField.setPromptText("Tự động điền");
+            } else if (customerAmountField != null) {
+                customerAmountField.setDisable(false); // Enable for other methods
+            }
+        });
+        
+        // Update cash amount when total changes
+        grandTotalProperty.addListener((obs, oldVal, newVal) -> {
+            if (cashRadio.isSelected() && customerAmountField != null) {
+                customerAmountProperty.set(newVal.doubleValue());
+                customerAmountField.setText(String.format("%.0f", newVal.doubleValue()));
+            }
+        });
+        
+        // Initially set for cash (default selection)
+        if (cashRadio.isSelected()) {
+            customerAmountProperty.set(grandTotalProperty.get());
+            if (customerAmountField != null) {
+                customerAmountField.setText(String.format("%.0f", grandTotalProperty.get()));
+                customerAmountField.setDisable(true);
+            }
+        }
+        
+        System.out.println("✅ Cash auto-fill configured");
+    }
+    
+    /**
+     * ✅ NEW: Process cash payment with auto amount (from payment.txt)
+     */
+    private void processCashPayment() {
+        double totalAmount = grandTotalProperty.get();
+        double receivedAmount = customerAmountProperty.get();
+        
+        // For cash, received amount should equal total (auto-filled)
+        if (Math.abs(receivedAmount - totalAmount) > 0.01) {
+            showError("Số tiền khách đưa không đúng");
+            return;
+        }
+        
+        // Create and process payment request
+        PaymentRequest request = new PaymentRequest()
+                .setOrderId(currentOrder.getOrderId())
+                .setPaymentMethod("CASH")
+                .setAmountReceived(receivedAmount)
+                .setVatPercent(vatPercentProperty.get())
+                .setDiscountAmount(discountAmountProperty.get());
+        
+        PaymentResponse response = paymentService.processPayment(request);
+        
+        if (response.isSuccess()) {
+            handlePaymentSuccess(response);
+        } else {
+            handlePaymentFailure(response);
+        }
+    }
+    
+    /**
+     * ✅ NEW: Process card payment (from payment.txt)
+     */
+    private void processCardPayment() {
+        String transactionCode = transactionCodeField.getText().trim();
+        
+        if (transactionCode.length() < 6) {
+            showError("Mã giao dịch phải có ít nhất 6 ký tự");
+            return;
+        }
+        
+        double totalAmount = grandTotalProperty.get();
+        
+        // Create and process payment request
+        PaymentRequest request = new PaymentRequest()
+                .setOrderId(currentOrder.getOrderId())
+                .setPaymentMethod("CARD")
+                .setAmountReceived(totalAmount)
+                .setTransactionCode(transactionCode)
+                .setVatPercent(vatPercentProperty.get())
+                .setDiscountAmount(discountAmountProperty.get());
+        
+        PaymentResponse response = paymentService.processPayment(request);
+        
+        if (response.isSuccess()) {
+            handlePaymentSuccess(response);
+        } else {
+            handlePaymentFailure(response);
+        }
+    }
+    
+    /**
+     * ✅ NEW: Process electronic payment with QR code (from payment.txt)
+     */
+    private void processElectronicPayment() {
+        String transactionCode = qrTransactionCodeField.getText().trim();
+        String paymentMethod = getSelectedPaymentMethod();
+        
+        if (transactionCode.length() < 6) {
+            showError("Mã giao dịch phải có ít nhất 6 ký tự");
+            return;
+        }
+        
+        double totalAmount = grandTotalProperty.get();
+        
+        // Create and process payment request
+        PaymentRequest request = new PaymentRequest()
+                .setOrderId(currentOrder.getOrderId())
+                .setPaymentMethod(paymentMethod.toUpperCase())
+                .setAmountReceived(totalAmount)
+                .setTransactionCode(transactionCode)
+                .setVatPercent(vatPercentProperty.get())
+                .setDiscountAmount(discountAmountProperty.get());
+        
+        PaymentResponse response = paymentService.processPayment(request);
+        
+        if (response.isSuccess()) {
+            handlePaymentSuccess(response);
+        } else {
+            handlePaymentFailure(response);
+        }
+    }
+    
+    /**
+     * ✅ ENHANCED: Validation before payment (from payment.txt)
+     */
+    private boolean validateBeforePaymentEnhanced() {
+        if (currentOrder == null) {
+            showError("Không có đơn hàng để thanh toán");
+            return false;
+        }
+        
+        if (orderItems.isEmpty()) {
+            showError("Đơn hàng trống");
+            return false;
+        }
+        
+        if (grandTotalProperty.get() <= 0) {
+            showError("Tổng tiền không hợp lệ");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * ✅ NEW: Get payment method display name (from payment.txt)
+     */
+    private String getPaymentMethodName(String method) {
+        switch (method.toUpperCase()) {
+            case "CASH": return "Tiền mặt";
+            case "CARD": return "Thẻ tín dụng";
+            case "MOMO": return "MoMo";
+            case "VNPAY": return "VNPay";
+            case "ZALOPAY": return "ZaloPay";
+            case "BANK_TRANSFER": return "Chuyển khoản";
+            default: return method;
+        }
+    }
+    
+    /**
+     * ✅ ENHANCED: Payment processing using enhanced methods (from payment.txt)
+     */
+    private void handlePaymentEnhanced() {
+        try {
+            System.out.println("🔧 Processing enhanced payment...");
+            
+            // Clear previous errors
+            clearErrors();
+            
+            // Validate before payment
+            if (!validateBeforePaymentEnhanced()) {
+                return;
+            }
+            
+            String paymentMethod = getSelectedPaymentMethod();
+            
+            if (cashRadio.isSelected()) {
+                // ✅ CASH: Use auto-filled amount
+                processCashPayment();
+            } else if (cardRadio.isSelected()) {
+                // ✅ CARD: Manual transaction code
+                processCardPayment();
+            } else {
+                // ✅ ELECTRONIC: QR code payment
+                processElectronicPayment();
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Payment processing error: " + e.getMessage());
+            showError("Lỗi xử lý thanh toán: " + e.getMessage());
         }
     }
 }

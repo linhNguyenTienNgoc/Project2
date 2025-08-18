@@ -186,46 +186,53 @@ File: src/main/resources/fxml/payment/payment.fxml
                     <Label fx:id="cashErrorLabel" styleClass="error-label" text="" visible="false"/>
                </VBox>
                
-                <!-- ✅ NEW: Card Payment Section -->
+                <!-- ✅ ENHANCED: Card Payment Section -->
                 <VBox fx:id="cardPaymentSection" spacing="15" styleClass="section payment-section" 
                       visible="false" managed="false">
-                    <Label text="💳 Thanh toán thẻ" styleClass="section-title"/>
+                    <Label text="💳 Thanh toán thẻ tín dụng/ghi nợ" styleClass="section-title"/>
                     
-                    <VBox spacing="10">
-                        <Label text="Vui lòng quẹt thẻ và nhập mã giao dịch:" styleClass="instruction-text"/>
-                        <HBox spacing="10" alignment="CENTER_LEFT">
-                            <Label text="Mã giao dịch:"/>
+                    <VBox spacing="15">
+                        <Label text="1. Vui lòng quẹt thẻ trên máy POS" styleClass="instruction-text"/>
+                        <Label text="2. Nhập mã PIN nếu được yêu cầu" styleClass="instruction-text"/>
+                        <Label text="3. Chờ xác nhận giao dịch thành công" styleClass="instruction-text"/>
+                        
+                        <VBox spacing="5">
+                            <Label text="Mã giao dịch từ máy POS:" styleClass="field-label"/>
                             <TextField fx:id="transactionCodeField" promptText="Nhập mã giao dịch từ máy POS..." 
-                                     prefWidth="300"/>
-               </HBox>
+                                     styleClass="transaction-code-field" prefWidth="350"/>
+                        </VBox>
+                        
+                        <Label text="💡 Mã giao dịch sẽ hiển thị trên màn hình máy POS sau khi thanh toán thành công" 
+                               styleClass="hint-text" wrapText="true"/>
                     </VBox>
-            </VBox>
+                </VBox>
             
-                <!-- ✅ NEW: QR Code Payment Section -->
+                <!-- ✅ ENHANCED: QR Code Payment Section -->
                 <VBox fx:id="qrCodeSection" spacing="15" styleClass="section payment-section" 
                       visible="false" managed="false">
                     <Label text="📱 Thanh toán QR Code" styleClass="section-title"/>
                     
                     <HBox spacing="20" alignment="CENTER">
-                        <!-- QR Code Image -->
-                        <VBox spacing="10" alignment="CENTER">
+                        <!-- QR Code Container -->
+                        <VBox fx:id="qrCodeContainer" spacing="10" alignment="CENTER" prefWidth="250">
                             <ImageView fx:id="qrCodeImageView" fitWidth="200" fitHeight="200" 
                                      preserveRatio="true" styleClass="qr-code-image"/>
                             <Label fx:id="qrCodeInstructionLabel" text="Quét mã QR để thanh toán" 
-                                   styleClass="qr-instruction" textAlignment="CENTER" wrapText="true" maxWidth="200"/>
-               </VBox>
+                                   styleClass="qr-instruction" textAlignment="CENTER" wrapText="true" maxWidth="220"/>
+                        </VBox>
                
                         <!-- Transaction input -->
                         <VBox spacing="10" prefWidth="300">
-                            <Label text="Sau khi thanh toán thành công, vui lòng nhập mã giao dịch:" 
-                                   styleClass="instruction-text" wrapText="true"/>
-                            <TextField fx:id="qrTransactionCodeField" promptText="Nhập mã giao dịch..." 
-                                     styleClass="transaction-code-field"/>
-                            <Label text="💡 Mã giao dịch thường có 6-12 ký tự" 
-                                   styleClass="hint-text"/>
+                            <Label text="Sau khi thanh toán thành công:" styleClass="instruction-text" wrapText="true"/>
+                            <VBox spacing="5">
+                                <Label text="Mã giao dịch:" styleClass="field-label"/>
+                                <TextField fx:id="qrTransactionCodeField" promptText="Nhập mã giao dịch..." 
+                                         styleClass="transaction-code-field" prefWidth="280"/>
+                            </VBox>
+                            <Label text="💡 Mã giao dịch thường có 6-12 ký tự" styleClass="hint-text"/>
                         </VBox>
-                  </HBox>
-               </VBox>
+                    </HBox>
+                </VBox>
                
                 <!-- Legacy card/transfer section for compatibility -->
                 <VBox fx:id="cardTransferSection" spacing="15" styleClass="section" 
