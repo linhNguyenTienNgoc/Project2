@@ -230,6 +230,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         }
 
         String orderStatus = currentOrder.getOrderStatus();
+        String paymentStatus = currentOrder.getPaymentStatus();
         String targetStatus;
         
         switch (orderStatus.toLowerCase()) {
@@ -237,8 +238,15 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             case "confirmed":
             case "preparing":
             case "ready":
-                // ✅ From reserved → occupied when order is active
-                targetStatus = "occupied";
+                // ✅ ENHANCED: Check if order has been paid but not completed yet
+                if ("paid".equals(paymentStatus)) {
+                    // Order paid but food not served → keep table as cleaning until manually cleared
+                    targetStatus = "cleaning";
+                    System.out.println("🍽️ Order paid but not served - table set to cleaning");
+                } else {
+                    // ✅ Normal workflow: reserved → occupied when order is active
+                    targetStatus = "occupied";
+                }
                 break;
             case "completed":
                 targetStatus = "cleaning";
@@ -789,70 +797,173 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ NEW: Handle payment completion callback
+     * ✅ ENHANCED: Handle payment completion callback with comprehensive error handling
      */
     private void handlePaymentCompletionCallback(Order order, String paymentMethod) {
         Platform.runLater(() -> {
             try {
                 System.out.println("🎯 Processing payment completion callback...");
+                System.out.println("📋 Order details before update:");
+                System.out.println("  - Order ID: " + order.getOrderId());
+                System.out.println("  - Order Number: " + order.getOrderNumber());
+                System.out.println("  - Current Status: " + order.getOrderStatus());
+                System.out.println("  - Current Payment Status: " + order.getPaymentStatus());
+                System.out.println("  - Payment Method: " + paymentMethod);
+                System.out.println("  - Final Amount: " + order.getFinalAmount());
                 
-                // 1. Update order status to completed
+                // 1. ✅ ENHANCED: Update order with comprehensive error handling
                 if (order != null) {
-                    order.setOrderStatus("completed");
+                    String originalStatus = order.getOrderStatus();
+                    String originalPaymentStatus = order.getPaymentStatus();
+                    
+                    // Set payment info first
                     order.setPaymentStatus("paid");
                     order.setPaymentMethod(paymentMethod);
                     
-                    // Update in database
-                    boolean orderUpdated = orderService.completeOrder(order);
+                    // ✅ Use updateOrder to save payment info first
+                    boolean orderUpdated = orderService.updateOrder(order);
                     if (orderUpdated) {
-                        System.out.println("✅ Order marked as completed in database");
+                        System.out.println("✅ Order payment info updated in database");
+                        
+                        // ✅ Enhanced completion logic with detailed logging
+                        boolean canComplete = order.canBeCompleted();
+                        System.out.println("🔍 Order completion check:");
+                        System.out.println("  - Can be completed: " + canComplete);
+                        System.out.println("  - Order status: " + order.getOrderStatus());
+                        System.out.println("  - Payment status: " + order.getPaymentStatus());
+                        
+                        if (canComplete) {
+                            boolean completed = orderService.completeOrder(order);
+                            if (completed) {
+                                System.out.println("✅ Order marked as completed via completeOrder()");
+                            } else {
+                                System.out.println("⚠️ Order payment recorded but completeOrder() failed");
+                            }
+                        } else {
+                            // ✅ For orders paid before being served, mark as completed directly
+                            System.out.println("🔄 Marking order as completed directly (early payment workflow)");
+                            order.setOrderStatus("completed");
+                            boolean finalUpdate = orderService.updateOrder(order);
+                            if (finalUpdate) {
+                                System.out.println("✅ Order marked as completed directly (paid before served)");
+                            } else {
+                                System.err.println("❌ Failed to mark order as completed directly");
+                                // Rollback payment status if completion failed
+                                order.setOrderStatus(originalStatus);
+                                order.setPaymentStatus(originalPaymentStatus);
+                                orderService.updateOrder(order);
+                                System.out.println("🔄 Payment status rolled back due to completion failure");
+                            }
+                        }
                     } else {
-                        System.err.println("⚠️ Failed to update order status in database");
+                        System.err.println("❌ Failed to update order payment info in database");
+                        System.err.println("🔄 Rolling back payment status changes");
+                        order.setPaymentStatus(originalPaymentStatus);
+                        order.setPaymentMethod(null);
+                        return; // Exit early if payment update failed
                     }
                 }
                 
                 // 2. ✅ UPDATE TABLE STATUS TO CLEANING
+                String previousTableStatus = getCurrentTableStatus();
                 updateTableStatusIfNeeded("cleaning");
-                System.out.println("✅ Table status updated to CLEANING");
+                System.out.println("✅ Table status updated: " + previousTableStatus + " → CLEANING");
                 
                 // 3. Reset order panel state
                 currentOrder = null;
                 currentOrderDetails.clear();
                 updateOrderDisplay();
+                System.out.println("🔄 Order panel state reset");
                 
                 // 4. Update UI button states
                 resetButtonStates();
                 
-                // 5. Show success message
-                showInfo("Thanh toán hoàn tất! Bàn " + getCurrentTableName() + " đã được chuyển sang trạng thái dọn dẹp.");
+                // 5. Show comprehensive success message
+                String tableName = getCurrentTableName();
+                String successMessage = String.format(
+                    "Thanh toán hoàn tất!\n" +
+                    "• Order: %s\n" +
+                    "• Phương thức: %s\n" +
+                    "• Bàn %s → Trạng thái dọn dẹp",
+                    order.getOrderNumber(),
+                    getPaymentMethodDisplayName(paymentMethod),
+                    tableName
+                );
+                showInfo(successMessage);
                 
                 System.out.println("✅ Payment completion handling finished successfully");
+                System.out.println("📊 Final state summary:");
+                System.out.println("  - Order completed and payment recorded");
+                System.out.println("  - Table status: cleaning");
+                System.out.println("  - UI state: reset for next customer");
                 
             } catch (Exception e) {
                 System.err.println("❌ Error handling payment completion: " + e.getMessage());
                 e.printStackTrace();
                 showError("Lỗi xử lý sau thanh toán: " + e.getMessage());
+                
+                // ✅ Enhanced error details for debugging
+                System.err.println("💡 Debug info for payment completion error:");
+                System.err.println("  - Order ID: " + (order != null ? order.getOrderId() : "null"));
+                System.err.println("  - Payment Method: " + paymentMethod);
+                System.err.println("  - Table ID: " + currentTableId);
+                System.err.println("  - Exception: " + e.getClass().getSimpleName());
             }
         });
     }
+    
+    /**
+     * ✅ NEW: Get payment method display name
+     */
+    private String getPaymentMethodDisplayName(String method) {
+        if (method == null) return "Không xác định";
+        switch (method.toUpperCase()) {
+            case "CASH": return "Tiền mặt";
+            case "CARD": return "Thẻ tín dụng/ghi nợ";
+            case "MOMO": return "Ví MoMo";
+            case "VNPAY": return "VNPay";
+            case "ZALOPAY": return "ZaloPay";
+            case "BANK_TRANSFER": return "Chuyển khoản";
+            default: return method;
+        }
+    }
 
     /**
-     * ✅ NEW: Handle payment failure callback
+     * ✅ ENHANCED: Handle payment failure callback with detailed logging
      */
     private void handlePaymentFailureCallback(Order order, String reason) {
         Platform.runLater(() -> {
             try {
                 System.err.println("🎯 Processing payment failure callback...");
+                System.err.println("📋 Payment failure details:");
+                System.err.println("  - Order: " + (order != null ? order.getOrderNumber() : "null"));
+                System.err.println("  - Reason: " + reason);
+                System.err.println("  - Table ID: " + currentTableId);
+                System.err.println("  - Current Order Status: " + (order != null ? order.getOrderStatus() : "null"));
+                System.err.println("  - Current Payment Status: " + (order != null ? order.getPaymentStatus() : "null"));
                 
-                // Show error message to user
-                showError("Thanh toán thất bại: " + reason);
+                // Show comprehensive error message to user
+                String errorMessage = String.format(
+                    "Thanh toán thất bại!\n\n" +
+                    "Lý do: %s\n\n" +
+                    "Bạn có thể:\n" +
+                    "• Thử lại với cùng phương thức\n" +
+                    "• Chọn phương thức thanh toán khác\n" +
+                    "• Kiểm tra thông tin giao dịch",
+                    reason
+                );
+                showError(errorMessage);
                 
                 // Keep order and table status unchanged - user can try again
                 System.out.println("⚠️ Order and table status preserved for retry");
+                System.out.println("🔄 Payment can be retried with same or different method");
                 
             } catch (Exception e) {
                 System.err.println("❌ Error handling payment failure: " + e.getMessage());
                 e.printStackTrace();
+                
+                // Fallback error message
+                showError("Thanh toán thất bại và có lỗi xử lý. Vui lòng thử lại.");
             }
         });
     }

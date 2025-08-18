@@ -163,8 +163,27 @@ public class Order {
         return "pending".equals(orderStatus) || "preparing".equals(orderStatus);
     }
 
+    /**
+     * ✅ ENHANCED: Allow completion for orders that have been paid
+     * Support early payment workflow where customers pay before food is served
+     */
     public boolean canBeCompleted() {
-        return "served".equals(orderStatus);
+        // Traditional workflow: served → completed
+        if ("served".equals(orderStatus)) {
+            return true;
+        }
+        
+        // ✅ NEW: Early payment workflow: preparing/ready + paid → completed
+        if (("preparing".equals(orderStatus) || "ready".equals(orderStatus)) && "paid".equals(paymentStatus)) {
+            return true;
+        }
+        
+        // ✅ Handle edge case: already completed orders (idempotent)
+        if ("completed".equals(orderStatus)) {
+            return false; // Prevent double completion
+        }
+        
+        return false;
     }
 
     public boolean canBePaid() {
