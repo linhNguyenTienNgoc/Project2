@@ -726,7 +726,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ NEW: Show modern payment window using PaymentController
+     * ✅ UPDATED: Show modern payment window with callback
      */
     private void showModernPaymentWindow() {
         try {
@@ -734,57 +734,52 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             System.out.println("  - currentOrder: " + (currentOrder != null ? currentOrder.getOrderNumber() : "null"));
             System.out.println("  - currentTableId: " + currentTableId);
             System.out.println("  - currentOrderDetails.size(): " + currentOrderDetails.size());
-            
-            // ✅ ENHANCED DEBUG: Kiểm tra resource paths trước khi load
-            debugResourcePaths();
-            
-            // Load payment FXML
-            System.out.println("🔧 Loading payment FXML...");
+
+            // Load FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/payment/payment.fxml"));
-            
-            // ✅ FIXED: Root is now BorderPane from new design
-            System.out.println("🔧 Loading FXML content...");
             BorderPane paymentRoot = loader.load();
-            System.out.println("✅ FXML loaded successfully");
-            
-            // Get controller and set up data
-            System.out.println("🔧 Getting PaymentController...");
             PaymentController paymentController = loader.getController();
-            System.out.println("✅ PaymentController obtained");
-            
-            // Initialize payment data with new API
-            System.out.println("🔧 Initializing payment data...");
-            paymentController.initData(currentOrder, currentTableId, 8.0); // ✅ VAT = 8%, no service fee
-            System.out.println("✅ Payment data initialized");
-            
+
+            // ✅ Initialize with callback
+            PaymentController.PaymentCompletionCallback callback = new PaymentController.PaymentCompletionCallback() {
+                @Override
+                public void onPaymentCompleted(Order order, String paymentMethod) {
+                    System.out.println("✅ Payment completion callback received");
+                    System.out.println("  - Order: " + order.getOrderNumber());
+                    System.out.println("  - Payment Method: " + paymentMethod);
+                    
+                    // Handle payment completion on OrderPanel side
+                    handlePaymentCompletionCallback(order, paymentMethod);
+                }
+
+                @Override
+                public void onPaymentFailed(Order order, String reason) {
+                    System.err.println("❌ Payment failure callback received");
+                    System.err.println("  - Order: " + order.getOrderNumber());
+                    System.err.println("  - Reason: " + reason);
+                    
+                    // Handle payment failure on OrderPanel side
+                    handlePaymentFailureCallback(order, reason);
+                }
+            };
+
+            // Initialize payment controller with callback
+            paymentController.initData(currentOrder, currentTableId, 8.0, callback);
+
             // Create and show payment window
-            System.out.println("🔧 Creating payment stage...");
             Stage paymentStage = new Stage();
             paymentStage.setTitle("Thanh toán - " + currentOrder.getOrderNumber());
             paymentStage.initModality(Modality.APPLICATION_MODAL);
-            paymentStage.setResizable(true); // ✅ Allow resize to see all content
-            
-            // ✅ Set minimum size to ensure all content is visible
+            paymentStage.setResizable(true);
             paymentStage.setMinWidth(900);
             paymentStage.setMinHeight(700);
             
-            // Load CSS
-            System.out.println("🔧 Creating scene and loading CSS...");
-            Scene paymentScene = new Scene(paymentRoot, 950, 750); // ✅ Set explicit size
+            Scene paymentScene = new Scene(paymentRoot, 950, 750);
             paymentScene.getStylesheets().add(getClass().getResource("/css/payment.css").toExternalForm());
             
             paymentStage.setScene(paymentScene);
             paymentStage.centerOnScreen();
-            
-            // ✅ Debug: Log window dimensions
-            System.out.println("🔧 Payment window size: " + paymentScene.getWidth() + "x" + paymentScene.getHeight());
-            
-            System.out.println("🔧 Showing payment window...");
-            paymentStage.showAndWait();
-            System.out.println("✅ Payment window closed");
-            
-            // ✅ Handle payment completion
-            handlePaymentCompleted();
+            paymentStage.show(); // ✅ Use show() instead of showAndWait() since we have callback
             
         } catch (Exception e) {
             System.err.println("❌ Error showing payment window: " + e.getMessage());
@@ -794,7 +789,76 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ NEW: Handle payment completion from PaymentController
+     * ✅ NEW: Handle payment completion callback
+     */
+    private void handlePaymentCompletionCallback(Order order, String paymentMethod) {
+        Platform.runLater(() -> {
+            try {
+                System.out.println("🎯 Processing payment completion callback...");
+                
+                // 1. Update order status to completed
+                if (order != null) {
+                    order.setOrderStatus("completed");
+                    order.setPaymentStatus("paid");
+                    order.setPaymentMethod(paymentMethod);
+                    
+                    // Update in database
+                    boolean orderUpdated = orderService.completeOrder(order);
+                    if (orderUpdated) {
+                        System.out.println("✅ Order marked as completed in database");
+                    } else {
+                        System.err.println("⚠️ Failed to update order status in database");
+                    }
+                }
+                
+                // 2. ✅ UPDATE TABLE STATUS TO CLEANING
+                updateTableStatusIfNeeded("cleaning");
+                System.out.println("✅ Table status updated to CLEANING");
+                
+                // 3. Reset order panel state
+                currentOrder = null;
+                currentOrderDetails.clear();
+                updateOrderDisplay();
+                
+                // 4. Update UI button states
+                resetButtonStates();
+                
+                // 5. Show success message
+                showInfo("Thanh toán hoàn tất! Bàn " + getCurrentTableName() + " đã được chuyển sang trạng thái dọn dẹp.");
+                
+                System.out.println("✅ Payment completion handling finished successfully");
+                
+            } catch (Exception e) {
+                System.err.println("❌ Error handling payment completion: " + e.getMessage());
+                e.printStackTrace();
+                showError("Lỗi xử lý sau thanh toán: " + e.getMessage());
+            }
+        });
+    }
+
+    /**
+     * ✅ NEW: Handle payment failure callback
+     */
+    private void handlePaymentFailureCallback(Order order, String reason) {
+        Platform.runLater(() -> {
+            try {
+                System.err.println("🎯 Processing payment failure callback...");
+                
+                // Show error message to user
+                showError("Thanh toán thất bại: " + reason);
+                
+                // Keep order and table status unchanged - user can try again
+                System.out.println("⚠️ Order and table status preserved for retry");
+                
+            } catch (Exception e) {
+                System.err.println("❌ Error handling payment failure: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * ✅ DEPRECATED: Legacy method - replaced by callback
      */
     private void handlePaymentCompleted() {
         Platform.runLater(() -> {
@@ -1076,5 +1140,53 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         }
         
         showModernPaymentWindow();
+    }
+    
+    // =====================================================
+    // ENHANCED HELPER METHODS
+    // =====================================================
+    
+    /**
+     * ✅ NEW: Reset button states after payment completion
+     */
+    private void resetButtonStates() {
+        if (placeOrderButton != null) {
+            placeOrderButton.setDisable(false);
+        }
+        if (paymentButton != null) {
+            paymentButton.setDisable(true);
+        }
+        if (clearOrderButton != null) {
+            clearOrderButton.setDisable(false);
+        }
+        
+        System.out.println("✅ Button states reset after payment completion");
+    }
+
+    /**
+     * ✅ NEW: Get current table name for display
+     */
+    private String getCurrentTableName() {
+        try {
+            if (dashboardController != null && currentTableId != -1) {
+                // Use reflection to get table name from TableController
+                Method getCurrentTableControllerMethod = dashboardController.getClass().getMethod("getCurrentTableController");
+                Object tableController = getCurrentTableControllerMethod.invoke(dashboardController);
+                
+                if (tableController != null) {
+                    Method getTableByIdMethod = tableController.getClass().getMethod("getTableById", int.class);
+                    Object table = getTableByIdMethod.invoke(tableController, currentTableId);
+                    
+                    if (table != null) {
+                        Method getTableNameMethod = table.getClass().getMethod("getTableName");
+                        return (String) getTableNameMethod.invoke(table);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("⚠️ Could not get current table name: " + e.getMessage());
+        }
+        
+        return "bàn hiện tại"; // Fallback
     }
 }

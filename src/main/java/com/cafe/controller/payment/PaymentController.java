@@ -10,6 +10,8 @@ import com.cafe.service.ReceiptService;
 import com.cafe.util.PaymentValidator;
 import com.cafe.util.PriceFormatter;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -45,6 +47,18 @@ import java.util.regex.Pattern;
  * @version 3.0.0 (Professional Payment System)
  */
 public class PaymentController implements Initializable {
+
+    // =====================================================
+    // CALLBACK INTERFACE
+    // =====================================================
+
+    /**
+     * Interface for payment completion callback
+     */
+    public interface PaymentCompletionCallback {
+        void onPaymentCompleted(Order order, String paymentMethod);
+        void onPaymentFailed(Order order, String reason);
+    }
 
     // =====================================================
     // FXML INJECTIONS - Header & Info
@@ -113,6 +127,9 @@ public class PaymentController implements Initializable {
     private PaymentService paymentService;
     private ReceiptService receiptService;
     
+    // Payment callback
+    private PaymentCompletionCallback paymentCallback;
+    
     // Data Models
     private Order currentOrder;
     private int currentTableId;
@@ -180,9 +197,21 @@ public class PaymentController implements Initializable {
      * @param vatPercent VAT percentage (default 8%)
      */
     public void initData(Order order, int tableId, double vatPercent) {
+        initData(order, tableId, vatPercent, null);
+    }
+    
+    /**
+     * ✅ UPDATED: Initialize payment data with callback
+     * @param order Order to process payment for
+     * @param tableId Table ID
+     * @param vatPercent VAT percentage (default 8%)
+     * @param callback Payment completion callback
+     */
+    public void initData(Order order, int tableId, double vatPercent, PaymentCompletionCallback callback) {
         this.currentOrder = order;
         this.currentTableId = tableId;
         this.currentTableName = "Bàn " + tableId;
+        this.paymentCallback = callback; // ← Add this line
         
         // Set VAT percentage
         vatPercentProperty.set(vatPercent);
@@ -407,38 +436,62 @@ public class PaymentController implements Initializable {
             
             if (success) {
                 System.out.println("✅ Payment completed successfully");
-                System.out.println("📄 Transaction details:");
-                System.out.println("  - Method: " + paymentMethod);
-                System.out.println("  - Amount: " + totalAmount);
-                System.out.println("  - Received: " + receivedAmount);
-                if (transactionCode != null) {
-                    System.out.println("  - Transaction Code: " + transactionCode);
-                }
-                if (notes != null && !notes.trim().isEmpty()) {
-                    System.out.println("  - Notes: " + notes);
+                
+                // ✅ NOTIFY OrderPanelController about payment completion
+                if (paymentCallback != null) {
+                    Platform.runLater(() -> {
+                        try {
+                            paymentCallback.onPaymentCompleted(currentOrder, paymentMethod);
+                            System.out.println("✅ OrderPanel notified about payment completion");
+                        } catch (Exception e) {
+                            System.err.println("❌ Error notifying payment callback: " + e.getMessage());
+                        }
+                    });
                 }
                 
                 showSuccess("Thanh toán thành công!");
-                
-                // Auto-print receipt
                 handlePrintReceipt();
                 
                 // Close window after delay
-                javafx.application.Platform.runLater(() -> {
-                    try {
-                        Thread.sleep(1500);
-                        handleCancel();
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                    }
+                Platform.runLater(() -> {
+                    Timeline closeTimer = new Timeline(new KeyFrame(javafx.util.Duration.seconds(2), e -> {
+                        if (payButton.getScene() != null && payButton.getScene().getWindow() != null) {
+                            ((Stage) payButton.getScene().getWindow()).close();
+                        }
+                    }));
+                    closeTimer.play();
                 });
                 
             } else {
+                // ✅ NOTIFY OrderPanelController about payment failure
+                if (paymentCallback != null) {
+                    Platform.runLater(() -> {
+                        try {
+                            paymentCallback.onPaymentFailed(currentOrder, "Payment processing failed");
+                            System.out.println("✅ OrderPanel notified about payment failure");
+                        } catch (Exception e) {
+                            System.err.println("❌ Error notifying payment failure callback: " + e.getMessage());
+                        }
+                    });
+                }
+                
                 showError("Thanh toán thất bại. Vui lòng thử lại.");
             }
             
         } catch (Exception e) {
-            System.err.println("❌ Payment error: " + e.getMessage());
+            System.err.println("❌ Payment processing error: " + e.getMessage());
+            
+            // ✅ NOTIFY OrderPanelController about payment error
+            if (paymentCallback != null) {
+                Platform.runLater(() -> {
+                    try {
+                        paymentCallback.onPaymentFailed(currentOrder, e.getMessage());
+                    } catch (Exception ex) {
+                        System.err.println("❌ Error notifying payment error callback: " + ex.getMessage());
+                    }
+                });
+            }
+            
             showError("Lỗi xử lý thanh toán: " + e.getMessage());
         }
     }
@@ -611,35 +664,62 @@ public class PaymentController implements Initializable {
     }
     
     /**
-     * Handle successful payment
+     * ✅ UPDATED: Handle successful payment with callback
      */
     private void handlePaymentSuccess(PaymentResponse response) {
         System.out.println("✅ Payment completed successfully");
         System.out.println("Transaction ID: " + response.getTransactionId());
         
         if (response.getChangeAmount() > 0) {
-            System.out.println("Change: " + PriceFormatter.formatVND(response.getChangeAmount()));
+            System.out.println("💰 Change: " + String.format("%,.0f VNĐ", response.getChangeAmount()));
         }
         
-        showSuccess("Thanh toán thành công!\nMã GD: " + response.getTransactionId());
+        showSuccess("Thanh toán thành công!");
         
-        // Auto-close after success
+        // ✅ NOTIFY OrderPanelController about payment completion
+        if (paymentCallback != null) {
+            Platform.runLater(() -> {
+                try {
+                    paymentCallback.onPaymentCompleted(currentOrder, getSelectedPaymentMethod());
+                    System.out.println("✅ OrderPanel notified about payment completion");
+                } catch (Exception e) {
+                    System.err.println("❌ Error notifying payment callback: " + e.getMessage());
+                }
+            });
+        }
+        
+        // Auto-print receipt
+        handlePrintReceipt();
+        
+        // Close window after brief delay
         Platform.runLater(() -> {
-            try {
-                Thread.sleep(2000);
-                handleCancel();
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
+            Timeline closeTimer = new Timeline(new KeyFrame(javafx.util.Duration.seconds(2), e -> {
+                if (payButton.getScene() != null && payButton.getScene().getWindow() != null) {
+                    ((javafx.stage.Stage) payButton.getScene().getWindow()).close();
+                }
+            }));
+            closeTimer.play();
         });
     }
     
     /**
-     * Handle payment failure
+     * ✅ UPDATED: Handle payment failure with callback
      */
     private void handlePaymentFailure(PaymentResponse response) {
         System.err.println("❌ Payment failed: " + response.getMessage());
         showError("Thanh toán thất bại: " + response.getMessage());
+        
+        // ✅ NOTIFY OrderPanelController about payment failure
+        if (paymentCallback != null) {
+            Platform.runLater(() -> {
+                try {
+                    paymentCallback.onPaymentFailed(currentOrder, response.getMessage());
+                    System.out.println("✅ OrderPanel notified about payment failure");
+                } catch (Exception e) {
+                    System.err.println("❌ Error notifying payment failure callback: " + e.getMessage());
+                }
+            });
+        }
     }
     
     /**
@@ -677,5 +757,16 @@ public class PaymentController implements Initializable {
         } else {
             System.out.println("✅ Using legacy payment processing");
         }
+    }
+    
+    // =====================================================
+    // ADDITIONAL HELPER METHODS
+    // =====================================================
+
+    /**
+     * Set payment completion callback
+     */
+    public void setPaymentCallback(PaymentCompletionCallback callback) {
+        this.paymentCallback = callback;
     }
 }
