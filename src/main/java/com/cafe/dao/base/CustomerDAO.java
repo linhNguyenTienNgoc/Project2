@@ -17,6 +17,46 @@ public interface CustomerDAO {
     List<Customer> getAllCustomers() throws SQLException;
     
     /**
+     * Get customer by ID
+     */
+    Customer getCustomerById(int customerId) throws SQLException;
+    
+    /**
+     * Find customer by phone
+     */
+    Customer findCustomerByPhone(String phone) throws SQLException;
+    
+    /**
+     * Find customer by email
+     */
+    Customer findCustomerByEmail(String email) throws SQLException;
+    
+    /**
+     * Add new customer
+     */
+    boolean addCustomer(Customer customer) throws SQLException;
+    
+    /**
+     * Insert new customer (alias for addCustomer)
+     */
+    boolean insertCustomer(Customer customer) throws SQLException;
+    
+    /**
+     * Update customer
+     */
+    boolean updateCustomer(Customer customer) throws SQLException;
+    
+    /**
+     * Delete customer
+     */
+    boolean deleteCustomer(int customerId) throws SQLException;
+    
+    /**
+     * Update customer loyalty points
+     */
+    boolean updateCustomerLoyaltyPoints(int customerId, int points) throws SQLException;
+    
+    /**
      * Get new customers this month
      */
     int getNewCustomersThisMonth() throws SQLException;

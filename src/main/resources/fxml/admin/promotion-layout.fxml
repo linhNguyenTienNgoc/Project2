@@ -6,7 +6,11 @@
 
 <VBox xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.cafe.controller.admin.AdminPromotionController"
-      style="-fx-background-color: #f8f9fa;" spacing="20" padding="20">
+      style="-fx-background-color: #f8f9fa;" spacing="20">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
 
     <!-- Header -->
     <HBox alignment="CENTER_LEFT" spacing="20">

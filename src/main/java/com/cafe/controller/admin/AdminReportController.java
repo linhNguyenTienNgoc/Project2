@@ -453,13 +453,91 @@ public class AdminReportController implements Initializable, DashboardCommunicat
     }
 
     private void exportReport() {
-        // TODO: Implement export to Excel/PDF
-        showInfo("Thông báo", "Tính năng xuất báo cáo sẽ được cập nhật sau");
+        try {
+            String fileName = "BaoCao_" + java.time.LocalDateTime.now().format(
+                java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".xlsx";
+            
+            // Create Excel file using Apache POI
+            org.apache.poi.ss.usermodel.Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook();
+            org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Báo cáo doanh thu");
+            
+            // Create header row
+            org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
+            headerRow.createCell(0).setCellValue("Ngày");
+            headerRow.createCell(1).setCellValue("Số đơn hàng");
+            headerRow.createCell(2).setCellValue("Doanh thu");
+            headerRow.createCell(3).setCellValue("Giá trị TB");
+            
+            // Add data rows
+            int rowNum = 1;
+            for (ReportData data : reportTable.getItems()) {
+                org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(data.getDate());
+                row.createCell(1).setCellValue(data.getOrders());
+                row.createCell(2).setCellValue(data.getRevenue());
+                row.createCell(3).setCellValue(data.getAvgValue());
+            }
+            
+            // Auto-size columns
+            for (int i = 0; i < 4; i++) {
+                sheet.autoSizeColumn(i);
+            }
+            
+            // Write to file
+            try (java.io.FileOutputStream fileOut = new java.io.FileOutputStream(fileName)) {
+                workbook.write(fileOut);
+                workbook.close();
+                showInfo("Thành công", "Đã xuất báo cáo ra file: " + fileName);
+            }
+            
+        } catch (Exception e) {
+            showError("Lỗi xuất báo cáo: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void printReport() {
-        // TODO: Implement print functionality
-        showInfo("Thông báo", "Tính năng in báo cáo sẽ được cập nhật sau");
+        try {
+            // Create a simple print dialog
+            javafx.print.PrinterJob job = javafx.print.PrinterJob.createPrinterJob();
+            if (job != null && job.showPrintDialog(reportTable.getScene().getWindow())) {
+                
+                // Create printable content
+                javafx.scene.layout.VBox printContent = new javafx.scene.layout.VBox(10);
+                printContent.setPadding(new javafx.geometry.Insets(20));
+                
+                // Title
+                javafx.scene.control.Label title = new javafx.scene.control.Label("BÁO CÁO DOANH THU");
+                title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+                
+                // Date range
+                javafx.scene.control.Label dateRange = new javafx.scene.control.Label(
+                    "Từ ngày: " + (startDatePicker != null ? startDatePicker.getValue() : "N/A") + 
+                    " - Đến ngày: " + (endDatePicker != null ? endDatePicker.getValue() : "N/A"));
+                
+                // Summary statistics
+                javafx.scene.layout.HBox summaryBox = new javafx.scene.layout.HBox(30);
+                summaryBox.getChildren().addAll(
+                    new javafx.scene.control.Label("Tổng doanh thu: " + totalRevenueLabel.getText()),
+                    new javafx.scene.control.Label("Tổng đơn hàng: " + totalOrdersLabel.getText()),
+                    new javafx.scene.control.Label("TB/đơn: " + avgOrderValueLabel.getText())
+                );
+                
+                printContent.getChildren().addAll(title, dateRange, summaryBox);
+                
+                // Print
+                boolean success = job.printPage(printContent);
+                if (success) {
+                    job.endJob();
+                    showInfo("Thành công", "Đã gửi báo cáo đến máy in");
+                } else {
+                    showError("Lỗi in báo cáo");
+                }
+            }
+        } catch (Exception e) {
+            showError("Lỗi in báo cáo: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void showError(String message) {

@@ -7,35 +7,175 @@
 
 <VBox xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.cafe.controller.admin.AdminReportController"
-      style="-fx-background-color: #f8f9fa;" spacing="20" padding="20">
+      style="-fx-background-color: #f8f9fa;" spacing="20">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
 
     <!-- Header -->
-    <HBox alignment="CENTER_LEFT" spacing="20">
-        <Label text="📊 Báo cáo và thống kê" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button fx:id="exportReportButton" text="📤 Xuất báo cáo" 
-                style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-        <Button fx:id="printReportButton" text="🖨️ In báo cáo" 
-                style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-    </HBox>
+    <VBox spacing="15">
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <Label text="📊 Báo cáo và thống kê" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+        </HBox>
+        
+        <!-- Action Buttons in 2 rows to prevent overflow -->
+        <VBox spacing="10">
+            <!-- Row 1: Quick Actions -->
+            <HBox spacing="8" alignment="CENTER_LEFT" 
+                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);">
+                <Label text="⚡ Thao tác nhanh:" style="-fx-font-weight: bold; -fx-text-fill: #333;"/>
+                
+                <Button fx:id="saveTemplateButton" text="💾 Lưu mẫu" 
+                        style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 5; -fx-font-size: 12px;" 
+                        prefWidth="90"/>
+                <Button fx:id="loadTemplateButton" text="📂 Tải mẫu" 
+                        style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 5; -fx-font-size: 12px;" 
+                        prefWidth="90"/>
+                <Button fx:id="compareReportsButton" text="📊 So sánh" 
+                        style="-fx-background-color: #fd7e14; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 5; -fx-font-size: 12px;" 
+                        prefWidth="90"/>
+                
+                <!-- Export Actions -->
+                <MenuButton fx:id="exportMenuButton" text="📤 Xuất" 
+                            style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 5; -fx-font-size: 12px;" 
+                            prefWidth="80">
+                    <items>
+                        <MenuItem fx:id="exportExcelMenuItem" text="📊 Xuất Excel"/>
+                        <MenuItem fx:id="exportPdfMenuItem" text="📄 Xuất PDF"/>
+                        <MenuItem fx:id="exportCsvMenuItem" text="📋 Xuất CSV"/>
+                        <MenuItem fx:id="exportImageMenuItem" text="🖼️ Xuất hình ảnh"/>
+                    </items>
+                </MenuButton>
+                
+                <Button fx:id="printReportButton" text="🖨️ In" 
+                        style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 5; -fx-font-size: 12px;" 
+                        prefWidth="70"/>
+            </HBox>
+            
+            <!-- Row 2: Communication & Schedule -->
+            <HBox spacing="8" alignment="CENTER_LEFT" 
+                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);">
+                <Label text="📧 Giao tiếp &amp; lịch trình:" style="-fx-font-weight: bold; -fx-text-fill: #333;"/>
+                
+                <Button fx:id="emailReportButton" text="📧 Email" 
+                        style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 5; -fx-font-size: 12px;" 
+                        prefWidth="80"/>
+                
+                <!-- Schedule Reports -->
+                <MenuButton fx:id="scheduleMenuButton" text="⏰ Lập lịch" 
+                            style="-fx-background-color: #6f42c1; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 5; -fx-font-size: 12px;" 
+                            prefWidth="90">
+                    <items>
+                        <MenuItem fx:id="scheduleDaily" text="📅 Hàng ngày"/>
+                        <MenuItem fx:id="scheduleWeekly" text="📆 Hàng tuần"/>
+                        <MenuItem fx:id="scheduleMonthly" text="🗓️ Hàng tháng"/>
+                        <MenuItem fx:id="scheduleCustom" text="⚙️ Tùy chỉnh"/>
+                        <MenuItem fx:id="viewSchedules" text="👁️ Xem lịch hiện có"/>
+                    </items>
+                </MenuButton>
+                
+                <Region HBox.hgrow="ALWAYS"/>
+                
+                <Label text="💡 Tip: Click nhanh 2 lần để xuất Excel" 
+                       style="-fx-text-fill: #666; -fx-font-size: 11px; -fx-font-style: italic;"/>
+            </HBox>
+        </VBox>
+    </VBox>
 
-    <!-- Date Range and Report Type -->
-    <HBox spacing="15" alignment="CENTER_LEFT" 
-          style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);">
-        <Label text="Từ ngày:" style="-fx-font-weight: bold;"/>
-        <DatePicker fx:id="startDatePicker" prefWidth="150"/>
+    <!-- Filters and Controls -->
+    <VBox spacing="15">
+        <!-- Date Range and Report Type -->
+        <HBox spacing="15" alignment="CENTER_LEFT" 
+              style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);">
+            <Label text="Từ ngày:" style="-fx-font-weight: bold;"/>
+            <DatePicker fx:id="startDatePicker" prefWidth="150"/>
+            
+            <Label text="Đến ngày:" style="-fx-font-weight: bold;"/>
+            <DatePicker fx:id="endDatePicker" prefWidth="150"/>
+            
+            <Label text="Loại báo cáo:" style="-fx-font-weight: bold;"/>
+            <ComboBox fx:id="reportTypeCombo" prefWidth="200"/>
+            
+            <Button fx:id="generateReportButton" text="📊 Tạo báo cáo" 
+                    style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5;"/>
+            <Button fx:id="refreshButton" text="🔄 Làm mới" 
+                    style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5;"/>
+        </HBox>
         
-        <Label text="Đến ngày:" style="-fx-font-weight: bold;"/>
-        <DatePicker fx:id="endDatePicker" prefWidth="150"/>
+        <!-- Advanced Filters -->
+        <VBox fx:id="advancedFiltersSection" managed="false" visible="false" spacing="10"
+              style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="🔍 Bộ lọc nâng cao" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <Button fx:id="closeFiltersButton" text="❌" 
+                        style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-padding: 2 8; -fx-background-radius: 5;" prefWidth="30" prefHeight="25"/>
+            </HBox>
+            
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <VBox spacing="5">
+                    <Label text="Danh mục:" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                    <ComboBox fx:id="categoryFilterCombo" promptText="Tất cả danh mục" prefWidth="150"/>
+                </VBox>
+                
+                <VBox spacing="5">
+                    <Label text="Nhân viên:" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                    <ComboBox fx:id="staffFilterCombo" promptText="Tất cả nhân viên" prefWidth="150"/>
+                </VBox>
+                
+                <VBox spacing="5">
+                    <Label text="Phương thức TT:" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                    <ComboBox fx:id="paymentMethodCombo" promptText="Tất cả" prefWidth="150"/>
+                </VBox>
+                
+                <VBox spacing="5">
+                    <Label text="Khu vực:" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                    <ComboBox fx:id="areaFilterCombo" promptText="Tất cả khu vực" prefWidth="150"/>
+                </VBox>
+                
+                <VBox spacing="5">
+                    <Label text="Mức doanh thu:" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                    <HBox spacing="5">
+                        <TextField fx:id="minRevenueField" promptText="Từ" prefWidth="80"/>
+                        <TextField fx:id="maxRevenueField" promptText="Đến" prefWidth="80"/>
+                    </HBox>
+                </VBox>
+            </HBox>
+            
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="applyFiltersButton" text="✅ Áp dụng bộ lọc" 
+                        style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15; -fx-background-radius: 5;"/>
+                <Button fx:id="resetFiltersButton" text="🔄 Reset bộ lọc" 
+                        style="-fx-background-color: #ffc107; -fx-text-fill: #333; -fx-font-weight: bold; -fx-padding: 8 15; -fx-background-radius: 5;"/>
+                <Button fx:id="saveFiltersButton" text="💾 Lưu bộ lọc" 
+                        style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15; -fx-background-radius: 5;"/>
+            </HBox>
+        </VBox>
         
-        <Label text="Loại báo cáo:" style="-fx-font-weight: bold;"/>
-        <ComboBox fx:id="reportTypeCombo" prefWidth="200"/>
-        
-        <Button fx:id="generateReportButton" text="📊 Tạo báo cáo" 
-                style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 15;"/>
-        <Button fx:id="refreshButton" text="🔄 Làm mới" 
-                style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 15;"/>
-    </HBox>
+        <!-- Quick Filter Buttons -->
+        <HBox spacing="10" alignment="CENTER_LEFT" 
+              style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);">
+            <Label text="⚡ Bộ lọc nhanh:" style="-fx-font-weight: bold;"/>
+            <Button fx:id="todayFilterButton" text="Hôm nay" 
+                    style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-padding: 5 10; -fx-background-radius: 5;" prefHeight="30"/>
+            <Button fx:id="yesterdayFilterButton" text="Hôm qua" 
+                    style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 5 10; -fx-background-radius: 5;" prefHeight="30"/>
+            <Button fx:id="thisWeekFilterButton" text="Tuần này" 
+                    style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-padding: 5 10; -fx-background-radius: 5;" prefHeight="30"/>
+            <Button fx:id="lastWeekFilterButton" text="Tuần trước" 
+                    style="-fx-background-color: #ffc107; -fx-text-fill: #333; -fx-padding: 5 10; -fx-background-radius: 5;" prefHeight="30"/>
+            <Button fx:id="thisMonthFilterButton" text="Tháng này" 
+                    style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-padding: 5 10; -fx-background-radius: 5;" prefHeight="30"/>
+            <Button fx:id="lastMonthFilterButton" text="Tháng trước" 
+                    style="-fx-background-color: #fd7e14; -fx-text-fill: white; -fx-padding: 5 10; -fx-background-radius: 5;" prefHeight="30"/>
+            
+            <Region HBox.hgrow="ALWAYS"/>
+            
+            <Button fx:id="showAdvancedFiltersButton" text="🔍 Bộ lọc nâng cao" 
+                    style="-fx-background-color: #6f42c1; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15; -fx-background-radius: 5;"/>
+        </HBox>
+    </VBox>
 
     <!-- Statistics Cards -->
     <HBox spacing="20" alignment="CENTER">
@@ -132,7 +272,7 @@
                             <TableColumn fx:id="productNameColumn" text="Tên sản phẩm" prefWidth="150"/>
                             <TableColumn fx:id="quantitySoldColumn" text="Số lượng" prefWidth="80"/>
                             <TableColumn fx:id="productRevenueColumn" text="Doanh thu" prefWidth="100"/>
-                            <TableColumn fx:id="percentageColumn" text="%" prefWidth="60"/>
+                            <TableColumn fx:id="percentageColumn" text="Phần trăm" prefWidth="60"/>
                         </columns>
                     </TableView>
                 </VBox>

@@ -150,29 +150,31 @@ public class AdminDashboardController extends DashboardController implements Ini
      * Setup tab navigation
      */
     private void setupTabNavigation() {
-        // Set initial active tab
-        setActiveTabButton(overviewTabButton);
+        // Set initial active tab - với null check
+        if (overviewTabButton != null) {
+            setActiveTabButton(overviewTabButton);
+        }
     }
 
     /**
      * Setup event handlers
      */
     private void setupEventHandlers() {
-        // Tab button handlers
-        overviewTabButton.setOnAction(e -> switchToTab("overview"));
-        userTabButton.setOnAction(e -> switchToTab("user"));
-        menuTabButton.setOnAction(e -> switchToTab("menu"));
-        tableTabButton.setOnAction(e -> switchToTab("table"));
-        reportTabButton.setOnAction(e -> switchToTab("report"));
-        promotionTabButton.setOnAction(e -> switchToTab("promotion"));
+        // Tab button handlers - với null check
+        if (overviewTabButton != null) overviewTabButton.setOnAction(e -> switchToTab("overview"));
+        if (userTabButton != null) userTabButton.setOnAction(e -> switchToTab("user"));
+        if (menuTabButton != null) menuTabButton.setOnAction(e -> switchToTab("menu"));
+        if (tableTabButton != null) tableTabButton.setOnAction(e -> switchToTab("table"));
+        if (reportTabButton != null) reportTabButton.setOnAction(e -> switchToTab("report"));
+        if (promotionTabButton != null) promotionTabButton.setOnAction(e -> switchToTab("promotion"));
 
         // Logout handler
-        logoutButton.setOnAction(e -> logout());
+        if (logoutButton != null) logoutButton.setOnAction(e -> logout());
 
-        // Order panel handlers
-        placeOrderButton.setOnAction(e -> placeOrder());
-        paymentButton.setOnAction(e -> processPayment());
-        clearOrderButton.setOnAction(e -> clearOrder());
+        // Order panel handlers - với null check
+        if (placeOrderButton != null) placeOrderButton.setOnAction(e -> placeOrder());
+        if (paymentButton != null) paymentButton.setOnAction(e -> processPayment());
+        if (clearOrderButton != null) clearOrderButton.setOnAction(e -> clearOrder());
     }
 
     /**
@@ -209,20 +211,23 @@ public class AdminDashboardController extends DashboardController implements Ini
 
         // Set active tab button
         switch (currentTab) {
+            case "overview":
+                if (overviewTabButton != null) overviewTabButton.setStyle(activeStyle);
+                break;
             case "user":
-                userTabButton.setStyle(activeStyle);
+                if (userTabButton != null) userTabButton.setStyle(activeStyle);
                 break;
             case "menu":
-                menuTabButton.setStyle(activeStyle);
+                if (menuTabButton != null) menuTabButton.setStyle(activeStyle);
                 break;
             case "table":
-                tableTabButton.setStyle(activeStyle);
+                if (tableTabButton != null) tableTabButton.setStyle(activeStyle);
                 break;
             case "report":
-                reportTabButton.setStyle(activeStyle);
+                if (reportTabButton != null) reportTabButton.setStyle(activeStyle);
                 break;
             case "promotion":
-                promotionTabButton.setStyle(activeStyle);
+                if (promotionTabButton != null) promotionTabButton.setStyle(activeStyle);
                 break;
         }
     }
@@ -235,12 +240,12 @@ public class AdminDashboardController extends DashboardController implements Ini
         String defaultStyle = "-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;";
         String activeStyle = "-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;";
 
-        overviewTabButton.setStyle(defaultStyle);
-        userTabButton.setStyle(defaultStyle);
-        menuTabButton.setStyle(defaultStyle);
-        tableTabButton.setStyle(defaultStyle);
-        reportTabButton.setStyle(defaultStyle);
-        promotionTabButton.setStyle(defaultStyle);
+        if (overviewTabButton != null) overviewTabButton.setStyle(defaultStyle);
+        if (userTabButton != null) userTabButton.setStyle(defaultStyle);
+        if (menuTabButton != null) menuTabButton.setStyle(defaultStyle);
+        if (tableTabButton != null) tableTabButton.setStyle(defaultStyle);
+        if (reportTabButton != null) reportTabButton.setStyle(defaultStyle);
+        if (promotionTabButton != null) promotionTabButton.setStyle(defaultStyle);
 
         // Set active button
         activeButton.setStyle(activeStyle);

@@ -1,9 +1,10 @@
 package com.cafe.controller.admin;
 
 import com.cafe.controller.base.DashboardCommunicator;
-import com.cafe.dao.UserDAO;
-import com.cafe.model.User;
-import com.cafe.model.enums.UserRole;
+import com.cafe.config.DatabaseConfig;
+import com.cafe.dao.base.UserDAO;
+import com.cafe.dao.base.UserDAOImpl;
+import com.cafe.model.entity.User;
 import com.cafe.util.AlertUtils;
 import com.cafe.util.PasswordUtil;
 import com.cafe.util.ValidationUtils;
@@ -16,20 +17,26 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
-import java.time.LocalDateTime;
+import java.sql.Connection;
 import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Controller cho quản lý người dùng trong Admin Dashboard
+ * Controller hoàn chỉnh cho quản lý người dùng trong Admin Dashboard
+ * 
+ * @author Team 2_C2406L
+ * @version 2.0.0
  */
 public class AdminUserController implements Initializable, DashboardCommunicator {
 
-    // Search and Filter
+    // =====================================================
+    // FXML COMPONENTS - Search and Filter
+    // =====================================================
+    
     @FXML private TextField searchField;
     @FXML private ComboBox<String> roleFilterCombo;
     @FXML private ComboBox<String> statusFilterCombo;
@@ -37,25 +44,34 @@ public class AdminUserController implements Initializable, DashboardCommunicator
     @FXML private Button addUserButton;
     @FXML private Button exportButton;
 
-    // User Table
+    // =====================================================
+    // FXML COMPONENTS - User Table
+    // =====================================================
+    
     @FXML private TableView<User> userTable;
     @FXML private TableColumn<User, Integer> idColumn;
     @FXML private TableColumn<User, String> usernameColumn;
     @FXML private TableColumn<User, String> fullNameColumn;
     @FXML private TableColumn<User, String> emailColumn;
     @FXML private TableColumn<User, String> phoneColumn;
-    @FXML private TableColumn<User, UserRole> roleColumn;
+    @FXML private TableColumn<User, String> roleColumn;
     @FXML private TableColumn<User, String> statusColumn;
     @FXML private TableColumn<User, String> createdAtColumn;
     @FXML private TableColumn<User, Void> actionsColumn;
 
-    // Statistics
+    // =====================================================
+    // FXML COMPONENTS - Statistics
+    // =====================================================
+    
     @FXML private Label totalUsersLabel;
     @FXML private Label activeUsersLabel;
     @FXML private Label adminUsersLabel;
     @FXML private Label staffUsersLabel;
 
-    // Form Section
+    // =====================================================
+    // FXML COMPONENTS - Form Section
+    // =====================================================
+    
     @FXML private VBox userFormSection;
     @FXML private TextField usernameField;
     @FXML private TextField fullNameField;
@@ -63,57 +79,74 @@ public class AdminUserController implements Initializable, DashboardCommunicator
     @FXML private TextField phoneField;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
-    @FXML private ComboBox<UserRole> roleCombo;
+    @FXML private ComboBox<String> roleCombo;
     @FXML private ComboBox<String> statusCombo;
     @FXML private Button saveUserButton;
     @FXML private Button cancelButton;
     @FXML private Button resetFormButton;
 
-    // Data
+    // =====================================================
+    // STATE MANAGEMENT
+    // =====================================================
+    
     private ObservableList<User> userList = FXCollections.observableArrayList();
-    private UserDAO userDAO;
+    private ObservableList<User> filteredUserList = FXCollections.observableArrayList();
     private Object dashboardController;
     private User currentEditingUser = null;
+
+    // =====================================================
+    // INITIALIZATION
+    // =====================================================
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            initializeDAO();
             setupUserTable();
             setupFilters();
+            setupForm();
             setupEventHandlers();
             setupValidation();
+            
+            // Load initial data
             loadUsers();
             updateStatistics();
 
             System.out.println("✅ AdminUserController initialized successfully");
         } catch (Exception e) {
-            System.err.println("Error initializing AdminUserController: " + e.getMessage());
+            System.err.println("❌ Error initializing AdminUserController: " + e.getMessage());
             e.printStackTrace();
             AlertUtils.showError("Lỗi khởi tạo", "Không thể khởi tạo giao diện quản lý người dùng: " + e.getMessage());
         }
     }
 
-    private void initializeDAO() {
-        this.userDAO = new UserDAO();
-    }
+    // =====================================================
+    // SETUP METHODS
+    // =====================================================
 
     private void setupUserTable() {
-        // Setup columns
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        // Setup table columns
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("userId"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         fullNameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
         phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
-        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-        createdAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+        
+        // Status column with custom cell factory
+        statusColumn.setCellValueFactory(cellData -> {
+            boolean isActive = cellData.getValue().isActive();
+            return new javafx.beans.property.SimpleStringProperty(isActive ? "ACTIVE" : "INACTIVE");
+        });
+        
+        // Created at column - placeholder
+        createdAtColumn.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleStringProperty("N/A"));
 
         // Setup actions column
         setupActionsColumn();
 
-        // Set data
-        userTable.setItems(userList);
+        // Set data source
+        userTable.setItems(filteredUserList);
 
         // Selection handler
         userTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -121,22 +154,54 @@ public class AdminUserController implements Initializable, DashboardCommunicator
                 populateForm(newSelection);
             }
         });
+
+        // Double-click to edit
+        userTable.setRowFactory(tv -> {
+            TableRow<User> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    editUser(row.getItem());
+                }
+            });
+            return row;
+        });
     }
 
     private void setupActionsColumn() {
         actionsColumn.setCellFactory(col -> new TableCell<User, Void>() {
-            private final Button editButton = new Button("Sửa");
-            private final Button deleteButton = new Button("Xóa");
-            private final Button resetPasswordButton = new Button("Reset MK");
+            private final HBox actionBox = new HBox(5);
+            private final Button editButton = new Button("✏️");
+            private final Button deleteButton = new Button("🗑️");
+            private final Button resetPasswordButton = new Button("🔑");
 
             {
-                editButton.getStyleClass().addAll("btn", "btn-primary", "btn-sm");
-                deleteButton.getStyleClass().addAll("btn", "btn-danger", "btn-sm");
-                resetPasswordButton.getStyleClass().addAll("btn", "btn-warning", "btn-sm");
+                // Style buttons
+                editButton.setStyle("-fx-background-color: #ffc107; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 5;");
+                deleteButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 5;");
+                resetPasswordButton.setStyle("-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 5;");
 
-                editButton.setOnAction(e -> editUser(getTableView().getItems().get(getIndex())));
-                deleteButton.setOnAction(e -> deleteUser(getTableView().getItems().get(getIndex())));
-                resetPasswordButton.setOnAction(e -> resetPassword(getTableView().getItems().get(getIndex())));
+                // Tooltips
+                editButton.setTooltip(new Tooltip("Chỉnh sửa người dùng"));
+                deleteButton.setTooltip(new Tooltip("Xóa người dùng"));
+                resetPasswordButton.setTooltip(new Tooltip("Reset mật khẩu"));
+
+                // Event handlers
+                editButton.setOnAction(e -> {
+                    User user = getTableView().getItems().get(getIndex());
+                    editUser(user);
+                });
+
+                deleteButton.setOnAction(e -> {
+                    User user = getTableView().getItems().get(getIndex());
+                    deleteUser(user);
+                });
+
+                resetPasswordButton.setOnAction(e -> {
+                    User user = getTableView().getItems().get(getIndex());
+                    resetPassword(user);
+                });
+
+                actionBox.getChildren().addAll(editButton, deleteButton, resetPasswordButton);
             }
 
             @Override
@@ -145,7 +210,7 @@ public class AdminUserController implements Initializable, DashboardCommunicator
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    setGraphic(new VBox(5, editButton, deleteButton, resetPasswordButton));
+                    setGraphic(actionBox);
                 }
             }
         });
@@ -154,46 +219,54 @@ public class AdminUserController implements Initializable, DashboardCommunicator
     private void setupFilters() {
         // Role filter
         roleFilterCombo.setItems(FXCollections.observableArrayList(
-            "Tất cả", "ADMIN", "STAFF", "MANAGER"
+            "Tất cả", "ADMIN", "MANAGER", "STAFF", "CASHIER", "WAITER", "BARISTA"
         ));
         roleFilterCombo.setValue("Tất cả");
 
         // Status filter
         statusFilterCombo.setItems(FXCollections.observableArrayList(
-            "Tất cả", "ACTIVE", "INACTIVE", "SUSPENDED"
+            "Tất cả", "ACTIVE", "INACTIVE"
         ));
         statusFilterCombo.setValue("Tất cả");
+    }
 
+    private void setupForm() {
         // Role combo for form
-        roleCombo.setItems(FXCollections.observableArrayList(UserRole.values()));
-        roleCombo.setValue(UserRole.STAFF);
+        roleCombo.setItems(FXCollections.observableArrayList(
+            "ADMIN", "MANAGER", "STAFF", "CASHIER", "WAITER", "BARISTA"
+        ));
+        roleCombo.setValue("STAFF");
 
         // Status combo for form
         statusCombo.setItems(FXCollections.observableArrayList(
-            "ACTIVE", "INACTIVE", "SUSPENDED"
+            "ACTIVE", "INACTIVE"
         ));
         statusCombo.setValue("ACTIVE");
+
+        // Initially hide form
+        userFormSection.setVisible(false);
+        userFormSection.setManaged(false);
     }
 
     private void setupEventHandlers() {
-        // Search and filter
+        // Search and filter handlers
         searchField.textProperty().addListener((obs, oldText, newText) -> filterUsers());
         roleFilterCombo.setOnAction(e -> filterUsers());
         statusFilterCombo.setOnAction(e -> filterUsers());
 
-        // Buttons
+        // Button handlers
         refreshButton.setOnAction(e -> loadUsers());
         addUserButton.setOnAction(e -> showAddUserForm());
         exportButton.setOnAction(e -> exportUsers());
 
-        // Form buttons
+        // Form button handlers
         saveUserButton.setOnAction(e -> saveUser());
         cancelButton.setOnAction(e -> hideUserForm());
         resetFormButton.setOnAction(e -> resetForm());
     }
 
     private void setupValidation() {
-        // Real-time validation
+        // Real-time validation for form fields
         usernameField.textProperty().addListener((obs, oldText, newText) -> validateUsername());
         emailField.textProperty().addListener((obs, oldText, newText) -> validateEmail());
         phoneField.textProperty().addListener((obs, oldText, newText) -> validatePhone());
@@ -201,26 +274,37 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         confirmPasswordField.textProperty().addListener((obs, oldText, newText) -> validateConfirmPassword());
     }
 
+    // =====================================================
+    // DATA OPERATIONS
+    // =====================================================
+
     private void loadUsers() {
         Task<List<User>> loadTask = new Task<List<User>>() {
             @Override
             protected List<User> call() throws Exception {
-                return userDAO.findAll();
+                try (Connection connection = DatabaseConfig.getConnection()) {
+                    UserDAO dao = new UserDAOImpl(connection);
+                    return dao.getAllUsers();
+                }
             }
 
             @Override
             protected void succeeded() {
-                userList.clear();
-                userList.addAll(getValue());
-                updateStatistics();
                 Platform.runLater(() -> {
-                    AlertUtils.showInfo("Thành công", "Đã tải danh sách người dùng");
+                    userList.clear();
+                    if (getValue() != null) {
+                        userList.addAll(getValue());
+                    }
+                    filterUsers(); // Apply current filters
+                    updateStatistics();
+                    System.out.println("✅ Loaded " + userList.size() + " users");
                 });
             }
 
             @Override
             protected void failed() {
                 Platform.runLater(() -> {
+                    System.err.println("❌ Failed to load users: " + getException().getMessage());
                     AlertUtils.showError("Lỗi", "Không thể tải danh sách người dùng: " + getException().getMessage());
                 });
             }
@@ -230,43 +314,49 @@ public class AdminUserController implements Initializable, DashboardCommunicator
     }
 
     private void filterUsers() {
-        String searchText = searchField.getText().toLowerCase();
+        String searchText = searchField.getText().toLowerCase().trim();
         String roleFilter = roleFilterCombo.getValue();
         String statusFilter = statusFilterCombo.getValue();
 
-        ObservableList<User> filteredList = FXCollections.observableArrayList();
+        filteredUserList.clear();
 
         for (User user : userList) {
+            // Search filter
             boolean matchesSearch = searchText.isEmpty() ||
                 user.getUsername().toLowerCase().contains(searchText) ||
                 user.getFullName().toLowerCase().contains(searchText) ||
-                user.getEmail().toLowerCase().contains(searchText);
+                (user.getEmail() != null && user.getEmail().toLowerCase().contains(searchText));
 
+            // Role filter
             boolean matchesRole = "Tất cả".equals(roleFilter) || 
-                user.getRole().name().equals(roleFilter);
+                user.getRole().equals(roleFilter);
 
+            // Status filter
             boolean matchesStatus = "Tất cả".equals(statusFilter) || 
-                user.getStatus().equals(statusFilter);
+                (user.isActive() && "ACTIVE".equals(statusFilter)) ||
+                (!user.isActive() && "INACTIVE".equals(statusFilter));
 
             if (matchesSearch && matchesRole && matchesStatus) {
-                filteredList.add(user);
+                filteredUserList.add(user);
             }
         }
-
-        userTable.setItems(filteredList);
     }
 
     private void updateStatistics() {
         int total = userList.size();
-        long active = userList.stream().filter(u -> "ACTIVE".equals(u.getStatus())).count();
-        long admins = userList.stream().filter(u -> u.getRole() == UserRole.ADMIN).count();
-        long staff = userList.stream().filter(u -> u.getRole() == UserRole.STAFF).count();
+        long active = userList.stream().filter(User::isActive).count();
+        long admins = userList.stream().filter(u -> "ADMIN".equals(u.getRole())).count();
+        long staff = userList.stream().filter(u -> "STAFF".equals(u.getRole())).count();
 
         totalUsersLabel.setText(String.valueOf(total));
         activeUsersLabel.setText(String.valueOf(active));
         adminUsersLabel.setText(String.valueOf(admins));
         staffUsersLabel.setText(String.valueOf(staff));
     }
+
+    // =====================================================
+    // FORM OPERATIONS
+    // =====================================================
 
     private void showAddUserForm() {
         currentEditingUser = null;
@@ -290,10 +380,9 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         phoneField.clear();
         passwordField.clear();
         confirmPasswordField.clear();
-        roleCombo.setValue(UserRole.STAFF);
+        roleCombo.setValue("STAFF");
         statusCombo.setValue("ACTIVE");
         
-        // Clear validation styles
         clearValidationStyles();
     }
 
@@ -304,7 +393,7 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         emailField.setText(user.getEmail());
         phoneField.setText(user.getPhone());
         roleCombo.setValue(user.getRole());
-        statusCombo.setValue(user.getStatus());
+        statusCombo.setValue(user.isActive() ? "ACTIVE" : "INACTIVE");
         
         // Clear password fields for editing
         passwordField.clear();
@@ -314,36 +403,42 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         userFormSection.setManaged(true);
     }
 
+    // =====================================================
+    // USER ACTIONS
+    // =====================================================
+
     private void editUser(User user) {
         populateForm(user);
     }
 
     private void deleteUser(User user) {
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Xác nhận xóa");
-        confirmAlert.setHeaderText("Bạn có chắc chắn muốn xóa người dùng này?");
-        confirmAlert.setContentText("Người dùng: " + user.getFullName() + " (" + user.getUsername() + ")");
+        boolean confirmed = AlertUtils.showConfirmation(
+            "Xác nhận xóa", 
+            "Bạn có chắc chắn muốn xóa người dùng: " + user.getFullName() + " (" + user.getUsername() + ")?"
+        );
 
-        if (confirmAlert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+        if (confirmed) {
             Task<Boolean> deleteTask = new Task<Boolean>() {
                 @Override
                 protected Boolean call() throws Exception {
-                    return userDAO.delete(user.getId());
+                    try (Connection connection = DatabaseConfig.getConnection()) {
+                        UserDAO dao = new UserDAOImpl(connection);
+                        return dao.deleteUser(user.getUserId());
+                    }
                 }
 
                 @Override
                 protected void succeeded() {
-                    if (getValue()) {
-                        userList.remove(user);
-                        updateStatistics();
-                        Platform.runLater(() -> {
-                            AlertUtils.showInfo("Thành công", "Đã xóa người dùng");
-                        });
-                    } else {
-                        Platform.runLater(() -> {
+                    Platform.runLater(() -> {
+                        if (getValue()) {
+                            userList.remove(user);
+                            filterUsers();
+                            updateStatistics();
+                            AlertUtils.showInfo("Thành công", "Đã xóa người dùng thành công");
+                        } else {
                             AlertUtils.showError("Lỗi", "Không thể xóa người dùng");
-                        });
-                    }
+                        }
+                    });
                 }
 
                 @Override
@@ -359,19 +454,22 @@ public class AdminUserController implements Initializable, DashboardCommunicator
     }
 
     private void resetPassword(User user) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Reset mật khẩu");
-        dialog.setHeaderText("Nhập mật khẩu mới cho " + user.getFullName());
-        dialog.setContentText("Mật khẩu mới:");
+        String newPassword = AlertUtils.showTextInput(
+            "Reset mật khẩu", 
+            "Nhập mật khẩu mới cho " + user.getFullName(), 
+            "Mật khẩu mới:"
+        );
 
-        dialog.showAndWait().ifPresent(newPassword -> {
+        if (newPassword != null && !newPassword.trim().isEmpty()) {
             if (ValidationUtils.isValidPassword(newPassword)) {
                 Task<Boolean> resetTask = new Task<Boolean>() {
                     @Override
                     protected Boolean call() throws Exception {
                         String hashedPassword = PasswordUtil.hashPassword(newPassword);
-                        user.setPassword(hashedPassword);
-                        return userDAO.update(user);
+                        try (Connection connection = DatabaseConfig.getConnection()) {
+                            UserDAO dao = new UserDAOImpl(connection);
+                            return dao.updatePassword(user.getUserId(), hashedPassword);
+                        }
                     }
 
                     @Override
@@ -397,7 +495,7 @@ public class AdminUserController implements Initializable, DashboardCommunicator
             } else {
                 AlertUtils.showError("Lỗi", "Mật khẩu không hợp lệ. Mật khẩu phải có ít nhất 6 ký tự.");
             }
-        });
+        }
     }
 
     private void saveUser() {
@@ -415,18 +513,21 @@ public class AdminUserController implements Initializable, DashboardCommunicator
                 user.setEmail(emailField.getText().trim());
                 user.setPhone(phoneField.getText().trim());
                 user.setRole(roleCombo.getValue());
-                user.setStatus(statusCombo.getValue());
+                user.setActive("ACTIVE".equals(statusCombo.getValue()));
 
                 // Set password only if provided
                 if (!passwordField.getText().isEmpty()) {
                     user.setPassword(PasswordUtil.hashPassword(passwordField.getText()));
                 }
 
-                if (currentEditingUser == null) {
-                    user.setCreatedAt(LocalDateTime.now());
-                    return userDAO.create(user) != null;
-                } else {
-                    return userDAO.update(user);
+                try (Connection connection = DatabaseConfig.getConnection()) {
+                    UserDAO dao = new UserDAOImpl(connection);
+                    
+                    if (currentEditingUser == null) {
+                        return dao.insertUser(user);
+                    } else {
+                        return dao.updateUser(user);
+                    }
                 }
             }
 
@@ -454,6 +555,14 @@ public class AdminUserController implements Initializable, DashboardCommunicator
 
         new Thread(saveTask).start();
     }
+
+    private void exportUsers() {
+        AlertUtils.showInfo("Thông báo", "Tính năng xuất dữ liệu sẽ được cập nhật sau");
+    }
+
+    // =====================================================
+    // VALIDATION METHODS
+    // =====================================================
 
     private boolean validateForm() {
         boolean isValid = true;
@@ -538,12 +647,10 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         confirmPasswordField.getStyleClass().removeAll("field-error", "field-success");
     }
 
-    private void exportUsers() {
-        // TODO: Implement export functionality
-        AlertUtils.showInfo("Thông báo", "Tính năng xuất dữ liệu sẽ được cập nhật sau");
-    }
+    // =====================================================
+    // DASHBOARD COMMUNICATION
+    // =====================================================
 
-    // Dashboard Communication
     @Override
     public void setDashboardController(Object dashboardController) {
         this.dashboardController = dashboardController;

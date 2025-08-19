@@ -10,6 +10,7 @@ public interface UserDAO {
     User getUserByUsername(String username);
     boolean insertUser(User user);
     boolean updateUser(User user);
+    boolean updatePassword(int userId, String newPassword);
     boolean deleteUser(int id);
     List<User> getAllUsers(int offset, int limit);
     int getTotalUserCount();

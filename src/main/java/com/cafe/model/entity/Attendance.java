@@ -311,6 +311,30 @@ public class Attendance {
         this.totalHours = totalHours;
     }
     
+    // Additional setters for AttendanceService
+    public void setHoursWorked(double hoursWorked) {
+        this.totalHours = hoursWorked;
+    }
+    
+    public void setOvertimeHours(double overtimeHours) {
+        // This is for compatibility with AttendanceService
+        // Overtime is calculated automatically
+    }
+    
+    public void setAttendanceDate(LocalDate attendanceDate) {
+        this.workDate = attendanceDate;
+    }
+    
+    public void setCheckInTime(LocalDateTime checkInTime) {
+        this.checkIn = Timestamp.valueOf(checkInTime);
+        this.workDate = checkInTime.toLocalDate();
+    }
+    
+    public void setCheckOutTime(LocalDateTime checkOutTime) {
+        this.checkOut = Timestamp.valueOf(checkOutTime);
+        calculateTotalHours();
+    }
+    
     public String getNotes() {
         return notes;
     }

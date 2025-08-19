@@ -58,6 +58,7 @@ public class UserController {
     @FXML
     public void initialize() {
         setupDatabase();
+        setupRoleComboBox();
 
         idColumn.setCellValueFactory(new PropertyValueFactory<>("userId"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
@@ -68,6 +69,12 @@ public class UserController {
         addButtonToTable(updateColumn, "Update", this::toggleUpdateID);
         addButtonToTable(deleteColumn, "Delete", this::deleteUser);
         staffTable.setItems(getUserList());
+    }
+    
+    private void setupRoleComboBox() {
+        if (roleComboBox != null) {
+            roleComboBox.getItems().addAll("Admin", "Manager", "Cashier", "Waiter", "Barista");
+        }
     }
 
     private void setupDatabase() {
@@ -117,37 +124,97 @@ public class UserController {
 
     @FXML
     private void onInlineSubmitClicked() {
-        int id = Integer.parseInt(idField.getText().trim());
-        String username = usernameField.getText().trim();
-        String fullName = fullNameField.getText().trim();
-        String email = emailField.getText().trim();
-        String phone = phoneField.getText().trim();
-        String role = roleComboBox.getValue().trim();
-        String password = passwordField.getText().trim();
+        // Validation
+        if (!validateInput()) {
+            return;
+        }
+        
+        try {
+            int id = Integer.parseInt(idField.getText().trim());
+            String username = usernameField.getText().trim();
+            String fullName = fullNameField.getText().trim();
+            String email = emailField.getText().trim();
+            String phone = phoneField.getText().trim();
+            String role = roleComboBox.getValue().trim();
+            String password = passwordField.getText().trim();
 
+            try (Connection connection = DatabaseConfig.getConnection()) {
+                UserDAO userDAO = new UserDAOImpl(connection);
+                if (updateID != -1) {
+                    // Update existing user
+                    String finalPassword = password.isEmpty() ? 
+                        staffTable.getItems().stream()
+                            .filter(u -> u.getUserId() == updateID)
+                            .findFirst()
+                            .map(User::getPassword)
+                            .orElse("") : password;
+                    userDAO.updateUser(new User(id, username, fullName, email, phone, role, true, finalPassword));
+                    System.out.println("✅ User updated successfully: " + username);
+                } else {
+                    // Create new user
+                    userDAO.insertUser(new User(id, username, fullName, email, phone, role, true, password));
+                    System.out.println("✅ User created successfully: " + username);
+                }
+            } catch (Exception e) {
+                System.err.println("❌ Error updating/inserting user: " + e.getMessage());
+                e.printStackTrace();
+                showError("Lỗi khi lưu người dùng: " + e.getMessage());
+                return;
+            }
+            
+            staffTable.setItems(getUserList());
 
-
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            UserDAO userDAO = new UserDAOImpl(connection);
-            if (updateID != -1)
-                userDAO.updateUser(new User(id, username, fullName, email, phone, role, true, password.isEmpty() ? staffTable.getItems().get(updateID).getPassword() : password));
-            else
-                userDAO.insertUser(new User(id, username, fullName, email, phone, role, true, password));
+            if (updateID == -1) {
+                clearForm();
+            }
+            
+        } catch (NumberFormatException e) {
+            showError("ID phải là số!");
         } catch (Exception e) {
-            System.err.println("Error updating/inserting user: " + e.getMessage());
-            e.printStackTrace();
+            showError("Lỗi không xác định: " + e.getMessage());
         }
-        staffTable.setItems(getUserList());
-
-        if (updateID == -1) {
-            idField.clear();
-            usernameField.clear();
-            fullNameField.clear();
-            emailField.clear();
-            phoneField.clear();
-            roleComboBox.setValue(null);
-            passwordField.clear();
+    }
+    
+    private boolean validateInput() {
+        if (idField.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập ID!");
+            return false;
         }
+        if (usernameField.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập tên đăng nhập!");
+            return false;
+        }
+        if (fullNameField.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập họ tên!");
+            return false;
+        }
+        if (roleComboBox.getValue() == null) {
+            showError("Vui lòng chọn vai trò!");
+            return false;
+        }
+        if (updateID == -1 && passwordField.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập mật khẩu cho người dùng mới!");
+            return false;
+        }
+        return true;
+    }
+    
+    private void clearForm() {
+        idField.clear();
+        usernameField.clear();
+        fullNameField.clear();
+        emailField.clear();
+        phoneField.clear();
+        roleComboBox.setValue(null);
+        passwordField.clear();
+    }
+    
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Lỗi");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     @FXML
@@ -180,8 +247,15 @@ public class UserController {
     }
 
     private void deleteUser(User user) {
-        userDAO.deleteUser(user.getUserId());
-        staffTable.setItems(getUserList());
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            UserDAO userDAO = new UserDAOImpl(connection);
+            userDAO.deleteUser(user.getUserId());
+            staffTable.setItems(getUserList());
+            System.out.println("✅ User deleted successfully: " + user.getUsername());
+        } catch (Exception e) {
+            System.err.println("❌ Error deleting user: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void toggleUpdateID(User user) {

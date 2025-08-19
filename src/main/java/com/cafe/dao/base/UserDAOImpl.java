@@ -1,6 +1,5 @@
 package com.cafe.dao.base;
 import com.cafe.model.entity.User;
-import com.cafe.model.entity.Role;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -118,6 +117,19 @@ public class UserDAOImpl implements UserDAO {
             ps.setString(6, user.getRole());
             ps.setBoolean(7, user.isActive());
             ps.setInt(8, user.getUserId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean updatePassword(int userId, String newPassword) {
+        String sql = "UPDATE users SET password=? WHERE user_id=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newPassword);
+            ps.setInt(2, userId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

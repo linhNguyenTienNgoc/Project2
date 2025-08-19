@@ -11,6 +11,9 @@ public interface ProductDAO {
     boolean delete(int productId);
     Optional<Product> findById(Integer productId);
     List<Product> findAll();
+    
+    // For compatibility with existing code
+    List<Product> getAllProducts();
 
     // Specific queries for menu operations
     List<Product> findByCategoryId(Integer categoryId);
@@ -21,6 +24,8 @@ public interface ProductDAO {
     // Search operations
     List<Product> searchProducts(String keyword, Integer categoryId, Boolean isAvailable,
                                  Integer minStock, Integer maxStock);
+    List<Product> findByNameContaining(String name);
+    boolean updateStock(Integer productId, Integer quantity);
 
     // Count operations
     long countByCategoryId(Integer categoryId);

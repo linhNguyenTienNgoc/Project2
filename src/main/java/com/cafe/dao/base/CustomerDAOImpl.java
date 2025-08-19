@@ -184,4 +184,134 @@ public class CustomerDAOImpl implements CustomerDAO {
 
         return stats;
     }
+    
+    @Override
+    public boolean updateCustomerLoyaltyPoints(int customerId, int points) throws SQLException {
+        String sql = "UPDATE customers SET loyalty_points = loyalty_points + ?, updated_at = CURRENT_TIMESTAMP WHERE customer_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, points);
+            ps.setInt(2, customerId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public Customer getCustomerById(int customerId) throws SQLException {
+        String sql = "SELECT * FROM customers WHERE customer_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("customer_id"));
+                    customer.setFullName(rs.getString("full_name"));
+                    customer.setPhone(rs.getString("phone"));
+                    customer.setEmail(rs.getString("email"));
+                    customer.setAddress(rs.getString("address"));
+                    customer.setLoyaltyPoints(rs.getInt("loyalty_points"));
+                    customer.setTotalSpent(rs.getDouble("total_spent"));
+                    customer.setActive(rs.getBoolean("is_active"));
+                    customer.setCreatedAt(rs.getTimestamp("created_at"));
+                    return customer;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Customer findCustomerByPhone(String phone) throws SQLException {
+        String sql = "SELECT * FROM customers WHERE phone = ? AND is_active = TRUE";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("customer_id"));
+                    customer.setFullName(rs.getString("full_name"));
+                    customer.setPhone(rs.getString("phone"));
+                    customer.setEmail(rs.getString("email"));
+                    customer.setAddress(rs.getString("address"));
+                    customer.setLoyaltyPoints(rs.getInt("loyalty_points"));
+                    customer.setTotalSpent(rs.getDouble("total_spent"));
+                    customer.setActive(rs.getBoolean("is_active"));
+                    customer.setCreatedAt(rs.getTimestamp("created_at"));
+                    return customer;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Customer findCustomerByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM customers WHERE email = ? AND is_active = TRUE";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("customer_id"));
+                    customer.setFullName(rs.getString("full_name"));
+                    customer.setPhone(rs.getString("phone"));
+                    customer.setEmail(rs.getString("email"));
+                    customer.setAddress(rs.getString("address"));
+                    customer.setLoyaltyPoints(rs.getInt("loyalty_points"));
+                    customer.setTotalSpent(rs.getDouble("total_spent"));
+                    customer.setActive(rs.getBoolean("is_active"));
+                    customer.setCreatedAt(rs.getTimestamp("created_at"));
+                    return customer;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean addCustomer(Customer customer) throws SQLException {
+        return insertCustomer(customer);
+    }
+
+    @Override
+    public boolean insertCustomer(Customer customer) throws SQLException {
+        String sql = "INSERT INTO customers (full_name, phone, email, address, loyalty_points, total_spent, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, customer.getFullName());
+            ps.setString(2, customer.getPhone());
+            ps.setString(3, customer.getEmail());
+            ps.setString(4, customer.getAddress());
+            ps.setInt(5, customer.getLoyaltyPoints());
+            ps.setDouble(6, customer.getTotalSpent());
+            ps.setBoolean(7, customer.isActive());
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    @Override
+    public boolean updateCustomer(Customer customer) throws SQLException {
+        String sql = "UPDATE customers SET full_name = ?, phone = ?, email = ?, address = ?, loyalty_points = ?, total_spent = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE customer_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, customer.getFullName());
+            ps.setString(2, customer.getPhone());
+            ps.setString(3, customer.getEmail());
+            ps.setString(4, customer.getAddress());
+            ps.setInt(5, customer.getLoyaltyPoints());
+            ps.setDouble(6, customer.getTotalSpent());
+            ps.setBoolean(7, customer.isActive());
+            ps.setInt(8, customer.getCustomerId());
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    @Override
+    public boolean deleteCustomer(int customerId) throws SQLException {
+        String sql = "UPDATE customers SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP WHERE customer_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            return ps.executeUpdate() > 0;
+        }
+    }
 }

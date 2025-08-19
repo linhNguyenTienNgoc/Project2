@@ -54,22 +54,22 @@
                   alignment="CENTER_LEFT" spacing="5">
                 
                 <Button fx:id="overviewTabButton" text="🏠 Tổng quan"
-                        style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+                        style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0; -fx-min-width: 100;" />
                 
-                <Button fx:id="userTabButton" text="👥 Quản lý người dùng"
-                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+                <Button fx:id="userTabButton" text="👥 Người dùng"
+                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0; -fx-min-width: 100;" />
                 
-                <Button fx:id="menuTabButton" text="🍽️ Quản lý Menu"
-                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+                <Button fx:id="menuTabButton" text="🍽️ Menu"
+                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0; -fx-min-width: 100;" />
                 
-                <Button fx:id="tableTabButton" text="🪑 Quản lý Bàn"
-                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+                <Button fx:id="tableTabButton" text="🪑 Bàn"
+                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0; -fx-min-width: 100;" />
                 
                 <Button fx:id="reportTabButton" text="📊 Báo cáo"
-                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0; -fx-min-width: 100;" />
                 
                 <Button fx:id="promotionTabButton" text="🎉 Khuyến mãi"
-                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;" />
+                        style="-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-border-width: 0; -fx-min-width: 100;" />
             </HBox>
 
             <!-- Content Area -->

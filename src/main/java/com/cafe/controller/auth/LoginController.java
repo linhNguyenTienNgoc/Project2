@@ -5,6 +5,7 @@ import com.cafe.config.DatabaseConfig;
 import com.cafe.dao.base.UserDAO;
 import com.cafe.dao.base.UserDAOImpl;
 import com.cafe.model.entity.User;
+import com.cafe.util.PasswordUtil;
 import com.cafe.util.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -33,8 +34,6 @@ public class LoginController implements Initializable {
     @FXML private CheckBox rememberMeCheckBox;
     @FXML private Button exitButton;
     
-    private UserDAO userDAO;
-    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupDatabase();
@@ -52,7 +51,8 @@ public class LoginController implements Initializable {
             
             if (dbConfig.testConnection()) {
                 try (Connection connection = DatabaseConfig.getConnection()) {
-                    userDAO = new UserDAOImpl(connection);
+                    // Test UserDAO instantiation
+                    new UserDAOImpl(connection);
                     
                     System.out.println("✅ Database connection established successfully");
                     System.out.println("🔗 " + dbConfig.getDatabaseInfo());
@@ -174,6 +174,11 @@ public class LoginController implements Initializable {
                 if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$")) {
                     // Verify BCrypt password
                     if (BCrypt.verifyer().verify(password.toCharArray(), storedPassword).verified) {
+                        return user;
+                    }
+                } else if (storedPassword.contains(":")) {
+                    // PasswordUtil format (SHA-256 + salt)
+                    if (PasswordUtil.verifyPassword(password, storedPassword)) {
                         return user;
                     }
                 } else {

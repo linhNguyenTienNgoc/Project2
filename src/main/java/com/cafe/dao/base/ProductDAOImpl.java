@@ -114,6 +114,11 @@ public class ProductDAOImpl implements ProductDAO {
     }
 
     @Override
+    public List<Product> getAllProducts() {
+        return findAll();
+    }
+
+    @Override
     public List<Product> findByCategoryId(Integer categoryId) {
         List<Product> products = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE category_id = ? AND is_active = true ORDER BY product_name";
@@ -242,5 +247,36 @@ public class ProductDAOImpl implements ProductDAO {
         product.setAvailable(rs.getBoolean("is_available"));
         product.setActive(rs.getBoolean("is_active"));
         return product;
+    }
+
+    @Override
+    public boolean updateStock(Integer productId, Integer quantity) {
+        String sql = "UPDATE products SET stock_quantity = ? WHERE product_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, productId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public List<Product> findByNameContaining(String name) {
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT * FROM products WHERE product_name LIKE ? AND is_active = true ORDER BY product_name";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, "%" + name + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    products.add(extractProduct(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return products;
     }
 }

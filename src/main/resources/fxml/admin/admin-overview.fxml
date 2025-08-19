@@ -60,7 +60,7 @@
     <VBox spacing="15">
         <Label text="⚡ Thao tác nhanh" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
         
-        <HBox spacing="15" alignment="CENTER_LEFT">
+        <HBox spacing="12" alignment="CENTER_LEFT">
             <Button fx:id="addUserButton" text="👤 Thêm nhân viên" 
                     style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;" 
                     prefHeight="40"/>
@@ -75,6 +75,31 @@
             
             <Button fx:id="managePromotionsButton" text="🎉 Quản lý khuyến mãi" 
                     style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;" 
+                    prefHeight="40"/>
+        </HBox>
+        
+        <!-- System Administration -->
+        <Label text="🔧 Quản trị hệ thống" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+        
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <Button fx:id="systemSettingsButton" text="⚙️ Cài đặt hệ thống" 
+                    style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;" 
+                    prefHeight="40"/>
+            
+            <Button fx:id="backupDataButton" text="💾 Sao lưu dữ liệu" 
+                    style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;" 
+                    prefHeight="40"/>
+            
+            <Button fx:id="restoreDataButton" text="📥 Khôi phục dữ liệu" 
+                    style="-fx-background-color: #fd7e14; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;" 
+                    prefHeight="40"/>
+            
+            <Button fx:id="exportDashboardButton" text="📋 Xuất dashboard" 
+                    style="-fx-background-color: #20c997; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;" 
+                    prefHeight="40"/>
+            
+            <Button fx:id="systemLogsButton" text="📜 System logs" 
+                    style="-fx-background-color: #6f42c1; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;" 
                     prefHeight="40"/>
         </HBox>
     </VBox>
