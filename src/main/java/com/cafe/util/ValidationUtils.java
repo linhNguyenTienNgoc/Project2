@@ -34,6 +34,22 @@ public class ValidationUtils {
     }
 
     /**
+     * Validate password strength
+     */
+    public static boolean isValidPassword(String password) {
+        if (isEmpty(password)) {
+            return false;
+        }
+        
+        // Mật khẩu phải có ít nhất 6 ký tự
+        if (password.length() < 6) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    /**
      * Validate positive number
      */
     public static boolean isPositiveNumber(String str) {

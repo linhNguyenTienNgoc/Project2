@@ -1,0 +1,532 @@
+package com.cafe.controller.admin;
+
+import com.cafe.controller.base.DashboardCommunicator;
+import com.cafe.config.DatabaseConfig;
+import com.cafe.util.DateUtils;
+import com.cafe.util.PriceFormatter;
+
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.chart.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+
+/**
+ * Controller cho báo cáo trong Admin Dashboard
+ */
+public class AdminReportController implements Initializable, DashboardCommunicator {
+
+    // Date Range Selection
+    @FXML private DatePicker startDatePicker;
+    @FXML private DatePicker endDatePicker;
+    @FXML private ComboBox<String> reportTypeCombo;
+    @FXML private Button generateReportButton;
+    @FXML private Button exportReportButton;
+    @FXML private Button refreshButton;
+
+    // Revenue Statistics
+    @FXML private Label totalRevenueLabel;
+    @FXML private Label totalOrdersLabel;
+    @FXML private Label avgOrderValueLabel;
+    @FXML private Label dailyAvgRevenueLabel;
+
+    // Charts
+    @FXML private LineChart<String, Number> revenueChart;
+    @FXML private CategoryAxis revenueXAxis;
+    @FXML private NumberAxis revenueYAxis;
+    
+    @FXML private BarChart<String, Number> productSalesChart;
+    @FXML private CategoryAxis productXAxis;
+    @FXML private NumberAxis productYAxis;
+    
+    @FXML private PieChart categoryDistributionChart;
+
+    // Tables
+    @FXML private TableView<ReportData> reportTable;
+    @FXML private TableColumn<ReportData, String> dateColumn;
+    @FXML private TableColumn<ReportData, Integer> ordersColumn;
+    @FXML private TableColumn<ReportData, Double> revenueColumn;
+    @FXML private TableColumn<ReportData, Double> avgValueColumn;
+
+    @FXML private TableView<ProductReportData> productReportTable;
+    @FXML private TableColumn<ProductReportData, String> productNameColumn;
+    @FXML private TableColumn<ProductReportData, Integer> quantitySoldColumn;
+    @FXML private TableColumn<ProductReportData, Double> productRevenueColumn;
+    @FXML private TableColumn<ProductReportData, Double> percentageColumn;
+
+    // Export and Print
+    @FXML private VBox reportContentPane;
+    @FXML private Button printReportButton;
+
+    // Data
+    private ObservableList<ReportData> reportDataList = FXCollections.observableArrayList();
+    private ObservableList<ProductReportData> productReportDataList = FXCollections.observableArrayList();
+    private Object dashboardController;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        try {
+            setupDatePickers();
+            setupReportTypes();
+            setupTables();
+            setupCharts();
+            setupEventHandlers();
+            
+            // Load default report (last 30 days)
+            generateDefaultReport();
+
+            System.out.println("✅ AdminReportController initialized successfully");
+        } catch (Exception e) {
+            System.err.println("Error initializing AdminReportController: " + e.getMessage());
+            e.printStackTrace();
+            showError("Lỗi khởi tạo báo cáo: " + e.getMessage());
+        }
+    }
+
+    private void setupDatePickers() {
+        // Set default date range (last 30 days)
+        endDatePicker.setValue(LocalDate.now());
+        startDatePicker.setValue(LocalDate.now().minusDays(30));
+
+        // Set date format
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        startDatePicker.setConverter(DateUtils.createDateConverter(formatter));
+        endDatePicker.setConverter(DateUtils.createDateConverter(formatter));
+    }
+
+    private void setupReportTypes() {
+        reportTypeCombo.setItems(FXCollections.observableArrayList(
+            "Báo cáo doanh thu",
+            "Báo cáo sản phẩm",
+            "Báo cáo khách hàng", 
+            "Báo cáo nhân viên",
+            "Báo cáo tổng hợp"
+        ));
+        reportTypeCombo.setValue("Báo cáo doanh thu");
+    }
+
+    private void setupTables() {
+        // Revenue report table
+        dateColumn.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleStringProperty(cellData.getValue().getDate()));
+        ordersColumn.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleIntegerProperty(cellData.getValue().getOrders()).asObject());
+        revenueColumn.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleDoubleProperty(cellData.getValue().getRevenue()).asObject());
+        avgValueColumn.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleDoubleProperty(cellData.getValue().getAvgValue()).asObject());
+
+        // Format currency columns
+        revenueColumn.setCellFactory(col -> new TableCell<ReportData, Double>() {
+            @Override
+            protected void updateItem(Double revenue, boolean empty) {
+                super.updateItem(revenue, empty);
+                if (empty || revenue == null) {
+                    setText(null);
+                } else {
+                    setText(PriceFormatter.format(revenue));
+                }
+            }
+        });
+
+        avgValueColumn.setCellFactory(col -> new TableCell<ReportData, Double>() {
+            @Override
+            protected void updateItem(Double avgValue, boolean empty) {
+                super.updateItem(avgValue, empty);
+                if (empty || avgValue == null) {
+                    setText(null);
+                } else {
+                    setText(PriceFormatter.format(avgValue));
+                }
+            }
+        });
+
+        // Product report table
+        productNameColumn.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleStringProperty(cellData.getValue().getProductName()));
+        quantitySoldColumn.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleIntegerProperty(cellData.getValue().getQuantitySold()).asObject());
+        productRevenueColumn.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleDoubleProperty(cellData.getValue().getRevenue()).asObject());
+        percentageColumn.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleDoubleProperty(cellData.getValue().getPercentage()).asObject());
+
+        // Format product table cells
+        productRevenueColumn.setCellFactory(col -> new TableCell<ProductReportData, Double>() {
+            @Override
+            protected void updateItem(Double revenue, boolean empty) {
+                super.updateItem(revenue, empty);
+                if (empty || revenue == null) {
+                    setText(null);
+                } else {
+                    setText(PriceFormatter.format(revenue));
+                }
+            }
+        });
+
+        percentageColumn.setCellFactory(col -> new TableCell<ProductReportData, Double>() {
+            @Override
+            protected void updateItem(Double percentage, boolean empty) {
+                super.updateItem(percentage, empty);
+                if (empty || percentage == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.1f%%", percentage));
+                }
+            }
+        });
+
+        // Set data
+        reportTable.setItems(reportDataList);
+        productReportTable.setItems(productReportDataList);
+    }
+
+    private void setupCharts() {
+        // Revenue chart
+        revenueChart.setTitle("Biểu đồ doanh thu theo ngày");
+        revenueXAxis.setLabel("Ngày");
+        revenueYAxis.setLabel("Doanh thu (VNĐ)");
+
+        // Product sales chart
+        productSalesChart.setTitle("Top sản phẩm bán chạy");
+        productXAxis.setLabel("Sản phẩm");
+        productYAxis.setLabel("Số lượng bán");
+
+        // Category distribution chart
+        categoryDistributionChart.setTitle("Phân bố doanh thu theo danh mục");
+    }
+
+    private void setupEventHandlers() {
+        generateReportButton.setOnAction(e -> generateReport());
+        refreshButton.setOnAction(e -> generateReport());
+        exportReportButton.setOnAction(e -> exportReport());
+        printReportButton.setOnAction(e -> printReport());
+
+        // Auto-generate when date changes
+        startDatePicker.setOnAction(e -> generateReport());
+        endDatePicker.setOnAction(e -> generateReport());
+        reportTypeCombo.setOnAction(e -> generateReport());
+    }
+
+    private void generateDefaultReport() {
+        generateReport();
+    }
+
+    private void generateReport() {
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
+        String reportType = reportTypeCombo.getValue();
+
+        if (startDate == null || endDate == null) {
+            showError("Vui lòng chọn khoảng thời gian");
+            return;
+        }
+
+        if (startDate.isAfter(endDate)) {
+            showError("Ngày bắt đầu không thể sau ngày kết thúc");
+            return;
+        }
+
+        Task<Void> reportTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                loadRevenueData(startDate, endDate);
+                loadProductData(startDate, endDate);
+                loadCategoryData(startDate, endDate);
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                Platform.runLater(() -> {
+                    updateCharts();
+                    updateStatistics();
+                });
+            }
+
+            @Override
+            protected void failed() {
+                Platform.runLater(() -> {
+                    showError("Lỗi khi tạo báo cáo: " + getException().getMessage());
+                });
+            }
+        };
+
+        new Thread(reportTask).start();
+    }
+
+    private void loadRevenueData(LocalDate startDate, LocalDate endDate) {
+        String sql = """
+            SELECT DATE(o.created_at) as order_date,
+                   COUNT(*) as total_orders,
+                   SUM(o.total_amount) as total_revenue,
+                   AVG(o.total_amount) as avg_order_value
+            FROM orders o
+            WHERE DATE(o.created_at) BETWEEN ? AND ?
+            GROUP BY DATE(o.created_at)
+            ORDER BY order_date
+            """;
+
+        List<ReportData> data = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setDate(1, java.sql.Date.valueOf(startDate));
+            stmt.setDate(2, java.sql.Date.valueOf(endDate));
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ReportData reportData = new ReportData(
+                        rs.getDate("order_date").toString(),
+                        rs.getInt("total_orders"),
+                        rs.getDouble("total_revenue"),
+                        rs.getDouble("avg_order_value")
+                    );
+                    data.add(reportData);
+                }
+            }
+            
+            Platform.runLater(() -> {
+                reportDataList.clear();
+                reportDataList.addAll(data);
+            });
+            
+        } catch (Exception e) {
+            System.err.println("Error loading revenue data: " + e.getMessage());
+        }
+    }
+
+    private void loadProductData(LocalDate startDate, LocalDate endDate) {
+        String sql = """
+            SELECT p.name as product_name,
+                   SUM(oi.quantity) as quantity_sold,
+                   SUM(oi.quantity * oi.unit_price) as revenue
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE DATE(o.created_at) BETWEEN ? AND ?
+            GROUP BY p.id, p.name
+            ORDER BY revenue DESC
+            LIMIT 10
+            """;
+
+        List<ProductReportData> data = new ArrayList<>();
+        double totalRevenue = 0;
+        
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setDate(1, java.sql.Date.valueOf(startDate));
+            stmt.setDate(2, java.sql.Date.valueOf(endDate));
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    double revenue = rs.getDouble("revenue");
+                    totalRevenue += revenue;
+                    
+                    ProductReportData productData = new ProductReportData(
+                        rs.getString("product_name"),
+                        rs.getInt("quantity_sold"),
+                        revenue,
+                        0 // percentage will be calculated later
+                    );
+                    data.add(productData);
+                }
+            }
+            
+            // Calculate percentages
+            final double finalTotalRevenue = totalRevenue;
+            data.forEach(item -> item.setPercentage((item.getRevenue() / finalTotalRevenue) * 100));
+            
+            Platform.runLater(() -> {
+                productReportDataList.clear();
+                productReportDataList.addAll(data);
+            });
+            
+        } catch (Exception e) {
+            System.err.println("Error loading product data: " + e.getMessage());
+        }
+    }
+
+    private void loadCategoryData(LocalDate startDate, LocalDate endDate) {
+        String sql = """
+            SELECT c.name as category_name,
+                   SUM(oi.quantity * oi.unit_price) as revenue
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            JOIN categories c ON p.category_id = c.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE DATE(o.created_at) BETWEEN ? AND ?
+            GROUP BY c.id, c.name
+            ORDER BY revenue DESC
+            """;
+
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+        
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setDate(1, java.sql.Date.valueOf(startDate));
+            stmt.setDate(2, java.sql.Date.valueOf(endDate));
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    pieChartData.add(new PieChart.Data(
+                        rs.getString("category_name"),
+                        rs.getDouble("revenue")
+                    ));
+                }
+            }
+            
+            Platform.runLater(() -> {
+                categoryDistributionChart.setData(pieChartData);
+            });
+            
+        } catch (Exception e) {
+            System.err.println("Error loading category data: " + e.getMessage());
+        }
+    }
+
+    private void updateCharts() {
+        // Update revenue chart
+        XYChart.Series<String, Number> revenueSeries = new XYChart.Series<>();
+        revenueSeries.setName("Doanh thu");
+        
+        for (ReportData data : reportDataList) {
+            revenueSeries.getData().add(new XYChart.Data<>(data.getDate(), data.getRevenue()));
+        }
+        
+        revenueChart.getData().clear();
+        revenueChart.getData().add(revenueSeries);
+
+        // Update product sales chart
+        XYChart.Series<String, Number> productSeries = new XYChart.Series<>();
+        productSeries.setName("Số lượng bán");
+        
+        productReportDataList.stream()
+            .limit(10) // Top 10 products
+            .forEach(data -> {
+                productSeries.getData().add(new XYChart.Data<>(
+                    data.getProductName().length() > 15 ? 
+                        data.getProductName().substring(0, 15) + "..." : data.getProductName(),
+                    data.getQuantitySold()
+                ));
+            });
+        
+        productSalesChart.getData().clear();
+        productSalesChart.getData().add(productSeries);
+    }
+
+    private void updateStatistics() {
+        double totalRevenue = reportDataList.stream()
+            .mapToDouble(ReportData::getRevenue)
+            .sum();
+        
+        int totalOrders = reportDataList.stream()
+            .mapToInt(ReportData::getOrders)
+            .sum();
+        
+        double avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+        
+        int dayCount = reportDataList.size();
+        double dailyAvgRevenue = dayCount > 0 ? totalRevenue / dayCount : 0;
+
+        totalRevenueLabel.setText(PriceFormatter.format(totalRevenue));
+        totalOrdersLabel.setText(String.valueOf(totalOrders));
+        avgOrderValueLabel.setText(PriceFormatter.format(avgOrderValue));
+        dailyAvgRevenueLabel.setText(PriceFormatter.format(dailyAvgRevenue));
+    }
+
+    private void exportReport() {
+        // TODO: Implement export to Excel/PDF
+        showInfo("Thông báo", "Tính năng xuất báo cáo sẽ được cập nhật sau");
+    }
+
+    private void printReport() {
+        // TODO: Implement print functionality
+        showInfo("Thông báo", "Tính năng in báo cáo sẽ được cập nhật sau");
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Lỗi");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    // Data classes
+    public static class ReportData {
+        private String date;
+        private int orders;
+        private double revenue;
+        private double avgValue;
+
+        public ReportData(String date, int orders, double revenue, double avgValue) {
+            this.date = date;
+            this.orders = orders;
+            this.revenue = revenue;
+            this.avgValue = avgValue;
+        }
+
+        public String getDate() { return date; }
+        public int getOrders() { return orders; }
+        public double getRevenue() { return revenue; }
+        public double getAvgValue() { return avgValue; }
+    }
+
+    public static class ProductReportData {
+        private String productName;
+        private int quantitySold;
+        private double revenue;
+        private double percentage;
+
+        public ProductReportData(String productName, int quantitySold, double revenue, double percentage) {
+            this.productName = productName;
+            this.quantitySold = quantitySold;
+            this.revenue = revenue;
+            this.percentage = percentage;
+        }
+
+        public String getProductName() { return productName; }
+        public int getQuantitySold() { return quantitySold; }
+        public double getRevenue() { return revenue; }
+        public double getPercentage() { return percentage; }
+        public void setPercentage(double percentage) { this.percentage = percentage; }
+    }
+
+    // Dashboard Communication
+    @Override
+    public void setDashboardController(Object dashboardController) {
+        this.dashboardController = dashboardController;
+        System.out.println("✅ AdminReportController connected to Dashboard");
+    }
+
+    @Override
+    public Object getDashboardController() {
+        return dashboardController;
+    }
+}
