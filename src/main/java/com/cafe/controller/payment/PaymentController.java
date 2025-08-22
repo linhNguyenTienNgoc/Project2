@@ -359,14 +359,8 @@ public class PaymentController implements Initializable {
         // VAT calculation
         vatAmountProperty.bind(subtotalProperty.multiply(vatPercentProperty.divide(100)));
         
-        // Discount calculation
-        discountAmountProperty.bind(Bindings.createDoubleBinding(() -> {
-            if (discountPercentRadio.isSelected()) {
-                return subtotalProperty.get() * discountValueProperty.get() / 100;
-            } else {
-                return discountValueProperty.get();
-            }
-        }, discountValueProperty, subtotalProperty, discountTypeGroup.selectedToggleProperty()));
+        // Discount calculation - simplified for promotion-based discounts
+        discountAmountProperty.bind(discountValueProperty);
         
         // Grand total calculation (removed service fee)
         grandTotalProperty.bind(subtotalProperty
@@ -392,9 +386,10 @@ public class PaymentController implements Initializable {
         cashTotalLabel.textProperty().bind(Bindings.createStringBinding(() -> 
             formatCurrency(grandTotalProperty.get()), grandTotalProperty));
         
-        // Discount unit label
-        discountUnitLabel.textProperty().bind(Bindings.createStringBinding(() -> 
-            discountPercentRadio.isSelected() ? "%" : "₫", discountTypeGroup.selectedToggleProperty()));
+        // Discount unit label - simplified for promotion-based discounts
+        if (discountUnitLabel != null) {
+            discountUnitLabel.setText("₫");
+        }
     }
     
     private void setupPaymentMethodListeners() {
@@ -409,11 +404,10 @@ public class PaymentController implements Initializable {
             cashRadio.setSelected(true); // Default selection
         }
         
-        if (discountTypeGroup != null) {
-            discountPercentRadio.setToggleGroup(discountTypeGroup);
-            discountAmountRadio.setToggleGroup(discountTypeGroup);
-            discountPercentRadio.setSelected(true); // Default selection
-        }
+        // Legacy discount controls - disabled for promotion-based system
+        if (discountPercentRadio != null) discountPercentRadio.setVisible(false);
+        if (discountAmountRadio != null) discountAmountRadio.setVisible(false);
+        if (discountValueField != null) discountValueField.setVisible(false);
         
         paymentMethodGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             boolean isCash = cashRadio.isSelected();

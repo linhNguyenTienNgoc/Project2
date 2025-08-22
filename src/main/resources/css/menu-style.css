@@ -1,0 +1,978 @@
+/* ===============================================
+ * MENU MANAGEMENT STYLES - FULL HEIGHT VERSION
+ * Modern Café Design - Orange/Brown Theme
+ * Full Screen Layout - NO WASTED SPACE
+ * =============================================== */
+
+/* Root & Global Styles */
+.root-container {
+    -fx-background-color: linear-gradient(to bottom, #f4f1de, #e8dcc6);
+    -fx-font-family: "Roboto", "Segoe UI", Arial, sans-serif;
+    -fx-padding: 0;
+    -fx-spacing: 0;
+    /* *** ENSURE FULL HEIGHT *** */
+    -fx-min-height: 600;
+    -fx-pref-height: 800;
+    -fx-max-height: Infinity;
+}
+
+/* ===============================================
+ * TOP NAVIGATION BAR - FIXED HEIGHT
+ * =============================================== */
+.top-navbar {
+    -fx-background-color: linear-gradient(to right, #8b4513, #a0522d);
+    -fx-padding: 8 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0.3, 0, 2);
+    -fx-pref-height: 50;
+    -fx-max-height: 50;
+    -fx-min-height: 50;
+}
+
+.page-title {
+    -fx-text-fill: #fff9c4;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.search-container {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-background-radius: 25;
+    -fx-padding: 6 12;
+}
+
+.search-icon {
+    -fx-text-fill: #fff9c4;
+    -fx-font-size: 14px;
+}
+
+.search-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: #fff9c4;
+    -fx-prompt-text-fill: rgba(255, 249, 196, 0.7);
+    -fx-border-color: transparent;
+    -fx-font-size: 13px;
+    -fx-pref-width: 200;
+}
+
+.search-field:focused {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 5;
+}
+
+.logout-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #fff9c4;
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-background-radius: 18;
+    -fx-padding: 6;
+}
+
+.logout-button:hover {
+    -fx-background-color: rgba(255, 249, 196, 0.2);
+}
+
+/* ===============================================
+ * MAIN CONTENT LAYOUT - FULL HEIGHT
+ * =============================================== */
+.main-content {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-spacing: 0;
+    /* *** FILL REMAINING HEIGHT AFTER TOP BAR *** */
+    -fx-min-height: 500;
+    -fx-pref-height: 700;
+    -fx-max-height: Infinity;
+    /* *** FORCE FULL WIDTH USAGE *** */
+    -fx-min-width: 800;
+    -fx-pref-width: 1000;
+    -fx-max-width: Infinity;
+}
+
+.left-panel {
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0.2, 2, 0);
+    -fx-padding: 0;
+    /* *** FORCE LEFT PANEL TO USE ALL AVAILABLE SPACE *** */
+    -fx-min-height: 500;
+    -fx-pref-height: 700;
+    -fx-max-height: Infinity;
+    -fx-min-width: 600;
+    -fx-pref-width: 1000;
+    -fx-max-width: Infinity;
+}
+
+.right-panel {
+    -fx-background-color: #faf8f5;
+    -fx-border-color: #e8dcc6;
+    -fx-border-width: 0 0 0 1;
+    -fx-padding: 8;
+    /* *** RESPONSIVE WIDTH + FULL HEIGHT *** */
+    -fx-pref-width: 280;
+    -fx-min-width: 250;
+    -fx-max-width: 350;
+    -fx-min-height: 500;
+    -fx-pref-height: 700;
+    -fx-max-height: Infinity;
+}
+
+/* ===============================================
+ * TOOLBAR STYLES - FIXED HEIGHT
+ * =============================================== */
+.toolbar {
+    -fx-background-color: linear-gradient(to bottom, #f8f6f0, #f0ede5);
+    -fx-border-color: #e8dcc6;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 6 15;
+    -fx-spacing: 8;
+    -fx-pref-height: 45;
+    -fx-max-height: 45;
+    -fx-min-height: 45;
+}
+
+.primary-button {
+    -fx-background-color: linear-gradient(to bottom, #d2691e, #cd853f);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 6 14;
+    -fx-font-size: 11px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.3), 4, 0.3, 0, 1);
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ff8c00, #d2691e);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.secondary-button {
+    -fx-background-color: linear-gradient(to bottom, #f4a460, #deb887);
+    -fx-text-fill: #8b4513;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 6 14;
+    -fx-font-size: 11px;
+    -fx-cursor: hand;
+}
+
+.danger-button {
+    -fx-background-color: linear-gradient(to bottom, #dc3545, #c82333);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 6 14;
+    -fx-font-size: 11px;
+    -fx-cursor: hand;
+}
+
+.outline-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #8b4513;
+    -fx-border-color: #8b4513;
+    -fx-border-width: 1;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 6 14;
+    -fx-font-size: 11px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.outline-button:hover {
+    -fx-background-color: rgba(139, 69, 19, 0.1);
+}
+
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #8b4513;
+    -fx-background-radius: 4;
+    -fx-padding: 6;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.icon-button:hover {
+    -fx-background-color: rgba(139, 69, 19, 0.1);
+}
+
+.refresh-btn:hover {
+    -fx-background-color: rgba(40, 167, 69, 0.1);
+    -fx-text-fill: #28a745;
+}
+
+/* Filter Controls */
+.filter-label {
+    -fx-text-fill: #6c4f37;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.category-filter,
+.status-filter {
+    -fx-background-color: white;
+    -fx-border-color: #d2691e;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 4 8;
+    -fx-pref-width: 120;
+}
+
+.category-filter:focused,
+.status-filter:focused {
+    -fx-border-color: #ff8c00;
+    -fx-border-width: 2;
+}
+
+/* ===============================================
+ * RESPONSIVE TABLE STYLES - FULL HEIGHT
+ * =============================================== */
+.responsive-products-table {
+    -fx-background-color: white;
+    -fx-table-cell-border-color: #e8dcc6;
+    -fx-selection-bar: linear-gradient(to bottom, #f4a460, #deb887);
+    -fx-selection-bar-non-focused: linear-gradient(to bottom, #f5deb3, #f0e68c);
+    -fx-padding: 0;
+    
+    /* *** FORCE FULL WIDTH AND HEIGHT USAGE *** */
+    -fx-background-insets: 0;
+    -fx-min-height: 400;
+    -fx-pref-height: 600;
+    -fx-max-height: Infinity;
+}
+
+/* *** USE CONSTRAINED RESIZE POLICY *** */
+.responsive-products-table .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, #8b4513, #a0522d);
+}
+
+.responsive-products-table .column-header {
+    -fx-background-color: transparent;
+    -fx-text-fill: #fff9c4;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-padding: 8 6;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.responsive-products-table .table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: #f0ede5;
+    -fx-border-width: 0 0 1 0;
+    -fx-min-height: 35;
+    -fx-max-height: 35;
+    -fx-pref-height: 35;
+}
+
+.responsive-products-table .table-row-cell:hover {
+    -fx-background-color: #faf8f5;
+}
+
+.responsive-products-table .table-row-cell:selected {
+    -fx-background-color: linear-gradient(to bottom, #f4a460, #deb887);
+    -fx-text-fill: #8b4513;
+}
+
+.responsive-products-table .table-cell {
+    -fx-padding: 6 8;
+    -fx-font-size: 12px;
+    -fx-text-fill: #4a4a4a;
+    -fx-alignment: CENTER_LEFT;
+    -fx-wrap-text: false;
+}
+
+/* *** COLUMN SPECIFIC STYLES - NO FIXED WIDTHS *** */
+.id-column {
+    -fx-alignment: CENTER;
+    -fx-font-weight: bold;
+}
+
+.name-column {
+    -fx-font-weight: bold;
+    -fx-text-fill: #8b4513;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.category-column {
+    -fx-alignment: CENTER_LEFT;
+    -fx-text-fill: #6c4f37;
+}
+
+.price-column {
+    -fx-alignment: CENTER_RIGHT;
+    -fx-font-weight: bold;
+    -fx-text-fill: #d2691e;
+}
+
+.status-column {
+    -fx-alignment: CENTER;
+    -fx-font-weight: bold;
+}
+
+/* ===============================================
+ * TABLE FOOTER - FIXED HEIGHT
+ * =============================================== */
+.table-footer {
+    -fx-background-color: linear-gradient(to bottom, #f8f6f0, #f0ede5);
+    -fx-border-color: #e8dcc6;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 6 12;
+    -fx-pref-height: 40;
+    -fx-max-height: 40;
+    -fx-min-height: 40;
+}
+
+.info-label {
+    -fx-text-fill: #6c4f37;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.pagination-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #8b4513;
+    -fx-border-color: #8b4513;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 3 8;
+    -fx-cursor: hand;
+}
+
+.pagination-button:hover {
+    -fx-background-color: rgba(139, 69, 19, 0.1);
+}
+
+.page-info {
+    -fx-text-fill: #6c4f37;
+    -fx-font-size: 11px;
+    -fx-padding: 3 8;
+}
+
+/* ===============================================
+ * RIGHT PANEL - PRODUCT PREVIEW - FULL HEIGHT
+ * =============================================== */
+.panel-title {
+    -fx-text-fill: #8b4513;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 0 8 0;
+    -fx-border-color: #e8dcc6;
+    -fx-border-width: 0 0 1 0;
+    /* *** FIXED HEIGHT FOR TITLE *** */
+    -fx-pref-height: 35;
+    -fx-min-height: 35;
+    -fx-max-height: 35;
+}
+
+.product-preview {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 6, 0.2, 0, 1);
+    /* *** FORCE FILL ALL REMAINING HEIGHT *** */
+    -fx-min-height: 500;
+    -fx-pref-height: 600;
+    -fx-max-height: Infinity;
+}
+
+.image-container {
+    -fx-background-color: #f8f6f0;
+    -fx-background-radius: 6;
+    -fx-padding: 8;
+    -fx-spacing: 6;
+}
+
+.product-image {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 3, 0.3, 0, 1);
+}
+
+.image-button {
+    -fx-background-color: linear-gradient(to bottom, #f4a460, #deb887);
+    -fx-text-fill: #8b4513;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-padding: 4 8;
+    -fx-font-size: 10px;
+    -fx-cursor: hand;
+}
+
+.product-details {
+    -fx-spacing: 8;
+    /* *** ALLOW GROWTH TO FILL AVAILABLE SPACE *** */
+    -fx-min-height: 250;
+    -fx-pref-height: 300;
+    -fx-max-height: Infinity;
+}
+
+.detail-label {
+    -fx-text-fill: #6c4f37;
+    -fx-font-weight: bold;
+    -fx-font-size: 10px;
+    -fx-opacity: 0.8;
+}
+
+.detail-value {
+    -fx-text-fill: #4a4a4a;
+    -fx-font-size: 11px;
+}
+
+.name-value {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: #8b4513;
+    -fx-wrap-text: true;
+}
+
+.price-value {
+    -fx-font-weight: bold;
+    -fx-text-fill: #d2691e;
+    -fx-font-size: 12px;
+}
+
+.status-value {
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.detail-description {
+    -fx-background-color: #f8f6f0;
+    -fx-border-color: #e8dcc6;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8;
+    -fx-font-size: 10px;
+    -fx-text-fill: #6c4f37;
+    /* *** EXPANDABLE DESCRIPTION - FILL AVAILABLE SPACE *** */
+    -fx-min-height: 80;
+    -fx-pref-height: 100;
+    -fx-max-height: Infinity;
+}
+
+.quick-actions {
+    -fx-background-color: #faf8f5;
+    -fx-background-radius: 6;
+    -fx-padding: 8;
+    -fx-border-color: #e8dcc6;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-spacing: 6;
+    /* *** FIXED SIZE - STAY AT BOTTOM *** */
+    -fx-pref-height: 110;
+    -fx-min-height: 110;
+    -fx-max-height: 110;
+}
+
+.status-toggle-button {
+    -fx-background-color: linear-gradient(to bottom, #28a745, #20c997);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8;
+    -fx-cursor: hand;
+    -fx-font-size: 11px;
+}
+
+.status-toggle-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #34ce57, #28a745);
+}
+
+/* ===============================================
+ * TABLE PLACEHOLDER STYLES
+ * =============================================== */
+.table-placeholder {
+    -fx-padding: 40;
+    -fx-background-color: #faf8f5;
+    /* *** CENTER CONTENT IN FULL HEIGHT *** */
+    -fx-min-height: 300;
+    -fx-pref-height: 400;
+}
+
+.placeholder-icon {
+    -fx-font-size: 48px;
+    -fx-text-fill: #d2691e;
+}
+
+.placeholder-title {
+    -fx-font-size: 16px;
+    -fx-text-fill: #8b4513;
+    -fx-font-weight: bold;
+}
+
+.placeholder-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6c4f37;
+    -fx-font-style: italic;
+}
+
+/* ===============================================
+ * PRODUCT FORM DIALOG
+ * =============================================== */
+.product-form-dialog {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 15, 0.3, 0, 3);
+    -fx-pref-width: 600;
+    -fx-pref-height: 500;
+    -fx-min-width: 500;
+    -fx-min-height: 400;
+    -fx-max-width: 700;
+    -fx-max-height: 600;
+}
+
+.dialog-header {
+    -fx-background-color: linear-gradient(to right, #8b4513, #a0522d);
+    -fx-background-radius: 10 10 0 0;
+    -fx-padding: 12 18;
+}
+
+.dialog-title {
+    -fx-text-fill: #fff9c4;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.close-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #fff9c4;
+    -fx-background-radius: 12;
+    -fx-padding: 4 6;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.close-button:hover {
+    -fx-background-color: rgba(255, 249, 196, 0.2);
+}
+
+.dialog-content {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    /* *** SCROLLABLE CONTENT *** */
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: true;
+}
+
+.form-container {
+    -fx-padding: 20;
+}
+
+.form-section {
+    -fx-background-color: #faf8f5;
+    -fx-background-radius: 6;
+    -fx-padding: 15;
+    -fx-border-color: #e8dcc6;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-spacing: 12;
+}
+
+.section-title {
+    -fx-text-fill: #8b4513;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.form-label {
+    -fx-text-fill: #6c4f37;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.form-field,
+.form-textarea {
+    -fx-background-color: white;
+    -fx-border-color: #d2691e;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8;
+    -fx-font-size: 12px;
+    -fx-text-fill: #4a4a4a;
+}
+
+.form-field:focused,
+.form-textarea:focused {
+    -fx-border-color: #ff8c00;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(255, 140, 0, 0.3), 4, 0.3, 0, 0);
+}
+
+.price-field {
+    -fx-alignment: CENTER_RIGHT;
+    -fx-font-weight: bold;
+}
+
+.form-combobox {
+    -fx-background-color: white;
+    -fx-border-color: #d2691e;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.form-checkbox {
+    -fx-text-fill: #6c4f37;
+    -fx-font-weight: bold;
+}
+
+.form-checkbox .box {
+    -fx-background-color: white;
+    -fx-border-color: #d2691e;
+    -fx-border-radius: 3;
+}
+
+.form-checkbox:selected .box {
+    -fx-background-color: #d2691e;
+}
+
+.form-checkbox:selected .mark {
+    -fx-background-color: white;
+}
+
+.form-image-preview {
+    -fx-background-color: white;
+    -fx-border-color: #e8dcc6;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 2;
+    -fx-border-style: dashed;
+    -fx-fit-height: 80;
+    -fx-fit-width: 80;
+}
+
+.form-hint {
+    -fx-text-fill: #999;
+    -fx-font-size: 10px;
+    -fx-font-style: italic;
+}
+
+.dialog-footer {
+    -fx-background-color: #f8f6f0;
+    -fx-background-radius: 0 0 10 10;
+    -fx-border-color: #e8dcc6;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 12 18;
+}
+
+/* ===============================================
+ * STATUS COLORS
+ * =============================================== */
+.status-active {
+    -fx-text-fill: #28a745;
+    -fx-font-weight: bold;
+}
+
+.status-inactive {
+    -fx-text-fill: #dc3545;
+    -fx-font-weight: bold;
+}
+
+/* ===============================================
+ * SCROLLBAR CUSTOMIZATION
+ * =============================================== */
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: #f0ede5;
+    -fx-border-color: transparent;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 1;
+    -fx-pref-width: 8;
+    -fx-max-width: 8;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #d2691e;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #ff8c00;
+}
+
+/* ===============================================
+ * RESPONSIVE BREAKPOINTS - UPDATED FOR FULL HEIGHT
+ * =============================================== */
+
+/* Extra Large Screens (1400px+) */
+@media screen and (min-width: 1400px) {
+    .responsive-products-table .table-cell {
+        -fx-font-size: 12px;
+        -fx-padding: 6 8;
+    }
+    
+    .responsive-products-table .column-header {
+        -fx-font-size: 12px;
+        -fx-padding: 8 6;
+    }
+    
+    .right-panel {
+        -fx-pref-width: 320;
+        -fx-max-width: 400;
+    }
+    
+    .product-image {
+        -fx-fit-height: 180;
+        -fx-fit-width: 240;
+    }
+}
+
+/* Large Screens (1200px - 1399px) */
+@media screen and (max-width: 1399px) and (min-width: 1200px) {
+    .responsive-products-table .table-cell {
+        -fx-font-size: 11px;
+        -fx-padding: 5 6;
+    }
+    
+    .responsive-products-table .column-header {
+        -fx-font-size: 11px;
+        -fx-padding: 7 5;
+    }
+    
+    .right-panel {
+        -fx-pref-width: 280;
+        -fx-max-width: 320;
+    }
+    
+    .product-image {
+        -fx-fit-height: 150;
+        -fx-fit-width: 200;
+    }
+}
+
+/* Medium Screens (900px - 1199px) */
+@media screen and (max-width: 1199px) and (min-width: 900px) {
+    .responsive-products-table .table-cell {
+        -fx-font-size: 10px;
+        -fx-padding: 4 5;
+    }
+    
+    .responsive-products-table .column-header {
+        -fx-font-size: 10px;
+        -fx-padding: 6 4;
+    }
+    
+    .right-panel {
+        -fx-pref-width: 250;
+        -fx-max-width: 280;
+    }
+    
+    .product-image {
+        -fx-fit-height: 120;
+        -fx-fit-width: 160;
+    }
+    
+    .detail-description {
+        -fx-pref-height: 80;
+        -fx-max-height: 150;
+    }
+}
+
+/* Small Screens (700px - 899px) */
+@media screen and (max-width: 899px) and (min-width: 700px) {
+    .responsive-products-table .table-cell {
+        -fx-font-size: 9px;
+        -fx-padding: 3 4;
+    }
+    
+    .responsive-products-table .column-header {
+        -fx-font-size: 9px;
+        -fx-padding: 5 3;
+    }
+    
+    .right-panel {
+        -fx-pref-width: 220;
+        -fx-max-width: 250;
+    }
+    
+    .product-image {
+        -fx-fit-height: 100;
+        -fx-fit-width: 140;
+    }
+    
+    .detail-description {
+        -fx-pref-height: 60;
+        -fx-max-height: 100;
+    }
+    
+    .quick-actions {
+        -fx-min-height: 100;
+        -fx-pref-height: 100;
+    }
+}
+
+/* Extra Small Screens (below 700px) */
+@media screen and (max-width: 699px) {
+    .responsive-products-table .table-cell {
+        -fx-font-size: 8px;
+        -fx-padding: 2 3;
+    }
+    
+    .responsive-products-table .column-header {
+        -fx-font-size: 8px;
+        -fx-padding: 4 2;
+    }
+    
+    .right-panel {
+        -fx-pref-width: 200;
+        -fx-max-width: 220;
+    }
+    
+    .product-image {
+        -fx-fit-height: 80;
+        -fx-fit-width: 120;
+    }
+    
+    .product-details {
+        -fx-spacing: 4;
+    }
+    
+    .detail-description {
+        -fx-pref-height: 40;
+        -fx-max-height: 60;
+    }
+    
+    .quick-actions {
+        -fx-spacing: 3;
+        -fx-min-height: 80;
+        -fx-pref-height: 80;
+    }
+    
+    .quick-actions .button {
+        -fx-font-size: 9px;
+        -fx-padding: 4 6;
+    }
+}
+
+/* ===============================================
+ * FORCE TABLE TO USE FULL AVAILABLE WIDTH & HEIGHT
+ * =============================================== */
+.responsive-products-table .filler {
+    -fx-background-color: white;
+    /* *** HIDE EMPTY COLUMN FILLER *** */
+    -fx-pref-width: 0;
+    -fx-min-width: 0;
+    -fx-max-width: 0;
+}
+
+.responsive-products-table .column-header-background .filler {
+    -fx-background-color: linear-gradient(to bottom, #8b4513, #a0522d);
+    /* *** HIDE EMPTY HEADER FILLER *** */
+    -fx-pref-width: 0;
+    -fx-min-width: 0;
+    -fx-max-width: 0;
+}
+
+.responsive-products-table .column-resize-line {
+    -fx-fill: #d2691e;
+    -fx-stroke: #d2691e;
+}
+
+.responsive-products-table .show-hide-columns-button {
+    -fx-background-color: transparent;
+    /* *** HIDE COLUMN MENU BUTTON *** */
+    -fx-pref-width: 0;
+    -fx-min-width: 0;
+    -fx-max-width: 0;
+}
+
+.responsive-products-table .corner {
+    -fx-background-color: white;
+    /* *** MINIMIZE CORNER SIZE *** */
+    -fx-pref-width: 0;
+    -fx-min-width: 0;
+}
+
+/* *** FORCE TABLE TO FILL 100% OF AVAILABLE WIDTH *** */
+.responsive-products-table {
+    -fx-table-column-resize-policy: CONSTRAINED_RESIZE_POLICY;
+}
+
+.responsive-products-table .table-column {
+    -fx-resizable: true;
+}
+
+/* ===============================================
+ * UTILITY CLASSES
+ * =============================================== */
+.text-center {
+    -fx-alignment: CENTER;
+}
+
+.text-right {
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.text-bold {
+    -fx-font-weight: bold;
+}
+
+.text-small {
+    -fx-font-size: 10px;
+}
+
+.text-large {
+    -fx-font-size: 14px;
+}
+
+/* ===============================================
+ * CRITICAL FIXES FOR FORM DIALOG ISSUES
+ * =============================================== */
+
+/* Fix LinearGradient border-color conflicts */
+.table-cell {
+    -fx-border-color: transparent !important;
+    -fx-border-width: 0 !important;
+}
+
+.table-row-cell {
+    -fx-border-color: #f0ede5 !important;
+    -fx-border-width: 0 0 1 0 !important;
+}
+
+/* Ensure dialog forms work properly every time */
+.product-form-dialog {
+    -fx-background-color: white !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 15, 0.3, 0, 3) !important;
+}
+
+/* Force clean state for form elements */
+.form-field,
+.form-textarea,
+.form-combobox {
+    -fx-border-color: #d2691e !important;
+    -fx-background-color: white !important;
+}
+
+/* Reset any problematic inherited styles */
+.dialog-content * {
+    -fx-border-color: inherit;
+    -fx-background-color: inherit;
+}
+
+/* Ensure proper cleanup */
+.dialog-content .form-container {
+    -fx-background-color: transparent !important;
+}
+
+/* Fix for multiple dialog opens */
+.product-form-dialog:showing {
+    -fx-opacity: 1.0;
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
+
+/* Prevent CSS inheritance issues */
+.product-form-dialog .button {
+    -fx-background-color: linear-gradient(to bottom, #d2691e, #cd853f) !important;
+    -fx-text-fill: white !important;
+    -fx-border-color: transparent !important;
+}

@@ -311,13 +311,13 @@ ORDER BY p.created_at DESC;
 
 -- Insert users
 INSERT INTO users (username, password, full_name, email, phone, role) VALUES
-('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMye1J4H.8gYy.6Y5cF5QO5zH4FH8HhqKny', 'Nguyễn Tiến Ngọc Linh', 'admin@cafe.com', '0123456789', 'Admin'),
-('manager', '$2a$10$N9qo8uLOickgx2ZMRZoMye1J4H.8gYy.6Y5cF5QO5zH4FH8HhqKny', 'Trần Xuân Quang Minh', 'manager@cafe.com', '0123456790', 'Manager'),
-('cashier1', '$2a$10$N9qo8uLOickgx2ZMRZoMye1J4H.8gYy.6Y5cF5QO5zH4FH8HhqKny', 'Vũ Hoàng Nam', 'cashier@cafe.com', '0123456791', 'Cashier'),
-('waiter1', '$2a$10$N9qo8uLOickgx2ZMRZoMye1J4H.8gYy.6Y5cF5QO5zH4FH8HhqKny', 'Dương Tuấn Minh', 'waiter@cafe.com', '0123456792', 'Waiter'),
-('barista1', '$2a$10$N9qo8uLOickgx2ZMRZoMye1J4H.8gYy.6Y5cF5QO5zH4FH8HhqKny', 'Dương Đức Thành', 'barista@cafe.com', '0123456793', 'Barista'),
-('waiter2', '$2a$10$N9qo8uLOickgx2ZMRZoMye1J4H.8gYy.6Y5cF5QO5zH4FH8HhqKny', 'Nguyễn Thị Hoa', 'waiter2@cafe.com', '0123456794', 'Waiter'),
-('cashier2', '$2a$10$N9qo8uLOickgx2ZMRZoMye1J4H.8gYy.6Y5cF5QO5zH4FH8HhqKny', 'Lê Văn Đức', 'cashier2@cafe.com', '0123456795', 'Cashier');
+('admin', '123456', 'Nguyễn Tiến Ngọc Linh', 'admin@cafe.com', '0123456789', 'Admin'),
+('manager', '123456', 'Trần Xuân Quang Minh', 'manager@cafe.com', '0123456790', 'Manager'),
+('cashier1', '123456', 'Vũ Hoàng Nam', 'cashier@cafe.com', '0123456791', 'Cashier'),
+('waiter1', '123456', 'Dương Tuấn Minh', 'waiter@cafe.com', '0123456792', 'Waiter'),
+('barista1', '123456', 'Dương Đức Thành', 'barista@cafe.com', '0123456793', 'Barista'),
+('waiter2', '123456', 'Nguyễn Thị Hoa', 'waiter2@cafe.com', '0123456794', 'Waiter'),
+('cashier2', '123456', 'Lê Văn Đức', 'cashier2@cafe.com', '0123456795', 'Cashier');
 
 -- Insert categories with display order
 INSERT INTO categories (category_name, description, display_order) VALUES

@@ -127,6 +127,10 @@ public class CafeManagementApplication extends Application {
             
             Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
             
+            // Load CSS for admin dashboard
+            String css = Objects.requireNonNull(CafeManagementApplication.class.getResource("/css/admin-dashboard.css")).toExternalForm();
+            scene.getStylesheets().add(css);
+            
             primaryStage.setTitle(APP_TITLE + " - Admin Dashboard");
             primaryStage.setScene(scene);
             primaryStage.setResizable(true);

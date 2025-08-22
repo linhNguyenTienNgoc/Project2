@@ -19,6 +19,14 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
+import javafx.util.Callback;
+import javafx.geometry.Pos;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.sql.Connection;
@@ -42,6 +50,8 @@ public class AdminUserController implements Initializable, DashboardCommunicator
     @FXML private ComboBox<String> statusFilterCombo;
     @FXML private Button refreshButton;
     @FXML private Button addUserButton;
+    @FXML private Button editUserButton;
+    @FXML private Button deleteUserButton;
     @FXML private Button exportButton;
 
     // =====================================================
@@ -67,12 +77,23 @@ public class AdminUserController implements Initializable, DashboardCommunicator
     @FXML private Label activeUsersLabel;
     @FXML private Label adminUsersLabel;
     @FXML private Label staffUsersLabel;
+    
+    // =====================================================
+    // FXML COMPONENTS - Quick Stats & Status
+    // =====================================================
+    
+    @FXML private Label totalStaffLabel;
+    @FXML private Label activeStaffLabel;
+    @FXML private Label resultCountLabel;
+    @FXML private Label statusLabel;
+    @FXML private Label lastUpdateLabel;
 
     // =====================================================
     // FXML COMPONENTS - Form Section
     // =====================================================
     
     @FXML private VBox userFormSection;
+    @FXML private VBox userFormOverlay;
     @FXML private TextField usernameField;
     @FXML private TextField fullNameField;
     @FXML private TextField emailField;
@@ -84,6 +105,8 @@ public class AdminUserController implements Initializable, DashboardCommunicator
     @FXML private Button saveUserButton;
     @FXML private Button cancelButton;
     @FXML private Button resetFormButton;
+    @FXML private Button closeFormButton;
+    @FXML private Label formTitleLabel;
 
     // =====================================================
     // STATE MANAGEMENT
@@ -124,7 +147,7 @@ public class AdminUserController implements Initializable, DashboardCommunicator
     // =====================================================
 
     private void setupUserTable() {
-        // Setup table columns
+        // Setup table columns với PropertyValueFactory
         idColumn.setCellValueFactory(new PropertyValueFactory<>("userId"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         fullNameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
@@ -132,7 +155,7 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
         
-        // Status column with custom cell factory
+        // Status column với custom cell factory
         statusColumn.setCellValueFactory(cellData -> {
             boolean isActive = cellData.getValue().isActive();
             return new javafx.beans.property.SimpleStringProperty(isActive ? "ACTIVE" : "INACTIVE");
@@ -145,13 +168,70 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         // Setup actions column
         setupActionsColumn();
 
+        // *** SỬ DỤNG CONSTRAINED_RESIZE_POLICY TRUYỀN THỐNG ***
+        userTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        
+        // *** THIẾT LẬP FIXED WIDTH CHO CỘT ACTIONS ***
+        actionsColumn.setResizable(false);
+        actionsColumn.setPrefWidth(120);
+        actionsColumn.setMinWidth(120);
+        actionsColumn.setMaxWidth(120);
+        
+        // *** THIẾT LẬP TỶ LỆ CHO CÁC CỘT KHÁC ***
+        // Tổng tỷ lệ = 100%, trừ đi 120px cho actions column
+        
+        // ID Column - 6%
+        idColumn.setPrefWidth(50);
+        idColumn.setMinWidth(35);
+        idColumn.setMaxWidth(80);
+        
+        // Username Column - 12%
+        usernameColumn.setPrefWidth(100);
+        usernameColumn.setMinWidth(80);
+        usernameColumn.setMaxWidth(150);
+        
+        // Full Name Column - 18%
+        fullNameColumn.setPrefWidth(150);
+        fullNameColumn.setMinWidth(120);
+        fullNameColumn.setMaxWidth(200);
+        
+        // Email Column - 22% (quan trọng nhất)
+        emailColumn.setPrefWidth(180);
+        emailColumn.setMinWidth(150);
+        emailColumn.setMaxWidth(250);
+        
+        // Phone Column - 12%
+        phoneColumn.setPrefWidth(100);
+        phoneColumn.setMinWidth(80);
+        phoneColumn.setMaxWidth(130);
+        
+        // Role Column - 10%
+        roleColumn.setPrefWidth(80);
+        roleColumn.setMinWidth(65);
+        roleColumn.setMaxWidth(100);
+        
+        // Status Column - 8%
+        statusColumn.setPrefWidth(70);
+        statusColumn.setMinWidth(55);
+        statusColumn.setMaxWidth(90);
+        
+        // Created At Column - 12%
+        createdAtColumn.setPrefWidth(100);
+        createdAtColumn.setMinWidth(80);
+        createdAtColumn.setMaxWidth(120);
+
         // Set data source
         userTable.setItems(filteredUserList);
 
         // Selection handler
         userTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            boolean hasSelection = newSelection != null;
+            editUserButton.setDisable(!hasSelection);
+            deleteUserButton.setDisable(!hasSelection);
+            
             if (newSelection != null) {
                 populateForm(newSelection);
+                System.out.println("Selected user: " + newSelection.getFullName());
             }
         });
 
@@ -160,35 +240,144 @@ public class AdminUserController implements Initializable, DashboardCommunicator
             TableRow<User> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    editUser(row.getItem());
+                    showEditUserForm(row.getItem());
                 }
             });
             return row;
         });
+        
+        // *** RESPONSIVE LISTENER - SỬ DỤNG SCENE WIDTH ***
+        Platform.runLater(() -> {
+            if (userTable.getScene() != null) {
+                setupResponsiveListener();
+            } else {
+                userTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                    if (newScene != null) {
+                        setupResponsiveListener();
+                    }
+                });
+            }
+        });
     }
 
+    // *** PHƯƠNG THỨC THIẾT LẬP RESPONSIVE LISTENER ***
+    private void setupResponsiveListener() {
+        if (userTable.getScene() != null && userTable.getScene().getWindow() != null) {
+            userTable.getScene().getWindow().widthProperty().addListener((obs, oldWidth, newWidth) -> {
+                Platform.runLater(() -> adjustColumnsBasedOnWindowWidth(newWidth.doubleValue()));
+            });
+            
+            // Trigger initial adjustment
+            Platform.runLater(() -> adjustColumnsBasedOnWindowWidth(userTable.getScene().getWindow().getWidth()));
+        }
+    }
+
+    // *** ĐIỀU CHỈNH CỘT DỰA TRÊN CHIỀU RỘNG CỬA SỔ ***
+    private void adjustColumnsBasedOnWindowWidth(double windowWidth) {
+        System.out.println("🔍 Window width: " + windowWidth);
+        
+        // Tính toán chiều rộng có sẵn cho table (trừ đi sidebar và padding)
+        double availableWidth = windowWidth - 250; // 250px cho sidebar + padding
+        
+        if (availableWidth < 800) {
+            // Màn hình rất nhỏ: Ẩn cột Created At và Phone
+            createdAtColumn.setVisible(false);
+            phoneColumn.setVisible(false);
+            
+            System.out.println("📱 Small screen mode: hiding Created At & Phone columns");
+            
+        } else if (availableWidth < 1000) {
+            // Màn hình vừa: Chỉ ẩn cột Created At
+            createdAtColumn.setVisible(false);
+            phoneColumn.setVisible(true);
+            
+            System.out.println("💻 Medium screen mode: hiding Created At column");
+            
+        } else {
+            // Màn hình lớn: Hiển thị tất cả
+            createdAtColumn.setVisible(true);
+            phoneColumn.setVisible(true);
+            
+            System.out.println("🖥️ Large screen mode: showing all columns");
+        }
+        
+        // Force table to recalculate column widths
+        userTable.refresh();
+    }
+
+    // *** RESPONSIVE BEHAVIOR CHO MÀN HÌNH NHỎ ***
+    private void adjustColumnsForResponsive(double tableWidth) {
+        // Ẩn cột ít quan trọng trên màn hình nhỏ
+        if (tableWidth < 1000) {
+            // Ẩn cột Created At
+            createdAtColumn.setVisible(false);
+            createdAtColumn.setPrefWidth(0);
+            
+            // Tái phân phối cho các cột còn lại
+            double remainingWidth = tableWidth - 120 - 20;
+            if (remainingWidth > 0) {
+                idColumn.setPrefWidth(remainingWidth * 0.07);        // 7%
+                usernameColumn.setPrefWidth(remainingWidth * 0.15);  // 15%
+                fullNameColumn.setPrefWidth(remainingWidth * 0.20);  // 20%
+                emailColumn.setPrefWidth(remainingWidth * 0.25);     // 25%
+                phoneColumn.setPrefWidth(remainingWidth * 0.15);     // 15%
+                roleColumn.setPrefWidth(remainingWidth * 0.10);      // 10%
+                statusColumn.setPrefWidth(remainingWidth * 0.08);    // 8%
+            }
+        } else if (tableWidth < 800) {
+            // Ẩn thêm cột Phone
+            phoneColumn.setVisible(false);
+            phoneColumn.setPrefWidth(0);
+            
+            double remainingWidth = tableWidth - 120 - 20;
+            if (remainingWidth > 0) {
+                idColumn.setPrefWidth(remainingWidth * 0.08);        // 8%
+                usernameColumn.setPrefWidth(remainingWidth * 0.18);  // 18%
+                fullNameColumn.setPrefWidth(remainingWidth * 0.25);  // 25%
+                emailColumn.setPrefWidth(remainingWidth * 0.32);     // 32%
+                roleColumn.setPrefWidth(remainingWidth * 0.12);      // 12%
+                statusColumn.setPrefWidth(remainingWidth * 0.05);    // 5%
+            }
+        } else {
+            // Hiển thị lại tất cả cột khi đủ không gian
+            createdAtColumn.setVisible(true);
+            phoneColumn.setVisible(true);
+            
+            // Gọi lại responsive adjustment
+            if (userTable.getScene() != null && userTable.getScene().getWindow() != null) {
+                adjustColumnsBasedOnWindowWidth(userTable.getScene().getWindow().getWidth());
+            }
+        }
+    }
+
+    // *** UPDATE PHƯƠNG THỨC setupActionsColumn() ĐỂ COMPACT HỢN ***
     private void setupActionsColumn() {
         actionsColumn.setCellFactory(col -> new TableCell<User, Void>() {
-            private final HBox actionBox = new HBox(5);
-            private final Button editButton = new Button("✏️");
-            private final Button deleteButton = new Button("🗑️");
-            private final Button resetPasswordButton = new Button("🔑");
+            private final HBox actionBox = new HBox(2); // Giảm spacing
+            private final Button editButton = new Button("✏");
+            private final Button deleteButton = new Button("🗑");
+            private final Button resetPasswordButton = new Button("🔒");
 
             {
-                // Style buttons
-                editButton.setStyle("-fx-background-color: #ffc107; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 5;");
-                deleteButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 5;");
-                resetPasswordButton.setStyle("-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 5;");
+                // Style buttons với kích thước nhỏ gọn
+                editButton.getStyleClass().add("table-btn-warning");
+                deleteButton.getStyleClass().add("table-btn-danger");
+                resetPasswordButton.getStyleClass().add("table-btn-info");
+                
+                // Set kích thước cố định
+                editButton.setPrefSize(28, 24);
+                deleteButton.setPrefSize(28, 24);
+                resetPasswordButton.setPrefSize(28, 24);
 
                 // Tooltips
-                editButton.setTooltip(new Tooltip("Chỉnh sửa người dùng"));
-                deleteButton.setTooltip(new Tooltip("Xóa người dùng"));
-                resetPasswordButton.setTooltip(new Tooltip("Reset mật khẩu"));
+                editButton.setTooltip(new Tooltip("Sửa"));
+                deleteButton.setTooltip(new Tooltip("Xóa"));
+                resetPasswordButton.setTooltip(new Tooltip("Reset"));
 
                 // Event handlers
                 editButton.setOnAction(e -> {
                     User user = getTableView().getItems().get(getIndex());
-                    editUser(user);
+                    showEditUserForm(user);
                 });
 
                 deleteButton.setOnAction(e -> {
@@ -202,6 +391,7 @@ public class AdminUserController implements Initializable, DashboardCommunicator
                 });
 
                 actionBox.getChildren().addAll(editButton, deleteButton, resetPasswordButton);
+                actionBox.setAlignment(javafx.geometry.Pos.CENTER);
             }
 
             @Override
@@ -243,9 +433,12 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         ));
         statusCombo.setValue("ACTIVE");
 
-        // Initially hide form
-        userFormSection.setVisible(false);
-        userFormSection.setManaged(false);
+        // Initially hide form overlay
+        userFormOverlay.setVisible(false);
+        userFormOverlay.setManaged(false);
+        
+        // Set initial form title
+        formTitleLabel.setText("✨ Thêm nhân viên mới");
     }
 
     private void setupEventHandlers() {
@@ -257,11 +450,23 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         // Button handlers
         refreshButton.setOnAction(e -> loadUsers());
         addUserButton.setOnAction(e -> showAddUserForm());
+        editUserButton.setOnAction(e -> {
+            User selectedUser = userTable.getSelectionModel().getSelectedItem();
+            if (selectedUser != null) {
+                showEditUserForm(selectedUser);
+            }
+        });
+        deleteUserButton.setOnAction(e -> {
+            User selectedUser = userTable.getSelectionModel().getSelectedItem();
+            if (selectedUser != null) {
+                deleteUser(selectedUser);
+            }
+        });
         exportButton.setOnAction(e -> exportUsers());
 
         // Form button handlers
         saveUserButton.setOnAction(e -> saveUser());
-        cancelButton.setOnAction(e -> hideUserForm());
+        cancelButton.setOnAction(e -> hideFormOverlay());
         resetFormButton.setOnAction(e -> resetForm());
     }
 
@@ -295,8 +500,14 @@ public class AdminUserController implements Initializable, DashboardCommunicator
                     if (getValue() != null) {
                         userList.addAll(getValue());
                     }
-                    filterUsers(); // Apply current filters
+                    filterUsers();
                     updateStatistics();
+                    // Trigger resize sau khi load data
+                    Platform.runLater(() -> {
+                        if (userTable.getScene() != null && userTable.getScene().getWindow() != null) {
+                            adjustColumnsBasedOnWindowWidth(userTable.getScene().getWindow().getWidth());
+                        }
+                    });
                     System.out.println("✅ Loaded " + userList.size() + " users");
                 });
             }
@@ -340,6 +551,9 @@ public class AdminUserController implements Initializable, DashboardCommunicator
                 filteredUserList.add(user);
             }
         }
+        
+        // Cập nhật số lượng kết quả
+        resultCountLabel.setText("Hiển thị " + filteredUserList.size() + " / " + userList.size() + " nhân viên");
     }
 
     private void updateStatistics() {
@@ -348,29 +562,38 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         long admins = userList.stream().filter(u -> "ADMIN".equals(u.getRole())).count();
         long staff = userList.stream().filter(u -> "STAFF".equals(u.getRole())).count();
 
+        // Cập nhật các label thống kê cũ
         totalUsersLabel.setText(String.valueOf(total));
         activeUsersLabel.setText(String.valueOf(active));
         adminUsersLabel.setText(String.valueOf(admins));
         staffUsersLabel.setText(String.valueOf(staff));
+        
+        // Cập nhật quick stats mới
+        totalStaffLabel.setText(String.valueOf(total));
+        activeStaffLabel.setText(String.valueOf(active));
+        
+        // Cập nhật thời gian
+        lastUpdateLabel.setText("Cập nhật lần cuối: " + 
+            java.time.LocalDateTime.now().format(
+                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
     }
 
     // =====================================================
     // FORM OPERATIONS
     // =====================================================
 
+    @FXML
     private void showAddUserForm() {
         currentEditingUser = null;
+        formTitleLabel.setText("✨ Thêm nhân viên mới");
         resetForm();
-        userFormSection.setVisible(true);
-        userFormSection.setManaged(true);
+        showFormOverlay();
         usernameField.requestFocus();
     }
 
+    @FXML
     private void hideUserForm() {
-        userFormSection.setVisible(false);
-        userFormSection.setManaged(false);
-        currentEditingUser = null;
-        resetForm();
+        hideFormOverlay();
     }
 
     private void resetForm() {
@@ -398,18 +621,11 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         // Clear password fields for editing
         passwordField.clear();
         confirmPasswordField.clear();
-        
-        userFormSection.setVisible(true);
-        userFormSection.setManaged(true);
     }
 
     // =====================================================
     // USER ACTIONS
     // =====================================================
-
-    private void editUser(User user) {
-        populateForm(user);
-    }
 
     private void deleteUser(User user) {
         boolean confirmed = AlertUtils.showConfirmation(
@@ -645,6 +861,49 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         phoneField.getStyleClass().removeAll("field-error", "field-success");
         passwordField.getStyleClass().removeAll("field-error", "field-success");
         confirmPasswordField.getStyleClass().removeAll("field-error", "field-success");
+    }
+
+    // =====================================================
+    // FORM OVERLAY METHODS
+    // =====================================================
+
+    private void showEditUserForm(User user) {
+        currentEditingUser = user;
+        formTitleLabel.setText("✎ Chỉnh sửa nhân viên");
+        populateForm(user);
+        showFormOverlay();
+        fullNameField.requestFocus();
+    }
+
+    private void showFormOverlay() {
+        userFormOverlay.setVisible(true);
+        userFormOverlay.setManaged(true);
+        
+        // Animation hiệu ứng fade in
+        Platform.runLater(() -> {
+            userFormOverlay.setOpacity(0);
+            Timeline timeline = new Timeline(
+                new KeyFrame(Duration.millis(300), 
+                    new KeyValue(userFormOverlay.opacityProperty(), 1))
+            );
+            timeline.play();
+        });
+    }
+
+    @FXML
+    private void hideFormOverlay() {
+        // Animation hiệu ứng fade out
+        Timeline timeline = new Timeline(
+            new KeyFrame(Duration.millis(200), 
+                new KeyValue(userFormOverlay.opacityProperty(), 0))
+        );
+        timeline.setOnFinished(e -> {
+            userFormOverlay.setVisible(false);
+            userFormOverlay.setManaged(false);
+            resetForm();
+            currentEditingUser = null;
+        });
+        timeline.play();
     }
 
     // =====================================================

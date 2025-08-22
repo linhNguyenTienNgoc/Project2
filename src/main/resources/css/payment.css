@@ -1,375 +1,584 @@
-/* =====================================================
-   PAYMENT SYSTEM STYLES - Professional Design
-   ===================================================== */
+/*
+Modern Payment Interface CSS
+File: src/main/resources/css/payment.css
+*/
 
-/* Root Variables */
+/* ========== ROOT VARIABLES ========== */
 .root {
-    -fx-primary-color: #2c3e50;
-    -fx-secondary-color: #3498db;
-    -fx-success-color: #27ae60;
-    -fx-danger-color: #e74c3c;
-    -fx-warning-color: #f39c12;
-    -fx-light-bg: #f8f9fa;
-    -fx-white: #ffffff;
-    -fx-gray-100: #f8f9fa;
-    -fx-gray-200: #e9ecef;
-    -fx-gray-300: #dee2e6;
-    -fx-gray-600: #6c757d;
-    -fx-gray-800: #343a40;
+    /* Color Palette */
+    -fx-primary-color: #2563eb;
+    -fx-primary-dark: #1d4ed8;
+    -fx-primary-light: #3b82f6;
+    
+    -fx-secondary-color: #64748b;
+    -fx-secondary-light: #94a3b8;
+    
+    -fx-success-color: #10b981;
+    -fx-warning-color: #f59e0b;
+    -fx-error-color: #ef4444;
+    
+    -fx-background-primary: #ffffff;
+    -fx-background-secondary: #f8fafc;
+    -fx-background-tertiary: #f1f5f9;
+    
+    -fx-text-primary: #1e293b;
+    -fx-text-secondary: #64748b;
+    -fx-text-muted: #94a3b8;
+    
+    -fx-border-color: #e2e8f0;
+    -fx-border-light: #f1f5f9;
+    
+    /* Typography */
+    -fx-font-family: "Segoe UI", "Roboto", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-size-xs: 11px;
+    -fx-font-size-sm: 12px;
+    -fx-font-size-base: 14px;
+    -fx-font-size-lg: 16px;
+    -fx-font-size-xl: 18px;
+    -fx-font-size-2xl: 20px;
+    -fx-font-size-3xl: 24px;
+    
+    /* Spacing */
+    -fx-spacing-xs: 4px;
+    -fx-spacing-sm: 8px;
+    -fx-spacing-base: 12px;
+    -fx-spacing-lg: 16px;
+    -fx-spacing-xl: 20px;
+    -fx-spacing-2xl: 24px;
+    
+    /* Border Radius */
+    -fx-radius-sm: 6px;
+    -fx-radius-base: 8px;
+    -fx-radius-lg: 12px;
+    
+    /* Shadows */
+    -fx-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    -fx-shadow-base: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    -fx-shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
-/* =====================================================
-   LAYOUT COMPONENTS
-   ===================================================== */
-
-.header-section {
-    -fx-background-color: -fx-white;
-    -fx-border-color: -fx-gray-200;
-    -fx-border-width: 0 0 2 0;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+/* ========== GENERAL STYLING ========== */
+.border-pane {
+    -fx-background-color: -fx-background-secondary;
+    -fx-font-family: -fx-font-family;
 }
 
-.page-title {
-    -fx-text-fill: -fx-primary-color;
+/* ========== HEADER ========== */
+.header-container {
+    -fx-background-color: -fx-background-primary;
+    -fx-border-color: transparent transparent -fx-border-color transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 2, 0, 0, 1);
+}
+
+.header-title {
+    -fx-font-size: -fx-font-size-3xl;
     -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-primary;
 }
 
-.panel {
-    -fx-background-color: -fx-white;
-    -fx-background-radius: 8;
-    -fx-border-color: -fx-gray-200;
-    -fx-border-width: 1;
-    -fx-border-radius: 8;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 4, 0, 0, 2);
+.header-subtitle {
+    -fx-font-size: -fx-font-size-sm;
+    -fx-text-fill: -fx-text-secondary;
 }
 
-.section-title {
-    -fx-text-fill: -fx-primary-color;
-    -fx-font-weight: bold;
+.staff-label {
+    -fx-font-size: -fx-font-size-xs;
+    -fx-text-fill: -fx-text-muted;
+    -fx-font-weight: 500;
 }
 
-/* =====================================================
-   TABLE STYLES
-   ===================================================== */
-
-.table-view {
-    -fx-background-color: -fx-white;
-    -fx-border-color: -fx-gray-300;
-    -fx-border-width: 1;
-    -fx-border-radius: 6;
+.staff-name {
+    -fx-font-size: -fx-font-size-sm;
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-weight: 600;
 }
 
-.table-view .column-header {
-    -fx-background-color: -fx-gray-100;
-    -fx-border-color: -fx-gray-300;
-    -fx-font-weight: bold;
-    -fx-text-fill: -fx-primary-color;
-    -fx-padding: 8 5;
+/* Order Info Section */
+.order-info-section {
+    -fx-spacing: 20;
 }
 
-.table-view .table-cell {
-    -fx-border-color: -fx-gray-200;
-    -fx-padding: 8 5;
-    -fx-alignment: CENTER_LEFT;
+.info-label {
+    -fx-font-size: -fx-font-size-xs;
+    -fx-text-fill: -fx-text-muted;
+    -fx-font-weight: 500;
 }
-
-.table-view .table-cell:selected {
-    -fx-background-color: #e3f2fd;
-}
-
-.total-items {
-    -fx-text-fill: -fx-gray-600;
-    -fx-font-style: italic;
-}
-
-/* =====================================================
-   FORM CONTROLS
-   ===================================================== */
-
-.text-field, .text-area {
-    -fx-background-color: -fx-white;
-    -fx-border-color: -fx-gray-300;
-    -fx-border-width: 1;
-    -fx-border-radius: 4;
-    -fx-padding: 8;
-    -fx-font-size: 13px;
-}
-
-.text-field:focused, .text-area:focused {
-    -fx-border-color: -fx-secondary-color;
-    -fx-border-width: 2;
-}
-
-.percent-field {
-    -fx-alignment: CENTER_RIGHT;
-    -fx-max-width: 60;
-}
-
-.discount-field {
-    -fx-alignment: CENTER_RIGHT;
-    -fx-max-width: 100;
-}
-
-.money-field {
-    -fx-alignment: CENTER_RIGHT;
-    -fx-font-weight: bold;
-}
-
-.field-error {
-    -fx-border-color: -fx-danger-color !important;
-    -fx-border-width: 2 !important;
-    -fx-background-color: #ffeaea !important;
-}
-
-/* =====================================================
-   LABELS & TEXT
-   ===================================================== */
 
 .info-value {
+    -fx-font-size: -fx-font-size-sm;
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-weight: 600;
+}
+
+/* ========== MAIN CONTAINER ========== */
+.main-container {
+    -fx-background-color: transparent;
+}
+
+/* ========== CART PANEL ========== */
+.cart-panel {
+    -fx-background-color: -fx-background-primary;
+    -fx-background-radius: -fx-radius-lg;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: -fx-radius-lg;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 4, 0, 0, 2);
+    -fx-padding: 24;
+}
+
+.panel-title {
+    -fx-font-size: -fx-font-size-xl;
     -fx-font-weight: bold;
-    -fx-text-fill: -fx-gray-800;
+    -fx-text-fill: -fx-text-primary;
 }
 
-.amount-value {
-    -fx-font-weight: bold;
-    -fx-text-fill: -fx-gray-800;
-    -fx-alignment: CENTER_RIGHT;
+.item-count {
+    -fx-font-size: -fx-font-size-sm;
+    -fx-text-fill: -fx-text-secondary;
+    -fx-background-color: -fx-background-tertiary;
+    -fx-background-radius: 20;
+    -fx-padding: 4 12 4 12;
 }
 
-.discount-amount {
-    -fx-text-fill: -fx-danger-color;
+/* Cart Table */
+.cart-table {
+    -fx-background-color: transparent;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: -fx-radius-base;
+    -fx-border-width: 1px;
 }
 
-.kpi-amount {
-    -fx-text-fill: -fx-success-color;
-    -fx-font-weight: bold;
-    -fx-alignment: CENTER_RIGHT;
+.cart-table .column-header-background {
+    -fx-background-color: -fx-background-tertiary;
+    -fx-border-color: transparent transparent -fx-border-color transparent;
+    -fx-border-width: 0 0 1 0;
 }
 
-.grand-total-label {
-    -fx-text-fill: -fx-primary-color;
+.cart-table .column-header {
+    -fx-font-weight: 600;
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: -fx-font-size-sm;
+    -fx-padding: 12 8 12 8;
 }
 
-.change-amount {
-    -fx-text-fill: -fx-success-color;
-    -fx-font-weight: bold;
+.cart-table .table-row-cell {
+    -fx-background-color: -fx-background-primary;
+    -fx-border-color: transparent transparent -fx-border-light transparent;
+    -fx-border-width: 0 0 1 0;
 }
 
-.cash-total {
-    -fx-text-fill: -fx-primary-color;
-    -fx-font-weight: bold;
+.cart-table .table-row-cell:hover {
+    -fx-background-color: rgba(37, 99, 235, 0.1);
 }
 
-/* =====================================================
-   BUTTON BAR (FOOTER) STYLES
-   ===================================================== */
-
-.button-bar {
-    -fx-padding: 10;
-    -fx-spacing: 15;
-    -fx-alignment: CENTER_RIGHT;
-    -fx-background-color: -fx-light-bg;
-    -fx-border-color: -fx-gray-200;
-    -fx-border-width: 1 0 0 0;
+.cart-table .table-row-cell:selected {
+    -fx-background-color: rgba(37, 99, 235, 0.1);
 }
 
-.error-text {
-    -fx-text-fill: -fx-danger-color;
-    -fx-font-size: 11px;
+.cart-table .table-cell {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: -fx-font-size-sm;
+    -fx-padding: 12 8 12 8;
+}
+
+.empty-cart-message {
+    -fx-text-fill: -fx-text-muted;
     -fx-font-style: italic;
+    -fx-font-size: -fx-font-size-base;
 }
 
-/* =====================================================
-   RADIO BUTTONS & CHECKBOXES
-   ===================================================== */
-
-.radio-button, .check-box {
-    -fx-font-size: 13px;
-    -fx-text-fill: -fx-gray-800;
+/* Add Item Section */
+.add-item-section {
+    -fx-background-color: -fx-background-tertiary;
+    -fx-background-radius: -fx-radius-base;
+    -fx-padding: 16;
 }
 
-.radio-button:selected .radio, .check-box:selected .check-box {
-    -fx-background-color: -fx-secondary-color;
+.section-subtitle {
+    -fx-font-size: -fx-font-size-base;
+    -fx-font-weight: 600;
+    -fx-text-fill: -fx-text-primary;
 }
 
-.radio-button .radio, .check-box .check-box {
-    -fx-border-color: -fx-gray-300;
-    -fx-border-width: 2;
+/* ========== PAYMENT PANEL ========== */
+.payment-panel {
+    -fx-background-color: -fx-background-primary;
+    -fx-background-radius: -fx-radius-lg;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: -fx-radius-lg;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 4, 0, 0, 2);
+    -fx-padding: 24;
 }
 
-/* =====================================================
-   BUTTONS
-   ===================================================== */
-
-.button {
-    -fx-cursor: hand;
-    -fx-padding: 12 20;
-    -fx-border-radius: 6;
-    -fx-background-radius: 6;
-    -fx-font-size: 13px;
-    -fx-pref-height: 40;
-    -fx-max-height: 40;
+/* Summary Section */
+.summary-section {
+    -fx-background-color: -fx-background-tertiary;
+    -fx-background-radius: -fx-radius-base;
+    -fx-padding: 16;
 }
 
-.btn-primary {
-    -fx-background-color: -fx-success-color;
-    -fx-text-fill: -fx-white;
+.summary-details {
+    -fx-spacing: 8;
+}
+
+.summary-row {
+    -fx-alignment: center-left;
+    -fx-padding: 8 0 0 0;
+}
+
+.summary-label {
+    -fx-font-size: -fx-font-size-sm;
+    -fx-text-fill: -fx-text-secondary;
+}
+
+.summary-value {
+    -fx-font-size: -fx-font-size-sm;
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-weight: 500;
+}
+
+.discount-label {
+    -fx-text-fill: -fx-success-color;
+}
+
+.discount-value {
+    -fx-text-fill: -fx-success-color;
+    -fx-font-weight: 600;
+}
+
+.summary-separator {
+    -fx-background-color: -fx-border-color;
+    -fx-pref-height: 1;
+}
+
+.total-row {
+    -fx-padding: 8 0 0 0;
+}
+
+.total-label {
+    -fx-font-size: -fx-font-size-lg;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-primary;
+}
+
+.total-value {
+    -fx-font-size: -fx-font-size-xl;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+}
+
+/* Promotion Section */
+.promotion-section {
+    -fx-background-color: rgba(16, 185, 129, 0.05);
+    -fx-background-radius: -fx-radius-base;
+    -fx-border-color: rgba(16, 185, 129, 0.2);
+    -fx-border-radius: -fx-radius-base;
+    -fx-border-width: 1;
+    -fx-padding: 16;
+}
+
+.applied-promotion {
+    -fx-text-fill: -fx-success-color;
+    -fx-font-weight: 600;
+    -fx-font-size: -fx-font-size-sm;
+}
+
+/* Payment Methods */
+.payment-methods-section {
+    -fx-spacing: 12;
+}
+
+.payment-method-radio {
+    -fx-font-size: -fx-font-size-sm;
+    -fx-text-fill: -fx-text-primary;
+}
+
+.payment-method-radio:selected {
+    -fx-text-fill: -fx-primary-color;
+    -fx-font-weight: 600;
+}
+
+/* Cash Payment Details */
+.cash-details-section {
+    -fx-background-color: rgba(37, 99, 235, 0.05);
+    -fx-background-radius: -fx-radius-base;
+    -fx-border-color: rgba(37, 99, 235, 0.2);
+    -fx-border-radius: -fx-radius-base;
+    -fx-border-width: 1;
+    -fx-padding: 16;
+}
+
+.cash-calculation {
+    -fx-spacing: 8;
+}
+
+.cash-row {
+    -fx-alignment: center-left;
+    -fx-padding: 8 0 0 0;
+}
+
+.cash-label {
+    -fx-font-size: -fx-font-size-sm;
+    -fx-text-fill: -fx-text-secondary;
+}
+
+.cash-value {
+    -fx-font-size: -fx-font-size-sm;
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-weight: 500;
+}
+
+.change-value {
+    -fx-font-size: -fx-font-size-base;
+    -fx-text-fill: -fx-success-color;
+    -fx-font-weight: 600;
+}
+
+/* QR Code Section */
+.qr-section {
+    -fx-background-color: rgba(245, 158, 11, 0.05);
+    -fx-background-radius: -fx-radius-base;
+    -fx-border-color: rgba(245, 158, 11, 0.2);
+    -fx-border-radius: -fx-radius-base;
+    -fx-border-width: 1;
+    -fx-padding: 16;
+    -fx-alignment: center;
+}
+
+.qr-code {
+    -fx-background-color: -fx-background-primary;
+    -fx-background-radius: -fx-radius-base;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: -fx-radius-base;
+    -fx-border-width: 1;
+    -fx-padding: 12;
+}
+
+.qr-instruction {
+    -fx-font-size: -fx-font-size-sm;
+    -fx-text-fill: -fx-text-secondary;
+    -fx-text-alignment: center;
+}
+
+/* Card Payment Section */
+.card-section {
+    -fx-background-color: rgba(100, 116, 139, 0.05);
+    -fx-background-radius: -fx-radius-base;
+    -fx-border-color: rgba(100, 116, 139, 0.2);
+    -fx-border-radius: -fx-radius-base;
+    -fx-border-width: 1;
+    -fx-padding: 16;
+}
+
+.card-instructions {
+    -fx-spacing: 8;
+}
+
+.instruction {
+    -fx-font-size: -fx-font-size-sm;
+    -fx-text-fill: -fx-text-secondary;
+}
+
+.transaction-label {
+    -fx-font-size: -fx-font-size-xs;
+    -fx-text-fill: -fx-text-muted;
+}
+
+/* ========== FORM CONTROLS ========== */
+.combo-box {
+    -fx-background-color: -fx-background-primary;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: -fx-radius-sm;
+    -fx-border-width: 1;
+    -fx-background-radius: -fx-radius-sm;
+    -fx-font-size: -fx-font-size-sm;
+    -fx-padding: 8 12 8 12;
+}
+
+.combo-box:focused {
+    -fx-border-color: -fx-primary-color;
+    -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.3), 3, 0, 0, 0);
+}
+
+.text-field, .cash-input, .transaction-input {
+    -fx-background-color: -fx-background-primary;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: -fx-radius-sm;
+    -fx-border-width: 1;
+    -fx-background-radius: -fx-radius-sm;
+    -fx-font-size: -fx-font-size-sm;
+    -fx-padding: 8 12 8 12;
+    -fx-text-fill: -fx-text-primary;
+}
+
+.text-field:focused, .cash-input:focused, .transaction-input:focused {
+    -fx-border-color: -fx-primary-color;
+    -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.3), 3, 0, 0, 0);
+}
+
+.text-field:disabled, .cash-input:disabled {
+    -fx-background-color: -fx-background-tertiary;
+    -fx-text-fill: -fx-text-muted;
+}
+
+.spinner {
+    -fx-background-color: -fx-background-primary;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: -fx-radius-sm;
+    -fx-border-width: 1;
+    -fx-background-radius: -fx-radius-sm;
+}
+
+.spinner:focused {
+    -fx-border-color: -fx-primary-color;
+}
+
+.spinner .text-field {
     -fx-border-width: 0;
-    -fx-effect: dropshadow(gaussian, rgba(39,174,96,0.3), 4, 0, 0, 2);
+    -fx-background-color: transparent;
 }
 
-.btn-primary:hover {
-    -fx-background-color: #229954;
+/* ========== BUTTONS ========== */
+.button {
+    -fx-background-radius: -fx-radius-sm;
+    -fx-border-radius: -fx-radius-sm;
+    -fx-font-size: -fx-font-size-sm;
+    -fx-font-weight: 600;
+    -fx-padding: 10 16 10 16;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 2, 0, 0, 1);
 }
 
-.btn-primary:pressed {
-    -fx-background-color: #1e8449;
+.primary-button {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+    -fx-border-color: -fx-primary-color;
+    -fx-border-width: 1;
+    -fx-font-size: -fx-font-size-base;
+    -fx-padding: 12 24 12 24;
 }
 
-.btn-primary:disabled {
-    -fx-background-color: -fx-gray-300;
-    -fx-text-fill: -fx-gray-600;
-    -fx-effect: none;
+.primary-button:hover {
+    -fx-background-color: -fx-primary-dark;
+    -fx-border-color: -fx-primary-dark;
+    -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.4), 4, 0, 0, 2);
 }
 
-.btn-secondary {
-    -fx-background-color: -fx-gray-100;
-    -fx-text-fill: -fx-gray-800;
-    -fx-border-color: -fx-gray-300;
+.primary-button:pressed {
+    -fx-background-color: -fx-primary-dark;
+    -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.6), 2, 0, 0, 1);
+}
+
+.secondary-button {
+    -fx-background-color: -fx-background-primary;
+    -fx-text-fill: -fx-text-primary;
+    -fx-border-color: -fx-border-color;
     -fx-border-width: 1;
 }
 
-.btn-secondary:hover {
-    -fx-background-color: -fx-gray-200;
-    -fx-border-color: -fx-gray-600;
+.secondary-button:hover {
+    -fx-background-color: -fx-background-tertiary;
+    -fx-border-color: -fx-secondary-color;
 }
 
-.btn-secondary:pressed {
-    -fx-background-color: -fx-gray-300;
+.cancel-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-error-color;
+    -fx-border-color: -fx-error-color;
+    -fx-border-width: 1;
 }
 
-/* =====================================================
-   SEPARATORS
-   ===================================================== */
+.cancel-button:hover {
+    -fx-background-color: rgba(239, 68, 68, 0.1);
+}
 
-.separator .line {
-    -fx-border-color: -fx-gray-200;
+.add-button, .promotion-button {
+    -fx-background-color: -fx-success-color;
+    -fx-text-fill: white;
+    -fx-border-color: -fx-success-color;
+    -fx-border-width: 1;
+    -fx-padding: 8 16 8 16;
+}
+
+.add-button:hover, .promotion-button:hover {
+    -fx-background-color: derive(-fx-success-color, -10%);
+    -fx-border-color: derive(-fx-success-color, -10%);
+}
+
+/* ========== FOOTER ========== */
+.footer-container {
+    -fx-background-color: -fx-background-primary;
+    -fx-border-color: -fx-border-color transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 2, 0, 0, -1);
 }
 
-/* =====================================================
-   RESPONSIVE DESIGN
-   ===================================================== */
-
-/* Layout responsiveness */
-.grid-pane {
-    -fx-hgap: 20;
-    -fx-vgap: 15;
+/* ========== ERROR MESSAGES ========== */
+.error-message {
+    -fx-text-fill: -fx-error-color;
+    -fx-font-size: -fx-font-size-xs;
+    -fx-font-weight: 500;
 }
 
-.table-view {
-    -fx-pref-height: 300;
-    -fx-min-height: 200;
+/* ========== RADIO BUTTONS ========== */
+.radio-button {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: -fx-font-size-sm;
 }
 
-/* Ensure panels fit well */
-.panel {
-    -fx-max-width: 450;
+.radio-button:selected {
+    -fx-text-fill: -fx-primary-color;
 }
 
-/* Button responsiveness */
-.button-bar .button {
-    -fx-min-width: 120;
-    -fx-pref-width: 140;
+.radio-button .radio {
+    -fx-background-color: -fx-background-primary;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: 50%;
+    -fx-border-width: 1;
 }
 
-@media screen and (max-width: 900px) {
-    .button {
-        -fx-min-width: 100;
-        -fx-font-size: 12px;
-        -fx-padding: 8 15;
-    }
-    
-    .section-title {
-        -fx-font-size: 14px;
-    }
-    
-    .kpi-amount {
-        -fx-font-size: 18px;
-    }
-    
-    .button-bar {
-        -fx-spacing: 10;
-    }
-    
-    .button-bar .button {
-        -fx-min-width: 90;
-        -fx-pref-width: 110;
-    }
+.radio-button:selected .radio {
+    -fx-border-color: -fx-primary-color;
+    -fx-background-color: -fx-primary-color;
 }
 
-/* =====================================================
-   ANIMATIONS & TRANSITIONS
-   ===================================================== */
-
-.text-field, .button {
-    -fx-transition: all 0.2s ease;
+.radio-button .dot {
+    -fx-background-color: white;
+    -fx-background-radius: 50%;
 }
 
-.button:hover {
-    -fx-scale-x: 1.02;
-    -fx-scale-y: 1.02;
-}
-
-.panel {
-    -fx-transition: all 0.3s ease;
-}
-
-.panel:hover {
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 6, 0, 0, 3);
-}
-
-/* =====================================================
-   SCROLL PANE
-   ===================================================== */
-
+/* ========== SCROLL PANE ========== */
 .scroll-pane {
     -fx-background-color: transparent;
-    -fx-border-width: 0;
-    -fx-fit-to-width: true;
+    -fx-border-color: transparent;
 }
 
 .scroll-pane .viewport {
     -fx-background-color: transparent;
 }
 
-.scroll-pane .content {
+.scroll-pane .scroll-bar {
     -fx-background-color: transparent;
 }
 
-.scroll-pane .scroll-bar:vertical {
-    -fx-pref-width: 12;
-    -fx-background-color: -fx-gray-100;
+.scroll-pane .scroll-bar .track {
+    -fx-background-color: -fx-background-tertiary;
+    -fx-background-radius: 4;
 }
 
-.scroll-pane .scroll-bar:vertical .track {
-    -fx-background-color: -fx-gray-200;
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: -fx-secondary-light;
+    -fx-background-radius: 4;
 }
 
-.scroll-pane .scroll-bar:vertical .thumb {
-    -fx-background-color: -fx-gray-600;
-    -fx-background-radius: 6;
+.scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: -fx-secondary-color;
 }
 
-/* =====================================================
-   ACCESSIBILITY
-   ===================================================== */
-
-.text-field:focused, .text-area:focused, .button:focused {
-    -fx-effect: dropshadow(gaussian, -fx-secondary-color, 0, 0, 0, 0), 
-                inset-shadow(gaussian, -fx-secondary-color, 2, 0, 0, 0);
-}
-
-.radio-button:focused .radio, .check-box:focused .check-box {
-    -fx-effect: dropshadow(gaussian, -fx-secondary-color, 0, 0, 0, 0);
+/* ========== ANIMATIONS ========== */
+.button, .combo-box, .text-field, .radio-button {
+    -fx-transition: all 0.2s ease;
 }

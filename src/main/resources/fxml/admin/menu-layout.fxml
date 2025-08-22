@@ -4,139 +4,307 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.cafe.controller.admin.AdminMenuController"
-      style="-fx-background-color: #f5d6ae;" spacing="0">
+<!-- *** FIXED: Removed problematic USE_COMPUTED_SIZE values *** -->
+<BorderPane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cafe.controller.admin.AdminMenuController"
+            stylesheets="@../../css/menu-style.css"
+            styleClass="root-container"
+            minHeight="600" prefHeight="800">
 
     <!-- Top Navigation Bar -->
-    <HBox style="-fx-background-color: #5d2b1c; -fx-padding: 10;" alignment="CENTER_LEFT" spacing="20">
-        <Label text="Quản lý Menu"
-               style="-fx-text-fill: #fff9c4; -fx-font-size: 18px; -fx-font-weight: bold;" />
-
-        <Region HBox.hgrow="ALWAYS" />
-
-        <Region HBox.hgrow="ALWAYS" />
-
-        <Button fx:id="logoutButton"
-                style="-fx-background-color: transparent; -fx-text-fill: #fff9c4;">
-            <graphic>
-                <ImageView fitHeight="20" fitWidth="20">
-                    <image>
-                        <Image url="@../../images/icons/power-icon.png" />
-                    </image>
-                </ImageView>
-            </graphic>
-        </Button>
-    </HBox>
-
-    <!-- Main Content Area -->
-    <VBox style="-fx-background-color: #f8f9fa;" VBox.vgrow="ALWAYS" spacing="0">
-
-        <!-- Search and Filter Bar -->
-        <HBox style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #dee2e6; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT" spacing="15">
-            <Label text="🔍 Tìm kiếm:" style="-fx-font-weight: bold; -fx-text-fill: #333;"/>
-            <TextField fx:id="searchField" promptText="Tìm theo tên món..." prefWidth="200" prefHeight="32"/>
-            <ComboBox fx:id="categoryFilter" promptText="Chọn danh mục" prefWidth="150" prefHeight="32"/>
-            <Button fx:id="refreshButton" text="🔄 Refresh" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" prefHeight="32"/>
+    <top>
+        <HBox styleClass="top-navbar" alignment="CENTER_LEFT" spacing="20">
+            <Label text="🍽️ Quản lý Menu Café" styleClass="page-title" />
             
-            <Region HBox.hgrow="ALWAYS"/>
+            <Region HBox.hgrow="ALWAYS" />
             
-            <!-- Quick Actions -->
-            <Button fx:id="manageCategoriesButton" text="📂 Quản lý danh mục" 
-                    style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" prefHeight="32"/>
-            <Button fx:id="importMenuButton" text="📥 Nhập menu" 
-                    style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" prefHeight="32"/>
-            <Button fx:id="exportMenuButton" text="📤 Xuất menu" 
-                    style="-fx-background-color: #ffc107; -fx-text-fill: #333; -fx-font-weight: bold; -fx-background-radius: 5;" prefHeight="32"/>
-            
-            <!-- Bulk Actions -->
-            <MenuButton fx:id="bulkMenuActionsButton" text="🔧 Thao tác hàng loạt" 
-                        style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" prefHeight="32">
-                <items>
-                    <MenuItem fx:id="bulkActivateProductsMenuItem" text="✅ Kích hoạt đã chọn"/>
-                    <MenuItem fx:id="bulkDeactivateProductsMenuItem" text="❌ Vô hiệu hóa đã chọn"/>
-                    <MenuItem fx:id="bulkDeleteProductsMenuItem" text="🗑️ Xóa đã chọn"/>
-                    <MenuItem fx:id="bulkUpdatePriceMenuItem" text="💰 Cập nhật giá hàng loạt"/>
-                    <MenuItem fx:id="bulkChangeCategoryMenuItem" text="📂 Đổi danh mục hàng loạt"/>
-                </items>
-            </MenuButton>
-        </HBox>
-
-        <TableView fx:id="menuTable" VBox.vgrow="ALWAYS" style="-fx-background-color: white;">
-            <columns>
-                <TableColumn fx:id="selectProductColumn" text="☑️" prefWidth="40"/>
-                <TableColumn fx:id="productIdColumn" text="Mã món" prefWidth="100"/>
-                <TableColumn fx:id="productNameColumn" text="Tên món" prefWidth="180"/>
-                <TableColumn fx:id="categoryColumn" text="Danh mục" prefWidth="120"/>
-                <TableColumn fx:id="priceColumn" text="Giá (VND)" prefWidth="120"/>
-                <TableColumn fx:id="stockColumn" text="Tồn kho" prefWidth="100"/>
-                <TableColumn fx:id="statusColumn" text="Trạng thái" prefWidth="100"/>
-                <TableColumn fx:id="actionColumn" text="Thao tác" prefWidth="200"/>
-            </columns>
-        </TableView>
-
-        <!-- Add/Edit Form -->
-        <VBox style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-border-color: #dee2e6; -fx-border-width: 1 0 0 0;" spacing="10">
-            <Label text="📝 Thêm/Sửa món ăn" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
-            
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <VBox spacing="5">
-                    <Label text="Tên món:" style="-fx-font-weight: bold; -fx-text-fill: #555;"/>
-                    <TextField fx:id="productNameField" promptText="Nhập tên món..." prefWidth="200" prefHeight="36"/>
-                </VBox>
-                
-                <VBox spacing="5">
-                    <Label text="Danh mục:" style="-fx-font-weight: bold; -fx-text-fill: #555;"/>
-                    <ComboBox fx:id="categoryCombo" promptText="Chọn danh mục" prefWidth="150" prefHeight="36"/>
-                </VBox>
-                
-                <VBox spacing="5">
-                    <Label text="Giá (VND):" style="-fx-font-weight: bold; -fx-text-fill: #555;"/>
-                    <TextField fx:id="priceField" promptText="0" prefWidth="120" prefHeight="36"/>
-                </VBox>
-                
-                <VBox spacing="5">
-                    <Label text="Mô tả:" style="-fx-font-weight: bold; -fx-text-fill: #555;"/>
-                    <TextField fx:id="descriptionField" promptText="Mô tả món ăn..." prefWidth="200" prefHeight="36"/>
-                </VBox>
+            <!-- Search Bar -->
+            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="search-container">
+                <Label text="🔍" styleClass="search-icon"/>
+                <TextField fx:id="searchField" promptText="Tìm kiếm món ăn..." 
+                          styleClass="search-field" prefWidth="250"/>
+                <Button fx:id="refreshButton" text="🔄" styleClass="icon-button refresh-btn" />
             </HBox>
             
-            <!-- Action Buttons - Split into 2 rows to avoid overflow -->
-            <VBox spacing="8">
-                <!-- Primary Actions Row -->
-                <HBox spacing="8" alignment="CENTER_LEFT">
-                    <Button fx:id="addButton" text="➕ Thêm" 
-                            style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 12px;" 
-                            prefHeight="32" prefWidth="80"/>
-                    <Button fx:id="updateButton" text="✏️ Cập nhật" 
-                            style="-fx-background-color: #ffc107; -fx-text-fill: #333; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 12px;" 
-                            prefHeight="32" prefWidth="80"/>
-                    <Button fx:id="deleteButton" text="🗑️ Xóa" 
-                            style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 12px;" 
-                            prefHeight="32" prefWidth="80"/>
-                    <Button fx:id="duplicateButton" text="📋 Nhân bản" 
-                            style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 12px;" 
-                            prefHeight="32" prefWidth="80"/>
-                    <Button fx:id="clearButton" text="🧹 Xóa form" 
-                            style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 12px;" 
-                            prefHeight="32" prefWidth="80"/>
-                </HBox>
+            <Button fx:id="logoutButton" styleClass="logout-button">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <image>
+                            <Image url="@../../images/icons/power-icon.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+        </HBox>
+    </top>
+
+    <!-- *** FIXED: Main Content - Use proper sizing *** -->
+    <center>
+        <HBox spacing="0" styleClass="main-content">
+            
+            <!-- *** FIXED: Left Panel - Proper sizing *** -->
+            <VBox styleClass="left-panel" HBox.hgrow="ALWAYS">
                 
-                <!-- Secondary Actions Row -->
-                <HBox spacing="8" alignment="CENTER_LEFT">
-                    <Button fx:id="previewButton" text="👁️ Xem trước" 
-                            style="-fx-background-color: #6f42c1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 12px;" 
-                            prefHeight="32" prefWidth="100"/>
-                    <Button fx:id="saveAndAddAnotherButton" text="💾 Lưu &amp; Thêm tiếp" 
-                            style="-fx-background-color: #20c997; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 12px;" 
-                            prefHeight="32" prefWidth="140"/>
+                <!-- Toolbar - Fixed Height -->
+                <HBox styleClass="toolbar" spacing="10" alignment="CENTER_LEFT">
+                    <Button fx:id="addProductButton" text="➕ Thêm món mới" styleClass="primary-button"/>
+                    <Button fx:id="editProductButton" text="✏️ Sửa món" styleClass="secondary-button"/>
+                    <Button fx:id="deleteProductButton" text="🗑️ Xóa món" styleClass="danger-button"/>
                     
                     <Region HBox.hgrow="ALWAYS"/>
                     
-                    <Label text="💡 Tip: Dùng Ctrl+S để lưu nhanh" 
-                           style="-fx-text-fill: #666; -fx-font-size: 11px; -fx-font-style: italic;"/>
+                    <!-- Category Filter -->
+                    <Label text="Danh mục:" styleClass="filter-label"/>
+                    <ComboBox fx:id="categoryFilter" promptText="Tất cả" 
+                             styleClass="category-filter" prefWidth="150"/>
+                    
+                    <!-- Status Filter -->
+                    <Label text="Trạng thái:" styleClass="filter-label"/>
+                    <ComboBox fx:id="statusFilter" promptText="Tất cả" 
+                             styleClass="status-filter" prefWidth="120"/>
                 </HBox>
+                
+                <!-- *** FIXED: Products Table - Proper sizing *** -->
+                <TableView fx:id="productsTable" styleClass="responsive-products-table" 
+                           VBox.vgrow="ALWAYS">
+                    <columns>
+                        <!-- *** FIXED: No prefWidth specified - Let Java handle sizing *** -->
+                        <TableColumn fx:id="productIdColumn" text="Mã SP" styleClass="id-column"/>
+                        <TableColumn fx:id="productNameColumn" text="Tên món" styleClass="name-column"/>
+                        <TableColumn fx:id="categoryNameColumn" text="Loại" styleClass="category-column"/>
+                        <TableColumn fx:id="sellingPriceColumn" text="Giá bán" styleClass="price-column"/>
+                        <TableColumn fx:id="costPriceColumn" text="Giá vốn" styleClass="price-column"/>
+                        <TableColumn fx:id="statusColumn" text="Trạng thái" styleClass="status-column"/>
+                    </columns>
+                    
+                    <!-- *** PLACEHOLDER for empty table *** -->
+                    <placeholder>
+                        <VBox spacing="15" alignment="CENTER" styleClass="table-placeholder">
+                            <Label text="🍽️" styleClass="placeholder-icon"/>
+                            <Label text="Chưa có món ăn nào trong menu" styleClass="placeholder-title"/>
+                            <Label text="Nhấn 'Thêm món mới' để bắt đầu xây dựng menu" styleClass="placeholder-subtitle"/>
+                            <Button text="➕ Thêm món đầu tiên" styleClass="primary-button"/>
+                        </VBox>
+                    </placeholder>
+                </TableView>
+                
+                <!-- Table Footer Info - Fixed Height -->
+                <HBox styleClass="table-footer" alignment="CENTER_LEFT" spacing="15">
+                    <Label fx:id="totalProductsLabel" text="Tổng: 0 món" styleClass="info-label"/>
+                    <Label fx:id="activeProductsLabel" text="Đang bán: 0 món" styleClass="info-label"/>
+                    <Label fx:id="inactiveProductsLabel" text="Ngừng bán: 0 món" styleClass="info-label"/>
+                    
+                    <Region HBox.hgrow="ALWAYS"/>
+                    
+                    <!-- Pagination -->
+                    <HBox spacing="5" alignment="CENTER">
+                        <Button fx:id="previousPageButton" text="◀" styleClass="pagination-button"/>
+                        <Label fx:id="pageInfoLabel" text="Trang 1/1" styleClass="page-info"/>
+                        <Button fx:id="nextPageButton" text="▶" styleClass="pagination-button"/>
+                    </HBox>
+                </HBox>
+                
             </VBox>
+            
+            <!-- *** FIXED: Right Panel - Proper sizing *** -->
+            <VBox styleClass="right-panel" prefWidth="280" minWidth="250" maxWidth="350">
+                
+                <!-- Fixed Height Title -->
+                <Label text="📋 Thông tin sản phẩm" styleClass="panel-title"/>
+                
+                <!-- *** FIXED: Product Preview - Proper sizing *** -->
+                <VBox styleClass="product-preview" spacing="12" VBox.vgrow="ALWAYS">
+                    
+                    <!-- Product Image - Fixed Size -->
+                    <VBox styleClass="image-container" alignment="CENTER">
+                        <ImageView fx:id="productImageView" fitHeight="150" fitWidth="200" 
+                                  preserveRatio="true" styleClass="product-image">
+                            <image>
+                                <Image url="@../../images/no-image.png"/>
+                            </image>
+                        </ImageView>
+                        <Button fx:id="changeImageButton" text="📷 Đổi ảnh" styleClass="image-button"/>
+                    </VBox>
+                    
+                    <!-- Product Details - Flexible -->
+                    <VBox styleClass="product-details" spacing="10" VBox.vgrow="ALWAYS">
+                        
+                        <VBox spacing="4">
+                            <Label text="Tên món:" styleClass="detail-label"/>
+                            <Label fx:id="previewProductName" text="Chưa chọn sản phẩm" 
+                                  styleClass="detail-value name-value"/>
+                        </VBox>
+                        
+                        <HBox spacing="12">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Mã SP:" styleClass="detail-label"/>
+                                <Label fx:id="previewProductId" text="-" styleClass="detail-value"/>
+                            </VBox>
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Danh mục:" styleClass="detail-label"/>
+                                <Label fx:id="previewCategory" text="-" styleClass="detail-value"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <HBox spacing="12">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Giá bán:" styleClass="detail-label"/>
+                                <Label fx:id="previewSellingPrice" text="-" 
+                                      styleClass="detail-value price-value"/>
+                            </VBox>
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Giá vốn:" styleClass="detail-label"/>
+                                <Label fx:id="previewCostPrice" text="-" 
+                                      styleClass="detail-value price-value"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <VBox spacing="4">
+                            <Label text="Trạng thái:" styleClass="detail-label"/>
+                            <Label fx:id="previewStatus" text="-" styleClass="detail-value status-value"/>
+                        </VBox>
+                        
+                        <!-- Description - Expandable -->
+                        <VBox spacing="4" VBox.vgrow="ALWAYS">
+                            <Label text="Mô tả:" styleClass="detail-label"/>
+                            <TextArea fx:id="previewDescription" text="Chưa có mô tả" 
+                                     styleClass="detail-description" 
+                                     editable="false" wrapText="true"
+                                     VBox.vgrow="ALWAYS"
+                                     minHeight="80" prefHeight="120"/>
+                        </VBox>
+                        
+                        <VBox spacing="4">
+                            <Label text="Ngày tạo:" styleClass="detail-label"/>
+                            <Label fx:id="previewCreatedDate" text="-" styleClass="detail-value"/>
+                        </VBox>
+                        
+                    </VBox>
+                    
+                    <!-- Quick Actions - Fixed at Bottom -->
+                    <VBox styleClass="quick-actions" spacing="6">
+                        <Button fx:id="quickEditButton" text="✏️ Chỉnh sửa nhanh" 
+                               styleClass="secondary-button" maxWidth="Infinity"/>
+                        <Button fx:id="toggleStatusButton" text="🔄 Đổi trạng thái" 
+                               styleClass="status-toggle-button" maxWidth="Infinity"/>
+                        <Button fx:id="duplicateProductButton" text="📋 Nhân bản" 
+                               styleClass="outline-button" maxWidth="Infinity"/>
+                    </VBox>
+                    
+                </VBox>
+                
+            </VBox>
+            
+        </HBox>
+    </center>
+
+    <!-- Add/Edit Product Dialog (Initially Hidden) -->
+    <fx:define>
+        <VBox fx:id="productFormDialog" styleClass="product-form-dialog" 
+              visible="false" managed="false" alignment="TOP_CENTER">
+            
+            <HBox styleClass="dialog-header" alignment="CENTER_LEFT">
+                <Label fx:id="dialogTitle" text="➕ Thêm món mới" styleClass="dialog-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="closeDialogButton" text="✕" styleClass="close-button"/>
+            </HBox>
+            
+            <ScrollPane styleClass="dialog-content" fitToWidth="true" fitToHeight="true">
+                <VBox spacing="20" styleClass="form-container">
+                    
+                    <!-- Basic Information -->
+                    <VBox styleClass="form-section" spacing="15">
+                        <Label text="📝 Thông tin cơ bản" styleClass="section-title"/>
+                        
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Tên món *" styleClass="form-label"/>
+                                <TextField fx:id="productNameField" promptText="Nhập tên món ăn..." 
+                                          styleClass="form-field"/>
+                            </VBox>
+                            <VBox spacing="8" prefWidth="150">
+                                <Label text="Danh mục *" styleClass="form-label"/>
+                                <ComboBox fx:id="categoryComboBox" promptText="Chọn danh mục" 
+                                         styleClass="form-combobox" prefWidth="150"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <VBox spacing="8">
+                            <Label text="Mô tả" styleClass="form-label"/>
+                            <TextArea fx:id="descriptionField" promptText="Mô tả về món ăn..." 
+                                     styleClass="form-textarea" prefRowCount="3" wrapText="true"/>
+                        </VBox>
+                        
+                    </VBox>
+                    
+                    <!-- Pricing Information -->
+                    <VBox styleClass="form-section" spacing="15">
+                        <Label text="💰 Thông tin giá cả" styleClass="section-title"/>
+                        
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Giá bán *" styleClass="form-label"/>
+                                <TextField fx:id="sellingPriceField" promptText="0" 
+                                          styleClass="form-field price-field"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Giá vốn" styleClass="form-label"/>
+                                <TextField fx:id="costPriceField" promptText="0" 
+                                          styleClass="form-field price-field"/>
+                            </VBox>
+                        </HBox>
+                        
+                    </VBox>
+                    
+                    <!-- Image Information -->
+                    <VBox styleClass="form-section" spacing="15">
+                        <Label text="🖼️ Hình ảnh sản phẩm" styleClass="section-title"/>
+                        
+                        <HBox spacing="15" alignment="CENTER_LEFT">
+                            <VBox alignment="CENTER" spacing="10">
+                                <ImageView fx:id="formProductImageView" fitHeight="120" fitWidth="120" 
+                                          preserveRatio="true" styleClass="form-image-preview">
+                                    <image>
+                                        <Image url="@../../images/no-image.png"/>
+                                    </image>
+                                </ImageView>
+                                <Button fx:id="selectImageButton" text="📁 Chọn ảnh" 
+                                       styleClass="outline-button"/>
+                            </VBox>
+                            
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="URL ảnh" styleClass="form-label"/>
+                                <TextField fx:id="imageUrlField" promptText="https://..." 
+                                          styleClass="form-field"/>
+                                <Label text="💡 Bạn có thể nhập URL ảnh hoặc chọn file từ máy tính" 
+                                      styleClass="form-hint"/>
+                            </VBox>
+                        </HBox>
+                        
+                    </VBox>
+                    
+                    <!-- Status -->
+                    <VBox styleClass="form-section" spacing="15">
+                        <Label text="⚙️ Cài đặt" styleClass="section-title"/>
+                        
+                        <HBox spacing="15" alignment="CENTER_LEFT">
+                            <CheckBox fx:id="isAvailableCheckBox" text="Sản phẩm đang bán" 
+                                     styleClass="form-checkbox" selected="true"/>
+                        </HBox>
+                        
+                    </VBox>
+                    
+                </VBox>
+            </ScrollPane>
+            
+            <!-- Dialog Footer -->
+            <HBox styleClass="dialog-footer" spacing="10" alignment="CENTER_RIGHT">
+                <Button fx:id="cancelFormButton" text="❌ Hủy" styleClass="outline-button"/>
+                <Button fx:id="resetFormButton" text="🔄 Đặt lại" styleClass="secondary-button"/>
+                <Button fx:id="saveProductButton" text="💾 Lưu" styleClass="primary-button"/>
+            </HBox>
+            
         </VBox>
-    </VBox>
-</VBox>
+    </fx:define>
+
+</BorderPane>

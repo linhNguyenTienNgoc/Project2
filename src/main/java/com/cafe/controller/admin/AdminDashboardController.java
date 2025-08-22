@@ -47,9 +47,31 @@ public class AdminDashboardController extends DashboardController implements Ini
     @FXML private Button tableTabButton;
     @FXML private Button reportTabButton;
     @FXML private Button promotionTabButton;
+    @FXML private Button customerTabButton;
+    @FXML private Button settingsTabButton;
 
     // Content area
+    @FXML private VBox sidebar;
     @FXML private StackPane contentPane;
+    
+    // Dashboard components
+    @FXML private Label currentDateLabel;
+    @FXML private Label currentTimeLabel;
+    @FXML private Label cafeStatusLabel;
+    @FXML private Label todayRevenueLabel;
+    @FXML private Label tablesInUseLabel;
+    @FXML private Label todayOrdersLabel;
+    @FXML private Label staffOnDutyLabel;
+    @FXML private Label kitchenStatusLabel;
+    @FXML private Label pendingOrdersLabel;
+    @FXML private Label avgPrepTimeLabel;
+    @FXML private Label serviceRatingLabel;
+    @FXML private Label customerWaitLabel;
+    @FXML private Label satisfactionLabel;
+    @FXML private Label inventoryStatusLabel;
+    @FXML private Label revenueGoalLabel;
+    @FXML private Label orderGoalLabel;
+    @FXML private Label customerGoalLabel;
 
     // Order panel
     @FXML private VBox orderPanel;
@@ -80,6 +102,8 @@ public class AdminDashboardController extends DashboardController implements Ini
             setupUserInfo();
             setupTabNavigation();
             setupEventHandlers();
+            setupDashboardComponents();
+            startRealtimeClock();
 
             // Load default content (Overview Dashboard)
             loadTabContent("overview");
@@ -150,10 +174,12 @@ public class AdminDashboardController extends DashboardController implements Ini
      * Setup tab navigation
      */
     private void setupTabNavigation() {
-        // Set initial active tab - với null check
+        // Set initial active tab - overview phải active khi mở lần đầu
         if (overviewTabButton != null) {
-            setActiveTabButton(overviewTabButton);
+            overviewTabButton.getStyleClass().setAll("nav-button", "active");
         }
+        // Set current tab to overview
+        currentTab = "overview";
     }
 
     /**
@@ -200,34 +226,32 @@ public class AdminDashboardController extends DashboardController implements Ini
      */
     private void updateTabButtonStyles() {
         // Reset all tab buttons
-        String defaultStyle = "-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;";
-        String activeStyle = "-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;";
-
-        userTabButton.setStyle(defaultStyle);
-        menuTabButton.setStyle(defaultStyle);
-        tableTabButton.setStyle(defaultStyle);
-        reportTabButton.setStyle(defaultStyle);
-        promotionTabButton.setStyle(defaultStyle);
+        if (overviewTabButton != null) overviewTabButton.getStyleClass().setAll("nav-button");
+        if (userTabButton != null) userTabButton.getStyleClass().setAll("nav-button");
+        if (menuTabButton != null) menuTabButton.getStyleClass().setAll("nav-button");
+        if (tableTabButton != null) tableTabButton.getStyleClass().setAll("nav-button");
+        if (reportTabButton != null) reportTabButton.getStyleClass().setAll("nav-button");
+        if (promotionTabButton != null) promotionTabButton.getStyleClass().setAll("nav-button");
 
         // Set active tab button
         switch (currentTab) {
             case "overview":
-                if (overviewTabButton != null) overviewTabButton.setStyle(activeStyle);
+                if (overviewTabButton != null) overviewTabButton.getStyleClass().setAll("nav-button", "active");
                 break;
             case "user":
-                if (userTabButton != null) userTabButton.setStyle(activeStyle);
+                if (userTabButton != null) userTabButton.getStyleClass().setAll("nav-button", "active");
                 break;
             case "menu":
-                if (menuTabButton != null) menuTabButton.setStyle(activeStyle);
+                if (menuTabButton != null) menuTabButton.getStyleClass().setAll("nav-button", "active");
                 break;
             case "table":
-                if (tableTabButton != null) tableTabButton.setStyle(activeStyle);
+                if (tableTabButton != null) tableTabButton.getStyleClass().setAll("nav-button", "active");
                 break;
             case "report":
-                if (reportTabButton != null) reportTabButton.setStyle(activeStyle);
+                if (reportTabButton != null) reportTabButton.getStyleClass().setAll("nav-button", "active");
                 break;
             case "promotion":
-                if (promotionTabButton != null) promotionTabButton.setStyle(activeStyle);
+                if (promotionTabButton != null) promotionTabButton.getStyleClass().setAll("nav-button", "active");
                 break;
         }
     }
@@ -237,18 +261,15 @@ public class AdminDashboardController extends DashboardController implements Ini
      */
     private void setActiveTabButton(Button activeButton) {
         // Reset all buttons
-        String defaultStyle = "-fx-background-color: #A0522D; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;";
-        String activeStyle = "-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; -fx-border-width: 0; -fx-min-width: 120;";
-
-        if (overviewTabButton != null) overviewTabButton.setStyle(defaultStyle);
-        if (userTabButton != null) userTabButton.setStyle(defaultStyle);
-        if (menuTabButton != null) menuTabButton.setStyle(defaultStyle);
-        if (tableTabButton != null) tableTabButton.setStyle(defaultStyle);
-        if (reportTabButton != null) reportTabButton.setStyle(defaultStyle);
-        if (promotionTabButton != null) promotionTabButton.setStyle(defaultStyle);
+        if (overviewTabButton != null) overviewTabButton.getStyleClass().setAll("nav-button");
+        if (userTabButton != null) userTabButton.getStyleClass().setAll("nav-button");
+        if (menuTabButton != null) menuTabButton.getStyleClass().setAll("nav-button");
+        if (tableTabButton != null) tableTabButton.getStyleClass().setAll("nav-button");
+        if (reportTabButton != null) reportTabButton.getStyleClass().setAll("nav-button");
+        if (promotionTabButton != null) promotionTabButton.getStyleClass().setAll("nav-button");
 
         // Set active button
-        activeButton.setStyle(activeStyle);
+        activeButton.getStyleClass().setAll("nav-button", "active");
     }
 
     /**
@@ -388,19 +409,19 @@ public class AdminDashboardController extends DashboardController implements Ini
     private HBox createOrderItemRow(String productName, double price, int quantity) {
         HBox row = new HBox(8);
         row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        row.setStyle("-fx-padding: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 4;");
+        row.getStyleClass().add("order-item-row");
 
         Label nameLabel = new Label(productName);
-        nameLabel.setStyle("-fx-font-size: 11px; -fx-pref-width: 100;");
+        nameLabel.getStyleClass().add("order-item-name");
 
         Label quantityLabel = new Label(String.valueOf(quantity));
-        quantityLabel.setStyle("-fx-font-size: 11px; -fx-alignment: center; -fx-pref-width: 30;");
+        quantityLabel.getStyleClass().add("order-item-quantity");
 
         Label priceLabel = new Label(String.format("%,.0f VNĐ", price * quantity));
-        priceLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-pref-width: 80;");
+        priceLabel.getStyleClass().add("order-item-price");
 
         Button removeButton = new Button("×");
-        removeButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 3;");
+        removeButton.getStyleClass().add("order-item-remove-btn");
         removeButton.setOnAction(e -> removeOrderItem(row, price * quantity));
 
         row.getChildren().addAll(nameLabel, quantityLabel, priceLabel, removeButton);
@@ -419,7 +440,7 @@ public class AdminDashboardController extends DashboardController implements Ini
         // Show placeholder if no items
         if (orderItemsContainer.getChildren().isEmpty()) {
             Label placeholder = new Label("Chưa có món nào được chọn");
-            placeholder.setStyle("-fx-text-fill: #999; -fx-font-style: italic; -fx-alignment: center;");
+            placeholder.getStyleClass().add("placeholder-text");
             orderItemsContainer.getChildren().add(placeholder);
         }
     }
@@ -478,7 +499,7 @@ public class AdminDashboardController extends DashboardController implements Ini
 
         // Add placeholder
         Label placeholder = new Label("Chưa có món nào được chọn");
-        placeholder.setStyle("-fx-text-fill: #999; -fx-font-style: italic; -fx-alignment: center;");
+        placeholder.getStyleClass().add("placeholder-text");
         orderItemsContainer.getChildren().add(placeholder);
     }
 
@@ -556,5 +577,158 @@ public class AdminDashboardController extends DashboardController implements Ini
     public void onOrderStatusChanged(String newStatus, int tableId) {
         System.out.println("✅ Order status changed: " + newStatus + " for table " + tableId);
         // TODO: Implement order status change handling
+    }
+    
+    // =====================================================
+    // NEW DASHBOARD COMPONENTS SETUP
+    // =====================================================
+    
+    /**
+     * Setup dashboard components with initial data
+     */
+    private void setupDashboardComponents() {
+        try {
+            // Setup current date
+            setupCurrentDateTime();
+            
+            // Load dashboard data
+            loadDashboardData();
+            
+            System.out.println("✅ Dashboard components initialized");
+        } catch (Exception e) {
+            System.err.println("Error setting up dashboard components: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Setup current date and time display
+     */
+    private void setupCurrentDateTime() {
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("EEEE, dd/MM/yyyy");
+        String formattedDate = today.format(formatter);
+        currentDateLabel.setText(formattedDate);
+        
+        // Set initial time
+        updateCurrentTime();
+    }
+    
+    /**
+     * Start real-time clock update
+     */
+    private void startRealtimeClock() {
+        javafx.animation.Timeline timeline = new javafx.animation.Timeline(
+            new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> updateCurrentTime())
+        );
+        timeline.setCycleCount(javafx.animation.Timeline.INDEFINITE);
+        timeline.play();
+    }
+    
+    /**
+     * Update current time display
+     */
+    private void updateCurrentTime() {
+        java.text.SimpleDateFormat timeFormat = new java.text.SimpleDateFormat("HH:mm:ss");
+        String currentTime = timeFormat.format(new java.util.Date());
+        javafx.application.Platform.runLater(() -> {
+            if (currentTimeLabel != null) {
+                currentTimeLabel.setText(currentTime);
+            }
+        });
+    }
+    
+    /**
+     * Load all dashboard data
+     */
+    private void loadDashboardData() {
+        // Load quick stats
+        loadQuickStats();
+        
+        // Load operational status
+        loadOperationalStatus();
+        
+        // Load daily goals
+        loadDailyGoals();
+        
+        // Load recent activities
+        loadRecentActivities();
+    }
+    
+    /**
+     * Load quick statistics
+     */
+    private void loadQuickStats() {
+        try {
+            // TODO: Replace with actual database queries
+            double todayRevenue = 2450000;
+            int tablesInUse = 8;
+            int totalTables = 12;
+            int todayOrders = 47;
+            int staffOnDuty = 6;
+            int totalStaff = 8;
+
+            todayRevenueLabel.setText(String.format("%,.0f VNĐ", todayRevenue));
+            tablesInUseLabel.setText(tablesInUse + "/" + totalTables + " bàn");
+            todayOrdersLabel.setText(todayOrders + " đơn");
+            staffOnDutyLabel.setText(staffOnDuty + "/" + totalStaff + " người");
+
+        } catch (Exception e) {
+            System.err.println("Error loading quick stats: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Load operational status
+     */
+    private void loadOperationalStatus() {
+        // Kitchen status
+        kitchenStatusLabel.setText("✅ Hoạt động bình thường");
+        pendingOrdersLabel.setText("📝 3 đơn hàng đang chờ");
+        avgPrepTimeLabel.setText("⏱️ Thời gian chuẩn bị TB: 12 phút");
+
+        // Service quality
+        serviceRatingLabel.setText("⭐ Đánh giá TB: 4.8/5.0");
+        customerWaitLabel.setText("⏰ Thời gian chờ TB: 8 phút");
+        satisfactionLabel.setText("😊 Mức độ hài lòng: 94%");
+
+        // Inventory
+        inventoryStatusLabel.setText("⚠️ 3 mặt hàng sắp hết");
+    }
+    
+    /**
+     * Load daily goals
+     */
+    private void loadDailyGoals() {
+        // Calculate progress percentages
+        double revenueProgress = (2400000.0 / 3500000.0) * 100;
+        double orderProgress = (47.0 / 60.0) * 100;
+        double customerProgress = (125.0 / 150.0) * 100;
+
+        revenueGoalLabel.setText(String.format("💰 Doanh thu: 2.4M/3.5M (%.0f%%)", revenueProgress));
+        orderGoalLabel.setText(String.format("📋 Đơn hàng: 47/60 (%.0f%%)", orderProgress));
+        customerGoalLabel.setText(String.format("👥 Khách hàng: 125/150 (%.0f%%)", customerProgress));
+
+        // Apply color coding based on progress using CSS classes
+        revenueGoalLabel.getStyleClass().clear();
+        if (revenueProgress >= 80) {
+            revenueGoalLabel.getStyleClass().addAll("progress-indicator", "progress-high");
+        } else if (revenueProgress >= 60) {
+            revenueGoalLabel.getStyleClass().addAll("progress-indicator", "progress-medium");
+        } else {
+            revenueGoalLabel.getStyleClass().addAll("progress-indicator", "progress-low");
+        }
+    }
+    
+    /**
+     * Load recent activities
+     */
+    private void loadRecentActivities() {
+        try {
+            // TODO: Replace with actual database query
+            // For now, we'll use placeholder data
+            System.out.println("✅ Recent activities loaded");
+        } catch (Exception e) {
+            System.err.println("Error loading recent activities: " + e.getMessage());
+        }
     }
 }

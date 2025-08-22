@@ -6,259 +6,214 @@
 
 <VBox xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.cafe.controller.admin.AdminUserController"
-      style="-fx-background-color: #f8f9fa;" spacing="20"
-      styleClass="main-container">
+      spacing="15" styleClass="main-container"
+      stylesheets="/css/user-styles.css">
     
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
     <!-- Header Section -->
-    <VBox spacing="15">
+    <VBox spacing="12" styleClass="header-section">
         <HBox alignment="CENTER_LEFT" spacing="15">
-            <Label text="👥 Quản lý người dùng" 
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;"
-                   styleClass="page-title"/>
+            <Label text="👥 Quản lý Nhân viên" styleClass="page-title"/>
             <Region HBox.hgrow="ALWAYS"/>
             
-            <!-- Quick Stats in Header -->
-            <Label fx:id="quickStatsLabel" text="Tổng: 0 | Hoạt động: 0" 
-                   style="-fx-font-size: 14px; -fx-text-fill: #666; -fx-font-style: italic;"/>
-        </HBox>
-        
-        <!-- Action Buttons - Enhanced with icons -->
-        <HBox spacing="10" alignment="CENTER_LEFT" 
-              styleClass="actions-section">
-            <Button fx:id="addUserButton" text="➕ Thêm người dùng" 
-                    styleClass="btn, btn-primary"
-                    style="-fx-font-weight: bold; -fx-padding: 10 20;"/>
-            <Button fx:id="importUsersButton" text="📥 Nhập từ Excel" 
-                    styleClass="btn, btn-secondary"
-                    style="-fx-font-weight: bold; -fx-padding: 10 20;"/>
-            <Button fx:id="exportButton" text="📊 Xuất báo cáo" 
-                    styleClass="btn, btn-success"
-                    style="-fx-font-weight: bold; -fx-padding: 10 20;"/>
+            <!-- Compact Quick Stats -->
+            <VBox spacing="3" alignment="CENTER" styleClass="quick-stats">
+                <Label fx:id="totalStaffLabel" text="0" styleClass="stats-number-danger"/>
+                <Label text="Tổng NV" styleClass="stats-label"/>
+            </VBox>
             
-            <Separator orientation="VERTICAL"/>
+            <VBox spacing="3" alignment="CENTER" styleClass="quick-stats">
+                <Label fx:id="activeStaffLabel" text="0" styleClass="stats-number-success"/>
+                <Label text="Hoạt động" styleClass="stats-label"/>
+            </VBox>
             
-            <!-- Bulk Actions -->
-            <MenuButton fx:id="bulkActionsButton" text="⚙️ Thao tác hàng loạt" 
-                        styleClass="btn, btn-secondary"
-                        style="-fx-font-weight: bold; -fx-padding: 10 20;">
-                <items>
-                    <MenuItem fx:id="bulkActivateMenuItem" text="✅ Kích hoạt đã chọn"/>
-                    <MenuItem fx:id="bulkDeactivateMenuItem" text="❌ Vô hiệu hóa đã chọn"/>
-                    <MenuItem fx:id="bulkDeleteMenuItem" text="🗑️ Xóa đã chọn"/>
-                    <MenuItem fx:id="bulkResetPasswordMenuItem" text="🔑 Reset mật khẩu đã chọn"/>
-                    <SeparatorMenuItem/>
-                    <MenuItem fx:id="bulkExportMenuItem" text="📋 Xuất danh sách đã chọn"/>
-                </items>
-            </MenuButton>
-        </HBox>
-    </VBox>
-
-    <!-- Statistics Cards -->
-    <HBox spacing="20" alignment="CENTER">
-        <VBox styleClass="stats-card, total" spacing="10" alignment="CENTER" prefWidth="200">
-            <Label text="👥" style="-fx-font-size: 32px;" styleClass="stats-icon"/>
-            <Label text="Tổng người dùng" style="-fx-font-size: 12px; -fx-text-fill: #666;" styleClass="stats-title"/>
-            <Label fx:id="totalUsersLabel" text="0" styleClass="stats-value"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #007bff;"/>
-        </VBox>
-        
-        <VBox styleClass="stats-card, active" spacing="10" alignment="CENTER" prefWidth="200">
-            <Label text="✅" style="-fx-font-size: 32px;" styleClass="stats-icon"/>
-            <Label text="Đang hoạt động" style="-fx-font-size: 12px; -fx-text-fill: #666;" styleClass="stats-title"/>
-            <Label fx:id="activeUsersLabel" text="0" styleClass="stats-value"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
-        </VBox>
-        
-        <VBox styleClass="stats-card, admin" spacing="10" alignment="CENTER" prefWidth="200">
-            <Label text="👑" style="-fx-font-size: 32px;" styleClass="stats-icon"/>
-            <Label text="Quản trị viên" style="-fx-font-size: 12px; -fx-text-fill: #666;" styleClass="stats-title"/>
-            <Label fx:id="adminUsersLabel" text="0" styleClass="stats-value"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #dc3545;"/>
-        </VBox>
-        
-        <VBox styleClass="stats-card, staff" spacing="10" alignment="CENTER" prefWidth="200">
-            <Label text="👨‍💼" style="-fx-font-size: 32px;" styleClass="stats-icon"/>
-            <Label text="Nhân viên" style="-fx-font-size: 12px; -fx-text-fill: #666;" styleClass="stats-title"/>
-            <Label fx:id="staffUsersLabel" text="0" styleClass="stats-value"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffc107;"/>
-        </VBox>
-    </HBox>
-
-    <!-- Search and Filter Section -->
-    <HBox spacing="15" alignment="CENTER_LEFT" styleClass="search-section">
-        <HBox spacing="8" alignment="CENTER_LEFT">
-            <Label text="🔍" style="-fx-font-size: 16px;"/>
-            <TextField fx:id="searchField" promptText="Tìm kiếm người dùng..." prefWidth="300"
-                       styleClass="search-field"
-                       style="-fx-padding: 10; -fx-border-radius: 5; -fx-background-radius: 5;"/>
+            <VBox spacing="3" alignment="CENTER" styleClass="quick-stats">
+                <Label fx:id="totalUsersLabel" text="0" styleClass="stats-number-info"/>
+                <Label text="Tổng users" styleClass="stats-label"/>
+            </VBox>
+            
+            <VBox spacing="3" alignment="CENTER" styleClass="quick-stats">
+                <Label fx:id="activeUsersLabel" text="0" styleClass="stats-number-success"/>
+                <Label text="Active" styleClass="stats-label"/>
+            </VBox>
+            
+            <VBox spacing="3" alignment="CENTER" styleClass="quick-stats">
+                <Label fx:id="adminUsersLabel" text="0" styleClass="stats-number-warning"/>
+                <Label text="Admin" styleClass="stats-label"/>
+            </VBox>
+            
+            <VBox spacing="3" alignment="CENTER" styleClass="quick-stats">
+                <Label fx:id="staffUsersLabel" text="0" styleClass="stats-number-primary"/>
+                <Label text="Staff" styleClass="stats-label"/>
+            </VBox>
         </HBox>
         
-        <VBox spacing="3">
-            <Label text="Vai trò:" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
-            <ComboBox fx:id="roleFilterCombo" prefWidth="150" styleClass="form-control"/>
-        </VBox>
-        
-        <VBox spacing="3">
-            <Label text="Trạng thái:" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
-            <ComboBox fx:id="statusFilterCombo" prefWidth="150" styleClass="form-control"/>
-        </VBox>
-        
-        <Button fx:id="refreshButton" text="🔄 Làm mới" 
-                styleClass="btn, btn-secondary"
-                style="-fx-padding: 10 15;"/>
+        <!-- Compact Toolbar -->
+        <VBox spacing="8" styleClass="toolbar">
+            <!-- Top Row: Search and Filters -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <!-- Search Section -->
+                <HBox spacing="8" alignment="CENTER_LEFT" styleClass="search-container">
+                    <Label text="🔍"/>
+                    <TextField fx:id="searchField" 
+                              promptText="Tìm theo tên, email, SĐT..." 
+                              prefWidth="200" styleClass="search-field"/>
+                </HBox>
                 
-        <Region HBox.hgrow="ALWAYS"/>
-        
-        <!-- Additional filters -->
-        <Button fx:id="advancedSearchButton" text="🔧 Tìm kiếm nâng cao" 
-                styleClass="btn, btn-warning"
-                style="-fx-padding: 10 15;"/>
-    </HBox>
-
-    <!-- User Table -->
-    <TableView fx:id="userTable" 
-               styleClass="table-view"
-               VBox.vgrow="ALWAYS">
-        <columns>
-            <!-- Selection Column -->
-            <TableColumn fx:id="selectColumn" text="☑️" prefWidth="40" resizable="false" sortable="false"/>
+                <!-- Filter Section -->
+                <VBox spacing="2">
+                    <Label text="Vai trò:" styleClass="filter-label"/>
+                    <ComboBox fx:id="roleFilterCombo" prefWidth="90" styleClass="filter-combo"/>
+                </VBox>
+                
+                <VBox spacing="2">
+                    <Label text="Trạng thái:" styleClass="filter-label"/>
+                    <ComboBox fx:id="statusFilterCombo" prefWidth="90" styleClass="filter-combo"/>
+                </VBox>
+            </HBox>
             
-            <!-- Data Columns -->
-            <TableColumn fx:id="idColumn" text="ID" prefWidth="60" sortable="true"/>
-            <TableColumn fx:id="usernameColumn" text="Tên đăng nhập" prefWidth="120" sortable="true"/>
-            <TableColumn fx:id="fullNameColumn" text="Họ tên" prefWidth="150" sortable="true"/>
-            <TableColumn fx:id="emailColumn" text="Email" prefWidth="180" sortable="true"/>
-            <TableColumn fx:id="phoneColumn" text="Điện thoại" prefWidth="120" sortable="true"/>
-            <TableColumn fx:id="roleColumn" text="Vai trò" prefWidth="100" sortable="true"/>
-            <TableColumn fx:id="statusColumn" text="Trạng thái" prefWidth="100" sortable="true"/>
-            <TableColumn fx:id="createdAtColumn" text="Ngày tạo" prefWidth="120" sortable="true"/>
-            <TableColumn fx:id="actionsColumn" text="Thao tác" prefWidth="180" sortable="false"/>
-        </columns>
-        
-        <!-- Table placeholder -->
-        <placeholder>
-            <VBox spacing="10" alignment="CENTER">
-                <Label text="📋" style="-fx-font-size: 48px; -fx-text-fill: #ccc;"/>
-                <Label text="Không có dữ liệu người dùng" 
-                       style="-fx-font-size: 16px; -fx-text-fill: #999;"/>
-                <Label text="Nhấn 'Thêm người dùng' để tạo người dùng mới" 
-                       style="-fx-font-size: 12px; -fx-text-fill: #666; -fx-font-style: italic;"/>
-            </VBox>
-        </placeholder>
-    </TableView>
-
-    <!-- User Form Section -->
-    <VBox fx:id="userFormSection" spacing="20" managed="false" visible="false"
-          styleClass="form-container">
-        
-        <!-- Form Header -->
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label text="📝 Thông tin người dùng" styleClass="form-title"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Button fx:id="minimizeFormButton" text="➖" 
-                    style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 5 10;"/>
-        </HBox>
-        
-        <!-- Form Content -->
-        <GridPane hgap="20" vgap="15" styleClass="form-grid">
-            <columnConstraints>
-                <ColumnConstraints percentWidth="25"/>
-                <ColumnConstraints percentWidth="25"/>
-                <ColumnConstraints percentWidth="25"/>
-                <ColumnConstraints percentWidth="25"/>
-            </columnConstraints>
-
-            <!-- Row 1: Basic Info -->
-            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="form-group">
-                <Label text="Tên đăng nhập:" styleClass="form-label"/>
-                <TextField fx:id="usernameField" styleClass="form-control" promptText="username"/>
-            </VBox>
-            
-            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="form-group">
-                <Label text="Họ tên:" styleClass="form-label"/>
-                <TextField fx:id="fullNameField" styleClass="form-control" promptText="Nguyễn Văn A"/>
-            </VBox>
-            
-            <VBox spacing="5" GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="form-group">
-                <Label text="Email:" styleClass="form-label"/>
-                <TextField fx:id="emailField" styleClass="form-control" promptText="user@example.com"/>
-            </VBox>
-            
-            <VBox spacing="5" GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="form-group">
-                <Label text="Điện thoại:" styleClass="form-label"/>
-                <TextField fx:id="phoneField" styleClass="form-control" promptText="0123456789"/>
-            </VBox>
-
-            <!-- Row 2: Security & Role -->
-            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="form-group">
-                <Label text="Mật khẩu:" styleClass="form-label"/>
-                <PasswordField fx:id="passwordField" styleClass="form-control" promptText="••••••••"/>
-            </VBox>
-            
-            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="form-group">
-                <Label text="Xác nhận MK:" styleClass="form-label"/>
-                <PasswordField fx:id="confirmPasswordField" styleClass="form-control" promptText="••••••••"/>
-            </VBox>
-            
-            <VBox spacing="5" GridPane.columnIndex="2" GridPane.rowIndex="1" styleClass="form-group">
-                <Label text="Vai trò:" styleClass="form-label"/>
-                <ComboBox fx:id="roleCombo" styleClass="form-control" prefWidth="200"/>
-            </VBox>
-            
-            <VBox spacing="5" GridPane.columnIndex="3" GridPane.rowIndex="1" styleClass="form-group">
-                <Label text="Trạng thái:" styleClass="form-label"/>
-                <ComboBox fx:id="statusCombo" styleClass="form-control" prefWidth="200"/>
-            </VBox>
-        </GridPane>
-        
-        <!-- Form Actions -->
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <Button fx:id="saveUserButton" text="💾 Lưu" 
-                    styleClass="btn, btn-primary"
-                    style="-fx-font-weight: bold; -fx-padding: 10 20;"/>
-            <Button fx:id="cancelButton" text="❌ Hủy" 
-                    styleClass="btn, btn-secondary"
-                    style="-fx-font-weight: bold; -fx-padding: 10 20;"/>
-            <Button fx:id="resetFormButton" text="🔄 Reset Form" 
-                    styleClass="btn, btn-warning"
-                    style="-fx-font-weight: bold; -fx-padding: 10 20;"/>
-                    
-            <Region HBox.hgrow="ALWAYS"/>
-            
-            <!-- Additional actions -->
-            <Button fx:id="generatePasswordButton" text="🎲 Tạo mật khẩu" 
-                    styleClass="btn, btn-info"
-                    style="-fx-font-weight: bold; -fx-padding: 10 20;"/>
-            <Button fx:id="sendWelcomeEmailButton" text="📧 Gửi email chào mừng" 
-                    styleClass="btn, btn-success"
-                    style="-fx-font-weight: bold; -fx-padding: 10 20;"/>
-        </HBox>
-        
-        <!-- Form Help Text -->
-        <VBox spacing="5">
-            <Label text="💡 Gợi ý:" style="-fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
-            <Label text="• Tên đăng nhập phải có ít nhất 3 ký tự và chỉ chứa chữ cái, số và dấu gạch dưới" 
-                   style="-fx-font-size: 11px; -fx-text-fill: #666;"/>
-            <Label text="• Mật khẩu phải có ít nhất 6 ký tự. Nên sử dụng mật khẩu mạnh với chữ hoa, số và ký tự đặc biệt" 
-                   style="-fx-font-size: 11px; -fx-text-fill: #666;"/>
-            <Label text="• Email sẽ được sử dụng để gửi thông báo và khôi phục mật khẩu" 
-                   style="-fx-font-size: 11px; -fx-text-fill: #666;"/>
+            <!-- Bottom Row: Action Buttons -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Button fx:id="addUserButton" text="➕ Thêm" styleClass="btn-primary"/>
+                <Button fx:id="editUserButton" text="✎ Sửa" styleClass="btn-warning" disable="true"/>
+                <Button fx:id="deleteUserButton" text="🗑 Xóa" styleClass="btn-danger" disable="true"/>
+                
+                <Separator orientation="VERTICAL" prefHeight="25"/>
+                
+                <Button fx:id="refreshButton" text="🔄 Refresh" styleClass="btn-secondary"/>
+                <Button fx:id="exportButton" text="📊 Export" styleClass="btn-success"/>
+            </HBox>
         </VBox>
     </VBox>
 
-    <!-- Footer Info -->
-    <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 10 0;">
-        <Label fx:id="footerStatusLabel" text="✅ Sẵn sàng" 
-               style="-fx-font-size: 12px; -fx-text-fill: #28a745; -fx-font-weight: bold;"/>
+    <!-- Main Content Area -->
+    <StackPane VBox.vgrow="ALWAYS">
+        
+        <!-- User Table -->
+        <VBox spacing="8" styleClass="table-container">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="📋 Danh sách nhân viên" styleClass="table-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="resultCountLabel" text="Hiển thị 0 nhân viên" styleClass="status-info"/>
+            </HBox>
+            
+            <!-- *** OPTIMIZED TABLEVIEW - KHÔNG CÓ prefWidth TRONG FXML *** -->
+            <TableView fx:id="userTable" styleClass="modern-table" VBox.vgrow="ALWAYS">
+                <columns>
+                    <!-- Để Java code điều khiển hoàn toàn width -->
+                    <TableColumn fx:id="idColumn" text="ID" sortable="true"/>
+                    <TableColumn fx:id="usernameColumn" text="👤 Username" sortable="true"/>
+                    <TableColumn fx:id="fullNameColumn" text="📝 Họ tên" sortable="true"/>
+                    <TableColumn fx:id="emailColumn" text="📧 Email" sortable="true"/>
+                    <TableColumn fx:id="phoneColumn" text="📱 SĐT" sortable="true"/>
+                    <TableColumn fx:id="roleColumn" text="👨‍💼 Role" sortable="true"/>
+                    <TableColumn fx:id="statusColumn" text="📄 Status" sortable="true"/>
+                    <TableColumn fx:id="createdAtColumn" text="📅 Ngày tạo" sortable="true"/>
+                    <TableColumn fx:id="actionsColumn" text="⚙️ Thao tác" sortable="false"/>
+                </columns>
+                
+                <placeholder>
+                    <VBox spacing="12" alignment="CENTER" styleClass="table-placeholder">
+                        <Label text="👥" styleClass="placeholder-icon"/>
+                        <Label text="Chưa có nhân viên nào" styleClass="placeholder-title"/>
+                        <Label text="Nhấn 'Thêm nhân viên' để bắt đầu quản lý đội ngũ" styleClass="placeholder-subtitle"/>
+                        <Button text="➕ Thêm nhân viên đầu tiên" styleClass="btn-primary" onAction="#showAddUserForm"/>
+                    </VBox>
+                </placeholder>
+            </TableView>
+        </VBox>
+        
+        <!-- User Form Overlay -->
+        <VBox fx:id="userFormOverlay" styleClass="form-overlay" alignment="CENTER" visible="false" managed="false">
+            
+            <VBox fx:id="userFormSection" spacing="20" styleClass="form-container" prefWidth="550" maxWidth="550">
+                
+                <!-- Form Header -->
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <Label fx:id="formTitleLabel" text="✨ Thêm nhân viên mới" styleClass="form-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="closeFormButton" text="✕" styleClass="btn-close" onAction="#hideUserForm"/>
+                </HBox>
+                
+                <!-- Form Content Grid -->
+                <GridPane hgap="15" vgap="12" styleClass="form-grid">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50"/>
+                        <ColumnConstraints percentWidth="50"/>
+                    </columnConstraints>
+
+                    <!-- Row 1: Full Name & Username -->
+                    <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label text="👤 Họ và tên *" styleClass="form-field-label"/>
+                        <TextField fx:id="fullNameField" promptText="Nguyễn Văn A..." styleClass="form-field"/>
+                    </VBox>
+                    
+                    <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label text="🏷 Username *" styleClass="form-field-label"/>
+                        <TextField fx:id="usernameField" promptText="username..." styleClass="form-field"/>
+                    </VBox>
+
+                    <!-- Row 2: Email & Phone -->
+                    <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <Label text="📧 Email *" styleClass="form-field-label"/>
+                        <TextField fx:id="emailField" promptText="example@email.com" styleClass="form-field"/>
+                    </VBox>
+                    
+                    <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Label text="📱 Số điện thoại *" styleClass="form-field-label"/>
+                        <TextField fx:id="phoneField" promptText="0123456789" styleClass="form-field"/>
+                    </VBox>
+
+                    <!-- Row 3: Password & Confirm Password -->
+                    <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                        <Label text="🔐 Mật khẩu *" styleClass="form-field-label"/>
+                        <PasswordField fx:id="passwordField" promptText="••••••••" styleClass="form-field"/>
+                    </VBox>
+                    
+                    <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <Label text="🔐 Xác nhận mật khẩu *" styleClass="form-field-label"/>
+                        <PasswordField fx:id="confirmPasswordField" promptText="••••••••" styleClass="form-field"/>
+                    </VBox>
+
+                    <!-- Row 4: Role & Status -->
+                    <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                        <Label text="👨‍💼 Vai trò *" styleClass="form-field-label"/>
+                        <ComboBox fx:id="roleCombo" styleClass="form-combo" prefWidth="220"/>
+                    </VBox>
+                    
+                    <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <Label text="📄 Trạng thái *" styleClass="form-field-label"/>
+                        <ComboBox fx:id="statusCombo" styleClass="form-combo" prefWidth="220"/>
+                    </VBox>
+                </GridPane>
+                
+                <!-- Form Help Text -->
+                <VBox spacing="4" styleClass="help-box">
+                    <Label text="💡 Lưu ý quan trọng:" styleClass="help-title"/>
+                    <Label text="• Username phải từ 3-50 ký tự, chỉ chứa chữ cái, số và dấu gạch dưới" styleClass="help-text"/>
+                    <Label text="• Mật khẩu tối thiểu 6 ký tự, nên kết hợp chữ hoa, thường, số và ký tự đặc biệt" styleClass="help-text"/>
+                    <Label text="• Email sẽ được sử dụng để gửi thông báo và khôi phục mật khẩu" styleClass="help-text"/>
+                </VBox>
+                
+                <!-- Form Actions -->
+                <HBox spacing="12" alignment="CENTER">
+                    <Button fx:id="saveUserButton" text="💾 Lưu thông tin" styleClass="btn-success-large"/>
+                    <Button fx:id="cancelButton" text="⌫ Hủy bỏ" styleClass="btn-cancel-large" onAction="#hideFormOverlay"/>
+                    <Button fx:id="resetFormButton" text="🔄 Đặt lại" styleClass="btn-warning-large"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </StackPane>
+
+    <!-- Footer Status -->
+    <HBox alignment="CENTER_LEFT" spacing="15" styleClass="status-bar">
+        <Label fx:id="statusLabel" text="✅ Sẵn sàng" styleClass="status-ready"/>
         <Separator orientation="VERTICAL"/>
-        <Label fx:id="lastUpdateLabel" text="Cập nhật lần cuối: Chưa có" 
-               style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+        <Label fx:id="lastUpdateLabel" text="Cập nhật lần cuối: Chưa có" styleClass="status-info"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Label text="💡 Shift+Click để chọn nhiều | Ctrl+F để tìm kiếm nhanh" 
-               style="-fx-font-size: 11px; -fx-text-fill: #999; -fx-font-style: italic;"/>
+        <Label text="💡 Double-click để chỉnh sửa | Ctrl+F để tìm kiếm nhanh" styleClass="status-info"/>
     </HBox>
 </VBox>
