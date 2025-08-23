@@ -17,6 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -25,7 +26,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.Scene;
 import javafx.stage.Window;
@@ -33,9 +33,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.util.StringConverter;
-import javafx.scene.input.MouseEvent;
 import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.Node;
 
 import java.io.File;
 import java.net.URL;
@@ -56,9 +56,10 @@ import java.util.ResourceBundle;
  * - Real-time search and filtering
  * - Image management
  * - Form validation
+ * - Fixed dialog management (no more duplicates)
  * 
  * @author Team 2_C2406L
- * @version 3.0.0
+ * @version 4.0.0 - IMPROVED
  */
 public class AdminMenuController implements Initializable, DashboardCommunicator {
 
@@ -117,24 +118,27 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     @FXML private Button duplicateProductButton;
 
     // =============================================
-    // FXML COMPONENTS - FORM DIALOG
+    // FXML COMPONENTS - FORM DIALOG (Keep for compatibility)
     // =============================================
     @FXML private VBox productFormDialog;
-    @FXML private StackPane dialogOverlay;
     @FXML private Label dialogTitle;
     @FXML private Button closeDialogButton;
-    @FXML private TextField productNameField;
-    @FXML private ComboBox<Category> categoryComboBox;
-    @FXML private TextArea descriptionField;
-    @FXML private TextField sellingPriceField;
-    @FXML private TextField costPriceField;
-    @FXML private ImageView formProductImageView;
     @FXML private Button selectImageButton;
-    @FXML private TextField imageUrlField;
-    @FXML private CheckBox isAvailableCheckBox;
     @FXML private Button cancelFormButton;
-    @FXML private Button resetFormButton;
+    @FXML private Button resetFormFieldsButton;
     @FXML private Button saveProductButton;
+
+    // =============================================
+    // PROGRAMMATIC FORM FIELDS (Created dynamically)
+    // =============================================
+    private TextField productNameField;
+    private ComboBox<Category> categoryComboBox;
+    private TextArea descriptionField;
+    private TextField sellingPriceField;
+    private TextField costPriceField;
+    private ImageView formProductImageView;
+    private TextField imageUrlField;
+    private CheckBox isAvailableCheckBox;
 
     // =============================================
     // DATA COLLECTIONS
@@ -151,7 +155,13 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     private CategoryDAO categoryDAO;
     private Product currentEditingProduct = null;
     private Object dashboardController;
-    private Stage currentDialogStage = null;
+
+    // =============================================
+    // IMPROVED DIALOG MANAGEMENT
+    // =============================================
+    private Stage productFormStage = null;
+    private boolean isFormInitialized = false;
+    private Label dialogTitleLabel;
 
     // =============================================
     // PAGINATION & FORMATTING
@@ -193,7 +203,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             // Setup full screen layout
             Platform.runLater(this::setupFullScreenLayout);
             
-            // FIXED: Add cleanup on application close
+            // Add cleanup on application close
             Platform.runLater(() -> {
                 if (productsTable != null && productsTable.getScene() != null && productsTable.getScene().getWindow() instanceof Stage) {
                     Stage stage = (Stage) productsTable.getScene().getWindow();
@@ -241,8 +251,12 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         // Setup data binding
         setupTableDataBinding();
         
+
+        
         System.out.println("✅ Table setup complete");
     }
+    
+
 
     private void setupColumnValueFactories() {
         productIdColumn.setCellValueFactory(new PropertyValueFactory<>("productId"));
@@ -493,7 +507,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         filteredProducts = new FilteredList<>(productList, p -> true);
         productsTable.setItems(filteredProducts);
         
-        // FIXED: Enhanced selection handler with debug logging
+        // Enhanced selection handler with debug logging
         productsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             System.out.println("📋 Table selection changed:");
             System.out.println("  Old: " + (oldSelection != null ? oldSelection.getProductName() : "null"));
@@ -512,7 +526,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             }
         });
         
-        // FIXED: Add double-click handler for quick edit
+        // Simple double-click handler for quick edit
         productsTable.setRowFactory(tv -> {
             TableRow<Product> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -521,7 +535,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
                     if (product != null) {
                         System.out.println("🖱️ Double-clicked on: " + product.getProductName());
                         currentEditingProduct = product;
-                        showEditProductDialog();
+                        showEditProductForm();
                     }
                 }
             });
@@ -567,27 +581,11 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         
         // Category filter setup
         categoryFilter.setItems(categoryList);
-        categoryFilter.setConverter(new StringConverter<Category>() {
-            @Override
-            public String toString(Category category) {
-                return category != null ? category.getCategoryName() : "Tất cả";
-            }
-
-            @Override
-            public Category fromString(String string) {
-                return categoryList.stream()
-                    .filter(cat -> cat.getCategoryName().equals(string))
-                    .findFirst().orElse(null);
-            }
-        });
+        categoryFilter.setConverter(createCategoryConverter());
 
         // Status filter setup
         statusFilter.getItems().addAll("Tất cả", "Đang bán", "Ngừng bán");
         statusFilter.setValue("Tất cả");
-
-        // Form category combobox
-        categoryComboBox.setItems(categoryList);
-        categoryComboBox.setConverter(categoryFilter.getConverter());
         
         System.out.println("✅ Filters configured");
     }
@@ -626,7 +624,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     }
 
     // =============================================
-    // EVENT HANDLERS SETUP
+    // EVENT HANDLERS SETUP - FIXED
     // =============================================
 
     private void setupEventHandlers() {
@@ -652,7 +650,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             });
         }
 
-        // Toolbar button handlers with debug logging
+        // Toolbar button handlers - FIXED
         if (refreshButton != null) {
             refreshButton.setOnAction(e -> {
                 System.out.println("🔄 Refresh button clicked");
@@ -663,20 +661,15 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         if (addProductButton != null) {
             addProductButton.setOnAction(e -> {
                 System.out.println("➕ Add product button clicked");
-                showAddProductDialog();
+                showAddProductForm();
             });
-        } else {
-            System.err.println("❌ addProductButton is null!");
         }
         
         if (editProductButton != null) {
             editProductButton.setOnAction(e -> {
                 System.out.println("✏️ Edit product button clicked");
-                System.out.println("Current editing product: " + (currentEditingProduct != null ? currentEditingProduct.getProductName() : "null"));
-                showEditProductDialog();
+                showEditProductForm();
             });
-        } else {
-            System.err.println("❌ editProductButton is null!");
         }
         
         if (deleteProductButton != null) {
@@ -694,14 +687,14 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             nextPageButton.setOnAction(e -> nextPage());
         }
 
-        // Preview panel handlers
+        // Preview panel handlers - FIXED
         if (changeImageButton != null) {
             changeImageButton.setOnAction(e -> changeProductImage());
         }
         if (quickEditButton != null) {
             quickEditButton.setOnAction(e -> {
                 System.out.println("⚡ Quick edit button clicked");
-                showEditProductDialog();
+                showEditProductForm();
             });
         }
         if (toggleStatusButton != null) {
@@ -709,44 +702,6 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         }
         if (duplicateProductButton != null) {
             duplicateProductButton.setOnAction(e -> duplicateProduct());
-        }
-
-        // Form dialog handlers
-        if (closeDialogButton != null) {
-            closeDialogButton.setOnAction(e -> {
-                System.out.println("❌ Close dialog button clicked");
-                hideFormDialog();
-            });
-        }
-        if (selectImageButton != null) {
-            selectImageButton.setOnAction(e -> selectImageFile());
-        }
-        if (cancelFormButton != null) {
-            cancelFormButton.setOnAction(e -> {
-                System.out.println("❌ Cancel form button clicked");
-                hideFormDialog();
-            });
-        }
-        if (resetFormButton != null) {
-            resetFormButton.setOnAction(e -> {
-                System.out.println("🔄 Reset form button clicked");
-                resetForm();
-            });
-        }
-        if (saveProductButton != null) {
-            saveProductButton.setOnAction(e -> {
-                System.out.println("💾 Save product button clicked");
-                saveProduct();
-            });
-        }
-
-        // Image URL field listener
-        if (imageUrlField != null) {
-            imageUrlField.textProperty().addListener((obs, oldVal, newVal) -> {
-                if (newVal != null && !newVal.trim().isEmpty()) {
-                    loadImageFromUrl(newVal.trim());
-                }
-            });
         }
 
         // Logout handler
@@ -855,117 +810,528 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         loadCategories();
         loadProducts();
         clearPreview();
-        hideFormDialog();
-    }
-
-    // =============================================
-    // PRODUCT CRUD OPERATIONS
-    // =============================================
-
-    private void showAddProductDialog() {
-        try {
-            System.out.println("➕ Showing add product dialog...");
-            
-            currentEditingProduct = null;
-            
-            if (dialogTitle != null) {
-                dialogTitle.setText("➕ Thêm món mới");
-            }
-            
-            resetForm();
-            showFormDialog();
-            
-            System.out.println("✅ Add product dialog shown successfully");
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error showing add product dialog: " + e.getMessage());
-            e.printStackTrace();
-            AlertUtils.showError("Lỗi", "Không thể mở form thêm sản phẩm: " + e.getMessage());
+        
+        // Hide form if open
+        if (productFormStage != null && productFormStage.isShowing()) {
+            hideProductForm();
         }
     }
 
-    private void showEditProductDialog() {
+    // =============================================
+    // IMPROVED DIALOG MANAGEMENT - NO DUPLICATES
+    // =============================================
+
+    /**
+     * Single method to show form dialog - removes confusion
+     */
+    private void showProductForm(Product productToEdit) {
         try {
-            System.out.println("✏️ Showing edit product dialog...");
+            System.out.println("📝 Opening product form...");
             
-            // FIXED: Better validation of selected product
-            Product selectedProduct = productsTable.getSelectionModel().getSelectedItem();
-            
-            if (selectedProduct == null && currentEditingProduct == null) {
-                System.out.println("❌ No product selected for editing");
-                AlertUtils.showWarning("Chú ý", "Vui lòng chọn sản phẩm cần sửa");
-                return;
-            }
-            
-            // Use selected product if available, otherwise use currentEditingProduct
-            Product productToEdit = selectedProduct != null ? selectedProduct : currentEditingProduct;
+            // Set current editing product
             currentEditingProduct = productToEdit;
+            boolean isEdit = (productToEdit != null);
             
-            System.out.println("📝 Editing product: " + productToEdit.getProductName());
-            
-            if (dialogTitle != null) {
-                dialogTitle.setText("✏️ Sửa món: " + productToEdit.getProductName());
+            // Initialize dialog if first time
+            if (!isFormInitialized) {
+                initializeFormDialog();
             }
             
-            loadProductToForm(productToEdit);
-            showFormDialog();
+            // Update dialog title
+            updateDialogTitle(isEdit, productToEdit);
             
-            System.out.println("✅ Edit product dialog shown successfully");
+            // Load product data to form
+            if (isEdit) {
+                loadProductToForm(productToEdit);
+            } else {
+                resetFormFields();
+            }
+            
+            // Show dialog
+            if (productFormStage != null) {
+                productFormStage.show();
+                productFormStage.toFront();
+                
+                // Focus first field
+                Platform.runLater(() -> {
+                    if (productNameField != null) {
+                        productNameField.requestFocus();
+                    }
+                });
+            }
+            
+            System.out.println("✅ Product form opened successfully");
             
         } catch (Exception e) {
-            System.err.println("❌ Error showing edit product dialog: " + e.getMessage());
+            System.err.println("❌ Error opening product form: " + e.getMessage());
             e.printStackTrace();
-            AlertUtils.showError("Lỗi", "Không thể mở form sửa sản phẩm: " + e.getMessage());
+            AlertUtils.showError("Lỗi", "Không thể mở form sản phẩm: " + e.getMessage());
         }
     }
 
-    private void saveProduct() {
-        if (!validateForm()) return;
-
-        Product product = createProductFromForm();
-        boolean isUpdate = currentEditingProduct != null;
-
-        if (isUpdate) {
-            product.setProductId(currentEditingProduct.getProductId());
+    /**
+     * Initialize form dialog once - reuse afterwards
+     */
+    private void initializeFormDialog() {
+        try {
+            System.out.println("🔧 Initializing form dialog...");
+            
+            // Create stage once
+            productFormStage = new Stage();
+            productFormStage.initModality(Modality.APPLICATION_MODAL);
+            
+            // Set owner
+            if (productsTable != null && productsTable.getScene() != null) {
+                productFormStage.initOwner(productsTable.getScene().getWindow());
+            }
+            
+            // Always create programmatically for consistency
+            createProgrammaticDialog();
+            
+            // Setup event handlers once
+            setupDialogEventHandlers();
+            
+            isFormInitialized = true;
+            System.out.println("✅ Form dialog initialized successfully");
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error initializing form dialog: " + e.getMessage());
+            e.printStackTrace();
+            AlertUtils.showError("Lỗi", "Không thể khởi tạo form dialog: " + e.getMessage());
         }
+    }
 
-        Task<Boolean> saveTask = new Task<Boolean>() {
-            @Override
-            protected Boolean call() throws Exception {
-                try (Connection connection = DatabaseConfig.getConnection()) {
-                    ProductDAO dao = new ProductDAOImpl(connection);
-                    if (isUpdate) {
-                        return dao.update(product);
-                    } else {
-                        return dao.save(product);
-                    }
+    /**
+     * Create dialog programmatically - consistent approach
+     */
+    private void createProgrammaticDialog() {
+        try {
+            System.out.println("🔨 Creating dialog programmatically...");
+            
+            VBox dialogRoot = new VBox();
+            dialogRoot.getStyleClass().add("product-form-dialog");
+            
+            // === HEADER ===
+            HBox header = createDialogHeader();
+            
+            // === CONTENT ===
+            ScrollPane content = createDialogContent();
+            VBox.setVgrow(content, Priority.ALWAYS);
+            
+            // === FOOTER ===
+            HBox footer = createDialogFooter();
+            
+            dialogRoot.getChildren().addAll(header, content, footer);
+            
+            // Create scene
+            Scene scene = new Scene(dialogRoot, 600, 500);
+            
+            // Add CSS
+            try {
+                String cssUrl = getClass().getResource("/css/menu-style.css").toExternalForm();
+                scene.getStylesheets().add(cssUrl);
+            } catch (Exception e) {
+                System.err.println("⚠️ Could not load CSS: " + e.getMessage());
+            }
+            
+            productFormStage.setScene(scene);
+            productFormStage.setResizable(true);
+            productFormStage.setMinWidth(500);
+            productFormStage.setMinHeight(400);
+            
+            System.out.println("✅ Dialog created programmatically");
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error creating programmatic dialog: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Create dialog header with title and close button
+     */
+    private HBox createDialogHeader() {
+        HBox header = new HBox();
+        header.getStyleClass().add("dialog-header");
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setSpacing(10);
+        
+        // Title label (will be updated dynamically)
+        dialogTitleLabel = new Label();
+        dialogTitleLabel.getStyleClass().add("dialog-title");
+        
+        // Spacer
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        
+        // Close button
+        Button closeBtn = new Button("✕");
+        closeBtn.getStyleClass().add("close-button");
+        closeBtn.setOnAction(e -> hideProductForm());
+        
+        header.getChildren().addAll(dialogTitleLabel, spacer, closeBtn);
+        return header;
+    }
+
+    /**
+     * Create scrollable form content
+     */
+    private ScrollPane createDialogContent() {
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.getStyleClass().add("dialog-content");
+        scrollPane.setFitToWidth(true);
+        
+        VBox formContainer = new VBox();
+        formContainer.getStyleClass().add("form-container");
+        formContainer.setSpacing(20);
+        
+        // === BASIC INFO SECTION ===
+        VBox basicSection = createBasicInfoSection();
+        
+        // === PRICING SECTION ===  
+        VBox pricingSection = createPricingSection();
+        
+        // === IMAGE SECTION ===
+        VBox imageSection = createImageSection();
+        
+        // === STATUS SECTION ===
+        VBox statusSection = createStatusSection();
+        
+        formContainer.getChildren().addAll(
+            basicSection, pricingSection, imageSection, statusSection
+        );
+        
+        scrollPane.setContent(formContainer);
+        return scrollPane;
+    }
+
+    /**
+     * Create basic info section
+     */
+    private VBox createBasicInfoSection() {
+        VBox section = new VBox();
+        section.getStyleClass().add("form-section");
+        section.setSpacing(15);
+        
+        Label title = new Label("📋 Thông tin cơ bản");
+        title.getStyleClass().add("section-title");
+        
+        // Product name
+        VBox nameGroup = new VBox(5);
+        Label nameLabel = new Label("Tên món *");
+        nameLabel.getStyleClass().add("form-label");
+        
+        productNameField = new TextField();
+        productNameField.setPromptText("Nhập tên món ăn...");
+        productNameField.getStyleClass().add("form-field");
+        
+        nameGroup.getChildren().addAll(nameLabel, productNameField);
+        
+        // Category
+        VBox categoryGroup = new VBox(5);
+        Label categoryLabel = new Label("Danh mục *");
+        categoryLabel.getStyleClass().add("form-label");
+        
+        categoryComboBox = new ComboBox<>();
+        categoryComboBox.setPromptText("Chọn danh mục");
+        categoryComboBox.getStyleClass().add("form-combobox");
+        categoryComboBox.setItems(categoryList);
+        categoryComboBox.setConverter(createCategoryConverter());
+        
+        categoryGroup.getChildren().addAll(categoryLabel, categoryComboBox);
+        
+        // Description
+        VBox descGroup = new VBox(5);
+        Label descLabel = new Label("Mô tả");
+        descLabel.getStyleClass().add("form-label");
+        
+        descriptionField = new TextArea();
+        descriptionField.setPromptText("Mô tả về món ăn...");
+        descriptionField.getStyleClass().add("form-textarea");
+        descriptionField.setPrefRowCount(3);
+        descriptionField.setWrapText(true);
+        
+        descGroup.getChildren().addAll(descLabel, descriptionField);
+        
+        section.getChildren().addAll(title, nameGroup, categoryGroup, descGroup);
+        return section;
+    }
+
+    /**
+     * Create pricing section
+     */
+    private VBox createPricingSection() {
+        VBox section = new VBox();
+        section.getStyleClass().add("form-section");
+        section.setSpacing(15);
+        
+        Label title = new Label("💰 Thông tin giá cả");
+        title.getStyleClass().add("section-title");
+        
+        HBox priceRow = new HBox(15);
+        
+        // Selling price
+        VBox sellPriceGroup = new VBox(5);
+        Label sellLabel = new Label("Giá bán *");
+        sellLabel.getStyleClass().add("form-label");
+        
+        sellingPriceField = new TextField();
+        sellingPriceField.setPromptText("0");
+        sellingPriceField.getStyleClass().addAll("form-field", "price-field");
+        HBox.setHgrow(sellPriceGroup, Priority.ALWAYS);
+        
+        sellPriceGroup.getChildren().addAll(sellLabel, sellingPriceField);
+        
+        // Cost price
+        VBox costPriceGroup = new VBox(5);
+        Label costLabel = new Label("Giá vốn");
+        costLabel.getStyleClass().add("form-label");
+        
+        costPriceField = new TextField();
+        costPriceField.setPromptText("0");
+        costPriceField.getStyleClass().addAll("form-field", "price-field");
+        HBox.setHgrow(costPriceGroup, Priority.ALWAYS);
+        
+        costPriceGroup.getChildren().addAll(costLabel, costPriceField);
+        
+        priceRow.getChildren().addAll(sellPriceGroup, costPriceGroup);
+        section.getChildren().addAll(title, priceRow);
+        
+        return section;
+    }
+
+    /**
+     * Create image section
+     */
+    private VBox createImageSection() {
+        VBox section = new VBox();
+        section.getStyleClass().add("form-section");
+        section.setSpacing(15);
+        
+        Label title = new Label("🖼️ Hình ảnh sản phẩm");
+        title.getStyleClass().add("section-title");
+        
+        HBox imageRow = new HBox(15);
+        imageRow.setAlignment(Pos.CENTER_LEFT);
+        
+        // Image preview
+        VBox imagePreview = new VBox(10);
+        imagePreview.setAlignment(Pos.CENTER);
+        
+        formProductImageView = new ImageView();
+        formProductImageView.setFitHeight(120);
+        formProductImageView.setFitWidth(120);
+        formProductImageView.setPreserveRatio(true);
+        formProductImageView.getStyleClass().add("form-image-preview");
+        
+        Button selectImageBtn = new Button("📁 Chọn ảnh");
+        selectImageBtn.getStyleClass().add("outline-button");
+        selectImageBtn.setOnAction(e -> selectImageFile());
+        
+        imagePreview.getChildren().addAll(formProductImageView, selectImageBtn);
+        
+        // URL field
+        VBox urlGroup = new VBox(5);
+        HBox.setHgrow(urlGroup, Priority.ALWAYS);
+        
+        Label urlLabel = new Label("URL ảnh");
+        urlLabel.getStyleClass().add("form-label");
+        
+        imageUrlField = new TextField();
+        imageUrlField.setPromptText("https://...");
+        imageUrlField.getStyleClass().add("form-field");
+        
+        // Real-time image loading
+        imageUrlField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                loadImageFromUrl(newVal.trim());
+            }
+        });
+        
+        Label hint = new Label("💡 Bạn có thể nhập URL ảnh hoặc chọn file từ máy tính");
+        hint.getStyleClass().add("form-hint");
+        
+        urlGroup.getChildren().addAll(urlLabel, imageUrlField, hint);
+        
+        imageRow.getChildren().addAll(imagePreview, urlGroup);
+        section.getChildren().addAll(title, imageRow);
+        
+        return section;
+    }
+
+    /**
+     * Create status section
+     */
+    private VBox createStatusSection() {
+        VBox section = new VBox();
+        section.getStyleClass().add("form-section");
+        section.setSpacing(15);
+        
+        Label title = new Label("⚙️ Cài đặt");
+        title.getStyleClass().add("section-title");
+        
+        isAvailableCheckBox = new CheckBox("Sản phẩm đang bán");
+        isAvailableCheckBox.getStyleClass().add("form-checkbox");
+        isAvailableCheckBox.setSelected(true);
+        
+        section.getChildren().addAll(title, isAvailableCheckBox);
+        return section;
+    }
+
+    /**
+     * Create dialog footer with action buttons
+     */
+    private HBox createDialogFooter() {
+        HBox footer = new HBox();
+        footer.getStyleClass().add("dialog-footer");
+        footer.setAlignment(Pos.CENTER_RIGHT);
+        footer.setSpacing(10);
+        
+        Button cancelBtn = new Button("❌ Hủy");
+        cancelBtn.getStyleClass().add("outline-button");
+        cancelBtn.setOnAction(e -> hideProductForm());
+        
+        Button resetBtn = new Button("🔄 Đặt lại");
+        resetBtn.getStyleClass().add("secondary-button");
+        resetBtn.setOnAction(e -> resetFormFields());
+        
+        saveProductButton = new Button("💾 Lưu");
+        saveProductButton.getStyleClass().add("primary-button");
+        saveProductButton.setOnAction(e -> saveProduct());
+        
+        footer.getChildren().addAll(cancelBtn, resetBtn, saveProductButton);
+        return footer;
+    }
+
+    /**
+     * Update dialog title based on operation
+     */
+    private void updateDialogTitle(boolean isEdit, Product product) {
+        if (productFormStage != null) {
+            if (isEdit && product != null) {
+                productFormStage.setTitle("✏️ Sửa món: " + product.getProductName());
+                if (dialogTitleLabel != null) {
+                    dialogTitleLabel.setText("✏️ Sửa món: " + product.getProductName());
+                }
+            } else {
+                productFormStage.setTitle("➕ Thêm món mới");
+                if (dialogTitleLabel != null) {
+                    dialogTitleLabel.setText("➕ Thêm món mới");
                 }
             }
+        }
+    }
 
-            @Override
-            protected void succeeded() {
-                Platform.runLater(() -> {
-                    if (getValue()) {
-                        String action = isUpdate ? "cập nhật" : "thêm";
-                        AlertUtils.showInfo("Thành công", "Đã " + action + " sản phẩm thành công");
-                        hideFormDialog();
-                        loadProducts();
-                    } else {
-                        AlertUtils.showError("Lỗi", "Không thể lưu sản phẩm");
+    /**
+     * Hide form dialog properly
+     */
+    private void hideProductForm() {
+        try {
+            System.out.println("❌ Hiding product form...");
+            
+            if (productFormStage != null) {
+                productFormStage.hide(); // Use hide() instead of close() to reuse
+            }
+            
+            // Reset state
+            currentEditingProduct = null;
+            
+            // Clear validation styles
+            clearAllValidationStyles();
+            
+            System.out.println("✅ Product form hidden successfully");
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error hiding product form: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Setup dialog event handlers once during initialization
+     */
+    private void setupDialogEventHandlers() {
+        // Window close handler
+        if (productFormStage != null) {
+            productFormStage.setOnCloseRequest(e -> {
+                currentEditingProduct = null;
+                clearAllValidationStyles();
+            });
+        }
+        
+        // Form validation on field changes
+        setupRealTimeValidation();
+    }
+
+    /**
+     * Setup real-time validation as user types
+     */
+    private void setupRealTimeValidation() {
+        // Will be set up when fields are created in createBasicInfoSection()
+        // This method is called during initialization, fields are created later
+        Platform.runLater(() -> {
+            // Product name validation
+            if (productNameField != null) {
+                productNameField.textProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal != null && !newVal.trim().isEmpty()) {
+                        removeErrorStyle(productNameField);
                     }
                 });
             }
-
-            @Override
-            protected void failed() {
-                Platform.runLater(() -> {
-                    AlertUtils.showError("Lỗi", "Lỗi khi lưu sản phẩm: " + getException().getMessage());
+            
+            // Price validation
+            if (sellingPriceField != null) {
+                sellingPriceField.textProperty().addListener((obs, oldVal, newVal) -> {
+                    try {
+                        if (newVal != null && !newVal.trim().isEmpty()) {
+                            double price = Double.parseDouble(newVal.trim());
+                            if (price > 0) {
+                                removeErrorStyle(sellingPriceField);
+                            }
+                        }
+                    } catch (NumberFormatException e) {
+                        // Invalid number - don't show error until save
+                    }
                 });
             }
-        };
-
-        new Thread(saveTask).start();
+            
+            // Category validation
+            if (categoryComboBox != null) {
+                categoryComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal != null) {
+                        removeErrorStyle(categoryComboBox);
+                    }
+                });
+            }
+        });
     }
+
+    // =============================================
+    // SIMPLIFIED PUBLIC METHODS
+    // =============================================
+
+    /**
+     * Show add product form
+     */
+    public void showAddProductForm() {
+        showProductForm(null);
+    }
+
+    /**
+     * Show edit product form
+     */
+    public void showEditProductForm() {
+        Product selectedProduct = productsTable.getSelectionModel().getSelectedItem();
+        if (selectedProduct == null) {
+            AlertUtils.showWarning("Chú ý", "Vui lòng chọn sản phẩm cần sửa");
+            return;
+        }
+        showProductForm(selectedProduct);
+    }
+
+    // =============================================
+    // PRODUCT CRUD OPERATIONS - UPDATED
+    // =============================================
 
     private void deleteSelectedProduct() {
         if (currentEditingProduct == null) {
@@ -1057,86 +1423,139 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         Product original = productsTable.getSelectionModel().getSelectedItem();
         if (original == null) return;
 
-        currentEditingProduct = null; // Create new product
-        if (dialogTitle != null) {
-            dialogTitle.setText("📋 Nhân bản sản phẩm");
-        }
+        // Create new product (not editing existing)
+        Product duplicatedProduct = new Product();
+        duplicatedProduct.setProductName(original.getProductName() + " (Copy)");
+        duplicatedProduct.setCategoryId(original.getCategoryId());
+        duplicatedProduct.setPrice(original.getPrice());
+        duplicatedProduct.setCostPrice(original.getCostPrice());
+        duplicatedProduct.setDescription(original.getDescription());
+        duplicatedProduct.setImageUrl(original.getImageUrl());
+        duplicatedProduct.setAvailable(original.isAvailable());
         
-        loadProductToForm(original);
-        
-        // Modify name for duplicate
-        if (productNameField != null) {
-            productNameField.setText(original.getProductName() + " (Copy)");
-        }
-        
-        showFormDialog();
+        currentEditingProduct = null; // Ensure we're creating new
+        showProductForm(duplicatedProduct);
     }
 
     // =============================================
-    // FORM VALIDATION AND UTILITIES
+    // FORM VALIDATION AND UTILITIES - IMPROVED
     // =============================================
 
-    private boolean validateForm() {
-        if (productNameField.getText().trim().isEmpty()) {
-            AlertUtils.showWarning("Cảnh báo", "Vui lòng nhập tên sản phẩm");
-            productNameField.requestFocus();
+    /**
+     * Improved form validation with visual feedback
+     */
+    private boolean validateFormWithFeedback() {
+        boolean isValid = true;
+        
+        // Clear previous errors
+        clearAllValidationStyles();
+        
+        // Validate product name
+        if (productNameField == null || productNameField.getText().trim().isEmpty()) {
+            if (productNameField != null) {
+                addErrorStyle(productNameField);
+                Platform.runLater(() -> {
+                    productNameField.requestFocus();
+                    AlertUtils.showWarning("Cảnh báo", "Vui lòng nhập tên sản phẩm");
+                });
+            }
             return false;
         }
-
-        if (categoryComboBox.getValue() == null) {
-            AlertUtils.showWarning("Cảnh báo", "Vui lòng chọn danh mục");
-            categoryComboBox.requestFocus();
+        
+        // Validate category
+        if (categoryComboBox == null || categoryComboBox.getValue() == null) {
+            if (categoryComboBox != null) {
+                addErrorStyle(categoryComboBox);
+                Platform.runLater(() -> {
+                    categoryComboBox.requestFocus();
+                    AlertUtils.showWarning("Cảnh báo", "Vui lòng chọn danh mục");
+                });
+            }
             return false;
         }
-
-        try {
-            double sellingPrice = Double.parseDouble(sellingPriceField.getText().trim());
-            if (sellingPrice <= 0) {
-                AlertUtils.showWarning("Cảnh báo", "Giá bán phải lớn hơn 0");
-                sellingPriceField.requestFocus();
+        
+        // Validate selling price
+        if (sellingPriceField != null) {
+            try {
+                double sellingPrice = Double.parseDouble(sellingPriceField.getText().trim());
+                if (sellingPrice <= 0) {
+                    addErrorStyle(sellingPriceField);
+                    Platform.runLater(() -> {
+                        sellingPriceField.requestFocus();
+                        AlertUtils.showWarning("Cảnh báo", "Giá bán phải lớn hơn 0");
+                    });
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                addErrorStyle(sellingPriceField);
+                Platform.runLater(() -> {
+                    sellingPriceField.requestFocus();
+                    AlertUtils.showWarning("Cảnh báo", "Giá bán không hợp lệ");
+                });
                 return false;
             }
-        } catch (NumberFormatException e) {
-            AlertUtils.showWarning("Cảnh báo", "Giá bán không hợp lệ");
-            sellingPriceField.requestFocus();
-            return false;
         }
-
-        try {
+        
+        // Validate cost price (optional)
+        if (costPriceField != null) {
             String costPriceText = costPriceField.getText().trim();
             if (!costPriceText.isEmpty()) {
-                double costPrice = Double.parseDouble(costPriceText);
-                if (costPrice < 0) {
-                    AlertUtils.showWarning("Cảnh báo", "Giá vốn không được âm");
-                    costPriceField.requestFocus();
+                try {
+                    double costPrice = Double.parseDouble(costPriceText);
+                    if (costPrice < 0) {
+                        addErrorStyle(costPriceField);
+                        Platform.runLater(() -> {
+                            costPriceField.requestFocus();
+                            AlertUtils.showWarning("Cảnh báo", "Giá vốn không được âm");
+                        });
+                        return false;
+                    }
+                } catch (NumberFormatException e) {
+                    addErrorStyle(costPriceField);
+                    Platform.runLater(() -> {
+                        costPriceField.requestFocus();
+                        AlertUtils.showWarning("Cảnh báo", "Giá vốn không hợp lệ");
+                    });
                     return false;
                 }
             }
-        } catch (NumberFormatException e) {
-            AlertUtils.showWarning("Cảnh báo", "Giá vốn không hợp lệ");
-            costPriceField.requestFocus();
-            return false;
         }
-
-        return true;
+        
+        return isValid;
     }
 
     private Product createProductFromForm() {
         Product product = new Product();
-        product.setProductName(productNameField.getText().trim());
-        product.setCategoryId(categoryComboBox.getValue().getCategoryId());
-        product.setPrice(Double.parseDouble(sellingPriceField.getText().trim()));
         
-        String costPriceText = costPriceField.getText().trim();
-        if (!costPriceText.isEmpty()) {
-            product.setCostPrice(Double.parseDouble(costPriceText));
-        } else {
-            product.setCostPrice(0.0);
+        if (productNameField != null) {
+            product.setProductName(productNameField.getText().trim());
+        }
+        if (categoryComboBox != null && categoryComboBox.getValue() != null) {
+            product.setCategoryId(categoryComboBox.getValue().getCategoryId());
+        }
+        if (sellingPriceField != null) {
+            product.setPrice(Double.parseDouble(sellingPriceField.getText().trim()));
         }
         
-        product.setDescription(descriptionField.getText().trim());
-        product.setImageUrl(imageUrlField.getText().trim());
-        product.setAvailable(isAvailableCheckBox.isSelected());
+        if (costPriceField != null) {
+            String costPriceText = costPriceField.getText().trim();
+            if (!costPriceText.isEmpty()) {
+                product.setCostPrice(Double.parseDouble(costPriceText));
+            } else {
+                product.setCostPrice(0.0);
+            }
+        }
+        
+        if (descriptionField != null) {
+            product.setDescription(descriptionField.getText().trim());
+        }
+        if (imageUrlField != null) {
+            product.setImageUrl(imageUrlField.getText().trim());
+        }
+        if (isAvailableCheckBox != null) {
+            product.setAvailable(isAvailableCheckBox.isSelected());
+        }
+        
         product.setActive(true);
         
         return product;
@@ -1170,7 +1589,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
                 isAvailableCheckBox.setSelected(product.isAvailable());
             }
 
-            // FIXED: Better category selection
+            // Set category
             if (categoryComboBox != null) {
                 Category category = categoryList.stream()
                     .filter(cat -> cat.getCategoryId() == product.getCategoryId())
@@ -1195,66 +1614,219 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         }
     }
 
-    private void resetForm() {
+    /**
+     * Reset form fields without nullifying references
+     */
+    private void resetFormFields() {
         try {
-            System.out.println("🔄 Resetting form...");
+            System.out.println("🔄 Resetting form fields...");
             
-            if (productNameField != null) productNameField.clear();
-            if (sellingPriceField != null) sellingPriceField.clear();
-            if (costPriceField != null) costPriceField.clear();
-            if (descriptionField != null) descriptionField.clear();
-            if (imageUrlField != null) imageUrlField.clear();
-            if (isAvailableCheckBox != null) isAvailableCheckBox.setSelected(true);
-            if (categoryComboBox != null) categoryComboBox.setValue(null);
-            
-            // Reset form image
-            if (formProductImageView != null) {
-                try {
-                    formProductImageView.setImage(new Image("file:src/main/resources/images/no-image.png"));
-                } catch (Exception e) {
-                    System.err.println("❌ Could not load default image: " + e.getMessage());
-                }
+            // Clear text fields
+            if (productNameField != null) {
+                productNameField.clear();
+            }
+            if (sellingPriceField != null) {
+                sellingPriceField.clear();
+            }
+            if (costPriceField != null) {
+                costPriceField.clear();
+            }
+            if (descriptionField != null) {
+                descriptionField.clear();
+            }
+            if (imageUrlField != null) {
+                imageUrlField.clear();
             }
             
-            // FIXED: Clear any CSS conflicts in form fields
-            clearFormCSSConflicts();
+            // Reset combobox
+            if (categoryComboBox != null) {
+                categoryComboBox.setValue(null);
+            }
             
-            System.out.println("✅ Form reset successfully");
+            // Reset checkbox
+            if (isAvailableCheckBox != null) {
+                isAvailableCheckBox.setSelected(true);
+            }
+            
+            // Clear image
+            if (formProductImageView != null) {
+                Image defaultImage = new Image("file:src/main/resources/images/no-image.png");
+                formProductImageView.setImage(defaultImage);
+            }
+            
+            // Clear validation styles
+            clearAllValidationStyles();
+            
+            System.out.println("✅ Form fields reset successfully");
             
         } catch (Exception e) {
             System.err.println("❌ Error resetting form: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
+
     /**
-     * Clear CSS conflicts that cause LinearGradient parsing errors
+     * Clear all validation styles from form fields
      */
-    private void clearFormCSSConflicts() {
+    private void clearAllValidationStyles() {
         try {
-            // Clear any problematic CSS that might cause LinearGradient conflicts
             if (productNameField != null) {
-                productNameField.setStyle("-fx-border-color: #d2691e; -fx-background-color: white;");
+                productNameField.getStyleClass().removeAll("error-field", "success-field");
+                productNameField.setStyle(""); // Clear inline styles
             }
             if (sellingPriceField != null) {
-                sellingPriceField.setStyle("-fx-border-color: #d2691e; -fx-background-color: white;");
+                sellingPriceField.getStyleClass().removeAll("error-field", "success-field");
+                sellingPriceField.setStyle("");
             }
             if (costPriceField != null) {
-                costPriceField.setStyle("-fx-border-color: #d2691e; -fx-background-color: white;");
-            }
-            if (descriptionField != null) {
-                descriptionField.setStyle("-fx-border-color: #d2691e; -fx-background-color: white;");
-            }
-            if (imageUrlField != null) {
-                imageUrlField.setStyle("-fx-border-color: #d2691e; -fx-background-color: white;");
+                costPriceField.getStyleClass().removeAll("error-field", "success-field");
+                costPriceField.setStyle("");
             }
             if (categoryComboBox != null) {
-                categoryComboBox.setStyle("-fx-border-color: #d2691e; -fx-background-color: white;");
+                categoryComboBox.getStyleClass().removeAll("error-field", "success-field");
+                categoryComboBox.setStyle("");
             }
-            
-            System.out.println("✅ Form CSS conflicts cleared");
+            if (descriptionField != null) {
+                descriptionField.getStyleClass().removeAll("error-field", "success-field");
+                descriptionField.setStyle("");
+            }
+            if (imageUrlField != null) {
+                imageUrlField.getStyleClass().removeAll("error-field", "success-field");
+                imageUrlField.setStyle("");
+            }
         } catch (Exception e) {
-            System.err.println("❌ Error clearing CSS conflicts: " + e.getMessage());
+            System.err.println("⚠️ Error clearing validation styles: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Remove error styling from field
+     */
+    private void removeErrorStyle(Node field) {
+        field.getStyleClass().remove("error-field");
+        Platform.runLater(() -> {
+            field.setStyle("-fx-border-color: #d2691e; -fx-background-color: white;");
+        });
+    }
+
+    /**
+     * Add error styling to field
+     */
+    private void addErrorStyle(Node field) {
+        field.getStyleClass().add("error-field");
+        Platform.runLater(() -> {
+            field.setStyle("-fx-border-color: #ef4444; -fx-border-width: 2; -fx-background-color: #fef2f2;");
+        });
+    }
+
+    /**
+     * Create category converter for ComboBox
+     */
+    private StringConverter<Category> createCategoryConverter() {
+        return new StringConverter<Category>() {
+            @Override
+            public String toString(Category category) {
+                return category != null ? category.getCategoryName() : "Tất cả";
+            }
+
+            @Override
+            public Category fromString(String string) {
+                return categoryList.stream()
+                    .filter(cat -> cat.getCategoryName().equals(string))
+                    .findFirst().orElse(null);
+            }
+        };
+    }
+
+    /**
+     * Improved save product method with loading state
+     */
+    private void saveProduct() {
+        if (!validateFormWithFeedback()) {
+            return;
+        }
+
+        Product product = createProductFromForm();
+        boolean isUpdate = (currentEditingProduct != null);
+
+        if (isUpdate) {
+            product.setProductId(currentEditingProduct.getProductId());
+        }
+
+        // Show loading state
+        if (saveProductButton != null) {
+            saveProductButton.setDisable(true);
+            saveProductButton.setText("💾 Đang lưu...");
+        }
+
+        Task<Boolean> saveTask = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                try (Connection connection = DatabaseConfig.getConnection()) {
+                    ProductDAO dao = new ProductDAOImpl(connection);
+                    if (isUpdate) {
+                        return dao.update(product);
+                    } else {
+                        return dao.save(product);
+                    }
+                }
+            }
+
+            @Override
+            protected void succeeded() {
+                Platform.runLater(() -> {
+                    // Restore button state
+                    if (saveProductButton != null) {
+                        saveProductButton.setDisable(false);
+                        saveProductButton.setText("💾 Lưu");
+                    }
+                    
+                    if (getValue()) {
+                        String action = isUpdate ? "cập nhật" : "thêm";
+                        AlertUtils.showInfo("Thành công", 
+                            "Đã " + action + " sản phẩm '" + product.getProductName() + "' thành công");
+                        
+                        hideProductForm();
+                        loadProducts(); // Refresh data
+                        
+                        // Select the saved/updated product
+                        Platform.runLater(() -> selectProductInTable(product));
+                        
+                    } else {
+                        AlertUtils.showError("Lỗi", "Không thể lưu sản phẩm");
+                    }
+                });
+            }
+
+            @Override
+            protected void failed() {
+                Platform.runLater(() -> {
+                    // Restore button state
+                    if (saveProductButton != null) {
+                        saveProductButton.setDisable(false);
+                        saveProductButton.setText("💾 Lưu");
+                    }
+                    
+                    AlertUtils.showError("Lỗi", "Lỗi khi lưu sản phẩm: " + getException().getMessage());
+                });
+            }
+        };
+
+        new Thread(saveTask).start();
+    }
+
+    /**
+     * Select product in table after save/update
+     */
+    private void selectProductInTable(Product product) {
+        if (product == null || productsTable == null) return;
+        
+        for (Product p : productsTable.getItems()) {
+            if (p.getProductName().equals(product.getProductName())) {
+                productsTable.getSelectionModel().select(p);
+                productsTable.scrollTo(p);
+                break;
+            }
         }
     }
 
@@ -1367,12 +1939,21 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
         );
 
-        Stage stage = (Stage) selectImageButton.getScene().getWindow();
-        File selectedFile = fileChooser.showOpenDialog(stage);
+        // Get current window
+        Window window = null;
+        if (productFormStage != null) {
+            window = productFormStage;
+        } else if (productsTable != null && productsTable.getScene() != null) {
+            window = productsTable.getScene().getWindow();
+        }
+
+        File selectedFile = fileChooser.showOpenDialog(window);
 
         if (selectedFile != null) {
             String imageUrl = selectedFile.toURI().toString();
-            imageUrlField.setText(imageUrl);
+            if (imageUrlField != null) {
+                imageUrlField.setText(imageUrl);
+            }
             loadImageFromUrl(imageUrl);
         }
     }
@@ -1381,106 +1962,6 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         if (currentEditingProduct == null) return;
         selectImageFile();
         // TODO: Save image URL to current product
-    }
-
-    // =============================================
-    // DIALOG MANAGEMENT
-    // =============================================
-
-    private void showFormDialog() {
-        try {
-            System.out.println("📝 Attempting to show form dialog...");
-            
-            if (productFormDialog == null) {
-                System.err.println("❌ productFormDialog is null!");
-                AlertUtils.showError("Lỗi", "Form dialog không được khởi tạo");
-                return;
-            }
-            
-            // FIXED: Reset form state before showing
-            resetForm();
-            
-            // FIXED: Ensure proper dialog visibility and state
-            productFormDialog.setVisible(true);
-            productFormDialog.setManaged(true);
-            productFormDialog.toFront();
-            
-            // FIXED: Force CSS refresh to avoid LinearGradient conflicts
-            productFormDialog.setStyle(productFormDialog.getStyle());
-            
-            // FIXED: Alternative method if above doesn't work
-            if (productFormDialog.getParent() == null) {
-                System.out.println("🔧 Dialog not in scene graph, attempting alternative show method...");
-                
-                // Create a fresh dialog stage each time to avoid conflicts
-                if (currentDialogStage != null) {
-                    currentDialogStage.close();
-                }
-                
-                Stage dialogStage = new Stage();
-                currentDialogStage = dialogStage;
-                dialogStage.setTitle("Quản lý sản phẩm");
-                
-                // Create a fresh scene with the dialog
-                Scene dialogScene = new Scene(productFormDialog, 600, 500);
-                dialogScene.getStylesheets().add(getClass().getResource("/css/menu-style.css").toExternalForm());
-                dialogStage.setScene(dialogScene);
-                dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-                dialogStage.show();
-                
-                System.out.println("✅ Form dialog shown as new window");
-            } else {
-                System.out.println("✅ Form dialog shown in main window");
-            }
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error showing form dialog: " + e.getMessage());
-            e.printStackTrace();
-            AlertUtils.showError("Lỗi", "Không thể hiển thị form: " + e.getMessage());
-        }
-    }
-
-    private void hideFormDialog() {
-        try {
-            System.out.println("❌ Hiding form dialog...");
-            
-            // Close alternative dialog stage if it exists
-            if (currentDialogStage != null) {
-                currentDialogStage.close();
-                currentDialogStage = null;
-                System.out.println("✅ Alternative dialog stage closed");
-            }
-            
-            if (productFormDialog != null) {
-                // FIXED: Proper cleanup to avoid memory leaks
-                productFormDialog.setVisible(false);
-                productFormDialog.setManaged(false);
-                
-                // FIXED: Clear any CSS conflicts
-                productFormDialog.setStyle("");
-                
-                // If it's in a separate stage, close that stage
-                if (productFormDialog.getScene() != null && 
-                    productFormDialog.getScene().getWindow() instanceof Stage) {
-                    Stage stage = (Stage) productFormDialog.getScene().getWindow();
-                    if (stage.getOwner() != null) { // It's a modal dialog
-                        stage.close();
-                    }
-                }
-                
-                System.out.println("✅ Form dialog hidden");
-            }
-            
-            // FIXED: Reset editing state
-            currentEditingProduct = null;
-            
-            // FIXED: Force garbage collection to clean up CSS conflicts
-            System.gc();
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error hiding form dialog: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 
     // =============================================
@@ -1575,6 +2056,10 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             "Bạn có chắc chắn muốn đăng xuất?");
         
         if (confirmed) {
+            // Close any open dialogs
+            if (productFormStage != null) {
+                productFormStage.close();
+            }
             // TODO: Implement logout logic
             System.out.println("Logging out...");
         }
@@ -1596,219 +2081,20 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     }
 
     // =============================================
-    // DIALOG OVERLAY HANDLER METHODS
+    // CLEANUP ON APPLICATION CLOSE
     // =============================================
 
-    // Method to prevent dialog from closing when clicking inside dialog
-    @FXML
-    private void preventDialogClose(MouseEvent event) {
-        event.consume(); // Prevent event from bubbling up
-    }
-
-    // Method to hide dialog when clicking overlay background
-    @FXML
-    private void hideFormDialogOverlay(MouseEvent event) {
-        // Only hide if clicked on overlay background, not on dialog content
-        if (event.getTarget() == dialogOverlay) {
-            hideFormDialog();
-        }
-    }
-
-    // Updated dialog management methods for overlay approach
-    private void showFormDialogOverlay() {
-        try {
-            System.out.println("📝 Showing form dialog overlay...");
-            
-            if (dialogOverlay == null) {
-                System.err.println("❌ dialogOverlay is null! Using alternative method...");
-                showFormDialogAlternative();
-                return;
-            }
-            
-            if (productFormDialog == null) {
-                System.err.println("❌ productFormDialog is null!");
-                AlertUtils.showError("Lỗi", "Form dialog không được khởi tạo");
-                return;
-            }
-            
-            // Show overlay with dialog
-            dialogOverlay.setVisible(true);
-            dialogOverlay.setManaged(true);
-            dialogOverlay.toFront();
-            
-            // Focus on first field
-            Platform.runLater(() -> {
-                if (productNameField != null) {
-                    productNameField.requestFocus();
-                }
-            });
-            
-            System.out.println("✅ Form dialog overlay shown successfully");
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error showing form dialog overlay: " + e.getMessage());
-            e.printStackTrace();
-            showFormDialogAlternative();
-        }
-    }
-
-    // Alternative method if overlay doesn't work
-    private void showFormDialogAlternative() {
-        try {
-            System.out.println("🔧 Using alternative dialog method...");
-            
-            // Create new stage for dialog
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle(currentEditingProduct == null ? "Thêm món mới" : "Sửa món");
-            dialogStage.initModality(Modality.APPLICATION_MODAL);
-            
-            // Get current stage as owner
-            if (productsTable != null && productsTable.getScene() != null) {
-                dialogStage.initOwner(productsTable.getScene().getWindow());
-            }
-            
-            // Create dialog content
-            VBox dialogContent = createDialogContent();
-            Scene dialogScene = new Scene(dialogContent, 550, 500);
-            
-            // Add CSS
-            try {
-                dialogScene.getStylesheets().add(getClass().getResource("/css/menu-style.css").toExternalForm());
-            } catch (Exception e) {
-                System.err.println("❌ Could not load CSS for dialog: " + e.getMessage());
-            }
-            
-            dialogStage.setScene(dialogScene);
-            dialogStage.setResizable(false);
-            
-            // Store reference for closing
-            currentDialogStage = dialogStage;
-            
-            dialogStage.show();
-            
-            // Focus on first field
-            Platform.runLater(() -> {
-                if (productNameField != null) {
-                    productNameField.requestFocus();
-                }
-            });
-            
-            System.out.println("✅ Alternative dialog shown successfully");
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error showing alternative dialog: " + e.getMessage());
-            e.printStackTrace();
-            AlertUtils.showError("Lỗi", "Không thể hiển thị form: " + e.getMessage());
-        }
-    }
-
-    private VBox createDialogContent() {
-        VBox container = new VBox();
-        container.setSpacing(0);
-        container.getStyleClass().add("product-form-dialog");
-        
-        // Header
-        HBox header = new HBox();
-        header.setSpacing(10);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.getStyleClass().add("dialog-header");
-        
-        Label title = new Label(currentEditingProduct == null ? "➕ Thêm món mới" : "✏️ Sửa món");
-        title.getStyleClass().add("dialog-title");
-        
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        
-        Button closeBtn = new Button("✕");
-        closeBtn.getStyleClass().add("close-button");
-        closeBtn.setOnAction(e -> {
-            if (currentDialogStage != null) {
-                currentDialogStage.close();
-                currentDialogStage = null;
-            }
-            currentEditingProduct = null;
-        });
-        
-        header.getChildren().addAll(title, spacer, closeBtn);
-        
-        // Content (reuse existing form fields)
-        ScrollPane content = createFormContent();
-        
-        // Footer
-        HBox footer = new HBox();
-        footer.setSpacing(8);
-        footer.setAlignment(Pos.CENTER_RIGHT);
-        footer.getStyleClass().add("dialog-footer");
-        
-        Button cancelBtn = new Button("❌ Hủy");
-        cancelBtn.getStyleClass().add("outline-button");
-        cancelBtn.setOnAction(e -> {
-            if (currentDialogStage != null) {
-                currentDialogStage.close();
-                currentDialogStage = null;
-            }
-            currentEditingProduct = null;
-        });
-        
-        Button resetBtn = new Button("🔄 Đặt lại");
-        resetBtn.getStyleClass().add("secondary-button");
-        resetBtn.setOnAction(e -> resetForm());
-        
-        Button saveBtn = new Button("💾 Lưu");
-        saveBtn.getStyleClass().add("primary-button");
-        saveBtn.setOnAction(e -> {
-            saveProduct();
-            if (currentDialogStage != null) {
-                currentDialogStage.close();
-                currentDialogStage = null;
-            }
-        });
-        
-        footer.getChildren().addAll(cancelBtn, resetBtn, saveBtn);
-        
-        container.getChildren().addAll(header, content, footer);
-        
-        return container;
-    }
-
-    private ScrollPane createFormContent() {
-        // Create form content programmatically if FXML fields are not available
-        // This is a fallback method
-        
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setPrefHeight(400);
-        scrollPane.getStyleClass().add("dialog-content");
-        
-        VBox formContainer = new VBox();
-        formContainer.setSpacing(15);
-        formContainer.getStyleClass().add("form-container");
-        
-        // Add form sections programmatically here if needed
-        // For now, return empty container
-        scrollPane.setContent(formContainer);
-        
-        return scrollPane;
-    }
-    
     /**
-     * Clean up resources to prevent memory leaks and CSS conflicts
+     * Cleanup resources properly
      */
     public void cleanupResources() {
         try {
             System.out.println("🧹 Cleaning up AdminMenuController resources...");
             
-            // Close any open dialogs
-            if (currentDialogStage != null) {
-                currentDialogStage.close();
-                currentDialogStage = null;
-            }
-            
-            // Hide form dialog
-            if (productFormDialog != null) {
-                productFormDialog.setVisible(false);
-                productFormDialog.setManaged(false);
-                productFormDialog.setStyle("");
+            // Close form dialog
+            if (productFormStage != null) {
+                productFormStage.close();
+                productFormStage = null;
             }
             
             // Clear references
@@ -1819,10 +2105,9 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
                 productsTable.getSelectionModel().clearSelection();
             }
             
-            // Force garbage collection
-            System.gc();
+            isFormInitialized = false;
             
-            System.out.println("✅ AdminMenuController resources cleaned up successfully");
+            System.out.println("✅ Resources cleaned up successfully");
             
         } catch (Exception e) {
             System.err.println("❌ Error cleaning up resources: " + e.getMessage());

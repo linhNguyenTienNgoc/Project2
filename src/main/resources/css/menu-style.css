@@ -509,470 +509,854 @@
     -fx-text-fill: #6c4f37;
     -fx-font-style: italic;
 }
+/* ===============================================
+ * ULTRA-MODERN FORM DIALOG STYLES
+ * Orange/Brown Theme - Contemporary design with glassmorphism
+ * Warm colors, smooth animations, premium feel
+ * =============================================== */
 
 /* ===============================================
- * PRODUCT FORM DIALOG
+ * MODERN FORM DIALOG BASE - Glassmorphism Style
  * =============================================== */
-.product-form-dialog {
-    -fx-background-color: white;
-    -fx-background-radius: 10;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 15, 0.3, 0, 3);
-    -fx-pref-width: 600;
-    -fx-pref-height: 500;
+ .product-form-dialog {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 30, 0.4, 0, 10);
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
     -fx-min-width: 500;
     -fx-min-height: 400;
-    -fx-max-width: 700;
-    -fx-max-height: 600;
+    -fx-pref-width: 650;
+    -fx-pref-height: 550;
+    -fx-max-width: 800;
+    -fx-max-height: 700;
+    
+    /* Backdrop blur effect simulation */
+    -fx-background-insets: 0;
 }
 
+/* ===============================================
+ * MODERN DIALOG HEADER - Orange/Brown Gradient
+ * =============================================== */
 .dialog-header {
-    -fx-background-color: linear-gradient(to right, #8b4513, #a0522d);
-    -fx-background-radius: 10 10 0 0;
-    -fx-padding: 12 18;
+    -fx-background-color: linear-gradient(135deg, #8b4513 0%, #d2691e 50%, #cd853f 100%);
+    -fx-background-radius: 20 20 0 0;
+    -fx-padding: 20 25;
+    -fx-spacing: 15;
+    -fx-alignment: center-left;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.3, 0, 2);
 }
 
 .dialog-title {
-    -fx-text-fill: #fff9c4;
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-font-family: "Segoe UI", "SF Pro Display", "Inter", system-ui, sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 2, 0.5, 0, 1);
 }
 
 .close-button {
-    -fx-background-color: transparent;
-    -fx-text-fill: #fff9c4;
-    -fx-background-radius: 12;
-    -fx-padding: 4 6;
-    -fx-font-size: 12px;
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: white;
+    -fx-background-radius: 50%;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 50%;
+    -fx-padding: 8 10;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
     -fx-cursor: hand;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 4, 0.3, 0, 2);
 }
 
 .close-button:hover {
-    -fx-background-color: rgba(255, 249, 196, 0.2);
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.4), 8, 0.5, 0, 2);
 }
 
+.close-button:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+/* ===============================================
+ * DIALOG CONTENT - Clean Scroll Area
+ * =============================================== */
 .dialog-content {
     -fx-background-color: transparent;
     -fx-padding: 0;
-    /* *** SCROLLABLE CONTENT *** */
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
+    -fx-background-radius: 0;
+}
+
+.dialog-content .viewport {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
 }
 
 .form-container {
-    -fx-padding: 20;
+    -fx-background-color: transparent;
+    -fx-padding: 25;
+    -fx-spacing: 24;
 }
 
+/* ===============================================
+ * FORM SECTIONS - Modern Card Design with Orange Theme
+ * =============================================== */
 .form-section {
-    -fx-background-color: #faf8f5;
-    -fx-background-radius: 6;
-    -fx-padding: 15;
-    -fx-border-color: #e8dcc6;
-    -fx-border-radius: 6;
+    -fx-background-color: rgba(255, 255, 255, 0.7);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(210, 105, 30, 0.1);
     -fx-border-width: 1;
-    -fx-spacing: 12;
+    -fx-border-radius: 16;
+    -fx-padding: 24;
+    -fx-spacing: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 12, 0.4, 0, 4);
+}
+
+.form-section:hover {
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.15), 16, 0.5, 0, 6);
+    -fx-background-color: rgba(255, 255, 255, 0.85);
 }
 
 .section-title {
     -fx-text-fill: #8b4513;
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-padding: 0 0 12 0;
+    -fx-border-color: rgba(210, 105, 30, 0.2);
+    -fx-border-width: 0 0 2 0;
+    -fx-font-family: "Segoe UI", "SF Pro Display", "Inter", system-ui, sans-serif;
 }
 
+/* ===============================================
+ * MODERN FORM FIELDS - Orange/Brown Theme
+ * =============================================== */
 .form-label {
     -fx-text-fill: #6c4f37;
-    -fx-font-weight: bold;
-    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-font-size: 13px;
+    -fx-padding: 0 0 6 0;
+    -fx-font-family: "Segoe UI", "SF Pro Text", "Inter", system-ui, sans-serif;
 }
 
 .form-field,
-.form-textarea {
-    -fx-background-color: white;
-    -fx-border-color: #d2691e;
-    -fx-border-radius: 4;
-    -fx-background-radius: 4;
-    -fx-padding: 8;
-    -fx-font-size: 12px;
+.form-text-field {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-border-color: rgba(139, 69, 19, 0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 14 16;
+    -fx-font-size: 14px;
     -fx-text-fill: #4a4a4a;
+    -fx-min-height: 44;
+    -fx-pref-height: 44;
+    -fx-font-family: "Segoe UI", "SF Pro Text", system-ui, sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 4, 0.3, 0, 2);
 }
 
 .form-field:focused,
-.form-textarea:focused {
-    -fx-border-color: #ff8c00;
+.form-text-field:focused {
+    -fx-border-color: #d2691e;
     -fx-border-width: 2;
-    -fx-effect: dropshadow(gaussian, rgba(255, 140, 0, 0.3), 4, 0.3, 0, 0);
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.3), 12, 0.4, 0, 4);
+    -fx-scale-x: 1.01;
+    -fx-scale-y: 1.01;
 }
 
-.price-field {
-    -fx-alignment: CENTER_RIGHT;
-    -fx-font-weight: bold;
+.form-textarea {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-border-color: rgba(139, 69, 19, 0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 14 16;
+    -fx-font-size: 14px;
+    -fx-text-fill: #4a4a4a;
+    -fx-min-height: 80;
+    -fx-pref-height: 100;
+    -fx-font-family: "Segoe UI", "SF Pro Text", system-ui, sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 4, 0.3, 0, 2);
+}
+
+.form-textarea:focused {
+    -fx-border-color: #d2691e;
+    -fx-border-width: 2;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.3), 12, 0.4, 0, 4);
 }
 
 .form-combobox {
-    -fx-background-color: white;
-    -fx-border-color: #d2691e;
-    -fx-border-radius: 4;
-    -fx-background-radius: 4;
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-border-color: rgba(139, 69, 19, 0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-min-height: 44;
+    -fx-pref-height: 44;
+    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI", "SF Pro Text", system-ui, sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 4, 0.3, 0, 2);
 }
 
+.form-combobox:focused {
+    -fx-border-color: #d2691e;
+    -fx-border-width: 2;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.3), 12, 0.4, 0, 4);
+}
+
+.form-combobox .arrow-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0 12 12 0;
+}
+
+.form-combobox .arrow {
+    -fx-background-color: #d2691e;
+    -fx-shape: "M 0 3 L 4 7 L 8 3 Z";
+    -fx-scale-shape: true;
+}
+
+/* ===============================================
+ * PRICE FIELDS - Green Currency Styling (Keep Green for Money)
+ * =============================================== */
+.price-field,
+.form-price-field {
+    -fx-alignment: center-right;
+    -fx-font-weight: 700;
+    -fx-text-fill: #059669;
+    -fx-font-size: 15px;
+    -fx-background-color: rgba(240, 253, 244, 0.8);
+    -fx-border-color: rgba(16, 185, 129, 0.3);
+}
+
+.price-field:focused,
+.form-price-field:focused {
+    -fx-border-color: #10b981;
+    -fx-background-color: #f0fdf4;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.3), 12, 0.4, 0, 4);
+}
+
+/* ===============================================
+ * VALIDATION STATES - Orange/Brown Theme
+ * =============================================== */
+.error-field {
+    -fx-border-color: #dc2626;
+    -fx-border-width: 2;
+    -fx-background-color: rgba(254, 242, 242, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.4), 12, 0.5, 0, 4);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.success-field {
+    -fx-border-color: #d2691e;
+    -fx-border-width: 2;
+    -fx-background-color: rgba(255, 247, 237, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.4), 12, 0.5, 0, 4);
+}
+
+/* ===============================================
+ * MODERN CHECKBOX - Orange Theme
+ * =============================================== */
 .form-checkbox {
-    -fx-text-fill: #6c4f37;
-    -fx-font-weight: bold;
+    -fx-text-fill: #4a4a4a;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
+    -fx-padding: 8;
+    -fx-font-family: "Segoe UI", "SF Pro Text", system-ui, sans-serif;
 }
 
 .form-checkbox .box {
-    -fx-background-color: white;
-    -fx-border-color: #d2691e;
-    -fx-border-radius: 3;
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-border-color: rgba(139, 69, 19, 0.4);
+    -fx-border-width: 2;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0.3, 0, 2);
 }
 
 .form-checkbox:selected .box {
-    -fx-background-color: #d2691e;
+    -fx-background-color: linear-gradient(135deg, #d2691e 0%, #cd853f 100%);
+    -fx-border-color: #d2691e;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.4), 8, 0.4, 0, 2);
 }
 
 .form-checkbox:selected .mark {
     -fx-background-color: white;
+    -fx-shape: "M 2 5 L 5 8 L 10 2 L 10 4 L 5 10 L 2 7 Z";
+    -fx-scale-shape: true;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 2, 0.3, 0, 1);
+}
+
+.form-checkbox:hover .box {
+    -fx-border-color: #d2691e;
+    -fx-background-color: rgba(210, 105, 30, 0.05);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ===============================================
+ * IMAGE SECTION - Orange/Peach Gradient Style
+ * =============================================== */
+.image-preview-container {
+    -fx-alignment: center;
+    -fx-spacing: 16;
+    -fx-padding: 20;
+    -fx-background-color: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #f4a460 100%);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0.3, 0, 4);
 }
 
 .form-image-preview {
     -fx-background-color: white;
-    -fx-border-color: #e8dcc6;
-    -fx-border-radius: 6;
-    -fx-background-radius: 6;
+    -fx-border-color: rgba(255, 255, 255, 0.5);
+    -fx-border-width: 3;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 12, 0.4, 0, 6);
+}
+
+.form-image-preview:hover {
+    -fx-border-color: white;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 20, 0.5, 0, 10);
+}
+
+.image-select-button {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-text-fill: #8b4513;
+    -fx-border-color: rgba(255, 255, 255, 0.5);
     -fx-border-width: 2;
-    -fx-border-style: dashed;
-    -fx-fit-height: 80;
-    -fx-fit-width: 80;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 10 20;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 6, 0.3, 0, 3);
 }
 
+.image-select-button:hover {
+    -fx-background-color: white;
+    -fx-text-fill: #d2691e;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.3), 12, 0.4, 0, 6);
+}
+
+/* ===============================================
+ * FORM HINTS - Subtle Typography
+ * =============================================== */
 .form-hint {
-    -fx-text-fill: #999;
-    -fx-font-size: 10px;
+    -fx-text-fill: #6c4f37;
+    -fx-font-size: 12px;
     -fx-font-style: italic;
+    -fx-padding: 6 0 0 0;
+    -fx-font-family: "Segoe UI", "SF Pro Text", system-ui, sans-serif;
+    -fx-opacity: 0.8;
 }
 
+/* ===============================================
+ * DIALOG FOOTER - Modern Action Bar
+ * =============================================== */
 .dialog-footer {
-    -fx-background-color: #f8f6f0;
-    -fx-background-radius: 0 0 10 10;
-    -fx-border-color: #e8dcc6;
+    -fx-background-color: rgba(248, 250, 252, 0.95);
+    -fx-background-radius: 0 0 20 20;
+    -fx-border-color: rgba(232, 220, 198, 0.5);
     -fx-border-width: 1 0 0 0;
-    -fx-padding: 12 18;
+    -fx-padding: 20 25;
+    -fx-spacing: 12;
+    -fx-alignment: center-right;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 8, 0.3, 0, -2);
 }
 
 /* ===============================================
- * STATUS COLORS
+ * MODERN BUTTONS - Orange/Brown Theme
  * =============================================== */
-.status-active {
-    -fx-text-fill: #28a745;
-    -fx-font-weight: bold;
-}
-
-.status-inactive {
-    -fx-text-fill: #dc3545;
-    -fx-font-weight: bold;
-}
-
-/* ===============================================
- * SCROLLBAR CUSTOMIZATION
- * =============================================== */
-.scroll-pane .viewport {
-    -fx-background-color: transparent;
-}
-
-.scroll-pane .scroll-bar:vertical {
-    -fx-background-color: #f0ede5;
+.dialog-footer .primary-button {
+    -fx-background-color: linear-gradient(135deg, #d2691e 0%, #cd853f 100%);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
     -fx-border-color: transparent;
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
-    -fx-padding: 1;
-    -fx-pref-width: 8;
-    -fx-max-width: 8;
-}
-
-.scroll-pane .scroll-bar:vertical .thumb {
-    -fx-background-color: #d2691e;
-    -fx-background-radius: 4;
-    -fx-border-radius: 4;
-}
-
-.scroll-pane .scroll-bar:vertical .thumb:hover {
-    -fx-background-color: #ff8c00;
-}
-
-/* ===============================================
- * RESPONSIVE BREAKPOINTS - UPDATED FOR FULL HEIGHT
- * =============================================== */
-
-/* Extra Large Screens (1400px+) */
-@media screen and (min-width: 1400px) {
-    .responsive-products-table .table-cell {
-        -fx-font-size: 12px;
-        -fx-padding: 6 8;
-    }
-    
-    .responsive-products-table .column-header {
-        -fx-font-size: 12px;
-        -fx-padding: 8 6;
-    }
-    
-    .right-panel {
-        -fx-pref-width: 320;
-        -fx-max-width: 400;
-    }
-    
-    .product-image {
-        -fx-fit-height: 180;
-        -fx-fit-width: 240;
-    }
-}
-
-/* Large Screens (1200px - 1399px) */
-@media screen and (max-width: 1399px) and (min-width: 1200px) {
-    .responsive-products-table .table-cell {
-        -fx-font-size: 11px;
-        -fx-padding: 5 6;
-    }
-    
-    .responsive-products-table .column-header {
-        -fx-font-size: 11px;
-        -fx-padding: 7 5;
-    }
-    
-    .right-panel {
-        -fx-pref-width: 280;
-        -fx-max-width: 320;
-    }
-    
-    .product-image {
-        -fx-fit-height: 150;
-        -fx-fit-width: 200;
-    }
-}
-
-/* Medium Screens (900px - 1199px) */
-@media screen and (max-width: 1199px) and (min-width: 900px) {
-    .responsive-products-table .table-cell {
-        -fx-font-size: 10px;
-        -fx-padding: 4 5;
-    }
-    
-    .responsive-products-table .column-header {
-        -fx-font-size: 10px;
-        -fx-padding: 6 4;
-    }
-    
-    .right-panel {
-        -fx-pref-width: 250;
-        -fx-max-width: 280;
-    }
-    
-    .product-image {
-        -fx-fit-height: 120;
-        -fx-fit-width: 160;
-    }
-    
-    .detail-description {
-        -fx-pref-height: 80;
-        -fx-max-height: 150;
-    }
-}
-
-/* Small Screens (700px - 899px) */
-@media screen and (max-width: 899px) and (min-width: 700px) {
-    .responsive-products-table .table-cell {
-        -fx-font-size: 9px;
-        -fx-padding: 3 4;
-    }
-    
-    .responsive-products-table .column-header {
-        -fx-font-size: 9px;
-        -fx-padding: 5 3;
-    }
-    
-    .right-panel {
-        -fx-pref-width: 220;
-        -fx-max-width: 250;
-    }
-    
-    .product-image {
-        -fx-fit-height: 100;
-        -fx-fit-width: 140;
-    }
-    
-    .detail-description {
-        -fx-pref-height: 60;
-        -fx-max-height: 100;
-    }
-    
-    .quick-actions {
-        -fx-min-height: 100;
-        -fx-pref-height: 100;
-    }
-}
-
-/* Extra Small Screens (below 700px) */
-@media screen and (max-width: 699px) {
-    .responsive-products-table .table-cell {
-        -fx-font-size: 8px;
-        -fx-padding: 2 3;
-    }
-    
-    .responsive-products-table .column-header {
-        -fx-font-size: 8px;
-        -fx-padding: 4 2;
-    }
-    
-    .right-panel {
-        -fx-pref-width: 200;
-        -fx-max-width: 220;
-    }
-    
-    .product-image {
-        -fx-fit-height: 80;
-        -fx-fit-width: 120;
-    }
-    
-    .product-details {
-        -fx-spacing: 4;
-    }
-    
-    .detail-description {
-        -fx-pref-height: 40;
-        -fx-max-height: 60;
-    }
-    
-    .quick-actions {
-        -fx-spacing: 3;
-        -fx-min-height: 80;
-        -fx-pref-height: 80;
-    }
-    
-    .quick-actions .button {
-        -fx-font-size: 9px;
-        -fx-padding: 4 6;
-    }
-}
-
-/* ===============================================
- * FORCE TABLE TO USE FULL AVAILABLE WIDTH & HEIGHT
- * =============================================== */
-.responsive-products-table .filler {
-    -fx-background-color: white;
-    /* *** HIDE EMPTY COLUMN FILLER *** */
-    -fx-pref-width: 0;
-    -fx-min-width: 0;
-    -fx-max-width: 0;
-}
-
-.responsive-products-table .column-header-background .filler {
-    -fx-background-color: linear-gradient(to bottom, #8b4513, #a0522d);
-    /* *** HIDE EMPTY HEADER FILLER *** */
-    -fx-pref-width: 0;
-    -fx-min-width: 0;
-    -fx-max-width: 0;
-}
-
-.responsive-products-table .column-resize-line {
-    -fx-fill: #d2691e;
-    -fx-stroke: #d2691e;
-}
-
-.responsive-products-table .show-hide-columns-button {
-    -fx-background-color: transparent;
-    /* *** HIDE COLUMN MENU BUTTON *** */
-    -fx-pref-width: 0;
-    -fx-min-width: 0;
-    -fx-max-width: 0;
-}
-
-.responsive-products-table .corner {
-    -fx-background-color: white;
-    /* *** MINIMIZE CORNER SIZE *** */
-    -fx-pref-width: 0;
-    -fx-min-width: 0;
-}
-
-/* *** FORCE TABLE TO FILL 100% OF AVAILABLE WIDTH *** */
-.responsive-products-table {
-    -fx-table-column-resize-policy: CONSTRAINED_RESIZE_POLICY;
-}
-
-.responsive-products-table .table-column {
-    -fx-resizable: true;
-}
-
-/* ===============================================
- * UTILITY CLASSES
- * =============================================== */
-.text-center {
-    -fx-alignment: CENTER;
-}
-
-.text-right {
-    -fx-alignment: CENTER_RIGHT;
-}
-
-.text-bold {
-    -fx-font-weight: bold;
-}
-
-.text-small {
-    -fx-font-size: 10px;
-}
-
-.text-large {
+    -fx-border-width: 0;
+    -fx-padding: 12 24;
     -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-min-width: 120;
+    -fx-min-height: 44;
+    -fx-font-family: "Segoe UI", "SF Pro Text", system-ui, sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.4), 12, 0.4, 0, 4);
 }
 
-/* ===============================================
- * CRITICAL FIXES FOR FORM DIALOG ISSUES
- * =============================================== */
-
-/* Fix LinearGradient border-color conflicts */
-.table-cell {
-    -fx-border-color: transparent !important;
-    -fx-border-width: 0 !important;
+.dialog-footer .primary-button:hover {
+    -fx-background-color: linear-gradient(135deg, #ff8c00 0%, #d2691e 50%, #ff7f50 100%);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.6), 20, 0.5, 0, 8);
 }
 
-.table-row-cell {
-    -fx-border-color: #f0ede5 !important;
-    -fx-border-width: 0 0 1 0 !important;
+.dialog-footer .primary-button:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-background-color: linear-gradient(135deg, #b8860b 0%, #8b4513 100%);
 }
 
-/* Ensure dialog forms work properly every time */
-.product-form-dialog {
-    -fx-background-color: white !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 15, 0.3, 0, 3) !important;
-}
-
-/* Force clean state for form elements */
-.form-field,
-.form-textarea,
-.form-combobox {
-    -fx-border-color: #d2691e !important;
-    -fx-background-color: white !important;
-}
-
-/* Reset any problematic inherited styles */
-.dialog-content * {
-    -fx-border-color: inherit;
-    -fx-background-color: inherit;
-}
-
-/* Ensure proper cleanup */
-.dialog-content .form-container {
-    -fx-background-color: transparent !important;
-}
-
-/* Fix for multiple dialog opens */
-.product-form-dialog:showing {
-    -fx-opacity: 1.0;
+.dialog-footer .primary-button:disabled {
+    -fx-background-color: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+    -fx-text-fill: #6b7280;
+    -fx-cursor: default;
+    -fx-opacity: 0.6;
+    -fx-effect: none;
     -fx-scale-x: 1.0;
     -fx-scale-y: 1.0;
 }
 
-/* Prevent CSS inheritance issues */
-.product-form-dialog .button {
-    -fx-background-color: linear-gradient(to bottom, #d2691e, #cd853f) !important;
-    -fx-text-fill: white !important;
-    -fx-border-color: transparent !important;
+.dialog-footer .secondary-button {
+    -fx-background-color: linear-gradient(135deg, #f4a460 0%, #deb887 100%);
+    -fx-text-fill: #8b4513;
+    -fx-font-weight: 700;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 12 24;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-min-width: 120;
+    -fx-font-family: "Segoe UI", "SF Pro Text", system-ui, sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(244, 164, 96, 0.4), 8, 0.4, 0, 3);
+}
+
+.dialog-footer .secondary-button:hover {
+    -fx-background-color: linear-gradient(135deg, #deb887 0%, #cd853f 100%);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(gaussian, rgba(244, 164, 96, 0.6), 16, 0.5, 0, 6);
+}
+
+.dialog-footer .outline-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6c4f37;
+    -fx-border-color: #cd853f;
+    -fx-border-width: 2;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 12 24;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-font-weight: 600;
+    -fx-min-width: 120;
+    -fx-font-family: "Segoe UI", "SF Pro Text", system-ui, sans-serif;
+}
+
+.dialog-footer .outline-button:hover {
+    -fx-background-color: rgba(210, 105, 30, 0.05);
+    -fx-border-color: #d2691e;
+    -fx-text-fill: #d2691e;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.2), 8, 0.3, 0, 3);
+}
+
+/* ===============================================
+ * FORM FIELD GROUPING - Better Visual Hierarchy
+ * =============================================== */
+.form-field-group {
+    -fx-spacing: 8;
+    -fx-padding: 0;
+}
+
+.form-row {
+    -fx-spacing: 16;
+    -fx-alignment: center-left;
+}
+
+.form-row .form-field-group {
+    -fx-pref-width: 200;
+    -fx-min-width: 150;
+}
+
+/* ===============================================
+ * MODERN SCROLLBAR - Orange Theme
+ * =============================================== */
+.dialog-content .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 2;
+    -fx-pref-width: 6;
+    -fx-max-width: 6;
+}
+
+.dialog-content .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(139, 69, 19, 0.6);
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+}
+
+.dialog-content .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #d2691e;
+}
+
+.dialog-content .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.dialog-content .scroll-bar:vertical .increment-button,
+.dialog-content .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
+
+/* ===============================================
+ * RESPONSIVE DESIGN - Mobile Optimized
+ * =============================================== */
+@media screen and (max-width: 768px) {
+    .product-form-dialog {
+        -fx-min-width: 350;
+        -fx-pref-width: 450;
+        -fx-max-width: 500;
+        -fx-background-radius: 16;
+    }
+    
+    .dialog-header {
+        -fx-padding: 16 20;
+        -fx-background-radius: 16 16 0 0;
+    }
+    
+    .dialog-title {
+        -fx-font-size: 18px;
+    }
+    
+    .form-container {
+        -fx-padding: 20;
+        -fx-spacing: 20;
+    }
+    
+    .form-section {
+        -fx-padding: 18;
+        -fx-spacing: 15;
+        -fx-background-radius: 12;
+    }
+    
+    .section-title {
+        -fx-font-size: 15px;
+    }
+    
+    .form-field,
+    .form-text-field,
+    .form-combobox {
+        -fx-font-size: 13px;
+        -fx-padding: 12 14;
+        -fx-background-radius: 10;
+        -fx-border-radius: 10;
+    }
+    
+    .dialog-footer {
+        -fx-padding: 16 20;
+        -fx-spacing: 10;
+        -fx-background-radius: 0 0 16 16;
+    }
+    
+    .dialog-footer .primary-button,
+    .dialog-footer .secondary-button,
+    .dialog-footer .outline-button {
+        -fx-min-width: 100;
+        -fx-font-size: 13px;
+        -fx-padding: 10 20;
+    }
+}
+
+/* ===============================================
+ * SPECIAL VISUAL EFFECTS
+ * =============================================== */
+
+/* Form slide-in animation effect */
+.form-section {
+    -fx-opacity: 0.8;
+}
+
+.form-section:hover {
+    -fx-opacity: 1.0;
+}
+
+/* Button pulse effect for primary action */
+.dialog-footer .primary-button {
+    /* Base glow effect */
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.4), 12, 0.4, 0, 4);
+}
+
+/* Enhanced focus ring for accessibility */
+.form-field:focused,
+.form-textarea:focused,
+.form-combobox:focused {
+    -fx-background-insets: -2;
+}
+
+/* ===============================================
+ * PREMIUM VISUAL ENHANCEMENTS
+ * =============================================== */
+
+/* Subtle background pattern with orange tones */
+.form-container {
+    -fx-background-image: url("data:image/svg+xml,%3csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3e%3cg fill='none' fill-rule='evenodd'%3e%3cg fill='%23d2691e' fill-opacity='0.03'%3e%3cpath d='m36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e");
+    -fx-background-repeat: repeat;
+    -fx-background-size: 60px 60px;
+}
+
+/* Glass effect for dialog background with warm tones */
+.product-form-dialog {
+    -fx-background-color: 
+        linear-gradient(135deg, 
+            rgba(255, 247, 237, 0.1) 0%, 
+            rgba(250, 235, 215, 0.05) 50%, 
+            rgba(255, 247, 237, 0.1) 100%),
+        rgba(255, 255, 255, 0.9);
+}
+
+/* Floating label effect simulation */
+.form-field:focused,
+.form-textarea:focused {
+    -fx-translate-y: -1;
+}
+
+/* Progressive enhancement for modern browsers */
+.form-section {
+    -fx-backdrop-filter: blur(10px);
+}
+
+/* ===============================================
+ * MICRO-INTERACTIONS
+ * =============================================== */
+
+/* Button press feedback */
+.dialog-footer .primary-button:pressed,
+.dialog-footer .secondary-button:pressed,
+.image-select-button:pressed {
+    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 4, 0.3, 0, 1);
+}
+
+/* Field focus ripple effect simulation */
+.form-field:focused::before,
+.form-textarea:focused::before {
+    -fx-background-color: rgba(210, 105, 30, 0.1);
+    -fx-background-radius: 12;
+}
+
+/* ===============================================
+ * ACCESSIBILITY IMPROVEMENTS
+ * =============================================== */
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .form-field,
+    .form-textarea,
+    .form-combobox {
+        -fx-border-width: 3;
+        -fx-border-color: #8b4513;
+        -fx-background-color: #ffffff;
+    }
+    
+    .form-label {
+        -fx-text-fill: #000000;
+        -fx-font-weight: bold;
+    }
+    
+    .dialog-footer .primary-button {
+        -fx-background-color: #8b4513;
+        -fx-text-fill: #ffffff;
+        -fx-border-color: #ffffff;
+        -fx-border-width: 2;
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .form-field:focused,
+    .form-textarea:focused,
+    .form-combobox:focused {
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+        -fx-translate-y: 0;
+    }
+    
+    .dialog-footer .primary-button:hover,
+    .dialog-footer .secondary-button:hover {
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+    }
+    
+    .form-image-preview:hover {
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+    }
+}
+
+/* ===============================================
+ * LOADING STATES - Modern Indicators
+ * =============================================== */
+.form-loading {
+    -fx-opacity: 0.7;
+    -fx-cursor: wait;
+}
+
+.loading-overlay {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-alignment: center;
+    -fx-background-radius: 20;
+}
+
+.loading-spinner {
+    -fx-progress-color: #d2691e;
+}
+
+/* ===============================================
+ * SUCCESS/ERROR MESSAGES - Toast Style
+ * =============================================== */
+.success-message {
+    -fx-background-color: linear-gradient(135deg, #d2691e 0%, #cd853f 100%);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16;
+    -fx-font-weight: 600;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.3), 8, 0.4, 0, 3);
+}
+
+.error-message {
+    -fx-background-color: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16;
+    -fx-font-weight: 600;
+    -fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.3), 8, 0.4, 0, 3);
+}
+
+/* ===============================================
+ * PREMIUM TOUCHES - Subtle Details
+ * =============================================== */
+
+/* Section icons glow effect */
+.section-title {
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.2), 4, 0.3, 0, 1);
+}
+
+/* Form background gradient overlay with warm tones */
+.form-container::before {
+    -fx-background-color: 
+        radial-gradient(circle at 20% 80%, rgba(210, 105, 30, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(244, 164, 96, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(205, 133, 63, 0.02) 0%, transparent 50%);
+}
+
+/* Field placeholder styling */
+.form-field,
+.form-textarea {
+    -fx-prompt-text-fill: rgba(108, 79, 55, 0.7);
+}
+
+.form-field:focused,
+.form-textarea:focused {
+    -fx-prompt-text-fill: rgba(210, 105, 30, 0.6);
+}
+
+/* Enhanced visual feedback for required fields */
+.form-label {
+    -fx-text-fill: #6c4f37;
+}
+
+.form-label[text$="*"] {
+    -fx-text-fill: #d2691e;
+    -fx-font-weight: 700;
+}
+
+/* ===============================================
+ * MODERN FORM ANIMATIONS (Apply via JavaFX Timeline)
+ * These classes should be applied programmatically
+ * =============================================== */
+
+/* Dialog entrance animation */
+.dialog-enter {
+    -fx-opacity: 0;
+    -fx-scale-x: 0.9;
+    -fx-scale-y: 0.9;
+    -fx-translate-y: -20;
+}
+
+.dialog-enter-active {
+    -fx-opacity: 1;
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+    -fx-translate-y: 0;
+}
+
+/* Field validation animation */
+.field-shake {
+    -fx-translate-x: -3;
+}
+
+.field-shake-complete {
+    -fx-translate-x: 0;
+}
+
+/* Success feedback animation */
+.field-success-pulse {
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.6), 16, 0.6, 0, 0);
+}
+
+/* ===============================================
+ * ULTIMATE PREMIUM STYLING
+ * =============================================== */
+
+/* Backdrop overlay for modal */
+.modal-backdrop {
+    -fx-background-color: rgba(139, 69, 19, 0.4);
+    -fx-backdrop-filter: blur(8px);
+}
+
+/* Form dialog with modern elevation */
+.product-form-dialog {
+    -fx-view-order: -1;
+    -fx-effect: 
+        dropshadow(gaussian, rgba(0, 0, 0, 0.1), 50, 0.5, 0, 20),
+        dropshadow(gaussian, rgba(0, 0, 0, 0.05), 20, 0.3, 0, 8),
+        dropshadow(gaussian, rgba(210, 105, 30, 0.1), 10, 0.4, 0, 4);
+}
+
+/* Gradient text effect for titles */
+.section-title {
+    -fx-fill: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);
+}
+
+/* Modern focus indicators with orange theme */
+.form-field:focused,
+.form-textarea:focused,
+.form-combobox:focused {
+    -fx-background-insets: 0, -2;
+    -fx-background-color: 
+        white,
+        linear-gradient(from 0% 0% to 100% 100%, #d2691e 0%, #cd853f 100%);
 }
