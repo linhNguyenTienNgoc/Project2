@@ -7,7 +7,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.cafe.controller.admin.AdminOverviewController"
-      styleClass="main-content" spacing="20">
+      styleClass="main-content" spacing="20"
+      stylesheets="/css/admin-theme.css">
     
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>

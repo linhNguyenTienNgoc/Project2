@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cafe.controller.customer.CustomerController"
+      spacing="15" styleClass="main-container"
+      stylesheets="/css/admin-theme.css,/css/customer-layout.css">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header Section -->
+    <VBox spacing="12" styleClass="header-section">
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <Label text="👥 Quản lý Khách hàng" styleClass="page-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            
+            <!-- Quick Stats -->
+            <VBox spacing="3" alignment="CENTER" styleClass="quick-stats">
+                <Label fx:id="totalCustomersLabel" text="0" styleClass="stats-number-info"/>
+                <Label text="Tổng khách" styleClass="stats-label"/>
+            </VBox>
+            
+            <VBox spacing="3" alignment="CENTER" styleClass="quick-stats">
+                <Label fx:id="activeCustomersLabel" text="0" styleClass="stats-number-success"/>
+                <Label text="Hoạt động" styleClass="stats-label"/>
+            </VBox>
+            
+            <VBox spacing="3" alignment="CENTER" styleClass="quick-stats">
+                <Label fx:id="vipCustomersLabel" text="0" styleClass="stats-number-warning"/>
+                <Label text="VIP" styleClass="stats-label"/>
+            </VBox>
+        </HBox>
+        
+        <!-- Toolbar -->
+        <VBox spacing="8" styleClass="toolbar">
+            <!-- Top Row: Search -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <!-- Search Section -->
+                <HBox spacing="8" alignment="CENTER_LEFT" styleClass="search-container">
+                    <Label text="🔍"/>
+                    <TextField fx:id="searchField" 
+                              promptText="Tìm theo tên hoặc SĐT..." 
+                              prefWidth="200" styleClass="search-field"/>
+                </HBox>
+                
+                <!-- Filter Section -->
+                <VBox spacing="2">
+                    <Label text="Trạng thái:" styleClass="filter-label"/>
+                    <ComboBox fx:id="statusFilterCombo" prefWidth="120" styleClass="filter-combo"/>
+                </VBox>
+            </HBox>
+            
+            <!-- Bottom Row: Action Buttons -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Button fx:id="addButton" text="➕ Thêm khách hàng" styleClass="btn-add" onAction="#handleAddCustomer"/>
+                <Button fx:id="editButton" text="✎ Sửa" styleClass="btn-edit" disable="true" onAction="#handleEditCustomer"/>
+                <Button fx:id="deleteButton" text="🗑 Xóa" styleClass="btn-delete" disable="true" onAction="#handleDeleteCustomer"/>
+                
+                <Separator orientation="VERTICAL" prefHeight="25"/>
+                
+                <Button fx:id="refreshButton" text="🔄 Làm mới" styleClass="btn-refresh" onAction="#handleRefresh"/>
+            </HBox>
+        </VBox>
+    </VBox>
+
+    <!-- Main Content Area -->
+    <StackPane VBox.vgrow="ALWAYS">
+        
+        <!-- Customer Table -->
+        <VBox spacing="8" styleClass="table-container">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="📋 Danh sách khách hàng" styleClass="table-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="resultCountLabel" text="Hiển thị 0 khách hàng" styleClass="status-info"/>
+            </HBox>
+            
+            <TableView fx:id="customerTable" styleClass="customer-table" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="ID" sortable="true"/>
+                    <TableColumn fx:id="fullNameColumn" text="👤 Họ tên" sortable="true"/>
+                    <TableColumn fx:id="phoneColumn" text="📱 SĐT" sortable="true"/>
+                    <TableColumn fx:id="emailColumn" text="📧 Email" sortable="true"/>
+                    <TableColumn fx:id="addressColumn" text="🏠 Địa chỉ" sortable="true"/>
+                    <TableColumn fx:id="loyaltyPointsColumn" text="⭐ Điểm tích lũy" sortable="true"/>
+                    <TableColumn fx:id="totalSpentColumn" text="💰 Tổng chi tiêu" sortable="true"/>
+                    <TableColumn fx:id="statusColumn" text="📄 Trạng thái" sortable="true"/>
+                </columns>
+                
+                <placeholder>
+                    <VBox spacing="12" alignment="CENTER" styleClass="table-placeholder">
+                        <Label text="👥" styleClass="placeholder-icon"/>
+                        <Label text="Chưa có khách hàng nào" styleClass="placeholder-title"/>
+                        <Label text="Nhấn 'Thêm khách hàng' để bắt đầu quản lý khách hàng" styleClass="placeholder-subtitle"/>
+                        <Button text="➕ Thêm khách hàng đầu tiên" styleClass="btn-add" onAction="#handleAddCustomer"/>
+                    </VBox>
+                </placeholder>
+            </TableView>
+        </VBox>
+        
+        <!-- Customer Form Overlay -->
+        <VBox fx:id="customerFormOverlay" styleClass="form-overlay" alignment="CENTER" visible="false" managed="false">
+            
+            <VBox fx:id="customerFormSection" spacing="20" styleClass="form-container" prefWidth="500" maxWidth="500">
+                
+                <!-- Form Header -->
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <Label fx:id="formTitleLabel" text="✨ Thêm khách hàng mới" styleClass="form-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="closeFormButton" text="✕" styleClass="btn-close" onAction="#hideCustomerForm"/>
+                </HBox>
+                
+                <!-- Form Content -->
+                <VBox spacing="15" styleClass="form-grid">
+
+                    <!-- Full Name -->
+                    <VBox spacing="6">
+                        <Label text="👤 Họ và tên *" styleClass="form-field-label"/>
+                        <TextField fx:id="fullNameField" promptText="Nguyễn Văn A..." styleClass="form-field"/>
+                    </VBox>
+                    
+                    <!-- Phone -->
+                    <VBox spacing="6">
+                        <Label text="📱 Số điện thoại *" styleClass="form-field-label"/>
+                        <TextField fx:id="phoneField" promptText="0123456789" styleClass="form-field"/>
+                    </VBox>
+
+                    <!-- Email -->
+                    <VBox spacing="6">
+                        <Label text="📧 Email" styleClass="form-field-label"/>
+                        <TextField fx:id="emailField" promptText="example@email.com" styleClass="form-field"/>
+                    </VBox>
+                    
+                    <!-- Address -->
+                    <VBox spacing="6">
+                        <Label text="🏠 Địa chỉ" styleClass="form-field-label"/>
+                        <TextField fx:id="addressField" promptText="Số nhà, đường, quận, thành phố..." styleClass="form-field"/>
+                    </VBox>
+
+                    <!-- Status -->
+                    <VBox spacing="6">
+                        <Label text="📄 Trạng thái *" styleClass="form-field-label"/>
+                        <ComboBox fx:id="statusCombo" styleClass="form-combo" prefWidth="400"/>
+                    </VBox>
+                </VBox>
+                
+                <!-- Form Help Text -->
+                <VBox spacing="4" styleClass="help-box">
+                    <Label text="💡 Lưu ý:" styleClass="help-title"/>
+                    <Label text="• Họ tên và số điện thoại là bắt buộc" styleClass="help-text"/>
+                    <Label text="• Số điện thoại sẽ được sử dụng để tra cứu khách hàng" styleClass="help-text"/>
+                    <Label text="• Email và địa chỉ có thể bổ sung sau" styleClass="help-text"/>
+                </VBox>
+                
+                <!-- Form Actions -->
+                <HBox spacing="12" alignment="CENTER">
+                    <Button fx:id="saveCustomerButton" text="💾 Lưu thông tin" styleClass="btn-save" onAction="#handleSaveCustomer"/>
+                    <Button fx:id="cancelButton" text="⌫ Hủy bỏ" styleClass="btn-cancel" onAction="#hideCustomerForm"/>
+                    <Button fx:id="resetFormButton" text="🔄 Đặt lại" styleClass="btn-reset" onAction="#handleResetForm"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </StackPane>
+
+    <!-- Footer Status -->
+    <HBox alignment="CENTER_LEFT" spacing="15" styleClass="status-bar">
+        <Label fx:id="statusLabel" text="✅ Sẵn sàng" styleClass="status-ready"/>
+        <Separator orientation="VERTICAL"/>
+        <Label fx:id="lastUpdateLabel" text="Cập nhật lần cuối: Chưa có" styleClass="status-info"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label text="💡 Double-click để chỉnh sửa | Ctrl+F để tìm kiếm nhanh" styleClass="status-info"/>
+    </HBox>
+</VBox>

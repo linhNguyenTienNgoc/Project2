@@ -9,8 +9,11 @@ import com.cafe.model.entity.TableCafe;
 import com.cafe.model.entity.Area;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class TableService {
@@ -104,6 +107,100 @@ public class TableService {
         } catch (Exception e) {
             System.err.println("Error getting table by ID: " + e.getMessage());
             return Optional.empty();
+        }
+    }
+
+    /**
+     * Lấy tất cả tables với join area name cho admin management
+     */
+    public List<TableCafe> getAllTables() {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            String sql = "SELECT t.*, a.area_name " +
+                        "FROM tables t " +
+                        "LEFT JOIN areas a ON t.area_id = a.area_id " +
+                        "ORDER BY t.table_id";
+            
+            List<TableCafe> tables = new ArrayList<>();
+            try (PreparedStatement stmt = conn.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
+                
+                while (rs.next()) {
+                    TableCafe table = new TableCafe(
+                        rs.getInt("table_id"),
+                        rs.getString("table_name"),
+                        rs.getInt("area_id"),
+                        rs.getInt("capacity"),
+                        rs.getString("status"),
+                        rs.getBoolean("is_active"),
+                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("updated_at")
+                    );
+                    table.setAreaName(rs.getString("area_name"));
+                    tables.add(table);
+                }
+            }
+            return tables;
+        } catch (Exception e) {
+            System.err.println("Error loading all tables: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Thêm bàn mới
+     */
+    public boolean addTable(TableCafe table) {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            TableDAO tableDAO = new TableDAOImpl(conn);
+            return tableDAO.addTable(table);
+        } catch (Exception e) {
+            System.err.println("Error adding table: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Cập nhật thông tin bàn
+     */
+    public boolean updateTable(TableCafe table) {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            TableDAO tableDAO = new TableDAOImpl(conn);
+            return tableDAO.updateTable(table);
+        } catch (Exception e) {
+            System.err.println("Error updating table: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Xóa bàn (thực sự xóa khỏi DB)
+     */
+    public boolean deleteTable(int tableId) {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            TableDAO tableDAO = new TableDAOImpl(conn);
+            return tableDAO.deleteTable(tableId);
+        } catch (Exception e) {
+            System.err.println("Error deleting table: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Vô hiệu hóa bàn (soft delete)
+     */
+    public boolean deactivateTable(int tableId) {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            TableDAO tableDAO = new TableDAOImpl(conn);
+            Optional<TableCafe> tableOpt = Optional.ofNullable(tableDAO.getTableById(tableId));
+            if (tableOpt.isPresent()) {
+                TableCafe table = tableOpt.get();
+                table.setActive(false);
+                return tableDAO.updateTable(table);
+            }
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error deactivating table: " + e.getMessage());
+            return false;
         }
     }
 }

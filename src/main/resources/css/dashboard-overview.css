@@ -1,0 +1,387 @@
+/* ============================================
+   Dashboard Overview CSS - Modern Design
+   ============================================ */
+
+/* ============================================
+   ROOT AND VARIABLES
+   ============================================ */
+.root {
+    -fx-background-color: #f8f9fa;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* ============================================
+   HEADER SECTION
+   ============================================ */
+.header-section {
+    -fx-background-color: linear-gradient(to right, #2c5282, #3182ce);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);
+}
+
+.header-content {
+    -fx-alignment: center-left;
+}
+
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.header-datetime {
+    -fx-text-fill: #bee3f8;
+    -fx-font-size: 14px;
+}
+
+.refresh-btn {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20;
+    -fx-background-radius: 25;
+    -fx-border-radius: 25;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
+}
+
+.refresh-btn:hover {
+    -fx-background-color: #357abd;
+    -fx-scale-y: 1.05;
+    -fx-scale-x: 1.05;
+}
+
+.refresh-btn:pressed {
+    -fx-background-color: #2d5aa0;
+    -fx-scale-y: 0.95;
+    -fx-scale-x: 0.95;
+}
+
+/* ============================================
+   SECTION TITLES
+   ============================================ */
+.section-title {
+    -fx-text-fill: #2d3748;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 10 0;
+}
+
+/* ============================================
+   STATISTICS CARDS
+   ============================================ */
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 3);
+    -fx-min-height: 120;
+    -fx-max-height: 120;
+    -fx-pref-height: 120;
+}
+
+.stat-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 15, 0, 0, 5);
+    -fx-scale-y: 1.02;
+    -fx-scale-x: 1.02;
+}
+
+/* Revenue Card - Green */
+.revenue-card {
+    -fx-border-color: #48bb78;
+    -fx-border-width: 0 0 0 5;
+}
+
+.revenue-card .card-title {
+    -fx-text-fill: #48bb78;
+}
+
+.revenue-card .card-value {
+    -fx-text-fill: #2f855a;
+}
+
+/* Tables Card - Orange */
+.tables-card {
+    -fx-border-color: #ed8936;
+    -fx-border-width: 0 0 0 5;
+}
+
+.tables-card .card-title {
+    -fx-text-fill: #ed8936;
+}
+
+.tables-card .card-value {
+    -fx-text-fill: #c05621;
+}
+
+/* Orders Card - Blue */
+.orders-card {
+    -fx-border-color: #4299e1;
+    -fx-border-width: 0 0 0 5;
+}
+
+.orders-card .card-title {
+    -fx-text-fill: #4299e1;
+}
+
+.orders-card .card-value {
+    -fx-text-fill: #3182ce;
+}
+
+/* Customers Card - Purple */
+.customers-card {
+    -fx-border-color: #9f7aea;
+    -fx-border-width: 0 0 0 5;
+}
+
+.customers-card .card-title {
+    -fx-text-fill: #9f7aea;
+}
+
+.customers-card .card-value {
+    -fx-text-fill: #805ad5;
+}
+
+/* Card Typography */
+.card-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+.card-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 0 0 0;
+}
+
+/* ============================================
+   CHARTS STYLING
+   ============================================ */
+.chart-container {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 3);
+}
+
+/* Bar Chart Styling */
+.chart {
+    -fx-background-color: transparent;
+    -fx-padding: 10;
+}
+
+.chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 10 0 0 0;
+}
+
+.axis {
+    -fx-tick-label-fill: #4a5568;
+    -fx-font-size: 12px;
+}
+
+.axis-label {
+    -fx-text-fill: #2d3748;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Bar Chart Colors */
+.default-color0.chart-bar {
+    -fx-bar-fill: linear-gradient(to bottom, #4299e1, #3182ce);
+}
+
+.default-color1.chart-bar {
+    -fx-bar-fill: linear-gradient(to bottom, #48bb78, #38a169);
+}
+
+.default-color2.chart-bar {
+    -fx-bar-fill: linear-gradient(to bottom, #ed8936, #dd6b20);
+}
+
+.default-color3.chart-bar {
+    -fx-bar-fill: linear-gradient(to bottom, #9f7aea, #805ad5);
+}
+
+.default-color4.chart-bar {
+    -fx-bar-fill: linear-gradient(to bottom, #f56565, #e53e3e);
+}
+
+.default-color5.chart-bar {
+    -fx-bar-fill: linear-gradient(to bottom, #38b2ac, #319795);
+}
+
+.default-color6.chart-bar {
+    -fx-bar-fill: linear-gradient(to bottom, #ecc94b, #d69e2e);
+}
+
+/* Pie Chart Colors */
+.default-color0.chart-pie {
+    -fx-pie-color: #4299e1;
+}
+
+.default-color1.chart-pie {
+    -fx-pie-color: #48bb78;
+}
+
+.default-color2.chart-pie {
+    -fx-pie-color: #ed8936;
+}
+
+.default-color3.chart-pie {
+    -fx-pie-color: #9f7aea;
+}
+
+.default-color4.chart-pie {
+    -fx-pie-color: #f56565;
+}
+
+.default-color5.chart-pie {
+    -fx-pie-color: #38b2ac;
+}
+
+.default-color6.chart-pie {
+    -fx-pie-color: #ecc94b;
+}
+
+.default-color7.chart-pie {
+    -fx-pie-color: #fc8181;
+}
+
+/* Chart Title */
+.chart-title {
+    -fx-text-fill: #2d3748;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* Chart Legend */
+.chart-legend-item {
+    -fx-text-fill: #4a5568;
+    -fx-font-size: 12px;
+}
+
+/* ============================================
+   SCROLL PANE
+   ============================================ */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .corner {
+    -fx-background-color: transparent;
+}
+
+/* Scrollbar Styling */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .track {
+    -fx-background-color: #e2e8f0;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #cbd5e0;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #a0aec0;
+}
+
+.scroll-bar .thumb:pressed {
+    -fx-background-color: #718096;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 1200px) {
+    .stat-card {
+        -fx-min-width: 200;
+        -fx-pref-width: 200;
+    }
+    
+    .card-value {
+        -fx-font-size: 20px;
+    }
+    
+    .section-title {
+        -fx-font-size: 20px;
+    }
+}
+
+@media (max-width: 800px) {
+    .stat-card {
+        -fx-min-width: 150;
+        -fx-pref-width: 150;
+        -fx-min-height: 100;
+        -fx-max-height: 100;
+        -fx-pref-height: 100;
+    }
+    
+    .card-value {
+        -fx-font-size: 18px;
+    }
+    
+    .card-title {
+        -fx-font-size: 12px;
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+.stat-card {
+    -fx-transition: -fx-scale-x 0.2s ease, -fx-scale-y 0.2s ease, -fx-effect 0.2s ease;
+}
+
+.refresh-btn {
+    -fx-transition: -fx-background-color 0.2s ease, -fx-scale-x 0.1s ease, -fx-scale-y 0.1s ease;
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+.loading .card-value {
+    -fx-text-fill: #a0aec0;
+}
+
+.loading .chart {
+    -fx-opacity: 0.6;
+}
+
+/* ============================================
+   ERROR STATES
+   ============================================ */
+.error .card-value {
+    -fx-text-fill: #f56565;
+}
+
+.error .card-title {
+    -fx-text-fill: #f56565;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+.stat-card:focused {
+    -fx-border-color: #4299e1;
+    -fx-border-width: 2;
+}
+
+.refresh-btn:focused {
+    -fx-border-color: white;
+    -fx-border-width: 2;
+}

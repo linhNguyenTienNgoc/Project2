@@ -9,7 +9,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.cafe.controller.admin.AdminDashboardController"
-            stylesheets="@../../css/admin-dashboard.css">
+            stylesheets="@../../css/admin-theme.css,@../../css/admin-dashboard.css">
 
     <!-- Sidebar bên trái (20%) -->
     <left>

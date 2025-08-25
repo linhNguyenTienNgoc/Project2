@@ -7,7 +7,7 @@
 <!-- *** FIXED: Removed problematic USE_COMPUTED_SIZE values *** -->
 <BorderPane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.cafe.controller.admin.AdminMenuController"
-            stylesheets="@../../css/menu-style.css"
+            stylesheets="@../../css/admin-theme.css,@../../css/menu-style.css"
             styleClass="root-container"
             minHeight="600" prefHeight="800">
 

@@ -22,7 +22,7 @@ public class PDFExporter {
     private static final Font NORMAL_FONT = new Font(Font.FontFamily.HELVETICA, 10);
     private static final Font RECEIPT_FONT = new Font(Font.FontFamily.COURIER, 9);
 
-    public void exportSalesReport(List<SalesData> salesList, LocalDate startDate, LocalDate endDate) throws IOException, DocumentException {
+    public void exportSalesReport(List<Object> salesList, LocalDate startDate, LocalDate endDate) throws IOException, DocumentException {
         Document document = new Document();
         String fileName = "BaoCaoDanhThu_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf";
 
@@ -59,13 +59,23 @@ public class PDFExporter {
         }
 
         // Table data
+        // TODO: Replace with actual SalesData implementation when available
+        /*
         for (SalesData data : salesList) {
             table.addCell(new PdfPCell(new Phrase(data.getDate(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(data.getRevenue(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(data.getOrderCount(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(data.getAvgOrder(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(data.getGrowth(), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getRevenue()), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(String.valueOf(data.getOrderCount()), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getAvgOrder()), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(String.format("%.1f%%", data.getGrowth()), NORMAL_FONT)));
         }
+        */
+        
+        // Placeholder row for now
+        table.addCell(new PdfPCell(new Phrase("Đang cập nhật...", NORMAL_FONT)));
+        table.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+        table.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+        table.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+        table.addCell(new PdfPCell(new Phrase("0%", NORMAL_FONT)));
 
         document.add(table);
         document.close();
@@ -110,9 +120,9 @@ public class PDFExporter {
         // Table data
         for (ProductData data : productList) {
             table.addCell(new PdfPCell(new Phrase(data.getProductName(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(data.getQuantity(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(data.getRevenue(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(data.getPercentage(), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(String.valueOf(data.getQuantitySold()), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getRevenue()), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(String.format("%.1f%%", (data.getRevenue() / getTotalRevenue(productList)) * 100), NORMAL_FONT)));
         }
 
         document.add(table);
@@ -157,17 +167,17 @@ public class PDFExporter {
 
         // Table data
         for (CustomerData data : customerList) {
-            table.addCell(new PdfPCell(new Phrase(data.getCustomerName(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(data.getOrderCount(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(data.getTotalSpent(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(data.getLastOrder(), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(data.getFullName(), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(String.valueOf(data.getTotalOrders()), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getTotalSpent()), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(data.getLastOrderDate(), NORMAL_FONT)));
         }
 
         document.add(table);
         document.close();
     }
 
-    public void exportAllReports(List<SalesData> salesList, List<ProductData> productList,
+    public void exportAllReports(List<Object> salesList, List<ProductData> productList,
                                  List<CustomerData> customerList, LocalDate startDate, LocalDate endDate) throws IOException, DocumentException {
         Document document = new Document();
         String fileName = "BaoCaoTongHop_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf";
@@ -207,14 +217,24 @@ public class PDFExporter {
             salesTable.addCell(cell);
         }
 
-        // Sales data
+        // Sales data - using mock data since SalesData doesn't exist yet
+        // TODO: Replace with actual SalesData implementation
+        /*
         for (SalesData data : salesList) {
             salesTable.addCell(new PdfPCell(new Phrase(data.getDate(), NORMAL_FONT)));
-            salesTable.addCell(new PdfPCell(new Phrase(data.getRevenue(), NORMAL_FONT)));
-            salesTable.addCell(new PdfPCell(new Phrase(data.getOrderCount(), NORMAL_FONT)));
-            salesTable.addCell(new PdfPCell(new Phrase(data.getAvgOrder(), NORMAL_FONT)));
-            salesTable.addCell(new PdfPCell(new Phrase(data.getGrowth(), NORMAL_FONT)));
+            salesTable.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getRevenue()), NORMAL_FONT)));
+            salesTable.addCell(new PdfPCell(new Phrase(String.valueOf(data.getOrderCount()), NORMAL_FONT)));
+            salesTable.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getAvgOrder()), NORMAL_FONT)));
+            salesTable.addCell(new PdfPCell(new Phrase(String.format("%.1f%%", data.getGrowth()), NORMAL_FONT)));
         }
+        */
+        
+        // Placeholder row for now
+        salesTable.addCell(new PdfPCell(new Phrase("Đang cập nhật...", NORMAL_FONT)));
+        salesTable.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+        salesTable.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+        salesTable.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+        salesTable.addCell(new PdfPCell(new Phrase("0%", NORMAL_FONT)));
 
         document.add(salesTable);
         document.newPage();
@@ -241,9 +261,9 @@ public class PDFExporter {
         // Product data
         for (ProductData data : productList) {
             productTable.addCell(new PdfPCell(new Phrase(data.getProductName(), NORMAL_FONT)));
-            productTable.addCell(new PdfPCell(new Phrase(data.getQuantity(), NORMAL_FONT)));
-            productTable.addCell(new PdfPCell(new Phrase(data.getRevenue(), NORMAL_FONT)));
-            productTable.addCell(new PdfPCell(new Phrase(data.getPercentage(), NORMAL_FONT)));
+            productTable.addCell(new PdfPCell(new Phrase(String.valueOf(data.getQuantitySold()), NORMAL_FONT)));
+            productTable.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getRevenue()), NORMAL_FONT)));
+            productTable.addCell(new PdfPCell(new Phrase(String.format("%.1f%%", (data.getRevenue() / getTotalRevenue(productList)) * 100), NORMAL_FONT)));
         }
 
         document.add(productTable);
@@ -270,10 +290,10 @@ public class PDFExporter {
 
         // Customer data
         for (CustomerData data : customerList) {
-            customerTable.addCell(new PdfPCell(new Phrase(data.getCustomerName(), NORMAL_FONT)));
-            customerTable.addCell(new PdfPCell(new Phrase(data.getOrderCount(), NORMAL_FONT)));
-            customerTable.addCell(new PdfPCell(new Phrase(data.getTotalSpent(), NORMAL_FONT)));
-            customerTable.addCell(new PdfPCell(new Phrase(data.getLastOrder(), NORMAL_FONT)));
+            customerTable.addCell(new PdfPCell(new Phrase(data.getFullName(), NORMAL_FONT)));
+            customerTable.addCell(new PdfPCell(new Phrase(String.valueOf(data.getTotalOrders()), NORMAL_FONT)));
+            customerTable.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getTotalSpent()), NORMAL_FONT)));
+            customerTable.addCell(new PdfPCell(new Phrase(data.getLastOrderDate(), NORMAL_FONT)));
         }
 
         document.add(customerTable);
@@ -303,5 +323,14 @@ public class PDFExporter {
         document.add(receiptPara);
 
         document.close();
+    }
+    
+    /**
+     * Helper method to calculate total revenue from product list
+     */
+    private double getTotalRevenue(List<ProductData> productList) {
+        return productList.stream()
+                .mapToDouble(ProductData::getRevenue)
+                .sum();
     }
 }

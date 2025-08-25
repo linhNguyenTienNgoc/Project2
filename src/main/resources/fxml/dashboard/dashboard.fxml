@@ -27,6 +27,8 @@
             <!-- Tab Navigation -->
             <HBox fx:id="tabNavigation" spacing="0" alignment="CENTER_LEFT"
                   styleClass="tab-navigation">
+                <Button fx:id="overviewTabButton" text="Tổng quan"
+                        styleClass="tab-button"/>
                 <Button fx:id="menuTabButton" text="Menu"
                         styleClass="tab-button"/>
                 <Button fx:id="tableTabButton" text="Bàn"

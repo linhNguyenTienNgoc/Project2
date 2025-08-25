@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class ExcelExporter {
 
-    public void exportSalesReport(List<SalesData> salesList, LocalDate startDate, LocalDate endDate) throws IOException {
+    public void exportSalesReport(List<Object> salesList, LocalDate startDate, LocalDate endDate) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Báo cáo doanh thu");
 
@@ -48,8 +48,10 @@ public class ExcelExporter {
             cell.setCellStyle(headerStyle);
         }
 
-        // Fill data
+        // Fill data - placeholder for SalesData that doesn't exist yet
         int rowNum = 4;
+        // TODO: Replace with actual SalesData implementation when available
+        /*
         for (SalesData data : salesList) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(data.getDate());
@@ -57,6 +59,17 @@ public class ExcelExporter {
             row.createCell(2).setCellValue(data.getOrderCount());
             row.createCell(3).setCellValue(data.getAvgOrder());
             row.createCell(4).setCellValue(data.getGrowth());
+        }
+        */
+        
+        // Placeholder row
+        if (rowNum == 4) { // Only add placeholder if no data
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue("Đang cập nhật...");
+            row.createCell(1).setCellValue(0);
+            row.createCell(2).setCellValue(0);
+            row.createCell(3).setCellValue(0);
+            row.createCell(4).setCellValue(0);
         }
 
         // Auto-size columns
@@ -110,9 +123,9 @@ public class ExcelExporter {
         for (ProductData data : productList) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(data.getProductName());
-            row.createCell(1).setCellValue(data.getQuantity());
+            row.createCell(1).setCellValue(data.getQuantitySold());
             row.createCell(2).setCellValue(data.getRevenue());
-            row.createCell(3).setCellValue(data.getPercentage());
+            row.createCell(3).setCellValue((data.getRevenue() / getTotalRevenue(productList)) * 100);
         }
 
         // Auto-size columns
@@ -165,10 +178,10 @@ public class ExcelExporter {
         int rowNum = 4;
         for (CustomerData data : customerList) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(data.getCustomerName());
-            row.createCell(1).setCellValue(data.getOrderCount());
+            row.createCell(0).setCellValue(data.getFullName());
+            row.createCell(1).setCellValue(data.getTotalOrders());
             row.createCell(2).setCellValue(data.getTotalSpent());
-            row.createCell(3).setCellValue(data.getLastOrder());
+            row.createCell(3).setCellValue(data.getLastOrderDate());
         }
 
         // Auto-size columns
@@ -184,7 +197,7 @@ public class ExcelExporter {
         workbook.close();
     }
 
-    public void exportAllReports(List<SalesData> salesList, List<ProductData> productList,
+    public void exportAllReports(List<Object> salesList, List<ProductData> productList,
                                  List<CustomerData> customerList, LocalDate startDate, LocalDate endDate) throws IOException {
         Workbook workbook = new XSSFWorkbook();
 
@@ -204,8 +217,17 @@ public class ExcelExporter {
         }
         workbook.close();
     }
+    
+    /**
+     * Helper method to calculate total revenue from product list
+     */
+    private double getTotalRevenue(List<ProductData> productList) {
+        return productList.stream()
+                .mapToDouble(ProductData::getRevenue)
+                .sum();
+    }
 
-    private void createSalesSheet(Workbook workbook, List<SalesData> salesList, LocalDate startDate, LocalDate endDate) {
+    private void createSalesSheet(Workbook workbook, List<Object> salesList, LocalDate startDate, LocalDate endDate) {
         // Implementation similar to exportSalesReport but creating sheet in existing workbook
         Sheet sheet = workbook.createSheet("Doanh thu");
         // ... (similar implementation)

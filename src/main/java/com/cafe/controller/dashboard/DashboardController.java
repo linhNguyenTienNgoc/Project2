@@ -1,12 +1,13 @@
 package com.cafe.controller.dashboard;
 
 import com.cafe.CafeManagementApplication;
+import com.cafe.controller.admin.DashboardOverviewController;
 import com.cafe.controller.menu.MenuController;
 import com.cafe.controller.order.OrderPanelController;
 import com.cafe.controller.table.TableController;
 import com.cafe.controller.base.DashboardCommunicator;
 import com.cafe.controller.base.DashboardEventHandler;
-import com.cafe.controller.base.DashboardHelper;
+
 import com.cafe.model.entity.Product;
 import com.cafe.model.entity.TableCafe;
 import com.cafe.util.SessionManager;
@@ -23,7 +24,7 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.lang.reflect.Method;
+
 
 /**
  * Main Dashboard Controller - Complete & Fixed
@@ -50,6 +51,7 @@ public class DashboardController implements Initializable, DashboardEventHandler
     @FXML private Label userNameLabel;
     @FXML private Label userRoleLabel;
     @FXML private Button logoutButton;
+    @FXML private Button overviewTabButton;
     @FXML private Button menuTabButton;
     @FXML private Button tableTabButton;
 
@@ -62,8 +64,10 @@ public class DashboardController implements Initializable, DashboardEventHandler
     // =====================================================
 
     // Current loaded content và controllers
-    private Node currentContent;
-    private String currentTab = "menu"; // Default tab
+    @SuppressWarnings("unused")
+    private Node currentContent; // For future use
+    private String currentTab = "overview"; // Default tab
+    private DashboardOverviewController currentOverviewController;
     private MenuController currentMenuController;
     private TableController currentTableController;
 
@@ -91,11 +95,11 @@ public class DashboardController implements Initializable, DashboardEventHandler
             // Initialize OrderPanel communication
             initializeOrderPanelCommunication();
 
-            // Load default content (menu)
-            loadMenuContent();
+            // Load default content (overview)
+            loadOverviewContent();
 
             // Set active tab style
-            setActiveTab("menu");
+            setActiveTab("overview");
 
             System.out.println("✅ DashboardController initialized successfully with full integration");
 
@@ -149,6 +153,12 @@ public class DashboardController implements Initializable, DashboardEventHandler
      * Setup button click actions
      */
     private void setupButtonActions() {
+        overviewTabButton.setOnAction(e -> {
+            System.out.println("📊 Overview tab clicked");
+            loadOverviewContent();
+            setActiveTab("overview");
+        });
+
         menuTabButton.setOnAction(e -> {
             System.out.println("📱 Menu tab clicked");
             loadMenuContent();
@@ -172,7 +182,7 @@ public class DashboardController implements Initializable, DashboardEventHandler
      */
     private void setupTabStyling() {
         // Apply initial styles to ensure consistency
-        setActiveTab("menu");
+        setActiveTab("overview");
     }
 
     /**
@@ -230,6 +240,33 @@ public class DashboardController implements Initializable, DashboardEventHandler
     }
 
     /**
+     * Load overview content with dashboard statistics
+     */
+    private void loadOverviewContent() {
+        try {
+            System.out.println("📊 Loading overview content...");
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/dashboard-overview.fxml"));
+            Node overviewContent = loader.load();
+
+            // Get controller and setup
+            currentOverviewController = loader.getController();
+            System.out.println("✅ DashboardOverviewController loaded");
+
+            // Update UI
+            updateContentPane(overviewContent);
+            currentTab = "overview";
+
+            System.out.println("✅ Overview content loaded successfully");
+
+        } catch (IOException e) {
+            System.err.println("❌ Error loading overview content: " + e.getMessage());
+            e.printStackTrace();
+            handleContentLoadError("Overview", e);
+        }
+    }
+
+    /**
      * Setup communication for any controller that implements DashboardCommunicator
      */
     private void setupControllerCommunication(Object controller, String controllerName) {
@@ -273,11 +310,15 @@ public class DashboardController implements Initializable, DashboardEventHandler
         String activeStyle = baseStyle + " -fx-background-color: #A0522D; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);";
 
         // Reset all buttons
+        overviewTabButton.setStyle(inactiveStyle);
         menuTabButton.setStyle(inactiveStyle);
         tableTabButton.setStyle(inactiveStyle);
 
         // Set active button
         switch (tabName) {
+            case "overview":
+                overviewTabButton.setStyle(activeStyle);
+                break;
             case "menu":
                 menuTabButton.setStyle(activeStyle);
                 break;
@@ -554,6 +595,9 @@ public class DashboardController implements Initializable, DashboardEventHandler
         System.out.println("🔄 Refreshing current content: " + currentTab);
 
         switch (currentTab) {
+            case "overview":
+                loadOverviewContent();
+                break;
             case "menu":
                 loadMenuContent();
                 break;
@@ -572,6 +616,10 @@ public class DashboardController implements Initializable, DashboardEventHandler
         System.out.println("🔄 Switching to tab: " + tabName);
 
         switch (tabName.toLowerCase()) {
+            case "overview":
+                loadOverviewContent();
+                setActiveTab("overview");
+                break;
             case "menu":
                 loadMenuContent();
                 setActiveTab("menu");
@@ -595,6 +643,10 @@ public class DashboardController implements Initializable, DashboardEventHandler
 
     public OrderPanelController getOrderPanelController() {
         return orderPanelRootController;
+    }
+
+    public DashboardOverviewController getCurrentOverviewController() {
+        return currentOverviewController;
     }
 
     public MenuController getCurrentMenuController() {

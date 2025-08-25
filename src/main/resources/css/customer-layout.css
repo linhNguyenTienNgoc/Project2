@@ -1,0 +1,475 @@
+/* =====================================================
+   CUSTOMER MANAGEMENT - STYLES
+   File: customer-layout.css
+   Purpose: Styling cho giao diện quản lý khách hàng
+   ===================================================== */
+
+/* === ROOT VARIABLES === */
+.root {
+    -fx-primary-color: #3498db;
+    -fx-success-color: #27ae60;
+    -fx-warning-color: #f39c12;
+    -fx-danger-color: #e74c3c;
+    -fx-secondary-color: #95a5a6;
+    -fx-dark-color: #2c3e50;
+    -fx-light-color: #ecf0f1;
+    -fx-text-color: #2c3e50;
+    -fx-text-muted: #7f8c8d;
+}
+
+/* === MAIN CONTAINER === */
+.main-container {
+    -fx-background-color: linear-gradient(to bottom, #f8f5f0, #faf7f2);
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* === HEADER SECTION === */
+.header-section {
+    -fx-padding: 0 0 10 0;
+}
+
+.page-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 1, 0, 0, 1);
+}
+
+.quick-stats {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 3, 0, 0, 1);
+    -fx-min-width: 80;
+    -fx-max-width: 120;
+}
+
+.stats-number-info {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #3498db;
+    -fx-alignment: center;
+}
+
+.stats-number-success {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #27ae60;
+    -fx-alignment: center;
+}
+
+.stats-number-warning {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f39c12;
+    -fx-alignment: center;
+}
+
+.stats-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: #7f8c8d;
+    -fx-alignment: center;
+}
+
+/* === TOOLBAR === */
+.toolbar {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 3, 0, 0, 1);
+}
+
+.search-container {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 6;
+    -fx-padding: 6 10;
+    -fx-alignment: center-left;
+}
+
+.search-field {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-prompt-text-fill: #7f8c8d;
+}
+
+.filter-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #7f8c8d;
+    -fx-font-weight: bold;
+}
+
+.filter-combo {
+    -fx-background-color: white;
+    -fx-background-radius: 5;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+}
+
+/* === CRUD BUTTONS - Theo yêu cầu === */
+.btn-add {
+    -fx-background-color: #27ae60; /* Xanh lá */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 15;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 1, 0, 0, 1);
+}
+
+.btn-add:hover {
+    -fx-background-color: #2ecc71;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.btn-edit {
+    -fx-background-color: #f39c12; /* Cam */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 15;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 1, 0, 0, 1);
+}
+
+.btn-edit:hover {
+    -fx-background-color: #e67e22;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.btn-delete {
+    -fx-background-color: #e74c3c; /* Đỏ */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 15;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 1, 0, 0, 1);
+}
+
+.btn-delete:hover {
+    -fx-background-color: #c0392b;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.btn-refresh {
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 15;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 1, 0, 0, 1);
+}
+
+.btn-refresh:hover {
+    -fx-background-color: #7f8c8d;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* === TABLE CONTAINER === */
+.table-container {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 3, 0, 0, 1);
+}
+
+.table-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.status-info {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7f8c8d;
+}
+
+/* === CUSTOMER TABLE - Theo yêu cầu header màu xanh dương nhẹ === */
+.customer-table {
+    -fx-background-color: white;
+    -fx-border-width: 0;
+    -fx-table-color-policy: stripe;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.customer-table .column-header-background {
+    -fx-background-color: #5dade2; /* Xanh dương nhẹ theo yêu cầu */
+}
+
+.customer-table .column-header {
+    -fx-background-color: #5dade2;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-padding: 10 8;
+    -fx-border-color: #4a90c2;
+    -fx-border-width: 0 1 0 0;
+}
+
+.customer-table .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.customer-table .table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: #ecf0f1;
+    -fx-border-width: 0 0 1 0;
+    -fx-cell-size: 35px;
+}
+
+.customer-table .table-row-cell:odd {
+    -fx-background-color: #f8f9fa;
+}
+
+.customer-table .table-row-cell:selected {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #2c3e50;
+}
+
+.customer-table .table-row-cell:hover {
+    -fx-background-color: #f0f8ff;
+    -fx-cursor: hand;
+}
+
+/* === INACTIVE CUSTOMER ROWS - Theo yêu cầu opacity ~0.6 === */
+.customer-table .table-row-cell.inactive-customer {
+    -fx-opacity: 0.6;
+}
+
+.customer-table .table-row-cell.inactive-customer .table-cell {
+    -fx-text-fill: #bdc3c7;
+}
+
+.customer-table .table-cell {
+    -fx-padding: 8 10;
+    -fx-alignment: center-left;
+    -fx-border-width: 0;
+    -fx-font-size: 12px;
+}
+
+/* === TABLE PLACEHOLDER === */
+.table-placeholder {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 10;
+    -fx-padding: 40;
+}
+
+.placeholder-icon {
+    -fx-font-size: 48px;
+    -fx-text-fill: #bdc3c7;
+}
+
+.placeholder-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #7f8c8d;
+}
+
+.placeholder-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #95a5a6;
+}
+
+/* === FORM OVERLAY === */
+.form-overlay {
+    -fx-background-color: rgba(44, 62, 80, 0.7);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 0);
+}
+
+.form-container {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);
+}
+
+.form-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.btn-close {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15;
+    -fx-padding: 5 10;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+}
+
+.btn-close:hover {
+    -fx-background-color: #c0392b;
+}
+
+.form-grid {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 8;
+    -fx-padding: 15;
+}
+
+.form-field-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.form-field {
+    -fx-background-color: white;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-padding: 8 12;
+    -fx-font-size: 13px;
+}
+
+.form-field:focused {
+    -fx-border-color: #3498db;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(one-pass-box, rgba(52, 152, 219, 0.3), 3, 0, 0, 0);
+}
+
+.form-combo {
+    -fx-background-color: white;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+}
+
+.help-box {
+    -fx-background-color: #ebf3fd;
+    -fx-background-radius: 6;
+    -fx-padding: 12;
+    -fx-border-color: #3498db;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+}
+
+.help-title {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2980b9;
+}
+
+.help-text {
+    -fx-font-size: 11px;
+    -fx-text-fill: #34495e;
+}
+
+/* === FORM ACTION BUTTONS === */
+.btn-save {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.btn-save:hover {
+    -fx-background-color: #2ecc71;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.btn-cancel {
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.btn-cancel:hover {
+    -fx-background-color: #7f8c8d;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.btn-reset {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.btn-reset:hover {
+    -fx-background-color: #e67e22;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* === STATUS BAR === */
+.status-bar {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-padding: 8 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 2, 0, 0, 1);
+}
+
+.status-ready {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #27ae60;
+}
+
+/* === RESPONSIVE DESIGN === */
+.customer-table .table-column {
+    -fx-min-width: 80px;
+}
+
+/* ID Column */
+.customer-table .table-column:nth-child(1) {
+    -fx-pref-width: 50px;
+    -fx-max-width: 60px;
+}
+
+/* Name Column */
+.customer-table .table-column:nth-child(2) {
+    -fx-pref-width: 150px;
+}
+
+/* Phone Column */
+.customer-table .table-column:nth-child(3) {
+    -fx-pref-width: 120px;
+}
+
+/* Email Column */
+.customer-table .table-column:nth-child(4) {
+    -fx-pref-width: 180px;
+}
+
+/* Address Column */
+.customer-table .table-column:nth-child(5) {
+    -fx-pref-width: 200px;
+}
+
+/* Loyalty Points Column */
+.customer-table .table-column:nth-child(6) {
+    -fx-pref-width: 100px;
+}
+
+/* Total Spent Column */
+.customer-table .table-column:nth-child(7) {
+    -fx-pref-width: 120px;
+}
+
+/* Status Column */
+.customer-table .table-column:nth-child(8) {
+    -fx-pref-width: 100px;
+}

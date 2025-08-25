@@ -191,6 +191,7 @@ public class AdminDashboardController extends DashboardController implements Ini
         if (userTabButton != null) userTabButton.setOnAction(e -> switchToTab("user"));
         if (menuTabButton != null) menuTabButton.setOnAction(e -> switchToTab("menu"));
         if (tableTabButton != null) tableTabButton.setOnAction(e -> switchToTab("table"));
+        if (customerTabButton != null) customerTabButton.setOnAction(e -> switchToTab("customer"));
         if (reportTabButton != null) reportTabButton.setOnAction(e -> switchToTab("report"));
         if (promotionTabButton != null) promotionTabButton.setOnAction(e -> switchToTab("promotion"));
 
@@ -230,6 +231,7 @@ public class AdminDashboardController extends DashboardController implements Ini
         if (userTabButton != null) userTabButton.getStyleClass().setAll("nav-button");
         if (menuTabButton != null) menuTabButton.getStyleClass().setAll("nav-button");
         if (tableTabButton != null) tableTabButton.getStyleClass().setAll("nav-button");
+        if (customerTabButton != null) customerTabButton.getStyleClass().setAll("nav-button");
         if (reportTabButton != null) reportTabButton.getStyleClass().setAll("nav-button");
         if (promotionTabButton != null) promotionTabButton.getStyleClass().setAll("nav-button");
 
@@ -246,6 +248,9 @@ public class AdminDashboardController extends DashboardController implements Ini
                 break;
             case "table":
                 if (tableTabButton != null) tableTabButton.getStyleClass().setAll("nav-button", "active");
+                break;
+            case "customer":
+                if (customerTabButton != null) customerTabButton.getStyleClass().setAll("nav-button", "active");
                 break;
             case "report":
                 if (reportTabButton != null) reportTabButton.getStyleClass().setAll("nav-button", "active");
@@ -265,6 +270,7 @@ public class AdminDashboardController extends DashboardController implements Ini
         if (userTabButton != null) userTabButton.getStyleClass().setAll("nav-button");
         if (menuTabButton != null) menuTabButton.getStyleClass().setAll("nav-button");
         if (tableTabButton != null) tableTabButton.getStyleClass().setAll("nav-button");
+        if (customerTabButton != null) customerTabButton.getStyleClass().setAll("nav-button");
         if (reportTabButton != null) reportTabButton.getStyleClass().setAll("nav-button");
         if (promotionTabButton != null) promotionTabButton.getStyleClass().setAll("nav-button");
 
@@ -319,7 +325,10 @@ public class AdminDashboardController extends DashboardController implements Ini
                 fxmlPath = "/fxml/admin/menu-layout.fxml";
                 break;
             case "table":
-                fxmlPath = "/fxml/dashboard/table-layout.fxml";
+                fxmlPath = "/fxml/admin/table-layout.fxml";
+                break;
+            case "customer":
+                fxmlPath = "/fxml/admin/customer-layout.fxml";
                 break;
             case "report":
                 fxmlPath = "/fxml/admin/report-layout.fxml";

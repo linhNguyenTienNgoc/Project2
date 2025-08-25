@@ -9,7 +9,6 @@ import com.cafe.model.entity.Order;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +24,28 @@ public class PromotionService {
     // =====================================================
     // CORE PROMOTION METHODS
     // =====================================================
+
+    /**
+     * Get all promotions from database
+     * @return List of all promotions
+     */
+    public List<Promotion> getAllPromotions() {
+        List<Promotion> allPromotions = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            PromotionDAO promotionDAO = new PromotionDAOImpl(conn);
+            allPromotions = promotionDAO.getAllPromotions();
+            
+            System.out.println("✅ Retrieved " + allPromotions.size() + " promotions");
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error getting all promotions: " + e.getMessage());
+            // Return sample data if database fails
+            return getSamplePromotions();
+        }
+        
+        return allPromotions;
+    }
 
     /**
      * Get all active promotions that can be applied now

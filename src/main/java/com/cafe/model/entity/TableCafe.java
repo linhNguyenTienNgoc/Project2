@@ -6,6 +6,7 @@ public class TableCafe {
     private int tableId;
     private String tableName;
     private int areaId;
+    private String areaName; // Added for visual layout
     private int capacity;
     private String status; // "available", "occupied", "reserved", "cleaning"
     private boolean isActive;
@@ -17,6 +18,15 @@ public class TableCafe {
     public TableCafe(String tableName, int areaId, int capacity, String status, boolean isActive) {
         this.tableName = tableName;
         this.areaId = areaId;
+        this.capacity = capacity;
+        this.status = status;
+        this.isActive = isActive;
+    }
+    
+    public TableCafe(String tableName, int areaId, String areaName, int capacity, String status, boolean isActive) {
+        this.tableName = tableName;
+        this.areaId = areaId;
+        this.areaName = areaName;
         this.capacity = capacity;
         this.status = status;
         this.isActive = isActive;
@@ -43,6 +53,9 @@ public class TableCafe {
 
     public int getAreaId() { return areaId; }
     public void setAreaId(int areaId) { this.areaId = areaId; }
+    
+    public String getAreaName() { return areaName; }
+    public void setAreaName(String areaName) { this.areaName = areaName; }
 
     public int getCapacity() { return capacity; }
     public void setCapacity(int capacity) { this.capacity = capacity; }
