@@ -110,6 +110,19 @@ public class MenuService {
             return List.of();
         }
     }
+
+    /**
+     * Get total products count
+     */
+    public int getTotalProductsCount() {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            ProductDAO productDAO = new ProductDAOImpl(conn);
+            return productDAO.getAllProducts().size();
+        } catch (Exception e) {
+            System.err.println("Error getting total products count: " + e.getMessage());
+            return 0;
+        }
+    }
     
     /**
      * Lấy product theo ID

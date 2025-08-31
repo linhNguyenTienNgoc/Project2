@@ -36,6 +36,19 @@ public class CustomerService {
     }
 
     /**
+     * Get total customers count
+     */
+    public int getTotalCustomersCount() {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            CustomerDAO customerDAO = new CustomerDAOImpl(conn);
+            return customerDAO.getAllCustomers().size();
+        } catch (Exception e) {
+            System.err.println("Error getting total customers count: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    /**
      * Lấy khách hàng theo ID
      */
     public Optional<Customer> getCustomerById(int customerId) {

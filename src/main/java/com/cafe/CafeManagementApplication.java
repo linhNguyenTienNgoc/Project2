@@ -194,6 +194,25 @@ public class CafeManagementApplication extends Application {
         }
     }
     
+    /**
+     * Refresh user information in current dashboard
+     * Gọi method này khi thông tin user thay đổi
+     */
+    public static void refreshCurrentDashboardUserInfo() {
+        try {
+            // Lấy current scene và tìm controller
+            if (primaryStage != null && primaryStage.getScene() != null) {
+                // Có thể implement logic để tìm và refresh dashboard controller
+                System.out.println("🔄 Refreshing dashboard user info...");
+                
+                // Note: Trong thực tế, có thể cần lưu reference đến current dashboard controller
+                // hoặc sử dụng event system để notify dashboard controllers
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error refreshing dashboard user info: " + e.getMessage());
+        }
+    }
+    
     public static void main(String[] args) {
         launch();
     }

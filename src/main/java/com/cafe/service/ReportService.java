@@ -171,6 +171,42 @@ public class ReportService {
         }
     }
 
+    /**
+     * Get today's orders count
+     */
+    public int getTodayOrdersCount() {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            LocalDate today = LocalDate.now();
+            return (int) orderDAO.getAllOrders().stream()
+                    .filter(order -> order.getOrderDate() != null)
+                    .filter(order -> {
+                        LocalDate orderDate = order.getOrderDate().toLocalDateTime().toLocalDate();
+                        return orderDate.equals(today);
+                    })
+                    .count();
+        } catch (Exception e) {
+            System.err.println("Error getting today's orders count: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get pending orders count
+     */
+    public int getPendingOrdersCount() {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            return (int) orderDAO.getAllOrders().stream()
+                    .filter(order -> "pending".equals(order.getOrderStatus()) || 
+                                   "preparing".equals(order.getOrderStatus()))
+                    .count();
+        } catch (Exception e) {
+            System.err.println("Error getting pending orders count: " + e.getMessage());
+            return 0;
+        }
+    }
+
     // Data Transfer Objects for reports
     public static class ProductSalesReport {
         private String productName;

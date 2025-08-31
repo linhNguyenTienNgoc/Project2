@@ -65,6 +65,38 @@ public class TableService {
     }
 
     /**
+     * Get available tables count
+     */
+    public int getAvailableTablesCount() {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            TableDAO tableDAO = new TableDAOImpl(conn);
+            return (int) tableDAO.getAllTables().stream()
+                    .filter(table -> table.isActive())
+                    .filter(table -> "available".equals(table.getStatus()))
+                    .count();
+        } catch (Exception e) {
+            System.err.println("Error getting available tables count: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get occupied tables count
+     */
+    public int getOccupiedTablesCount() {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            TableDAO tableDAO = new TableDAOImpl(conn);
+            return (int) tableDAO.getAllTables().stream()
+                    .filter(table -> table.isActive())
+                    .filter(table -> "occupied".equals(table.getStatus()))
+                    .count();
+        } catch (Exception e) {
+            System.err.println("Error getting occupied tables count: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    /**
      * Cập nhật trạng thái bàn
      */
     public boolean updateTableStatus(int tableId, String newStatus) {

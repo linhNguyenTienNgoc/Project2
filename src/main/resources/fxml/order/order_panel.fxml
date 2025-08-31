@@ -4,11 +4,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:id="orderPanel" prefWidth="400" spacing="10"
+<VBox fx:id="orderPanel" prefWidth="350" spacing="10"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.cafe.controller.order.OrderPanelController"
-      styleClass="order-panel">
+      styleClass="order-panel" fillWidth="true">
+    
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
 
     <!-- Order Panel Header -->
     <HBox spacing="10" alignment="CENTER_LEFT"
@@ -22,7 +26,8 @@
 
     <!-- Order Items -->
     <ScrollPane fx:id="orderScrollPane" VBox.vgrow="ALWAYS"
-                fitToWidth="true" styleClass="scroll-pane">
+                fitToWidth="true" styleClass="scroll-pane" 
+                minHeight="200" prefHeight="400">
         <content>
             <VBox fx:id="orderItemsContainer" spacing="2" style="-fx-padding: 10;">
                 <Label text="Chưa có món nào được chọn"

@@ -1,7 +1,7 @@
 package com.cafe.controller.dashboard;
 
 import com.cafe.CafeManagementApplication;
-import com.cafe.controller.admin.DashboardOverviewController;
+
 import com.cafe.controller.menu.MenuController;
 import com.cafe.controller.order.OrderPanelController;
 import com.cafe.controller.table.TableController;
@@ -51,7 +51,6 @@ public class DashboardController implements Initializable, DashboardEventHandler
     @FXML private Label userNameLabel;
     @FXML private Label userRoleLabel;
     @FXML private Button logoutButton;
-    @FXML private Button overviewTabButton;
     @FXML private Button menuTabButton;
     @FXML private Button tableTabButton;
 
@@ -66,15 +65,15 @@ public class DashboardController implements Initializable, DashboardEventHandler
     // Current loaded content và controllers
     @SuppressWarnings("unused")
     private Node currentContent; // For future use
-    private String currentTab = "overview"; // Default tab
-    private DashboardOverviewController currentOverviewController;
+    private String currentTab = "menu"; // Default tab for staff
+    // Overview controller removed - using static FXML content
     private MenuController currentMenuController;
     private TableController currentTableController;
 
-    // User session info
-    private String currentUserName = "Admin User";
-    private String currentUserRole = "Quản lý";
-    private int currentUserId = 1; // TODO: Get from session
+    // User session info - Sẽ được load từ SessionManager
+    private String currentUserName = "";
+    private String currentUserRole = "";
+    private int currentUserId = -1;
 
     // =====================================================
     // INITIALIZATION
@@ -95,11 +94,11 @@ public class DashboardController implements Initializable, DashboardEventHandler
             // Initialize OrderPanel communication
             initializeOrderPanelCommunication();
 
-            // Load default content (overview)
-            loadOverviewContent();
+            // Load default content (menu)
+            loadMenuContent();
 
             // Set active tab style
-            setActiveTab("overview");
+            setActiveTab("menu");
 
             System.out.println("✅ DashboardController initialized successfully with full integration");
 
@@ -114,9 +113,37 @@ public class DashboardController implements Initializable, DashboardEventHandler
      * Initialize user information display
      */
     private void initializeUserInfo() {
-        userNameLabel.setText(currentUserName);
-        userRoleLabel.setText(currentUserRole);
-        System.out.println("👤 User info initialized: " + currentUserName + " (" + currentUserRole + ")");
+        try {
+            // Lấy thông tin từ SessionManager
+            if (SessionManager.isLoggedIn()) {
+                currentUserName = SessionManager.getCurrentUserFullName();
+                currentUserRole = SessionManager.getCurrentUserRole();
+                currentUserId = SessionManager.getCurrentUserId();
+                
+                // Cập nhật UI
+                userNameLabel.setText(currentUserName);
+                userRoleLabel.setText(currentUserRole);
+                
+                System.out.println("👤 User info loaded from session: " + currentUserName + " (" + currentUserRole + ")");
+            } else {
+                // Fallback nếu chưa đăng nhập
+                currentUserName = "Người dùng";
+                currentUserRole = "Nhân viên";
+                currentUserId = -1;
+                
+                userNameLabel.setText(currentUserName);
+                userRoleLabel.setText(currentUserRole);
+                
+                System.out.println("⚠️ No user session found, using fallback values");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error initializing user info: " + e.getMessage());
+            // Fallback values
+            currentUserName = "Người dùng";
+            currentUserRole = "Nhân viên";
+            userNameLabel.setText(currentUserName);
+            userRoleLabel.setText(currentUserRole);
+        }
     }
 
     /**
@@ -153,11 +180,7 @@ public class DashboardController implements Initializable, DashboardEventHandler
      * Setup button click actions
      */
     private void setupButtonActions() {
-        overviewTabButton.setOnAction(e -> {
-            System.out.println("📊 Overview tab clicked");
-            loadOverviewContent();
-            setActiveTab("overview");
-        });
+        // Overview tab removed for staff dashboard
 
         menuTabButton.setOnAction(e -> {
             System.out.println("📱 Menu tab clicked");
@@ -239,32 +262,7 @@ public class DashboardController implements Initializable, DashboardEventHandler
         }
     }
 
-    /**
-     * Load overview content with dashboard statistics
-     */
-    private void loadOverviewContent() {
-        try {
-            System.out.println("📊 Loading overview content...");
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/dashboard-overview.fxml"));
-            Node overviewContent = loader.load();
-
-            // Get controller and setup
-            currentOverviewController = loader.getController();
-            System.out.println("✅ DashboardOverviewController loaded");
-
-            // Update UI
-            updateContentPane(overviewContent);
-            currentTab = "overview";
-
-            System.out.println("✅ Overview content loaded successfully");
-
-        } catch (IOException e) {
-            System.err.println("❌ Error loading overview content: " + e.getMessage());
-            e.printStackTrace();
-            handleContentLoadError("Overview", e);
-        }
-    }
+    // Overview content removed - staff dashboard focuses on menu and table management
 
     /**
      * Setup communication for any controller that implements DashboardCommunicator
@@ -309,21 +307,17 @@ public class DashboardController implements Initializable, DashboardEventHandler
         String inactiveStyle = baseStyle + " -fx-background-color: #8B4513; -fx-text-fill: white;";
         String activeStyle = baseStyle + " -fx-background-color: #A0522D; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);";
 
-        // Reset all buttons
-        overviewTabButton.setStyle(inactiveStyle);
-        menuTabButton.setStyle(inactiveStyle);
-        tableTabButton.setStyle(inactiveStyle);
+        // Reset all buttons with null checks
+        if (menuTabButton != null) menuTabButton.setStyle(inactiveStyle);
+        if (tableTabButton != null) tableTabButton.setStyle(inactiveStyle);
 
         // Set active button
         switch (tabName) {
-            case "overview":
-                overviewTabButton.setStyle(activeStyle);
-                break;
             case "menu":
-                menuTabButton.setStyle(activeStyle);
+                if (menuTabButton != null) menuTabButton.setStyle(activeStyle);
                 break;
             case "table":
-                tableTabButton.setStyle(activeStyle);
+                if (tableTabButton != null) tableTabButton.setStyle(activeStyle);
                 break;
             default:
                 System.err.println("⚠️ Unknown tab: " + tabName);
@@ -595,9 +589,6 @@ public class DashboardController implements Initializable, DashboardEventHandler
         System.out.println("🔄 Refreshing current content: " + currentTab);
 
         switch (currentTab) {
-            case "overview":
-                loadOverviewContent();
-                break;
             case "menu":
                 loadMenuContent();
                 break;
@@ -616,10 +607,6 @@ public class DashboardController implements Initializable, DashboardEventHandler
         System.out.println("🔄 Switching to tab: " + tabName);
 
         switch (tabName.toLowerCase()) {
-            case "overview":
-                loadOverviewContent();
-                setActiveTab("overview");
-                break;
             case "menu":
                 loadMenuContent();
                 setActiveTab("menu");
@@ -645,9 +632,7 @@ public class DashboardController implements Initializable, DashboardEventHandler
         return orderPanelRootController;
     }
 
-    public DashboardOverviewController getCurrentOverviewController() {
-        return currentOverviewController;
-    }
+    // Overview controller getter removed - no longer needed
 
     public MenuController getCurrentMenuController() {
         return currentMenuController;
@@ -659,6 +644,34 @@ public class DashboardController implements Initializable, DashboardEventHandler
 
     public String getCurrentUserName() {
         return currentUserName;
+    }
+    
+    /**
+     * Refresh user information from session
+     * Có thể gọi khi user info thay đổi
+     */
+    public void refreshUserInfo() {
+        initializeUserInfo();
+        System.out.println("🔄 User info refreshed in dashboard");
+    }
+    
+    /**
+     * Update user display with new information
+     * @param fullName Tên đầy đủ của user
+     * @param role Vai trò của user
+     */
+    public void updateUserDisplay(String fullName, String role) {
+        if (fullName != null && !fullName.isEmpty()) {
+            currentUserName = fullName;
+            userNameLabel.setText(currentUserName);
+        }
+        
+        if (role != null && !role.isEmpty()) {
+            currentUserRole = role;
+            userRoleLabel.setText(currentUserRole);
+        }
+        
+        System.out.println("👤 User display updated: " + currentUserName + " (" + currentUserRole + ")");
     }
 
     public String getCurrentUserRole() {

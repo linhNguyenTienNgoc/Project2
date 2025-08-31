@@ -7,6 +7,7 @@ import com.cafe.dao.base.UserDAOImpl;
 import com.cafe.model.entity.User;
 import com.cafe.util.PasswordUtil;
 import com.cafe.util.SessionManager;
+import com.cafe.util.CredentialManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -87,6 +88,15 @@ public class LoginController implements Initializable {
         // Clear error khi user typing
         usernameField.textProperty().addListener((obs, oldText, newText) -> clearError());
         passwordField.textProperty().addListener((obs, oldText, newText) -> clearError());
+        
+        // Handle remember me checkbox changes
+        rememberMeCheckBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+            if (!isSelected) {
+                // If unchecked, clear saved credentials immediately
+                CredentialManager.saveFullCredentials("", "", false);
+                System.out.println("🗑️ Remember me unchecked - cleared saved credentials");
+            }
+        });
     }
     
     /**
@@ -99,13 +109,66 @@ public class LoginController implements Initializable {
     }
     
     /**
-     * Tải thông tin đăng nhập đã lưu
+     * Tải thông tin đăng nhập đã lưu (bao gồm cả password)
      */
     private void loadSavedCredentials() {
-        // TODO: Implement remember me functionality
-        // For now, set some default values for testing
+        try {
+            // Thử tải full credentials trước (username + password)
+            CredentialManager.FullCredentials fullCreds = CredentialManager.loadFullCredentials();
+            
+            if (fullCreds != null && fullCreds.isRememberMe()) {
+                if (fullCreds.hasFullCredentials()) {
+                    // Có cả username và password
+                    usernameField.setText(fullCreds.getUsername());
+                    passwordField.setText(fullCreds.getPassword());
+                    rememberMeCheckBox.setSelected(true);
+                    
+                    // Focus vào login button vì đã có đủ thông tin
+                    loginButton.requestFocus();
+                    
+                    System.out.println("✅ Loaded full credentials (username + password)");
+                    return;
+                } else if (fullCreds.hasUsername()) {
+                    // Chỉ có username
+                    usernameField.setText(fullCreds.getUsername());
+                    rememberMeCheckBox.setSelected(true);
+                    
+                    // Focus vào password field
+                    passwordField.requestFocus();
+                    
+                    System.out.println("✅ Loaded username only");
+                    return;
+                }
+            }
+            
+            // Fallback: thử load credentials cũ (chỉ username)
+            CredentialManager.SavedCredentials savedCreds = CredentialManager.loadSavedCredentials();
+            
+            if (savedCreds != null && savedCreds.isRememberMe() && savedCreds.hasUsername()) {
+                usernameField.setText(savedCreds.getUsername());
+                rememberMeCheckBox.setSelected(true);
+                passwordField.requestFocus();
+                
+                System.out.println("✅ Loaded saved credentials (username only)");
+            } else {
+                // Không có thông tin lưu
+                clearCredentialFields();
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error loading saved credentials: " + e.getMessage());
+            clearCredentialFields();
+        }
+    }
+    
+    /**
+     * Clear credential fields and set focus
+     */
+    private void clearCredentialFields() {
         usernameField.setText("");
         passwordField.setText("");
+        rememberMeCheckBox.setSelected(false);
+        usernameField.requestFocus();
     }
     
     /**
@@ -134,7 +197,10 @@ public class LoginController implements Initializable {
                 
                 // Save credentials if remember me is checked
                 if (rememberMeCheckBox.isSelected()) {
-                    saveCredentials(username);
+                    saveCredentials(username, password);
+                } else {
+                    // Clear saved credentials if remember me is unchecked
+                    CredentialManager.saveFullCredentials("", "", false);
                 }
                 
                 showSuccess("Đăng nhập thành công! Chào mừng " + user.getFullName());
@@ -229,11 +295,25 @@ public class LoginController implements Initializable {
     }
     
     /**
-     * Lưu thông tin đăng nhập
+     * Lưu thông tin đăng nhập (bao gồm cả password)
      */
-    private void saveCredentials(String username) {
-        // TODO: Implement save credentials functionality
-        System.out.println("💾 Saving credentials for: " + username);
+    private void saveCredentials(String username, String password) {
+        try {
+            boolean rememberMe = rememberMeCheckBox.isSelected();
+            
+            if (rememberMe && username != null && !username.trim().isEmpty()) {
+                // Lưu cả username và password (mã hóa)
+                CredentialManager.saveFullCredentials(username.trim(), password, true);
+                System.out.println("💾 Saved full credentials (username + password) for: " + username);
+            } else {
+                // Clear credentials if not remembering
+                CredentialManager.saveFullCredentials("", "", false);
+                System.out.println("🗑️ Cleared saved credentials");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error saving credentials: " + e.getMessage());
+        }
     }
     
     /**
@@ -278,5 +358,26 @@ public class LoginController implements Initializable {
             "Quên mật khẩu", 
             "Vui lòng liên hệ quản trị viên để đặt lại mật khẩu!"
         );
+    }
+    
+    /**
+     * Clear saved credentials (có thể gọi từ logout)
+     * Static method để các controller khác có thể gọi
+     */
+    public static void clearRememberedCredentials() {
+        try {
+            CredentialManager.clearSavedCredentials();
+            System.out.println("🗑️ All saved credentials (including passwords) cleared on logout");
+        } catch (Exception e) {
+            System.err.println("❌ Error clearing credentials on logout: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Check if there are saved credentials
+     * Static method để kiểm tra từ bên ngoài
+     */
+    public static boolean hasSavedCredentials() {
+        return CredentialManager.hasSavedCredentials();
     }
 }

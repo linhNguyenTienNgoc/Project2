@@ -9,7 +9,8 @@
             fx:id="dashboardContainer"
             fx:controller="com.cafe.controller.dashboard.DashboardController"
             prefHeight="800.0" prefWidth="1200.0"
-            styleClass="dashboard-container">
+            styleClass="dashboard-container"
+            stylesheets="@../../css/dashboard.css">
 
     <!-- Top Navigation Bar -->
     <top>
@@ -27,8 +28,6 @@
             <!-- Tab Navigation -->
             <HBox fx:id="tabNavigation" spacing="0" alignment="CENTER_LEFT"
                   styleClass="tab-navigation">
-                <Button fx:id="overviewTabButton" text="Tổng quan"
-                        styleClass="tab-button"/>
                 <Button fx:id="menuTabButton" text="Menu"
                         styleClass="tab-button"/>
                 <Button fx:id="tableTabButton" text="Bàn"
@@ -40,17 +39,19 @@
 
     <!-- Center Content -->
     <center>
-        <HBox prefHeight="800.0" prefWidth="1200.0" spacing="0">
+        <HBox prefHeight="800.0" prefWidth="1200.0" spacing="5">
 
-            <!-- Left Content Area (2/3 width) -->
+            <!-- Left Content Area (Dynamic width) -->
             <StackPane fx:id="contentPane" HBox.hgrow="ALWAYS" styleClass="content-pane">
                 <!-- Content will be loaded dynamically here -->
             </StackPane>
 
-            <!-- ✅ RIGHT ORDER PANEL - FIXED INJECTION -->
-            <!-- Change fx:id from "orderPanelRoot" to proper controller injection -->
-            <fx:include source="/fxml/order/order_panel.fxml"
-                        fx:id="orderPanelRoot"/>
+            <!-- RIGHT ORDER PANEL - FIXED WIDTH, FULL HEIGHT -->
+            <VBox prefWidth="350" minWidth="350" maxWidth="350" 
+                  styleClass="order-panel-container" VBox.vgrow="ALWAYS">
+                <fx:include source="/fxml/order/order_panel.fxml"
+                            fx:id="orderPanelRoot" VBox.vgrow="ALWAYS"/>
+            </VBox>
 
         </HBox>
     </center>
