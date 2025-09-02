@@ -155,7 +155,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
 
         // ⚠️ QUAN TRỌNG: Clear cache trước khi set table mới
         if (this.currentTableId != tableId) {
-            clearOrderCache();
+            clearOrderState();
             System.out.println("🔄 Cache cleared for new table selection");
         }
 
@@ -468,6 +468,8 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                     Boolean success = getValue();
                     if (success) {
                         System.out.println("✅ Product added successfully: " + product.getProductName() + " x" + quantity);
+
+                        // ✅ Don't clear cache after adding products - let loadOrderDetails() handle UI updates
 
                         // ✅ Enable auto-update when user actually starts ordering (reserved → occupied)
                         if (skipAutoStatusUpdate) {
@@ -1137,9 +1139,8 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             @Override
             protected void succeeded() {
                 Platform.runLater(() -> {
-                    // ✅ Reset state
-                    currentOrder = null;
-                    currentOrderDetails.clear();
+                    // ✅ Clear cache completely
+                    clearOrderState();
 
                     // ✅ Update table status to available when order is cleared
                     updateTableStatusIfNeeded("available");
@@ -1411,6 +1412,25 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     private void clearOrderCache() {
         System.out.println("🔄 Clearing order cache completely...");
         
+        // Clear order details list
+        currentOrderDetails.clear();
+        
+        // Clear UI forms
+        clearOrderForm();
+        
+        // Clear temporary data
+        clearTempData();
+        
+        // Note: Don't clear currentOrder here - let loadOrderDetails() handle it
+        System.out.println("✅ Order cache cleared completely");
+    }
+    
+    /**
+     * Clear order completely (including currentOrder)
+     */
+    private void clearOrderState() {
+        System.out.println("🔄 Clearing order completely...");
+        
         // Clear current order
         currentOrder = null;
         
@@ -1423,7 +1443,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         // Clear temporary data
         clearTempData();
         
-        System.out.println("✅ Order cache cleared completely");
+        System.out.println("✅ Order cleared completely");
     }
     
     /**

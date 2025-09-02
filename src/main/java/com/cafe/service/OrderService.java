@@ -395,7 +395,9 @@ public class OrderService {
             OrderDAO orderDAO = new OrderDAOImpl(conn);
             OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
+            // ✅ FIXED: Set both order_status and payment_status to 'cancelled' to satisfy constraint
             order.setOrderStatus("cancelled");
+            order.setPaymentStatus("cancelled");
             order.setNotes(reason != null ? reason : "Order cancelled");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 

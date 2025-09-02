@@ -667,7 +667,7 @@ public class PaymentController implements Initializable {
                     });
                 }
                 
-                showSuccess("Thanh toán thành công!");
+                // Note: Success message is shown by OrderPanelController
                 handlePrintReceipt();
                 
                 // Close window after delay
@@ -768,7 +768,7 @@ public class PaymentController implements Initializable {
             String fileName = "receipt_" + currentOrder.getOrderNumber() + "_" + System.currentTimeMillis() + ".pdf";
             String fullPath = System.getProperty("user.home") + "/Downloads/" + fileName;
             System.out.println("✅ Receipt PDF generated at: " + fullPath);
-            showSuccess("Hóa đơn đã được tạo: " + fileName);
+            // Note: Receipt generation is logged to console
         } catch (Exception e) {
             System.err.println("❌ Error generating receipt: " + e.getMessage());
             showError("Không thể tạo hóa đơn");
@@ -877,7 +877,7 @@ public class PaymentController implements Initializable {
             System.out.println("💰 Change: " + String.format("%,.0f VNĐ", response.getChangeAmount()));
         }
         
-        showSuccess("Thanh toán thành công!");
+        // Note: Success message is shown by OrderPanelController
         
         // ✅ NOTIFY OrderPanelController about payment completion
         if (paymentCallback != null) {
@@ -1042,7 +1042,7 @@ public class PaymentController implements Initializable {
         applyPromotionButton.setText("Hủy KM");
         applyPromotionButton.setOnAction(e -> removePromotion());
         
-        showSuccess("Đã áp dụng khuyến mãi: " + formatCurrency(discountAmount));
+        // Note: Promotion application is logged to console
         System.out.println("✅ Applied promotion: " + selectedPromotion.getPromotionName() + 
             " - Discount: " + formatCurrency(discountAmount));
     }
@@ -1061,7 +1061,7 @@ public class PaymentController implements Initializable {
         applyPromotionButton.setText("Áp dụng");
         applyPromotionButton.setOnAction(e -> applySelectedPromotion());
         
-        showSuccess("Đã hủy khuyến mãi");
+        // Note: Promotion removal is logged to console
         System.out.println("✅ Removed promotion");
     }
     
