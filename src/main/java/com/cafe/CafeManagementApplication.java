@@ -5,7 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+
 
 import java.io.IOException;
 import java.util.Objects;
@@ -20,7 +20,7 @@ public class CafeManagementApplication extends Application {
     
     private static final String APP_TITLE = "Cafe Management System v1.0.0";
     private static final String LOGIN_FXML = "/fxml/auth/login.fxml";
-    private static final String TABLE_FXML = "/fxml/screen/table.fxml";
+
     
     private static Stage primaryStage;
     
@@ -98,25 +98,7 @@ public class CafeManagementApplication extends Application {
             e.printStackTrace();
         }
     }
-    public static void showTable() {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(CafeManagementApplication.class.getResource("/fxml/screen/table.fxml"));
 
-            Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
-
-            primaryStage.setTitle(APP_TITLE + " - Table Dashboard");
-            primaryStage.setScene(scene);
-            primaryStage.setResizable(true);
-            primaryStage.setMaximized(true);
-            primaryStage.centerOnScreen();
-
-        } catch (IOException e) {
-            showErrorAlert("Lỗi tải giao diện",
-                    "Không thể tải giao diện Table: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
     /**
      * Hiển thị màn hình Admin Dashboard
      */
