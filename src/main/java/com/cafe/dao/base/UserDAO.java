@@ -11,6 +11,7 @@ public interface UserDAO {
     boolean insertUser(User user);
     boolean updateUser(User user);
     boolean updatePassword(int userId, String newPassword);
+    boolean updateUserImage(int userId, String imageUrl);
     boolean deleteUser(int id);
     List<User> getAllUsers(int offset, int limit);
     int getTotalUserCount();

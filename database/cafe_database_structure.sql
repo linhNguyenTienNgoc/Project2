@@ -55,6 +55,7 @@ CREATE TABLE users (
     phone VARCHAR(20),
     role ENUM('Admin', 'Staff') NOT NULL DEFAULT 'Staff',
     is_active BOOLEAN DEFAULT TRUE,
+    image_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     

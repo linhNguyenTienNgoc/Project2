@@ -91,8 +91,8 @@ File: src/main/resources/fxml/payment/payment.fxml
                     <HBox spacing="10" alignment="CENTER_LEFT">
                         <VBox spacing="5">
                             <Label text="Số điện thoại:" styleClass="customer-label"/>
-                            <TextField fx:id="customerPhoneField" promptText="Nhập SĐT (tùy chọn)..." 
-                                     styleClass="customer-input" prefWidth="140"/>
+                            <ComboBox fx:id="customerPhoneField" promptText="Nhập SĐT (tùy chọn)..." 
+                                     styleClass="customer-input" prefWidth="140" editable="true"/>
                         </VBox>
                         <VBox spacing="5">
                             <Label text="Tên khách hàng:" styleClass="customer-label"/>

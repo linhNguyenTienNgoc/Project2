@@ -1,0 +1,273 @@
+/* ===== USER FORM DIALOG STYLES ===== */
+
+/* Dialog Container */
+.user-form-dialog {
+    -fx-background-color: rgba(255, 255, 255, 0.98);
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 30, 0.4, 0, 10);
+    -fx-border-color: rgba(139, 69, 19, 0.2);
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+    -fx-min-width: 600;
+    -fx-pref-width: 650;
+    -fx-max-width: 700;
+}
+
+/* Form Container */
+.form-container {
+    -fx-background-color: transparent;
+    -fx-padding: 30;
+    -fx-spacing: 25;
+    -fx-alignment: top-center;
+}
+
+/* Form Title */
+.form-title {
+    -fx-text-fill: #8b4513;
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-font-family: "Segoe UI", "SF Pro Display", "Inter", system-ui, sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 2, 0.5, 0, 1);
+    -fx-padding: 0 0 10 0;
+}
+
+/* Form Grid */
+.form-grid {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-hgap: 20;
+    -fx-vgap: 18;
+    -fx-alignment: center;
+}
+
+/* Form Field Labels */
+.form-field-label {
+    -fx-text-fill: #6c4f37;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
+    -fx-padding: 0 0 8 0;
+    -fx-font-family: "Segoe UI", "SF Pro Text", "Inter", system-ui, sans-serif;
+}
+
+/* Form Fields */
+.form-field {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-border-color: rgba(139, 69, 19, 0.3);
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 12 16;
+    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI", "SF Pro Text", "Inter", system-ui, sans-serif;
+    -fx-text-fill: #2d3436;
+    -fx-prompt-text-fill: rgba(108, 79, 55, 0.6);
+    -fx-pref-height: 44;
+    -fx-min-height: 44;
+}
+
+.form-field:focused {
+    -fx-border-color: #d2691e;
+    -fx-border-width: 2;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.3), 12, 0.4, 0, 4);
+    -fx-scale-x: 1.01;
+    -fx-scale-y: 1.01;
+}
+
+.form-field:hover {
+    -fx-border-color: rgba(210, 105, 30, 0.5);
+    -fx-background-color: rgba(255, 255, 255, 1);
+}
+
+/* ComboBox styles removed to prevent conflicts */
+
+/* Help Box */
+.help-box {
+    -fx-background-color: rgba(248, 250, 252, 0.8);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(210, 105, 30, 0.2);
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-padding: 16 20;
+    -fx-spacing: 8;
+    -fx-alignment: top-left;
+}
+
+.help-title {
+    -fx-text-fill: #8b4513;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-font-family: "Segoe UI", "SF Pro Text", "Inter", system-ui, sans-serif;
+    -fx-padding: 0 0 4 0;
+}
+
+.help-text {
+    -fx-text-fill: #6c4f37;
+    -fx-font-size: 13px;
+    -fx-font-weight: 400;
+    -fx-font-family: "Segoe UI", "SF Pro Text", "Inter", system-ui, sans-serif;
+    -fx-padding: 2 0;
+    -fx-wrap-text: true;
+}
+
+/* Dialog Buttons */
+.dialog-button-bar {
+    -fx-background-color: rgba(248, 250, 252, 0.95);
+    -fx-background-radius: 0 0 20 20;
+    -fx-border-color: rgba(232, 220, 198, 0.5);
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 20 30;
+    -fx-spacing: 12;
+    -fx-alignment: center-right;
+}
+
+/* Primary Button (Save) */
+.dialog-button-bar .button[buttonData="OK_DONE"] {
+    -fx-background-color: linear-gradient(135deg, #d2691e 0%, #cd853f 100%);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 14px;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 0;
+    -fx-padding: 12 24;
+    -fx-min-width: 120;
+    -fx-min-height: 40;
+    -fx-font-family: "Segoe UI", "SF Pro Text", "Inter", system-ui, sans-serif;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.3), 8, 0.3, 0, 3);
+}
+
+.dialog-button-bar .button[buttonData="OK_DONE"]:hover {
+    -fx-background-color: linear-gradient(135deg, #ff8c00 0%, #d2691e 50%, #ff7f50 100%);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.6), 20, 0.5, 0, 8);
+}
+
+.dialog-button-bar .button[buttonData="OK_DONE"]:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-background-color: linear-gradient(135deg, #b8860b 0%, #8b4513 100%);
+}
+
+.dialog-button-bar .button[buttonData="OK_DONE"]:disabled {
+    -fx-background-color: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+    -fx-text-fill: #6b7280;
+    -fx-cursor: default;
+    -fx-opacity: 0.6;
+    -fx-effect: none;
+}
+
+/* Secondary Button (Cancel) */
+.dialog-button-bar .button[buttonData="CANCEL_CLOSE"] {
+    -fx-background-color: linear-gradient(135deg, #f4a460 0%, #deb887 100%);
+    -fx-text-fill: #8b4513;
+    -fx-font-weight: 700;
+    -fx-font-size: 14px;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 0;
+    -fx-padding: 12 24;
+    -fx-min-width: 120;
+    -fx-min-height: 40;
+    -fx-font-family: "Segoe UI", "SF Pro Text", "Inter", system-ui, sans-serif;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(244, 164, 96, 0.3), 8, 0.3, 0, 3);
+}
+
+.dialog-button-bar .button[buttonData="CANCEL_CLOSE"]:hover {
+    -fx-background-color: linear-gradient(135deg, #deb887 0%, #cd853f 100%);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(gaussian, rgba(244, 164, 96, 0.6), 16, 0.5, 0, 6);
+}
+
+.dialog-button-bar .button[buttonData="CANCEL_CLOSE"]:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-background-color: linear-gradient(135deg, #cd853f 0%, #8b4513 100%);
+    -fx-text-fill: white;
+}
+
+/* Form Field Groups */
+.form-field-group {
+    -fx-spacing: 8;
+    -fx-padding: 0;
+    -fx-alignment: top-left;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .user-form-dialog {
+        -fx-min-width: 400;
+        -fx-pref-width: 450;
+        -fx-max-width: 500;
+        -fx-background-radius: 16;
+    }
+    
+    .form-container {
+        -fx-padding: 20;
+        -fx-spacing: 20;
+    }
+    
+    .form-title {
+        -fx-font-size: 20px;
+    }
+    
+    .form-grid {
+        -fx-hgap: 15;
+        -fx-vgap: 15;
+    }
+    
+    .form-field {
+        -fx-font-size: 13px;
+        -fx-padding: 10 14;
+        -fx-pref-height: 40;
+        -fx-min-height: 40;
+    }
+    
+    .dialog-button-bar {
+        -fx-padding: 16 20;
+    }
+    
+    .dialog-button-bar .button {
+        -fx-font-size: 13px;
+        -fx-padding: 10 20;
+        -fx-min-width: 100;
+        -fx-min-height: 36;
+    }
+}
+
+/* Animation Effects */
+.form-field {
+    -fx-transition-duration: 0.2s;
+}
+
+.form-field:focused {
+    -fx-transition-duration: 0.2s;
+}
+
+/* Error States */
+.form-field.error {
+    -fx-border-color: #e74c3c;
+    -fx-border-width: 2;
+    -fx-background-color: rgba(231, 76, 60, 0.05);
+}
+
+.form-field.error:focused {
+    -fx-border-color: #c0392b;
+    -fx-effect: dropshadow(gaussian, rgba(231, 76, 60, 0.3), 12, 0.4, 0, 4);
+}
+
+/* Success States */
+.form-field.success {
+    -fx-border-color: #27ae60;
+    -fx-border-width: 2;
+    -fx-background-color: rgba(39, 174, 96, 0.05);
+}
+
+.form-field.success:focused {
+    -fx-border-color: #229954;
+    -fx-effect: dropshadow(gaussian, rgba(39, 174, 96, 0.3), 12, 0.4, 0, 4);
+}

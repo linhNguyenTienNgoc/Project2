@@ -697,37 +697,7 @@
     -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.3), 12, 0.4, 0, 4);
 }
 
-.form-combobox {
-    -fx-background-color: rgba(255, 255, 255, 0.9);
-    -fx-border-color: rgba(139, 69, 19, 0.3);
-    -fx-border-width: 1;
-    -fx-border-radius: 12;
-    -fx-background-radius: 12;
-    -fx-min-height: 44;
-    -fx-pref-height: 44;
-    -fx-font-size: 14px;
-    -fx-font-family: "Segoe UI", "SF Pro Text", system-ui, sans-serif;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 4, 0.3, 0, 2);
-}
-
-.form-combobox:focused {
-    -fx-border-color: #d2691e;
-    -fx-border-width: 2;
-    -fx-background-color: white;
-    -fx-effect: dropshadow(gaussian, rgba(210, 105, 30, 0.3), 12, 0.4, 0, 4);
-}
-
-.form-combobox .arrow-button {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-background-radius: 0 12 12 0;
-}
-
-.form-combobox .arrow {
-    -fx-background-color: #d2691e;
-    -fx-shape: "M 0 3 L 4 7 L 8 3 Z";
-    -fx-scale-shape: true;
-}
+/* ComboBox styles removed to prevent conflicts */
 
 /* ===============================================
  * PRICE FIELDS - Green Currency Styling (Keep Green for Money)
@@ -1067,8 +1037,7 @@
     }
     
     .form-field,
-    .form-text-field,
-    .form-combobox {
+    .form-text-field {
         -fx-font-size: 13px;
         -fx-padding: 12 14;
         -fx-background-radius: 10;
@@ -1111,8 +1080,7 @@
 
 /* Enhanced focus ring for accessibility */
 .form-field:focused,
-.form-textarea:focused,
-.form-combobox:focused {
+.form-textarea:focused {
     -fx-background-insets: -2;
 }
 
@@ -1145,7 +1113,7 @@
 
 /* Progressive enhancement for modern browsers */
 .form-section {
-    -fx-backdrop-filter: blur(10px);
+    /* -fx-backdrop-filter: blur(10px); - Not supported in JavaFX */
 }
 
 /* ===============================================
@@ -1174,8 +1142,7 @@
 /* High contrast mode */
 @media (prefers-contrast: high) {
     .form-field,
-    .form-textarea,
-    .form-combobox {
+    .form-textarea {
         -fx-border-width: 3;
         -fx-border-color: #8b4513;
         -fx-background-color: #ffffff;
@@ -1197,8 +1164,7 @@
 /* Reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
     .form-field:focused,
-    .form-textarea:focused,
-    .form-combobox:focused {
+    .form-textarea:focused {
         -fx-scale-x: 1.0;
         -fx-scale-y: 1.0;
         -fx-translate-y: 0;
@@ -1334,7 +1300,7 @@
 /* Backdrop overlay for modal */
 .modal-backdrop {
     -fx-background-color: rgba(139, 69, 19, 0.4);
-    -fx-backdrop-filter: blur(8px);
+    /* -fx-backdrop-filter: blur(8px); - Not supported in JavaFX */
 }
 
 /* Form dialog with modern elevation */
@@ -1348,15 +1314,16 @@
 
 /* Gradient text effect for titles */
 .section-title {
-    -fx-fill: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);
+    -fx-text-fill: #8b4513; /* Fallback color since JavaFX doesn't support gradient fill */
 }
 
 /* Modern focus indicators with orange theme */
 .form-field:focused,
-.form-textarea:focused,
-.form-combobox:focused {
+.form-textarea:focused {
     -fx-background-insets: 0, -2;
     -fx-background-color: 
         white,
         linear-gradient(from 0% 0% to 100% 100%, #d2691e 0%, #cd853f 100%);
 }
+
+/* ComboBox focused styles removed */

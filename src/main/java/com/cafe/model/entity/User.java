@@ -9,6 +9,7 @@ public class User {
     private String role;
     private boolean isActive;
     private String password;
+    private String imageUrl;
 
     public User() {
     }
@@ -22,6 +23,18 @@ public class User {
         this.phone = phone;
         this.role = role;
         this.isActive = isActive;
+    }
+
+    public User(int userId, String username, String fullName, String email, String phone, String role, boolean isActive, String password, String imageUrl) {
+        this.userId = userId;
+        this.username = username;
+        this.password = password;
+        this.fullName = fullName;
+        this.email = email;
+        this.phone = phone;
+        this.role = role;
+        this.isActive = isActive;
+        this.imageUrl = imageUrl;
     }
 
     public User(int userId, String username, String fullName, String email, String phone, String role, boolean isActive) {
@@ -98,6 +111,14 @@ public class User {
         this.role = role;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -109,6 +130,7 @@ public class User {
                 ", phone='" + phone + '\'' +
                 ", role='" + role + '\'' +
                 ", isActive=" + isActive +
+                ", imageUrl='" + imageUrl + '\'' +
                 '}';
     }
 }

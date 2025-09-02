@@ -15,13 +15,8 @@
     <left>
         <VBox fx:id="sidebar" prefWidth="250" styleClass="sidebar">
             
-            <!-- Logo Section -->
+            <!-- Logo Section (Text Only) -->
             <VBox alignment="CENTER" spacing="10" styleClass="logo-section">
-                <ImageView fitHeight="60" fitWidth="60">
-                    <image>
-                        <Image url="@../../images/logo/nopita-logo.png" />
-                    </image>
-                </ImageView>
                 <VBox alignment="CENTER" spacing="5">
                     <Label text="Nopita Café" styleClass="logo-title" />
                     <Label text="Management System" styleClass="logo-subtitle" />
@@ -31,13 +26,9 @@
             <!-- Navigation Menu -->
             <VBox fx:id="navigationMenu" spacing="5">
                 
-                <!-- Tổng quan -->
-                <Button fx:id="overviewTabButton" text="📊 Tổng quan" 
-                        styleClass="nav-button active" />
-                
                 <!-- Nhân viên -->
                 <Button fx:id="userTabButton" text="👥 Nhân viên"
-                        styleClass="nav-button" />
+                        styleClass="nav-button active" />
                 
                 <!-- Menu -->
                 <Button fx:id="menuTabButton" text="🍽️ Menu"
@@ -59,12 +50,7 @@
                 <Button fx:id="promotionTabButton" text="🎉 Khuyến mãi"
                         styleClass="nav-button" />
                 
-                <!-- Separator -->
-                <Separator styleClass="separator" />
-                
-                <!-- Cài đặt -->
-                <Button fx:id="settingsTabButton" text="⚙️ Cài đặt"
-                        styleClass="nav-button" />
+
             </VBox>
             
             <!-- User Info at bottom -->
@@ -90,116 +76,6 @@
 
                 <!-- Content Pane for Tab Switching -->
                 <StackPane fx:id="contentPane" VBox.vgrow="ALWAYS" styleClass="content-pane">
-                    <!-- Default Overview Content -->
-                    <VBox spacing="25" styleClass="cafe-overview-section">
-                        <!-- Header Section -->
-                        <VBox spacing="10">
-                            <Label text="Dashboard Tổng quan" 
-                                   styleClass="dashboard-title" />
-                            <Label fx:id="currentDateLabel" text="Hôm nay, 21/08/2025" 
-                                   styleClass="date-label" />
-                        </VBox>
-                        
-                        <!-- Welcome Banner -->
-                        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="welcome-banner">
-                            <VBox spacing="5">
-                                <Label text="🎉 Chào mừng trở lại!" styleClass="welcome-title" />
-                                <Label text="Hôm nay là một ngày tuyệt vời để quản lý café của bạn!" styleClass="welcome-subtitle" />
-                                <Label text="✅ Hệ thống hoạt động bình thường" styleClass="cafe-status" />
-                            </VBox>
-                            <Region HBox.hgrow="ALWAYS" />
-                            <VBox alignment="CENTER_RIGHT" spacing="5">
-                                <Label fx:id="currentTimeLabel" text="14:30:25" styleClass="current-time" />
-                                <Label text="Thời gian hiện tại" styleClass="time-label" />
-                            </VBox>
-                        </HBox>
-
-                        <!-- Quick Stats -->
-                        <HBox spacing="20" alignment="CENTER">
-                            <!-- Revenue Today -->
-                            <VBox alignment="CENTER" spacing="8" styleClass="quick-stat-box revenue">
-                                <Label text="💰" styleClass="quick-stat-icon" />
-                                <Label text="Doanh thu hôm nay" styleClass="quick-stat-title" />
-                                <Label fx:id="todayRevenueLabel" text="2,450,000 VNĐ" styleClass="quick-stat-value" />
-                            </VBox>
-
-                            <!-- Tables Status -->
-                            <VBox alignment="CENTER" spacing="8" styleClass="quick-stat-box tables">
-                                <Label text="🪑" styleClass="quick-stat-icon" />
-                                <Label text="Bàn đang sử dụng" styleClass="quick-stat-title" />
-                                <Label fx:id="tablesInUseLabel" text="8/12 bàn" styleClass="quick-stat-value" />
-                            </VBox>
-
-                            <!-- Orders Today -->
-                            <VBox alignment="CENTER" spacing="8" styleClass="quick-stat-box orders">
-                                <Label text="📋" styleClass="quick-stat-icon" />
-                                <Label text="Đơn hàng hôm nay" styleClass="quick-stat-title" />
-                                <Label fx:id="todayOrdersLabel" text="47 đơn" styleClass="quick-stat-value" />
-                            </VBox>
-
-                            <!-- Staff Status -->
-                            <VBox alignment="CENTER" spacing="8" styleClass="quick-stat-box staff">
-                                <Label text="👥" styleClass="quick-stat-icon" />
-                                <Label text="Nhân viên ca này" styleClass="quick-stat-title" />
-                                <Label fx:id="staffOnDutyLabel" text="6/8 người" styleClass="quick-stat-value" />
-                            </VBox>
-                        </HBox>
-
-                        <!-- Quick Actions Section -->
-                        <VBox spacing="15">
-                            <Label text="⚡ Thao tác nhanh" styleClass="section-header" />
-                            <GridPane styleClass="action-grid">
-                                <columnConstraints>
-                                    <ColumnConstraints percentWidth="25" />
-                                    <ColumnConstraints percentWidth="25" />
-                                    <ColumnConstraints percentWidth="25" />
-                                    <ColumnConstraints percentWidth="25" />
-                                </columnConstraints>
-                                
-                                <Button text="👥 Thêm nhân viên" styleClass="action-button success" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                <Button text="🍽️ Thêm món mới" styleClass="action-button primary" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                                <Button text="📊 Xem báo cáo" styleClass="action-button info" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                                <Button text="🎉 Quản lý khuyến mãi" styleClass="action-button warning" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                            </GridPane>
-                        </VBox>
-
-                        <!-- System Administration Section -->
-                        <VBox spacing="15">
-                            <Label text="⚙️ Quản trị hệ thống" styleClass="section-header" />
-                            <GridPane styleClass="action-grid">
-                                <columnConstraints>
-                                    <ColumnConstraints percentWidth="25" />
-                                    <ColumnConstraints percentWidth="25" />
-                                    <ColumnConstraints percentWidth="25" />
-                                    <ColumnConstraints percentWidth="25" />
-                                </columnConstraints>
-                                
-                                <Button text="🔧 Cài đặt hệ thống" styleClass="action-button primary" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                <Button text="💾 Sao lưu dữ liệu" styleClass="action-button success" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                                <Button text="🔄 Khôi phục dữ liệu" styleClass="action-button warning" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                                <Button text="📤 Xuất dashboard" styleClass="action-button info" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                            </GridPane>
-                        </VBox>
-
-                        <!-- Recent Activity Section -->
-                        <VBox spacing="15">
-                            <Label text="🕒 Hoạt động gần đây" styleClass="section-header" />
-                            <VBox styleClass="recent-activity" spacing="10">
-                                <VBox styleClass="activity-item" spacing="5">
-                                    <Label text="👤 Nguyễn Văn A đã thêm món 'Cà phê sữa đá' vào menu" style="-fx-font-weight: bold;" />
-                                    <Label text="2 phút trước • Hệ thống" style="-fx-text-fill: #666; -fx-font-size: 12px;" />
-                                </VBox>
-                                <VBox styleClass="activity-item" spacing="5">
-                                    <Label text="📊 Báo cáo doanh thu tháng 8 đã được tạo" style="-fx-font-weight: bold;" />
-                                    <Label text="15 phút trước • Hệ thống" style="-fx-text-fill: #666; -fx-font-size: 12px;" />
-                                </VBox>
-                                <VBox styleClass="activity-item" spacing="5">
-                                    <Label text="🪑 Bàn số 5 đã được đặt bởi khách hàng VIP" style="-fx-font-weight: bold;" />
-                                    <Label text="1 giờ trước • Hệ thống" style="-fx-text-fill: #666; -fx-font-size: 12px;" />
-                                </VBox>
-                            </VBox>
-                        </VBox>
-                    </VBox>
                 </StackPane>
             </VBox>
         </ScrollPane>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<DialogPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cafe.controller.admin.UserFormDialogController" stylesheets="@../../css/user-form-dialog.css" styleClass="user-form-dialog">
+   <content>
+      <VBox spacing="20" styleClass="form-container" prefWidth="600" maxWidth="600">
+         
+         <!-- Form Header -->
+         <HBox alignment="CENTER_LEFT" spacing="12">
+            <Label fx:id="formTitleLabel" text="✨ Thêm nhân viên mới" styleClass="form-title"/>
+         </HBox>
+      
+         
+         <!-- Form Content Grid -->
+         <GridPane hgap="15" vgap="12" styleClass="form-grid">
+            <columnConstraints>
+               <ColumnConstraints percentWidth="50"/>
+               <ColumnConstraints percentWidth="50"/>
+            </columnConstraints>
+
+            <!-- Row 1: Full Name & Username -->
+            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+               <Label text="👤 Họ và tên *" styleClass="form-field-label"/>
+               <TextField fx:id="fullNameField" promptText="Nguyễn Văn A..." styleClass="form-field"/>
+            </VBox>
+            
+            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+               <Label text="🏷 Username *" styleClass="form-field-label"/>
+               <TextField fx:id="usernameField" promptText="username..." styleClass="form-field"/>
+            </VBox>
+
+            <!-- Row 2: Email & Phone -->
+            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
+               <Label text="📧 Email *" styleClass="form-field-label"/>
+               <TextField fx:id="emailField" promptText="example@email.com" styleClass="form-field"/>
+            </VBox>
+            
+            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <Label text="📱 Số điện thoại *" styleClass="form-field-label"/>
+               <TextField fx:id="phoneField" promptText="0123456789" styleClass="form-field"/>
+            </VBox>
+
+            <!-- Row 3: Password & Confirm Password -->
+            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2">
+               <Label text="🔐 Mật khẩu *" styleClass="form-field-label"/>
+               <PasswordField fx:id="passwordField" promptText="••••••••" styleClass="form-field"/>
+            </VBox>
+            
+            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <Label text="🔐 Xác nhận mật khẩu *" styleClass="form-field-label"/>
+               <PasswordField fx:id="confirmPasswordField" promptText="••••••••" styleClass="form-field"/>
+            </VBox>
+
+            <!-- Row 4: Role & Status -->
+            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="3">
+               <Label text="👨‍💼 Vai trò *" styleClass="form-field-label"/>
+               <ComboBox fx:id="roleCombo" prefWidth="220"/>
+            </VBox>
+            
+            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="3">
+               <Label text="📄 Trạng thái *" styleClass="form-field-label"/>
+               <ComboBox fx:id="statusCombo" prefWidth="220"/>
+            </VBox>
+         </GridPane>
+         
+         <!-- Form Help Text -->
+         <VBox spacing="4" styleClass="help-box">
+            <Label text="💡 Lưu ý quan trọng:" styleClass="help-title"/>
+            <Label text="• Username phải từ 3-50 ký tự, chỉ chứa chữ cái, số và dấu gạch dưới" styleClass="help-text"/>
+            <Label text="• Mật khẩu tối thiểu 6 ký tự, nên kết hợp chữ hoa, thường, số và ký tự đặc biệt" styleClass="help-text"/>
+            <Label text="• Email sẽ được sử dụng để gửi thông báo và khôi phục mật khẩu" styleClass="help-text"/>
+         </VBox>
+      </VBox>
+   </content>
+   <buttonTypes>
+      <ButtonType text="💾 Lưu thông tin" buttonData="OK_DONE" />
+      <ButtonType text="⌫ Hủy bỏ" buttonData="CANCEL_CLOSE" />
+   </buttonTypes>
+</DialogPane>

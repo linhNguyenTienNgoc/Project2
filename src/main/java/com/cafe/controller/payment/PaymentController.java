@@ -10,6 +10,8 @@ import com.cafe.service.PaymentService;
 import com.cafe.service.ReceiptService;
 import com.cafe.service.PromotionService;
 import com.cafe.service.QRCodeService;
+import com.cafe.service.CustomerService;
+import com.cafe.model.entity.Customer;
 import com.cafe.util.PaymentValidator;
 import com.cafe.util.PriceFormatter;
 
@@ -146,7 +148,7 @@ public class PaymentController implements Initializable {
     
     // Customer Information Section
     @FXML private TextField customerNameField;
-    @FXML private TextField customerPhoneField;
+    @FXML private ComboBox<String> customerPhoneField;
     
     // Action Buttons
     @FXML private Button cancelButton;
@@ -161,6 +163,7 @@ public class PaymentController implements Initializable {
     private ReceiptService receiptService;
     private PromotionService promotionService; // ✅ NEW
     private QRCodeService qrCodeService; // ✅ NEW
+    private CustomerService customerService; // ✅ NEW
     
     // Payment callback
     private PaymentCompletionCallback paymentCallback;
@@ -171,6 +174,7 @@ public class PaymentController implements Initializable {
     private String currentTableName;
     private ObservableList<OrderDetail> orderItems = FXCollections.observableArrayList();
     private ObservableList<Promotion> availablePromotions = FXCollections.observableArrayList(); // ✅ NEW
+    private ObservableList<String> phoneSuggestions = FXCollections.observableArrayList(); // ✅ NEW
     
     // Calculation Properties
     private DoubleProperty subtotalProperty = new SimpleDoubleProperty(0);
@@ -290,6 +294,7 @@ public class PaymentController implements Initializable {
         this.receiptService = new ReceiptService();
         this.promotionService = new PromotionService(); // ✅ NEW
         this.qrCodeService = new QRCodeService(); // ✅ NEW
+        this.customerService = new CustomerService(); // ✅ NEW
     }
     
     private void setupTableView() {
@@ -377,12 +382,28 @@ public class PaymentController implements Initializable {
     private void setupCustomerFields() {
         // Bind customer properties to fields
         customerNameField.textProperty().bindBidirectional(customerNameProperty);
-        customerPhoneField.textProperty().bindBidirectional(customerPhoneProperty);
+        
+        // Setup phone ComboBox
+        customerPhoneField.setItems(phoneSuggestions);
+        customerPhoneField.setEditable(true);
+        
+        // Bind phone property to ComboBox value
+        customerPhoneField.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                customerPhoneProperty.set(newVal.trim());
+                searchCustomerByPhone(newVal.trim());
+            }
+        });
         
         // Setup phone field listener for auto-fill customer name and auto-save new customer
-        customerPhoneField.textProperty().addListener((obs, oldVal, newVal) -> {
+        customerPhoneField.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.trim().isEmpty()) {
+                customerPhoneProperty.set(newVal.trim());
                 searchCustomerByPhone(newVal.trim());
+            } else {
+                customerPhoneProperty.set("");
+                customerNameProperty.set("");
+                phoneSuggestions.clear();
             }
         });
         
@@ -399,6 +420,8 @@ public class PaymentController implements Initializable {
     private void clearCustomerFields() {
         customerNameProperty.set("");
         customerPhoneProperty.set("");
+        phoneSuggestions.clear();
+        customerPhoneField.setValue(null);
     }
     
     /**
@@ -428,28 +451,105 @@ public class PaymentController implements Initializable {
      * Check if customer exists by phone
      */
     private boolean isExistingCustomer(String phone) {
-        // TODO: Implement database check
-        // For now, return false to allow auto-save
-        return false;
+        try {
+            return customerService.findCustomerByPhone(phone).isPresent();
+        } catch (Exception e) {
+            System.err.println("❌ Error checking existing customer: " + e.getMessage());
+            return false; // Default to false to allow creation
+        }
     }
     
     /**
      * Save new customer to database
      */
     private void saveNewCustomer(String name, String phone) {
-        // TODO: Implement database save
-        System.out.println("💾 Saving new customer: " + name + " - " + phone);
+        try {
+            Customer newCustomer = new Customer();
+            newCustomer.setFullName(name);
+            newCustomer.setPhone(phone);
+            newCustomer.setEmail(null); // Set to null instead of empty string to avoid duplicate key error
+            newCustomer.setAddress(null); // Set to null instead of empty string
+            newCustomer.setLoyaltyPoints(0); // Start with 0 points
+            newCustomer.setTotalSpent(0.0); // Start with 0 spent
+            newCustomer.setActive(true); // Active by default
+            
+            boolean success = customerService.createCustomer(newCustomer);
+            if (success) {
+                System.out.println("✅ Successfully saved new customer: " + name + " - " + phone);
+            } else {
+                System.err.println("❌ Failed to save new customer: " + name + " - " + phone);
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error saving new customer: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     private void searchCustomerByPhone(String phone) {
-        // TODO: Implement customer search by phone
-        // This would typically query the database
-        System.out.println("🔍 Searching customer by phone: " + phone);
-        
-        // For now, just show a placeholder
-        if (phone.length() >= 10) {
-            // Simulate finding customer
-            customerNameProperty.set("Khách hàng " + phone.substring(phone.length() - 4));
+        try {
+            System.out.println("🔍 Searching customer by phone: " + phone);
+            
+            if (phone.length() >= 3) { // Start searching from 3 digits
+                // Search for customers with similar phone numbers
+                List<Customer> matchingCustomers = searchCustomersByPhonePattern(phone);
+                
+                if (!matchingCustomers.isEmpty()) {
+                    // Update phone suggestions dropdown
+                    List<String> phoneNumbers = matchingCustomers.stream()
+                            .map(Customer::getPhone)
+                            .collect(java.util.stream.Collectors.toList());
+                    phoneSuggestions.setAll(phoneNumbers);
+                    
+                    if (matchingCustomers.size() == 1) {
+                        // Exact match or single result - auto-fill
+                        Customer customer = matchingCustomers.get(0);
+                        customerNameProperty.set(customer.getFullName());
+                        System.out.println("✅ Found existing customer: " + customer.getFullName());
+                    } else {
+                        // Multiple matches - show first one but indicate there are more
+                        Customer customer = matchingCustomers.get(0);
+                        customerNameProperty.set(customer.getFullName() + " (+" + (matchingCustomers.size() - 1) + " khác)");
+                        System.out.println("✅ Found " + matchingCustomers.size() + " matching customers, showing: " + customer.getFullName());
+                    }
+                } else if (phone.length() >= 10) {
+                    // No matches found, auto-generate placeholder name for new customer
+                    phoneSuggestions.clear();
+                    customerNameProperty.set("Khách hàng " + phone.substring(phone.length() - 4));
+                    System.out.println("ℹ️ New customer detected, placeholder name set");
+                } else {
+                    // Clear name field and suggestions if phone is too short
+                    customerNameProperty.set("");
+                    phoneSuggestions.clear();
+                }
+            } else {
+                // Clear name field and suggestions if phone is too short
+                customerNameProperty.set("");
+                phoneSuggestions.clear();
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error searching customer by phone: " + e.getMessage());
+            // Fallback to placeholder
+            if (phone.length() >= 10) {
+                customerNameProperty.set("Khách hàng " + phone.substring(phone.length() - 4));
+            }
+            phoneSuggestions.clear();
+        }
+    }
+    
+    /**
+     * Search customers by phone pattern (partial match)
+     */
+    private List<Customer> searchCustomersByPhonePattern(String phonePattern) {
+        try {
+            List<Customer> allCustomers = customerService.getAllCustomers();
+            return allCustomers.stream()
+                    .filter(customer -> customer.getPhone() != null && 
+                            customer.getPhone().contains(phonePattern))
+                    .limit(5) // Limit to 5 results for performance
+                    .collect(java.util.stream.Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("❌ Error searching customers by phone pattern: " + e.getMessage());
+            return List.of();
         }
     }
     

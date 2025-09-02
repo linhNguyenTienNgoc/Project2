@@ -8,6 +8,7 @@ import com.cafe.model.entity.User;
 import com.cafe.util.AlertUtils;
 import com.cafe.util.PasswordUtil;
 import com.cafe.util.ValidationUtils;
+import com.cafe.controller.admin.UserFormDialogController;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -20,8 +21,19 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Region;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ButtonBar;
+import javafx.util.Pair;
+import javafx.fxml.FXMLLoader;
 import javafx.util.Callback;
 import javafx.geometry.Pos;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
+import java.io.File;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -52,7 +64,7 @@ public class AdminUserController implements Initializable, DashboardCommunicator
     @FXML private Button addUserButton;
     @FXML private Button editUserButton;
     @FXML private Button deleteUserButton;
-    @FXML private Button exportButton;
+
 
     // =====================================================
     // FXML COMPONENTS - User Table
@@ -67,46 +79,40 @@ public class AdminUserController implements Initializable, DashboardCommunicator
     @FXML private TableColumn<User, String> roleColumn;
     @FXML private TableColumn<User, String> statusColumn;
     @FXML private TableColumn<User, String> createdAtColumn;
-    @FXML private TableColumn<User, Void> actionsColumn;
 
     // =====================================================
-    // FXML COMPONENTS - Statistics
+    // FXML COMPONENTS - Statistics & Status
     // =====================================================
     
     @FXML private Label totalUsersLabel;
     @FXML private Label activeUsersLabel;
     @FXML private Label adminUsersLabel;
     @FXML private Label staffUsersLabel;
-    
-    // =====================================================
-    // FXML COMPONENTS - Quick Stats & Status
-    // =====================================================
-    
     @FXML private Label totalStaffLabel;
     @FXML private Label activeStaffLabel;
     @FXML private Label resultCountLabel;
-    @FXML private Label statusLabel;
-    @FXML private Label lastUpdateLabel;
 
     // =====================================================
-    // FXML COMPONENTS - Form Section
+    // FXML COMPONENTS - Right Panel Preview
     // =====================================================
     
-    @FXML private VBox userFormSection;
-    @FXML private VBox userFormOverlay;
-    @FXML private TextField usernameField;
-    @FXML private TextField fullNameField;
-    @FXML private TextField emailField;
-    @FXML private TextField phoneField;
-    @FXML private PasswordField passwordField;
-    @FXML private PasswordField confirmPasswordField;
-    @FXML private ComboBox<String> roleCombo;
-    @FXML private ComboBox<String> statusCombo;
-    @FXML private Button saveUserButton;
-    @FXML private Button cancelButton;
-    @FXML private Button resetFormButton;
-    @FXML private Button closeFormButton;
-    @FXML private Label formTitleLabel;
+    @FXML private ImageView userAvatarView;
+    @FXML private Button changeAvatarButton;
+    @FXML private Label previewFullName;
+    @FXML private Label previewUsername;
+    @FXML private Label previewRole;
+    @FXML private Label previewEmail;
+    @FXML private Label previewPhone;
+    @FXML private Label previewStatus;
+    @FXML private TextArea previewNotes;
+    @FXML private Label previewCreatedDate;
+    @FXML private Button resetPasswordButton;
+    @FXML private Button toggleStatusButton;
+    
+    // =====================================================
+    // FXML COMPONENTS - Form Section (for dialogs)
+    // =====================================================
+    // Form components are now handled by UserFormDialogController
 
     // =====================================================
     // STATE MANAGEMENT
@@ -126,9 +132,8 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         try {
             setupUserTable();
             setupFilters();
-            setupForm();
             setupEventHandlers();
-            setupValidation();
+            setupPreviewPanel();
             
             // Load initial data
             loadUsers();
@@ -153,7 +158,11 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         fullNameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
         phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
-        roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
+        roleColumn.setCellValueFactory(cellData -> {
+            String role = cellData.getValue().getRole();
+            System.out.println("🔍 Role for user " + cellData.getValue().getUsername() + ": '" + role + "'");
+            return new javafx.beans.property.SimpleStringProperty(role != null ? role : "STAFF");
+        });
         
         // Status column với custom cell factory
         statusColumn.setCellValueFactory(cellData -> {
@@ -165,17 +174,8 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         createdAtColumn.setCellValueFactory(cellData -> 
             new javafx.beans.property.SimpleStringProperty("N/A"));
 
-        // Setup actions column
-        setupActionsColumn();
-
         // *** SỬ DỤNG CONSTRAINED_RESIZE_POLICY TRUYỀN THỐNG ***
         userTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        
-        // *** THIẾT LẬP FIXED WIDTH CHO CỘT ACTIONS ***
-        actionsColumn.setResizable(false);
-        actionsColumn.setPrefWidth(120);
-        actionsColumn.setMinWidth(120);
-        actionsColumn.setMaxWidth(120);
         
         // *** THIẾT LẬP TỶ LỆ CHO CÁC CỘT KHÁC ***
         // Tổng tỷ lệ = 100%, trừ đi 120px cho actions column
@@ -230,8 +230,10 @@ public class AdminUserController implements Initializable, DashboardCommunicator
             deleteUserButton.setDisable(!hasSelection);
             
             if (newSelection != null) {
-                populateForm(newSelection);
+                updatePreviewPanel(newSelection);
                 System.out.println("Selected user: " + newSelection.getFullName());
+            } else {
+                updatePreviewPanel(null);
             }
         });
 
@@ -240,7 +242,7 @@ public class AdminUserController implements Initializable, DashboardCommunicator
             TableRow<User> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    showEditUserForm(row.getItem());
+                    showEditUserDialog(row.getItem());
                 }
             });
             return row;
@@ -350,66 +352,12 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         }
     }
 
-    // *** UPDATE PHƯƠNG THỨC setupActionsColumn() ĐỂ COMPACT HỢN ***
-    private void setupActionsColumn() {
-        actionsColumn.setCellFactory(col -> new TableCell<User, Void>() {
-            private final HBox actionBox = new HBox(2); // Giảm spacing
-            private final Button editButton = new Button("✏");
-            private final Button deleteButton = new Button("🗑");
-            private final Button resetPasswordButton = new Button("🔒");
 
-            {
-                // Style buttons với kích thước nhỏ gọn
-                editButton.getStyleClass().add("table-btn-warning");
-                deleteButton.getStyleClass().add("table-btn-danger");
-                resetPasswordButton.getStyleClass().add("table-btn-info");
-                
-                // Set kích thước cố định
-                editButton.setPrefSize(28, 24);
-                deleteButton.setPrefSize(28, 24);
-                resetPasswordButton.setPrefSize(28, 24);
-
-                // Tooltips
-                editButton.setTooltip(new Tooltip("Sửa"));
-                deleteButton.setTooltip(new Tooltip("Xóa"));
-                resetPasswordButton.setTooltip(new Tooltip("Reset"));
-
-                // Event handlers
-                editButton.setOnAction(e -> {
-                    User user = getTableView().getItems().get(getIndex());
-                    showEditUserForm(user);
-                });
-
-                deleteButton.setOnAction(e -> {
-                    User user = getTableView().getItems().get(getIndex());
-                    deleteUser(user);
-                });
-
-                resetPasswordButton.setOnAction(e -> {
-                    User user = getTableView().getItems().get(getIndex());
-                    resetPassword(user);
-                });
-
-                actionBox.getChildren().addAll(editButton, deleteButton, resetPasswordButton);
-                actionBox.setAlignment(javafx.geometry.Pos.CENTER);
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(actionBox);
-                }
-            }
-        });
-    }
 
     private void setupFilters() {
         // Role filter
         roleFilterCombo.setItems(FXCollections.observableArrayList(
-            "Tất cả", "ADMIN", "MANAGER", "STAFF", "CASHIER", "WAITER", "BARISTA"
+            "Tất cả", "ADMIN", "STAFF"
         ));
         roleFilterCombo.setValue("Tất cả");
 
@@ -420,25 +368,30 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         statusFilterCombo.setValue("Tất cả");
     }
 
-    private void setupForm() {
-        // Role combo for form
-        roleCombo.setItems(FXCollections.observableArrayList(
-            "ADMIN", "MANAGER", "STAFF", "CASHIER", "WAITER", "BARISTA"
-        ));
-        roleCombo.setValue("STAFF");
 
-        // Status combo for form
-        statusCombo.setItems(FXCollections.observableArrayList(
-            "ACTIVE", "INACTIVE"
-        ));
-        statusCombo.setValue("ACTIVE");
 
-        // Initially hide form overlay
-        userFormOverlay.setVisible(false);
-        userFormOverlay.setManaged(false);
+    private void setupPreviewPanel() {
+        // Setup preview panel components
+        previewFullName.setText("Chưa chọn nhân viên");
+        previewUsername.setText("-");
+        previewRole.setText("-");
+        previewEmail.setText("-");
+        previewPhone.setText("-");
+        previewStatus.setText("-");
+        previewNotes.setText("Chưa có ghi chú");
+        previewCreatedDate.setText("-");
         
-        // Set initial form title
-        formTitleLabel.setText("✨ Thêm nhân viên mới");
+        // Setup preview panel event handlers
+        changeAvatarButton.setOnAction(e -> changeUserAvatar());
+        resetPasswordButton.setOnAction(e -> {
+            User selectedUser = userTable.getSelectionModel().getSelectedItem();
+            if (selectedUser != null) {
+                resetPassword(selectedUser);
+            } else {
+                AlertUtils.showWarning("Cảnh báo", "Vui lòng chọn một nhân viên để đổi mật khẩu");
+            }
+        });
+        toggleStatusButton.setOnAction(e -> toggleUserStatus());
     }
 
     private void setupEventHandlers() {
@@ -449,11 +402,11 @@ public class AdminUserController implements Initializable, DashboardCommunicator
 
         // Button handlers
         refreshButton.setOnAction(e -> loadUsers());
-        addUserButton.setOnAction(e -> showAddUserForm());
+        addUserButton.setOnAction(e -> showAddUserDialog());
         editUserButton.setOnAction(e -> {
             User selectedUser = userTable.getSelectionModel().getSelectedItem();
             if (selectedUser != null) {
-                showEditUserForm(selectedUser);
+                showEditUserDialog(selectedUser);
             }
         });
         deleteUserButton.setOnAction(e -> {
@@ -462,34 +415,27 @@ public class AdminUserController implements Initializable, DashboardCommunicator
                 deleteUser(selectedUser);
             }
         });
-        exportButton.setOnAction(e -> exportUsers());
-
-        // Form button handlers
-        saveUserButton.setOnAction(e -> saveUser());
-        cancelButton.setOnAction(e -> hideFormOverlay());
-        resetFormButton.setOnAction(e -> resetForm());
     }
 
-    private void setupValidation() {
-        // Real-time validation for form fields
-        usernameField.textProperty().addListener((obs, oldText, newText) -> validateUsername());
-        emailField.textProperty().addListener((obs, oldText, newText) -> validateEmail());
-        phoneField.textProperty().addListener((obs, oldText, newText) -> validatePhone());
-        passwordField.textProperty().addListener((obs, oldText, newText) -> validatePassword());
-        confirmPasswordField.textProperty().addListener((obs, oldText, newText) -> validateConfirmPassword());
-    }
+
 
     // =====================================================
     // DATA OPERATIONS
     // =====================================================
 
     private void loadUsers() {
+        System.out.println("🔄 Loading users...");
         Task<List<User>> loadTask = new Task<List<User>>() {
             @Override
             protected List<User> call() throws Exception {
                 try (Connection connection = DatabaseConfig.getConnection()) {
                     UserDAO dao = new UserDAOImpl(connection);
-                    return dao.getAllUsers();
+                    List<User> users = dao.getAllUsers();
+                    System.out.println("📊 Loaded " + users.size() + " users from database");
+                    for (User user : users) {
+                        System.out.println("  - " + user.getUsername() + " (" + user.getRole() + ")");
+                    }
+                    return users;
                 }
             }
 
@@ -499,6 +445,7 @@ public class AdminUserController implements Initializable, DashboardCommunicator
                     userList.clear();
                     if (getValue() != null) {
                         userList.addAll(getValue());
+                        System.out.println("✅ Added " + getValue().size() + " users to table");
                     }
                     filterUsers();
                     updateStatistics();
@@ -529,6 +476,9 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         String roleFilter = roleFilterCombo.getValue();
         String statusFilter = statusFilterCombo.getValue();
 
+        System.out.println("🔍 Filtering users - Search: '" + searchText + "', Role: '" + roleFilter + "', Status: '" + statusFilter + "'");
+        System.out.println("📋 Total users in list: " + userList.size());
+
         filteredUserList.clear();
 
         for (User user : userList) {
@@ -549,11 +499,18 @@ public class AdminUserController implements Initializable, DashboardCommunicator
 
             if (matchesSearch && matchesRole && matchesStatus) {
                 filteredUserList.add(user);
+                System.out.println("  ✅ Added: " + user.getUsername() + " (" + user.getRole() + ", " + (user.isActive() ? "ACTIVE" : "INACTIVE") + ")");
+            } else {
+                System.out.println("  ❌ Filtered out: " + user.getUsername() + " (search:" + matchesSearch + ", role:" + matchesRole + ", status:" + matchesStatus + ")");
             }
         }
         
+        System.out.println("📊 Filtered result: " + filteredUserList.size() + " users");
+        
         // Cập nhật số lượng kết quả
+        if (resultCountLabel != null) {
         resultCountLabel.setText("Hiển thị " + filteredUserList.size() + " / " + userList.size() + " nhân viên");
+        }
     }
 
     private void updateStatistics() {
@@ -562,65 +519,324 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         long admins = userList.stream().filter(u -> "ADMIN".equals(u.getRole())).count();
         long staff = userList.stream().filter(u -> "STAFF".equals(u.getRole())).count();
 
-        // Cập nhật các label thống kê cũ
-        totalUsersLabel.setText(String.valueOf(total));
-        activeUsersLabel.setText(String.valueOf(active));
-        adminUsersLabel.setText(String.valueOf(admins));
-        staffUsersLabel.setText(String.valueOf(staff));
-        
-        // Cập nhật quick stats mới
-        totalStaffLabel.setText(String.valueOf(total));
-        activeStaffLabel.setText(String.valueOf(active));
-        
-        // Cập nhật thời gian
-        lastUpdateLabel.setText("Cập nhật lần cuối: " + 
-            java.time.LocalDateTime.now().format(
-                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+        // Cập nhật các label thống kê
+        if (totalUsersLabel != null) totalUsersLabel.setText(String.valueOf(total));
+        if (activeUsersLabel != null) activeUsersLabel.setText(String.valueOf(active));
+        if (adminUsersLabel != null) adminUsersLabel.setText(String.valueOf(admins));
+        if (staffUsersLabel != null) staffUsersLabel.setText(String.valueOf(staff));
+        if (totalStaffLabel != null) totalStaffLabel.setText(String.valueOf(total));
+        if (activeStaffLabel != null) activeStaffLabel.setText(String.valueOf(active));
     }
 
     // =====================================================
-    // FORM OPERATIONS
+    // PREVIEW PANEL OPERATIONS
     // =====================================================
 
+    private void updatePreviewPanel(User user) {
+        if (user != null) {
+            System.out.println("👤 Updating preview for user: " + user.getFullName() + " (ID: " + user.getUserId() + ")");
+            System.out.println("📷 User imageUrl: " + user.getImageUrl());
+            
+            previewFullName.setText(user.getFullName());
+            previewUsername.setText(user.getUsername());
+            previewRole.setText(user.getRole());
+            previewEmail.setText(user.getEmail() != null ? user.getEmail() : "-");
+            previewPhone.setText(user.getPhone() != null ? user.getPhone() : "-");
+            previewStatus.setText(user.isActive() ? "ACTIVE" : "INACTIVE");
+            previewNotes.setText("Chưa có ghi chú"); // Placeholder
+            previewCreatedDate.setText("N/A"); // Placeholder
+            
+            // Load user image
+            loadUserImage(user.getImageUrl());
+        } else {
+            previewFullName.setText("Chưa chọn nhân viên");
+            previewUsername.setText("-");
+            previewRole.setText("-");
+            previewEmail.setText("-");
+            previewPhone.setText("-");
+            previewStatus.setText("-");
+            previewNotes.setText("Chưa có ghi chú");
+            previewCreatedDate.setText("-");
+            
+            // Load default image
+            loadDefaultUserImage();
+        }
+    }
+
     @FXML
-    private void showAddUserForm() {
+    private void showAddUserDialog() {
         currentEditingUser = null;
-        formTitleLabel.setText("✨ Thêm nhân viên mới");
-        resetForm();
-        showFormOverlay();
-        usernameField.requestFocus();
+        showFormDialog();
     }
 
-    @FXML
-    private void hideUserForm() {
-        hideFormOverlay();
-    }
-
-    private void resetForm() {
-        usernameField.clear();
-        fullNameField.clear();
-        emailField.clear();
-        phoneField.clear();
-        passwordField.clear();
-        confirmPasswordField.clear();
-        roleCombo.setValue("STAFF");
-        statusCombo.setValue("ACTIVE");
-        
-        clearValidationStyles();
-    }
-
-    private void populateForm(User user) {
+    private void showEditUserDialog(User user) {
         currentEditingUser = user;
-        usernameField.setText(user.getUsername());
-        fullNameField.setText(user.getFullName());
-        emailField.setText(user.getEmail());
-        phoneField.setText(user.getPhone());
-        roleCombo.setValue(user.getRole());
-        statusCombo.setValue(user.isActive() ? "ACTIVE" : "INACTIVE");
+        showFormDialog();
+    }
+    
+    private void showFormDialog() {
+        try {
+            // Load dialog FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/user-form-dialog.fxml"));
+            DialogPane dialogPane = loader.load();
+            
+            // Get the dialog controller
+            UserFormDialogController dialogController = loader.getController();
+            
+            // Create dialog
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setDialogPane(dialogPane);
+            dialog.setTitle(currentEditingUser == null ? "Thêm nhân viên mới" : "Sửa thông tin nhân viên");
+            dialog.setResizable(true);
+            
+            // Setup form in dialog controller
+            dialogController.setCurrentEditingUser(currentEditingUser);
+            
+            // Set result converter
+            dialog.setResultConverter(buttonType -> {
+                if (buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                    return ButtonType.OK;
+                }
+                return null;
+            });
+            
+            // Show dialog and wait for result
+            ButtonType result = dialog.showAndWait().orElse(null);
+            
+            if (result == ButtonType.OK) {
+                // Get form data from dialog controller
+                User userData = dialogController.getFormData();
+                if (userData != null) {
+                    saveUserData(userData);
+                }
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtils.showError("Lỗi", "Không thể hiển thị form: " + e.getMessage());
+        }
+    }
+    
+
+    
+    private void saveUserData(User userData) {
+        Task<Boolean> saveTask = new Task<Boolean>() {
+                @Override
+                protected Boolean call() throws Exception {
+                    try (Connection connection = DatabaseConfig.getConnection()) {
+                        UserDAO dao = new UserDAOImpl(connection);
+                    
+                    if (currentEditingUser == null) {
+                        return dao.insertUser(userData);
+                    } else {
+                        return dao.updateUser(userData);
+                    }
+                    }
+                }
+
+                @Override
+                protected void succeeded() {
+                    Platform.runLater(() -> {
+                        if (getValue()) {
+                        AlertUtils.showInfo("Thành công", 
+                            currentEditingUser == null ? "Đã thêm người dùng mới" : "Đã cập nhật người dùng");
+                        loadUsers();
+                        } else {
+                        AlertUtils.showError("Lỗi", "Không thể lưu thông tin người dùng");
+                        }
+                    });
+                }
+
+                @Override
+                protected void failed() {
+                    Platform.runLater(() -> {
+                    AlertUtils.showError("Lỗi", "Lỗi khi lưu người dùng: " + getException().getMessage());
+                    });
+                }
+            };
+
+        new Thread(saveTask).start();
+    }
+    
+
+    
+
+
+    private void changeUserAvatar() {
+        User selectedUser = userTable.getSelectionModel().getSelectedItem();
+        if (selectedUser == null) {
+            AlertUtils.showWarning("Cảnh báo", "Vui lòng chọn một nhân viên để đổi ảnh đại diện");
+            return;
+        }
         
-        // Clear password fields for editing
-        passwordField.clear();
-        confirmPasswordField.clear();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Chọn ảnh đại diện cho " + selectedUser.getFullName());
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+
+        // Get current window
+        Window window = userTable.getScene().getWindow();
+        File selectedFile = fileChooser.showOpenDialog(window);
+
+        if (selectedFile != null) {
+            String imageUrl = selectedFile.toURI().toString();
+            
+            // Update user image in database
+            Task<Boolean> updateTask = new Task<Boolean>() {
+                    @Override
+                    protected Boolean call() throws Exception {
+                        try (Connection connection = DatabaseConfig.getConnection()) {
+                            UserDAO dao = new UserDAOImpl(connection);
+                        return dao.updateUserImage(selectedUser.getUserId(), imageUrl);
+                        }
+                    }
+
+                    @Override
+                    protected void succeeded() {
+                        Platform.runLater(() -> {
+                            if (getValue()) {
+                            // Update user object
+                            selectedUser.setImageUrl(imageUrl);
+                            
+                            // Update preview image
+                            loadUserImage(imageUrl);
+                            
+                            // Refresh table to show updated data
+                            loadUsers();
+                            
+                            AlertUtils.showInfo("Thành công", "Đã cập nhật ảnh đại diện cho " + selectedUser.getFullName());
+                            } else {
+                            AlertUtils.showError("Lỗi", "Không thể cập nhật ảnh đại diện");
+                            }
+                        });
+                    }
+
+                    @Override
+                    protected void failed() {
+                        Platform.runLater(() -> {
+                        AlertUtils.showError("Lỗi", "Lỗi khi cập nhật ảnh: " + getException().getMessage());
+                        });
+                    }
+                };
+
+            new Thread(updateTask).start();
+        }
+    }
+    
+    private void loadUserImage(String imageUrl) {
+        System.out.println("🖼️ Loading user image: " + imageUrl);
+        if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+            try {
+                Image image = new Image(imageUrl, false);
+                userAvatarView.setImage(image);
+                System.out.println("✅ Successfully loaded user image: " + imageUrl);
+            } catch (Exception e) {
+                System.err.println("❌ Error loading user image: " + e.getMessage());
+                // Load default image on error
+                loadDefaultUserImage();
+            }
+        } else {
+            System.out.println("🔄 No image URL, loading unique placeholder");
+            // Load unique placeholder based on user ID
+            loadUniqueUserPlaceholder();
+        }
+    }
+    
+    private void loadDefaultUserImage() {
+        try {
+            Image defaultImage = new Image(getClass().getResourceAsStream("/images/placeholders/user-placeholder.png"));
+            userAvatarView.setImage(defaultImage);
+        } catch (Exception e) {
+            System.err.println("Error loading default user image: " + e.getMessage());
+        }
+    }
+    
+    private void loadUniqueUserPlaceholder() {
+        try {
+            // Get current selected user
+            User selectedUser = userTable.getSelectionModel().getSelectedItem();
+            if (selectedUser != null) {
+                // Create unique placeholder based on user ID
+                int userId = selectedUser.getUserId();
+                System.out.println("🎨 Creating unique placeholder for user ID: " + userId);
+                
+                // For now, use the same placeholder but with different colors based on user ID
+                // In the future, you can create different placeholder images
+                Image defaultImage = new Image(getClass().getResourceAsStream("/images/placeholders/user-placeholder.png"));
+                userAvatarView.setImage(defaultImage);
+                
+                // Add a visual indicator that this is a unique placeholder
+                // You could modify the ImageView style or add a label here
+                System.out.println("✅ Loaded unique placeholder for user: " + selectedUser.getFullName());
+            } else {
+                // Fallback to default image
+                loadDefaultUserImage();
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading unique user placeholder: " + e.getMessage());
+            loadDefaultUserImage();
+        }
+    }
+
+
+
+    private void toggleUserStatus() {
+        User selectedUser = userTable.getSelectionModel().getSelectedItem();
+        if (selectedUser == null) {
+            AlertUtils.showWarning("Cảnh báo", "Vui lòng chọn một nhân viên để đổi trạng thái");
+            return;
+        }
+        
+        String currentStatus = selectedUser.isActive() ? "ACTIVE" : "INACTIVE";
+        String newStatus = selectedUser.isActive() ? "INACTIVE" : "ACTIVE";
+        
+        boolean confirmed = AlertUtils.showConfirmation(
+            "Xác nhận đổi trạng thái", 
+            "Bạn có chắc chắn muốn đổi trạng thái của " + selectedUser.getFullName() + 
+            " từ " + currentStatus + " sang " + newStatus + "?"
+        );
+        
+        if (confirmed) {
+            Task<Boolean> toggleTask = new Task<Boolean>() {
+                    @Override
+                    protected Boolean call() throws Exception {
+                try (Connection connection = DatabaseConfig.getConnection()) {
+                    UserDAO dao = new UserDAOImpl(connection);
+                        selectedUser.setActive(!selectedUser.isActive());
+                        return dao.updateUser(selectedUser);
+                }
+            }
+
+            @Override
+            protected void succeeded() {
+                Platform.runLater(() -> {
+                    if (getValue()) {
+                            // Update the user in the list
+                            int index = userList.indexOf(selectedUser);
+                            if (index >= 0) {
+                                userList.set(index, selectedUser);
+                            }
+                            filterUsers();
+                            updateStatistics();
+                            updatePreviewPanel(selectedUser);
+                            AlertUtils.showInfo("Thành công", "Đã đổi trạng thái của " + selectedUser.getFullName() + " thành " + newStatus);
+                    } else {
+                            AlertUtils.showError("Lỗi", "Không thể đổi trạng thái nhân viên");
+                    }
+                });
+            }
+
+            @Override
+            protected void failed() {
+                Platform.runLater(() -> {
+                        AlertUtils.showError("Lỗi", "Lỗi khi đổi trạng thái: " + getException().getMessage());
+                });
+            }
+        };
+
+            new Thread(toggleTask).start();
+    }
     }
 
     // =====================================================
@@ -635,35 +851,35 @@ public class AdminUserController implements Initializable, DashboardCommunicator
 
         if (confirmed) {
             Task<Boolean> deleteTask = new Task<Boolean>() {
-                @Override
-                protected Boolean call() throws Exception {
-                    try (Connection connection = DatabaseConfig.getConnection()) {
-                        UserDAO dao = new UserDAOImpl(connection);
+            @Override
+            protected Boolean call() throws Exception {
+                try (Connection connection = DatabaseConfig.getConnection()) {
+                    UserDAO dao = new UserDAOImpl(connection);
                         return dao.deleteUser(user.getUserId());
-                    }
                 }
+            }
 
-                @Override
-                protected void succeeded() {
-                    Platform.runLater(() -> {
-                        if (getValue()) {
+            @Override
+            protected void succeeded() {
+                Platform.runLater(() -> {
+                    if (getValue()) {
                             userList.remove(user);
                             filterUsers();
                             updateStatistics();
                             AlertUtils.showInfo("Thành công", "Đã xóa người dùng thành công");
-                        } else {
+                    } else {
                             AlertUtils.showError("Lỗi", "Không thể xóa người dùng");
-                        }
-                    });
-                }
+                    }
+                });
+            }
 
-                @Override
-                protected void failed() {
-                    Platform.runLater(() -> {
+            @Override
+            protected void failed() {
+                Platform.runLater(() -> {
                         AlertUtils.showError("Lỗi", "Lỗi khi xóa người dùng: " + getException().getMessage());
-                    });
-                }
-            };
+                });
+            }
+        };
 
             new Thread(deleteTask).start();
         }
@@ -714,197 +930,15 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         }
     }
 
-    private void saveUser() {
-        if (!validateForm()) {
-            return;
-        }
 
-        Task<Boolean> saveTask = new Task<Boolean>() {
-            @Override
-            protected Boolean call() throws Exception {
-                User user = currentEditingUser != null ? currentEditingUser : new User();
-                
-                user.setUsername(usernameField.getText().trim());
-                user.setFullName(fullNameField.getText().trim());
-                user.setEmail(emailField.getText().trim());
-                user.setPhone(phoneField.getText().trim());
-                user.setRole(roleCombo.getValue());
-                user.setActive("ACTIVE".equals(statusCombo.getValue()));
 
-                // Set password only if provided
-                if (!passwordField.getText().isEmpty()) {
-                    user.setPassword(PasswordUtil.hashPassword(passwordField.getText()));
-                }
 
-                try (Connection connection = DatabaseConfig.getConnection()) {
-                    UserDAO dao = new UserDAOImpl(connection);
-                    
-                    if (currentEditingUser == null) {
-                        return dao.insertUser(user);
-                    } else {
-                        return dao.updateUser(user);
-                    }
-                }
-            }
 
-            @Override
-            protected void succeeded() {
-                Platform.runLater(() -> {
-                    if (getValue()) {
-                        AlertUtils.showInfo("Thành công", 
-                            currentEditingUser == null ? "Đã thêm người dùng mới" : "Đã cập nhật người dùng");
-                        hideUserForm();
-                        loadUsers();
-                    } else {
-                        AlertUtils.showError("Lỗi", "Không thể lưu thông tin người dùng");
-                    }
-                });
-            }
 
-            @Override
-            protected void failed() {
-                Platform.runLater(() -> {
-                    AlertUtils.showError("Lỗi", "Lỗi khi lưu người dùng: " + getException().getMessage());
-                });
-            }
-        };
 
-        new Thread(saveTask).start();
-    }
 
-    private void exportUsers() {
-        AlertUtils.showInfo("Thông báo", "Tính năng xuất dữ liệu sẽ được cập nhật sau");
-    }
 
-    // =====================================================
-    // VALIDATION METHODS
-    // =====================================================
 
-    private boolean validateForm() {
-        boolean isValid = true;
-
-        if (!validateUsername()) isValid = false;
-        if (!validateEmail()) isValid = false;
-        if (!validatePhone()) isValid = false;
-        if (currentEditingUser == null && !validatePassword()) isValid = false;
-        if (currentEditingUser == null && !validateConfirmPassword()) isValid = false;
-
-        return isValid;
-    }
-
-    private boolean validateUsername() {
-        String username = usernameField.getText().trim();
-        if (username.isEmpty() || username.length() < 3) {
-            setFieldError(usernameField, "Tên đăng nhập phải có ít nhất 3 ký tự");
-            return false;
-        }
-        setFieldSuccess(usernameField);
-        return true;
-    }
-
-    private boolean validateEmail() {
-        String email = emailField.getText().trim();
-        if (!ValidationUtils.isValidEmail(email)) {
-            setFieldError(emailField, "Email không hợp lệ");
-            return false;
-        }
-        setFieldSuccess(emailField);
-        return true;
-    }
-
-    private boolean validatePhone() {
-        String phone = phoneField.getText().trim();
-        if (!ValidationUtils.isValidPhone(phone)) {
-            setFieldError(phoneField, "Số điện thoại không hợp lệ");
-            return false;
-        }
-        setFieldSuccess(phoneField);
-        return true;
-    }
-
-    private boolean validatePassword() {
-        String password = passwordField.getText();
-        if (currentEditingUser == null && (password.isEmpty() || password.length() < 6)) {
-            setFieldError(passwordField, "Mật khẩu phải có ít nhất 6 ký tự");
-            return false;
-        }
-        setFieldSuccess(passwordField);
-        return true;
-    }
-
-    private boolean validateConfirmPassword() {
-        String password = passwordField.getText();
-        String confirmPassword = confirmPasswordField.getText();
-        if (currentEditingUser == null && !password.equals(confirmPassword)) {
-            setFieldError(confirmPasswordField, "Mật khẩu xác nhận không khớp");
-            return false;
-        }
-        setFieldSuccess(confirmPasswordField);
-        return true;
-    }
-
-    private void setFieldError(TextField field, String message) {
-        field.getStyleClass().removeAll("field-success");
-        field.getStyleClass().add("field-error");
-        field.setTooltip(new Tooltip(message));
-    }
-
-    private void setFieldSuccess(TextField field) {
-        field.getStyleClass().removeAll("field-error");
-        field.getStyleClass().add("field-success");
-        field.setTooltip(null);
-    }
-
-    private void clearValidationStyles() {
-        usernameField.getStyleClass().removeAll("field-error", "field-success");
-        emailField.getStyleClass().removeAll("field-error", "field-success");
-        phoneField.getStyleClass().removeAll("field-error", "field-success");
-        passwordField.getStyleClass().removeAll("field-error", "field-success");
-        confirmPasswordField.getStyleClass().removeAll("field-error", "field-success");
-    }
-
-    // =====================================================
-    // FORM OVERLAY METHODS
-    // =====================================================
-
-    private void showEditUserForm(User user) {
-        currentEditingUser = user;
-        formTitleLabel.setText("✎ Chỉnh sửa nhân viên");
-        populateForm(user);
-        showFormOverlay();
-        fullNameField.requestFocus();
-    }
-
-    private void showFormOverlay() {
-        userFormOverlay.setVisible(true);
-        userFormOverlay.setManaged(true);
-        
-        // Animation hiệu ứng fade in
-        Platform.runLater(() -> {
-            userFormOverlay.setOpacity(0);
-            Timeline timeline = new Timeline(
-                new KeyFrame(Duration.millis(300), 
-                    new KeyValue(userFormOverlay.opacityProperty(), 1))
-            );
-            timeline.play();
-        });
-    }
-
-    @FXML
-    private void hideFormOverlay() {
-        // Animation hiệu ứng fade out
-        Timeline timeline = new Timeline(
-            new KeyFrame(Duration.millis(200), 
-                new KeyValue(userFormOverlay.opacityProperty(), 0))
-        );
-        timeline.setOnFinished(e -> {
-            userFormOverlay.setVisible(false);
-            userFormOverlay.setManaged(false);
-            resetForm();
-            currentEditingUser = null;
-        });
-        timeline.play();
-    }
 
     // =====================================================
     // DASHBOARD COMMUNICATION
