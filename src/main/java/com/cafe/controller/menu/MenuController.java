@@ -53,7 +53,6 @@ public class MenuController implements Initializable, DashboardCommunicator {
     private String currentSearchKeyword = "";
 
     // Grid configuration
-    private static final int PRODUCTS_PER_ROW = 4;
     private static final double PRODUCT_CARD_WIDTH = 200;
     private static final double PRODUCT_CARD_HEIGHT = 280;
 
@@ -567,16 +566,7 @@ public class MenuController implements Initializable, DashboardCommunicator {
         alert.showAndWait();
     }
 
-    /**
-     * Show info message
-     */
-    private void showInfo(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thông báo");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.show();
-    }
+
 
     // =====================================================
     // ✅ PUBLIC METHODS FOR EXTERNAL ACCESS
@@ -621,7 +611,6 @@ public class MenuController implements Initializable, DashboardCommunicator {
         // Update button styling
         categoryBar.getChildren().forEach(node -> {
             if (node instanceof Button) {
-                Button btn = (Button) node;
                 // Reset and set active based on category
                 // This could be enhanced to properly track which button corresponds to which category
             }

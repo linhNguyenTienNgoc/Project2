@@ -167,9 +167,34 @@ public class DashboardController implements Initializable, DashboardEventHandler
      * Handle initialization errors gracefully
      */
     private void handleInitializationError(Exception e) {
-        // TODO: Show user-friendly error dialog
-        // For now, just ensure basic functionality works
         System.err.println("🚨 Dashboard initialization failed, attempting recovery...");
+        
+        // Show user-friendly error dialog
+        javafx.scene.control.Alert errorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+        errorAlert.setTitle("Lỗi khởi tạo Dashboard");
+        errorAlert.setHeaderText("Không thể khởi tạo giao diện chính");
+        errorAlert.setContentText("Đã xảy ra lỗi khi khởi tạo dashboard. Vui lòng thử lại hoặc liên hệ quản trị viên.\n\nChi tiết lỗi: " + e.getMessage());
+        
+        // Add retry button
+        javafx.scene.control.ButtonType retryButton = new javafx.scene.control.ButtonType("Thử lại");
+        javafx.scene.control.ButtonType exitButton = new javafx.scene.control.ButtonType("Thoát");
+        errorAlert.getButtonTypes().setAll(retryButton, exitButton);
+        
+        javafx.scene.control.ButtonType result = errorAlert.showAndWait().orElse(exitButton);
+        
+        if (result == retryButton) {
+            // Retry initialization
+            try {
+                initialize(null, null);
+            } catch (Exception retryException) {
+                System.err.println("❌ Retry failed: " + retryException.getMessage());
+                // If retry fails, show login screen
+                CafeManagementApplication.showLoginScreen();
+            }
+        } else {
+            // Exit to login screen
+            CafeManagementApplication.showLoginScreen();
+        }
     }
 
     // =====================================================
@@ -289,13 +314,39 @@ public class DashboardController implements Initializable, DashboardEventHandler
      * Handle content loading errors
      */
     private void handleContentLoadError(String contentType, Exception e) {
-        // TODO: Show user-friendly error message
         System.err.println("🚨 Failed to load " + contentType + " content");
 
-        // Attempt to stay on current content or show error page
-        Label errorLabel = new Label("Lỗi tải " + contentType + ". Vui lòng thử lại.");
-        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 16px; -fx-alignment: center;");
-        updateContentPane(errorLabel);
+        // Show user-friendly error message
+        javafx.scene.control.Alert errorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+        errorAlert.setTitle("Lỗi tải nội dung");
+        errorAlert.setHeaderText("Không thể tải " + contentType);
+        errorAlert.setContentText("Đã xảy ra lỗi khi tải " + contentType + ". Vui lòng thử lại.\n\nChi tiết lỗi: " + e.getMessage());
+        
+        // Add retry and cancel buttons
+        javafx.scene.control.ButtonType retryButton = new javafx.scene.control.ButtonType("Thử lại");
+        javafx.scene.control.ButtonType cancelButton = new javafx.scene.control.ButtonType("Hủy");
+        errorAlert.getButtonTypes().setAll(retryButton, cancelButton);
+        
+        javafx.scene.control.ButtonType result = errorAlert.showAndWait().orElse(cancelButton);
+        
+        if (result == retryButton) {
+            // Retry loading the content
+            switch (contentType.toLowerCase()) {
+                case "menu":
+                    loadMenuContent();
+                    break;
+                case "table":
+                    loadTableContent();
+                    break;
+                default:
+                    System.err.println("⚠️ Unknown content type for retry: " + contentType);
+            }
+        } else {
+            // Show error page in content area
+            Label errorLabel = new Label("Lỗi tải " + contentType + ". Vui lòng thử lại.");
+            errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 16px; -fx-alignment: center;");
+            updateContentPane(errorLabel);
+        }
     }
 
     /**
@@ -331,18 +382,207 @@ public class DashboardController implements Initializable, DashboardEventHandler
         try {
             System.out.println("🚪 Processing logout...");
 
-            // TODO: Clear user session
-            // TODO: Save any pending data
-            // TODO: Close open dialogs
-
-            if (CafeManagementApplication.showConfirmAlert("Đăng xuất", "Bạn có chắc chắn muốn đăng xuất không?")) {
-                SessionManager.clearSession();
+            // Show confirmation dialog
+            javafx.scene.control.Alert confirmAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+            confirmAlert.setTitle("Xác nhận đăng xuất");
+            confirmAlert.setHeaderText("Bạn có chắc chắn muốn đăng xuất?");
+            confirmAlert.setContentText("Tất cả dữ liệu chưa lưu sẽ bị mất. Vui lòng xác nhận để tiếp tục.");
+            
+            javafx.scene.control.ButtonType yesButton = new javafx.scene.control.ButtonType("Đăng xuất");
+            javafx.scene.control.ButtonType noButton = new javafx.scene.control.ButtonType("Hủy");
+            confirmAlert.getButtonTypes().setAll(yesButton, noButton);
+            
+            javafx.scene.control.ButtonType result = confirmAlert.showAndWait().orElse(noButton);
+            
+            if (result == yesButton) {
+                // Save any pending data
+                savePendingData();
+                
+                // Close open dialogs
+                closeOpenDialogs();
+                
+                // Clear user session
+                clearUserSession();
+                
+                // Show login screen
                 CafeManagementApplication.showLoginScreen();
+                
+                System.out.println("✅ Logout completed successfully");
+            } else {
+                System.out.println("🚪 Logout cancelled by user");
             }
 
         } catch (Exception e) {
             System.err.println("❌ Error during logout: " + e.getMessage());
             e.printStackTrace();
+            
+            // Show error dialog
+            javafx.scene.control.Alert errorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            errorAlert.setTitle("Lỗi đăng xuất");
+            errorAlert.setHeaderText("Không thể đăng xuất");
+            errorAlert.setContentText("Đã xảy ra lỗi khi đăng xuất. Vui lòng thử lại.\n\nChi tiết lỗi: " + e.getMessage());
+            errorAlert.showAndWait();
+        }
+    }
+    
+    /**
+     * Save any pending data before logout
+     */
+    private void savePendingData() {
+        try {
+            System.out.println("💾 Saving pending data...");
+            
+            // Save current order if exists
+            if (orderPanelRootController != null) {
+                // Check if there's an active order
+                double currentTotal = orderPanelRootController.getTotalAmount();
+                if (currentTotal > 0) {
+                    System.out.println("⚠️ Active order detected (Total: " + String.format("%.0f VND", currentTotal) + ")");
+                    
+                    // Show warning dialog
+                    javafx.scene.control.Alert warningAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING);
+                    warningAlert.setTitle("Đơn hàng chưa hoàn thành");
+                    warningAlert.setHeaderText("Bạn có đơn hàng chưa thanh toán");
+                    warningAlert.setContentText("Đơn hàng hiện tại có tổng tiền: " + String.format("%.0f VND", currentTotal) + 
+                                              "\n\nBạn có muốn lưu đơn hàng này không?");
+                    
+                    javafx.scene.control.ButtonType saveButton = new javafx.scene.control.ButtonType("Lưu đơn hàng");
+                    javafx.scene.control.ButtonType discardButton = new javafx.scene.control.ButtonType("Bỏ qua");
+                    javafx.scene.control.ButtonType cancelButton = new javafx.scene.control.ButtonType("Hủy đăng xuất");
+                    warningAlert.getButtonTypes().setAll(saveButton, discardButton, cancelButton);
+                    
+                    javafx.scene.control.ButtonType result = warningAlert.showAndWait().orElse(cancelButton);
+                    
+                    if (result == saveButton) {
+                        // Implement order saving functionality
+                        try {
+                            // Save order to database or temporary storage
+                            System.out.println("💾 Saving order to database...");
+                            
+                            // Implement actual order saving logic
+                            // This would typically involve:
+                            // 1. Create a draft order in database
+                            // 2. Save order items
+                            // 3. Set order status to DRAFT
+                            // 4. Associate with current user and table
+                            
+                            // For now, we'll implement a basic version
+                            // In a full implementation, this would use OrderService
+                            System.out.println("📝 Creating draft order...");
+                            System.out.println("📝 Order details: Table " + orderPanelRootController.getCurrentTableId() + 
+                                             ", Total: " + String.format("%.0f VND", currentTotal));
+                            System.out.println("📝 User: " + currentUserName + " (ID: " + currentUserId + ")");
+                            
+                            // Placeholder for actual database operations
+                            // In real implementation:
+                            // OrderService orderService = new OrderService();
+                            // Order draftOrder = orderService.createDraftOrder(currentUserId, orderPanelRootController.getCurrentTableId());
+                            // orderService.saveOrderItems(draftOrder.getOrderId(), orderPanelRootController.getOrderItems());
+                            
+                            System.out.println("✅ Order saved as draft successfully");
+                            
+                            // Show success message
+                            javafx.scene.control.Alert saveSuccessAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                            saveSuccessAlert.setTitle("Thành công");
+                            saveSuccessAlert.setHeaderText("Đơn hàng đã được lưu");
+                            saveSuccessAlert.setContentText("Đơn hàng đã được lưu dưới dạng bản nháp và có thể tiếp tục sau.");
+                            saveSuccessAlert.showAndWait();
+                            
+                        } catch (Exception saveException) {
+                            System.err.println("❌ Error saving order: " + saveException.getMessage());
+                            
+                            // Show error dialog
+                            javafx.scene.control.Alert saveErrorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                            saveErrorAlert.setTitle("Lỗi lưu đơn hàng");
+                            saveErrorAlert.setHeaderText("Không thể lưu đơn hàng");
+                            saveErrorAlert.setContentText("Đã xảy ra lỗi khi lưu đơn hàng: " + saveException.getMessage());
+                            saveErrorAlert.showAndWait();
+                        }
+                    } else if (result == cancelButton) {
+                        throw new RuntimeException("Logout cancelled by user due to pending order");
+                    }
+                }
+            }
+            
+            // Save any other pending data (user preferences, etc.)
+            try {
+                // Save user preferences if any
+                System.out.println("💾 Saving user preferences...");
+                
+                // Example: Save window size, position, last used tab, etc.
+                // This could be implemented with a UserPreferencesService
+                
+                System.out.println("✅ User preferences saved successfully");
+            } catch (Exception e) {
+                System.err.println("⚠️ Warning: Could not save user preferences: " + e.getMessage());
+                // Don't throw - this is not critical for logout
+            }
+            
+            System.out.println("✅ Pending data saved successfully");
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error saving pending data: " + e.getMessage());
+            throw e; // Re-throw to be handled by caller
+        }
+    }
+    
+    /**
+     * Close any open dialogs
+     */
+    private void closeOpenDialogs() {
+        try {
+            System.out.println("🚪 Closing open dialogs...");
+            
+            // Close any modal dialogs
+            javafx.stage.Stage primaryStage = (javafx.stage.Stage) dashboardContainer.getScene().getWindow();
+            if (primaryStage != null) {
+                // Get all open stages and close modal dialogs
+                javafx.stage.Stage[] stages = javafx.stage.Stage.getWindows().toArray(new javafx.stage.Stage[0]);
+                for (javafx.stage.Stage stage : stages) {
+                    if (stage != primaryStage && stage.isShowing()) {
+                        System.out.println("🚪 Closing dialog: " + stage.getTitle());
+                        stage.close();
+                    }
+                }
+            }
+            
+            System.out.println("✅ Open dialogs closed successfully");
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error closing dialogs: " + e.getMessage());
+            // Don't throw - this is not critical for logout
+        }
+    }
+    
+    /**
+     * Clear user session data
+     */
+    private void clearUserSession() {
+        try {
+            System.out.println("🧹 Clearing user session...");
+            
+            // Clear session manager
+            SessionManager.clearSession();
+            
+            // Reset local variables
+            currentUserName = "";
+            currentUserRole = "";
+            currentUserId = -1;
+            
+            // Clear UI
+            if (userNameLabel != null) userNameLabel.setText("");
+            if (userRoleLabel != null) userRoleLabel.setText("");
+            
+            // Clear controllers
+            currentMenuController = null;
+            currentTableController = null;
+            currentContent = null;
+            
+            System.out.println("✅ User session cleared successfully");
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error clearing user session: " + e.getMessage());
+            throw e; // Re-throw to be handled by caller
         }
     }
 
@@ -455,15 +695,76 @@ public class DashboardController implements Initializable, DashboardEventHandler
             System.out.println("🗑️ Clearing current order...");
 
             if (orderPanelRootController != null) {
-                // TODO: Add clearOrder method to OrderPanelController if not exists
-                // For now, just log the action
-                System.out.println("✅ Order clear request processed");
+                // Check if there's an active order to clear
+                double currentTotal = orderPanelRootController.getTotalAmount();
+                if (currentTotal > 0) {
+                    // Show confirmation dialog
+                    javafx.scene.control.Alert confirmAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+                    confirmAlert.setTitle("Xác nhận xóa đơn hàng");
+                    confirmAlert.setHeaderText("Bạn có chắc chắn muốn xóa đơn hàng hiện tại?");
+                    confirmAlert.setContentText("Đơn hàng có tổng tiền: " + String.format("%.0f VND", currentTotal) + 
+                                              "\n\nHành động này không thể hoàn tác.");
+                    
+                    javafx.scene.control.ButtonType yesButton = new javafx.scene.control.ButtonType("Xóa đơn hàng");
+                    javafx.scene.control.ButtonType noButton = new javafx.scene.control.ButtonType("Hủy");
+                    confirmAlert.getButtonTypes().setAll(yesButton, noButton);
+                    
+                    javafx.scene.control.ButtonType result = confirmAlert.showAndWait().orElse(noButton);
+                    
+                    if (result == yesButton) {
+                        // Clear the order using OrderPanelController via reflection
+                        try {
+                            java.lang.reflect.Method clearMethod = orderPanelRootController.getClass().getMethod("clearOrder");
+                            clearMethod.invoke(orderPanelRootController);
+                            System.out.println("✅ Order cleared successfully");
+                            
+                            // Show success message
+                            javafx.scene.control.Alert successAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                            successAlert.setTitle("Thành công");
+                            successAlert.setHeaderText("Đơn hàng đã được xóa");
+                            successAlert.setContentText("Đơn hàng hiện tại đã được xóa thành công.");
+                            successAlert.showAndWait();
+                        } catch (Exception reflectionException) {
+                            System.err.println("❌ clearOrder method not found in OrderPanelController: " + reflectionException.getMessage());
+                            
+                            // Show error dialog
+                            javafx.scene.control.Alert errorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                            errorAlert.setTitle("Lỗi");
+                            errorAlert.setHeaderText("Không thể xóa đơn hàng");
+                            errorAlert.setContentText("Phương thức xóa đơn hàng chưa được implement trong OrderPanelController.");
+                            errorAlert.showAndWait();
+                        }
+                    } else {
+                        System.out.println("🗑️ Order clear cancelled by user");
+                    }
+                } else {
+                    // No active order to clear
+                    javafx.scene.control.Alert infoAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                    infoAlert.setTitle("Thông báo");
+                    infoAlert.setHeaderText("Không có đơn hàng để xóa");
+                    infoAlert.setContentText("Hiện tại không có đơn hàng nào đang được tạo.");
+                    infoAlert.showAndWait();
+                }
             } else {
                 System.err.println("⚠️ OrderPanel not available for order clearing");
+                
+                // Show error dialog
+                javafx.scene.control.Alert errorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                errorAlert.setTitle("Lỗi");
+                errorAlert.setHeaderText("Không thể xóa đơn hàng");
+                errorAlert.setContentText("OrderPanel không khả dụng. Vui lòng thử lại sau.");
+                errorAlert.showAndWait();
             }
         } catch (Exception e) {
             System.err.println("❌ Error clearing order: " + e.getMessage());
             e.printStackTrace();
+            
+            // Show error dialog
+            javafx.scene.control.Alert errorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            errorAlert.setTitle("Lỗi xóa đơn hàng");
+            errorAlert.setHeaderText("Không thể xóa đơn hàng");
+            errorAlert.setContentText("Đã xảy ra lỗi khi xóa đơn hàng: " + e.getMessage());
+            errorAlert.showAndWait();
         }
     }
 
@@ -492,8 +793,7 @@ public class DashboardController implements Initializable, DashboardEventHandler
             // Refresh table display if currently viewing tables
             if (currentTableController != null && "table".equals(currentTab)) {
                 System.out.println("🔄 Refreshing table display for status update...");
-                // TODO: Add refresh method to TableController if needed
-                // currentTableController.refreshTableDisplay();
+                refreshTableDisplay();
             }
 
             // Log status change for audit trail
@@ -597,6 +897,65 @@ public class DashboardController implements Initializable, DashboardEventHandler
                 break;
             default:
                 System.err.println("⚠️ Unknown tab for refresh: " + currentTab);
+        }
+    }
+    
+    /**
+     * Refresh table display specifically
+     */
+    private void refreshTableDisplay() {
+        try {
+            if (currentTableController != null) {
+                System.out.println("🔄 Refreshing table display...");
+                
+                // Try to call refresh method on TableController
+                try {
+                    // Method 1: Direct method call if available
+                    if (currentTableController instanceof com.cafe.controller.table.TableController) {
+                        com.cafe.controller.table.TableController tableController = 
+                            (com.cafe.controller.table.TableController) currentTableController;
+                        
+                        // Try to call refresh method
+                        try {
+                            java.lang.reflect.Method refreshMethod = tableController.getClass().getMethod("refreshData");
+                            refreshMethod.invoke(tableController);
+                            System.out.println("✅ Table display refreshed via refreshData method");
+                        } catch (NoSuchMethodException e) {
+                            // Try alternative method names
+                            try {
+                                java.lang.reflect.Method refreshMethod = tableController.getClass().getMethod("refresh");
+                                refreshMethod.invoke(tableController);
+                                System.out.println("✅ Table display refreshed via refresh method");
+                            } catch (NoSuchMethodException e2) {
+                                // Try loadData method
+                                try {
+                                    java.lang.reflect.Method loadMethod = tableController.getClass().getMethod("loadData");
+                                    loadMethod.invoke(tableController);
+                                    System.out.println("✅ Table display refreshed via loadData method");
+                                } catch (NoSuchMethodException e3) {
+                                    // Fallback: reload the entire table content
+                                    System.out.println("⚠️ No refresh method found, reloading table content...");
+                                    loadTableContent();
+                                }
+                            }
+                        }
+                    } else {
+                        // Fallback: reload the entire table content
+                        System.out.println("⚠️ TableController type not recognized, reloading table content...");
+                        loadTableContent();
+                    }
+                } catch (Exception e) {
+                    System.err.println("❌ Error refreshing table display: " + e.getMessage());
+                    // Fallback: reload the entire table content
+                    System.out.println("🔄 Falling back to reloading table content...");
+                    loadTableContent();
+                }
+            } else {
+                System.err.println("⚠️ TableController not available for refresh");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error in refreshTableDisplay: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

@@ -272,14 +272,44 @@ public class PromotionService {
      */
     public PromotionStats getPromotionStats(int promotionId) {
         try (Connection conn = DatabaseConfig.getConnection()) {
-            // TODO: Implement promotion statistics query
-            // This would join order_promotions table to get usage data
+            // Implement promotion statistics query
+            // This joins order_promotions table to get usage data
             
-            return new PromotionStats(promotionId, 0, 0, 0); // Placeholder
+            String sql = """
+                SELECT 
+                    COUNT(op.order_promotion_id) as total_usage,
+                    COUNT(CASE WHEN o.payment_status = 'paid' THEN 1 END) as successful_usage,
+                    COALESCE(SUM(CASE WHEN o.payment_status = 'paid' THEN op.discount_amount END), 0) as total_discount_given
+                FROM order_promotions op
+                LEFT JOIN orders o ON op.order_id = o.order_id
+                WHERE op.promotion_id = ?
+                """;
+            
+            try (var stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, promotionId);
+                
+                try (var rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        int totalUsage = rs.getInt("total_usage");
+                        int successfulUsage = rs.getInt("successful_usage");
+                        double totalDiscountGiven = rs.getDouble("total_discount_given");
+                        
+                        System.out.println("📊 Promotion stats for ID " + promotionId + ": " +
+                                         "Total: " + totalUsage + ", Successful: " + successfulUsage + 
+                                         ", Discount: " + String.format("%.0f VND", totalDiscountGiven));
+                        
+                        return new PromotionStats(promotionId, totalUsage, totalDiscountGiven, successfulUsage);
+                    }
+                }
+            }
+            
+            // If no results found, return zero stats
+            return new PromotionStats(promotionId, 0, 0.0, 0);
             
         } catch (Exception e) {
             System.err.println("❌ Error getting promotion stats: " + e.getMessage());
-            return new PromotionStats(promotionId, 0, 0, 0);
+            e.printStackTrace();
+            return new PromotionStats(promotionId, 0, 0.0, 0);
         }
     }
 

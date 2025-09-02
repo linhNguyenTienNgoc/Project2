@@ -1,7 +1,6 @@
 package com.cafe.model.entity;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 /**
  * Promotion Entity - Represents promotional discounts and offers

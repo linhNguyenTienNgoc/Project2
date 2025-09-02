@@ -8,6 +8,7 @@ import com.cafe.model.entity.OrderDetail;
 import com.cafe.model.dto.PaymentRequest;
 import com.cafe.util.PriceFormatter;
 import com.cafe.util.PDFExporter;
+import com.cafe.util.SessionManager;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -82,7 +83,9 @@ public class ReceiptService {
             writer.write("Hóa đơn: " + order.getOrderNumber() + "\n");
             writer.write("Bàn: " + order.getTableId() + "\n");
             writer.write("Ngày: " + order.getOrderDate().toString() + "\n");
-            writer.write("Thu ngân: Admin\n"); // TODO: Get from session
+            // Get cashier info from session
+            String cashierName = getCashierNameFromSession();
+            writer.write("Thu ngân: " + cashierName + "\n");
             writer.write("-------------------------------------\n\n");
             
             // Items
@@ -434,6 +437,33 @@ public class ReceiptService {
             case "paid": return "Đã thanh toán";
             case "cancelled": return "Đã hủy";
             default: return "Không xác định";
+        }
+    }
+    
+    /**
+     * Get cashier name from session
+     */
+    private String getCashierNameFromSession() {
+        try {
+            if (SessionManager.isLoggedIn()) {
+                String fullName = SessionManager.getCurrentUserFullName();
+                if (fullName != null && !fullName.trim().isEmpty()) {
+                    return fullName;
+                }
+                
+                // Fallback to username if full name is not available
+                String username = SessionManager.getCurrentUsername();
+                if (username != null && !username.trim().isEmpty()) {
+                    return username;
+                }
+            }
+            
+            // Default fallback
+            return "Nhân viên";
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error getting cashier name from session: " + e.getMessage());
+            return "Nhân viên";
         }
     }
 }

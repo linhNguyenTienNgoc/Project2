@@ -144,8 +144,6 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     // =============================================
     // SERVICES & STATE
     // =============================================
-    private ProductDAO productDAO;
-    private CategoryDAO categoryDAO;
     private Product currentEditingProduct = null;
     private Object dashboardController;
 
@@ -184,7 +182,6 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             System.out.println("🚀 Initializing AdminMenuController...");
             
             // Initialize core components
-            initializeServices();
             setupTable();
             setupFilters();
             setupEventHandlers();
@@ -213,16 +210,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         }
     }
 
-    private void initializeServices() {
-        System.out.println("🔧 Initializing services...");
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            productDAO = new ProductDAOImpl(connection);
-            categoryDAO = new CategoryDAOImpl(connection);
-            System.out.println("✅ Services initialized successfully");
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot initialize DAO services", e);
-        }
-    }
+
 
     // =============================================
     // TABLE SETUP AND RESPONSIVE CONFIGURATION

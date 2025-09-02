@@ -8,7 +8,7 @@ import com.cafe.model.entity.User;
 import com.cafe.util.AlertUtils;
 import com.cafe.util.PasswordUtil;
 import com.cafe.util.ValidationUtils;
-import com.cafe.controller.admin.UserFormDialogController;
+
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -18,27 +18,21 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.Region;
+
 import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ButtonBar;
-import javafx.util.Pair;
+
 import javafx.fxml.FXMLLoader;
-import javafx.util.Callback;
-import javafx.geometry.Pos;
+
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import java.io.File;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
+
 
 import java.net.URL;
 import java.sql.Connection;
@@ -174,8 +168,8 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         createdAtColumn.setCellValueFactory(cellData -> 
             new javafx.beans.property.SimpleStringProperty("N/A"));
 
-        // *** SỬ DỤNG CONSTRAINED_RESIZE_POLICY TRUYỀN THỐNG ***
-        userTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // *** SỬ DỤNG UNCONSTRAINED_RESIZE_POLICY (thay thế deprecated CONSTRAINED_RESIZE_POLICY) ***
+        userTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         
         // *** THIẾT LẬP TỶ LỆ CHO CÁC CỘT KHÁC ***
         // Tổng tỷ lệ = 100%, trừ đi 120px cho actions column
@@ -307,50 +301,7 @@ public class AdminUserController implements Initializable, DashboardCommunicator
         userTable.refresh();
     }
 
-    // *** RESPONSIVE BEHAVIOR CHO MÀN HÌNH NHỎ ***
-    private void adjustColumnsForResponsive(double tableWidth) {
-        // Ẩn cột ít quan trọng trên màn hình nhỏ
-        if (tableWidth < 1000) {
-            // Ẩn cột Created At
-            createdAtColumn.setVisible(false);
-            createdAtColumn.setPrefWidth(0);
-            
-            // Tái phân phối cho các cột còn lại
-            double remainingWidth = tableWidth - 120 - 20;
-            if (remainingWidth > 0) {
-                idColumn.setPrefWidth(remainingWidth * 0.07);        // 7%
-                usernameColumn.setPrefWidth(remainingWidth * 0.15);  // 15%
-                fullNameColumn.setPrefWidth(remainingWidth * 0.20);  // 20%
-                emailColumn.setPrefWidth(remainingWidth * 0.25);     // 25%
-                phoneColumn.setPrefWidth(remainingWidth * 0.15);     // 15%
-                roleColumn.setPrefWidth(remainingWidth * 0.10);      // 10%
-                statusColumn.setPrefWidth(remainingWidth * 0.08);    // 8%
-            }
-        } else if (tableWidth < 800) {
-            // Ẩn thêm cột Phone
-            phoneColumn.setVisible(false);
-            phoneColumn.setPrefWidth(0);
-            
-            double remainingWidth = tableWidth - 120 - 20;
-            if (remainingWidth > 0) {
-                idColumn.setPrefWidth(remainingWidth * 0.08);        // 8%
-                usernameColumn.setPrefWidth(remainingWidth * 0.18);  // 18%
-                fullNameColumn.setPrefWidth(remainingWidth * 0.25);  // 25%
-                emailColumn.setPrefWidth(remainingWidth * 0.32);     // 32%
-                roleColumn.setPrefWidth(remainingWidth * 0.12);      // 12%
-                statusColumn.setPrefWidth(remainingWidth * 0.05);    // 5%
-            }
-        } else {
-            // Hiển thị lại tất cả cột khi đủ không gian
-            createdAtColumn.setVisible(true);
-            phoneColumn.setVisible(true);
-            
-            // Gọi lại responsive adjustment
-            if (userTable.getScene() != null && userTable.getScene().getWindow() != null) {
-                adjustColumnsBasedOnWindowWidth(userTable.getScene().getWindow().getWidth());
-            }
-        }
-    }
+
 
 
 

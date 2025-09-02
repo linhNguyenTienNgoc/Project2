@@ -3,16 +3,13 @@ package com.cafe.controller.payment;
 import com.cafe.model.entity.Order;
 import com.cafe.model.entity.OrderDetail;
 import com.cafe.model.entity.Promotion;
-import com.cafe.model.dto.PaymentRequest;
-import com.cafe.model.dto.PaymentResponse;
+
 import com.cafe.service.OrderService;
 import com.cafe.service.PaymentService;
-import com.cafe.service.ReceiptService;
 import com.cafe.service.PromotionService;
 import com.cafe.service.QRCodeService;
 import com.cafe.service.CustomerService;
 import com.cafe.model.entity.Customer;
-import com.cafe.util.PaymentValidator;
 import com.cafe.util.PriceFormatter;
 import com.cafe.util.SessionManager;
 
@@ -41,16 +38,13 @@ import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.util.converter.NumberStringConverter;
-import javafx.fxml.FXMLLoader;
-import java.util.Optional;
+
 
 import java.net.URL;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
@@ -161,7 +155,6 @@ public class PaymentController implements Initializable {
     // =====================================================
     private OrderService orderService;
     private PaymentService paymentService;
-    private ReceiptService receiptService;
     private PromotionService promotionService; // ✅ NEW
     private QRCodeService qrCodeService; // ✅ NEW
     private CustomerService customerService; // ✅ NEW
@@ -171,7 +164,6 @@ public class PaymentController implements Initializable {
     
     // Data Models
     private Order currentOrder;
-    private int currentTableId;
     private String currentTableName;
     private ObservableList<OrderDetail> orderItems = FXCollections.observableArrayList();
     private ObservableList<Promotion> availablePromotions = FXCollections.observableArrayList(); // ✅ NEW
@@ -194,9 +186,7 @@ public class PaymentController implements Initializable {
     private StringProperty customerNameProperty = new SimpleStringProperty("");
     private StringProperty customerPhoneProperty = new SimpleStringProperty("");
     
-    // Format
-    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
-    private final DecimalFormat numberFormat = new DecimalFormat("#,###");
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -261,7 +251,6 @@ public class PaymentController implements Initializable {
      */
     public void initData(Order order, int tableId, double vatPercent, PaymentCompletionCallback callback) {
         this.currentOrder = order;
-        this.currentTableId = tableId;
         this.currentTableName = "Bàn " + tableId;
         this.paymentCallback = callback;
         
@@ -292,7 +281,6 @@ public class PaymentController implements Initializable {
     private void initializeServices() {
         this.orderService = new OrderService();
         this.paymentService = new PaymentService();
-        this.receiptService = new ReceiptService();
         this.promotionService = new PromotionService(); // ✅ NEW
         this.qrCodeService = new QRCodeService(); // ✅ NEW
         this.customerService = new CustomerService(); // ✅ NEW
@@ -554,11 +542,11 @@ public class PaymentController implements Initializable {
         }
     }
     
-    private void searchCustomer() {
-        // TODO: Implement customer search functionality
-        // This could open a dialog to search for existing customers
-        System.out.println("🔍 Customer search functionality to be implemented");
-    }
+
+    
+
+    
+
     
     private void initializeCustomerInfo() {
         // Clear customer fields
@@ -759,7 +747,6 @@ public class PaymentController implements Initializable {
             double totalAmount = grandTotalProperty.get();
             double receivedAmount = cashRadio.isSelected() ? customerAmountProperty.get() : totalAmount;
             // For educational project - no transaction code needed
-            String transactionCode = null;
             
             // Prepare customer information notes (optional)
             StringBuilder customerNotes = new StringBuilder();
@@ -773,7 +760,7 @@ public class PaymentController implements Initializable {
                 customerNotes.append("Ghi chú thanh toán: ").append(paymentNotesArea.getText());
             }
             
-            String notes = customerNotes.toString();
+
             
             // Process payment through service (using existing method signature)
             boolean success = paymentService.processPayment(currentOrder, paymentMethod, receivedAmount);
@@ -973,102 +960,13 @@ public class PaymentController implements Initializable {
     
 
     
-    /**
-     * Create payment request from UI
-     */
-    private PaymentRequest createPaymentRequest() {
-        return new PaymentRequest()
-                .setOrderId(currentOrder.getOrderId())
-                .setPaymentMethod(getSelectedPaymentMethod())
-                .setAmountReceived(customerAmountProperty.get())
-                .setTransactionCode(null) // No transaction code for educational project
-                .setNotes(paymentNotesArea.getText())
-                .setVatPercent(vatPercentProperty.get())
-                .setDiscountAmount(discountAmountProperty.get());
-    }
+
     
-    /**
-     * ✅ UPDATED: Handle successful payment with callback
-     */
-    private void handlePaymentSuccess(PaymentResponse response) {
-        System.out.println("✅ Payment completed successfully");
-        System.out.println("Transaction ID: " + response.getTransactionId());
-        
-        if (response.getChangeAmount() > 0) {
-            System.out.println("💰 Change: " + String.format("%,.0f VNĐ", response.getChangeAmount()));
-        }
-        
-        // Note: Success message is shown by OrderPanelController
-        
-        // ✅ NOTIFY OrderPanelController about payment completion
-        if (paymentCallback != null) {
-            Platform.runLater(() -> {
-                try {
-                    paymentCallback.onPaymentCompleted(currentOrder, getSelectedPaymentMethod());
-                    System.out.println("✅ OrderPanel notified about payment completion");
-                } catch (Exception e) {
-                    System.err.println("❌ Error notifying payment callback: " + e.getMessage());
-                }
-            });
-        }
-        
-        // Auto-print receipt
-        handlePrintReceipt();
-        
-        // Close window after brief delay
-        Platform.runLater(() -> {
-            Timeline closeTimer = new Timeline(new KeyFrame(javafx.util.Duration.seconds(2), e -> {
-                if (payButton.getScene() != null && payButton.getScene().getWindow() != null) {
-                    ((javafx.stage.Stage) payButton.getScene().getWindow()).close();
-                }
-            }));
-            closeTimer.play();
-        });
-    }
+
     
-    /**
-     * ✅ UPDATED: Handle payment failure with callback
-     */
-    private void handlePaymentFailure(PaymentResponse response) {
-        System.err.println("❌ Payment failed: " + response.getMessage());
-        showError("Thanh toán thất bại: " + response.getMessage());
-        
-        // ✅ NOTIFY OrderPanelController about payment failure
-        if (paymentCallback != null) {
-            Platform.runLater(() -> {
-                try {
-                    paymentCallback.onPaymentFailed(currentOrder, response.getMessage());
-                    System.out.println("✅ OrderPanel notified about payment failure");
-                } catch (Exception e) {
-                    System.err.println("❌ Error notifying payment failure callback: " + e.getMessage());
-                }
-            });
-        }
-    }
+
     
-    /**
-     * Enhanced validation
-     */
-    private boolean validatePaymentRequest(PaymentRequest request) {
-        PaymentValidator validator = new PaymentValidator();
-        
-        if (!validator.validatePaymentRequest(request)) {
-            showError("Dữ liệu thanh toán không hợp lệ");
-            return false;
-        }
-        
-        if (!validator.validateAmount(request.getAmountReceived(), grandTotalProperty.get(), request.getPaymentMethod())) {
-            if ("cash".equals(request.getPaymentMethod())) {
-                cashErrorLabel.setText("Tiền khách đưa không đủ");
-                customerAmountField.getStyleClass().add("field-error");
-            } else {
-                showError("Số tiền không hợp lệ");
-            }
-            return false;
-        }
-        
-        return true;
-    }
+
     
     /**
      * Switch between legacy and enhanced payment processing
@@ -1417,51 +1315,9 @@ public class PaymentController implements Initializable {
             ", Card: " + isCard + ", Electronic: " + isElectronic);
     }
     
-    /**
-     * Generate QR code for electronic payments
-     */
-    private void generateQRCode() {
-        String paymentMethod = getSelectedPaymentMethod();
-        double amount = grandTotalProperty.get();
-        String orderNumber = currentOrder != null ? currentOrder.getOrderNumber() : "ORDER_" + System.currentTimeMillis();
-        
-        try {
-            // Generate QR code image
-            Image qrImage = qrCodeService.generatePaymentQRCode(paymentMethod, amount, orderNumber);
-            if (qrCodeImageView != null) {
-                qrCodeImageView.setImage(qrImage);
-            }
-            
-            // Update instruction label
-            if (qrCodeInstructionLabel != null) {
-                qrCodeInstructionLabel.setText(getQRInstructionText(paymentMethod));
-            }
-            
-            System.out.println("✅ QR Code generated for " + paymentMethod + " - Amount: " + formatCurrency(amount));
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error generating QR code: " + e.getMessage());
-            showError("Không thể tạo mã QR. Vui lòng thử lại.");
-        }
-    }
+
     
-    /**
-     * Get QR instruction text
-     */
-    private String getQRInstructionText(String paymentMethod) {
-        switch (paymentMethod.toLowerCase()) {
-            case "momo":
-                return "Mở ứng dụng MoMo, quét mã QR để thanh toán";
-            case "vnpay":
-                return "Sử dụng ứng dụng ngân hàng hoặc VNPay để quét mã";
-            case "zalopay":
-                return "Mở ứng dụng ZaloPay, quét mã QR để thanh toán";
-            case "bank_transfer":
-                return "Chuyển khoản theo thông tin QR hoặc nhập mã giao dịch";
-            default:
-                return "Quét mã QR để thanh toán";
-        }
-    }
+
     
     // =====================================================
     // ENHANCED PAYMENT METHODS FROM PAYMENT.TXT
@@ -1504,163 +1360,15 @@ public class PaymentController implements Initializable {
         System.out.println("✅ Cash auto-fill configured");
     }
     
-    /**
-     * ✅ NEW: Process cash payment with auto amount (from payment.txt)
-     */
-    private void processCashPayment() {
-        double totalAmount = grandTotalProperty.get();
-        double receivedAmount = customerAmountProperty.get();
-        
-        // For cash, received amount should equal total (auto-filled)
-        if (Math.abs(receivedAmount - totalAmount) > 0.01) {
-            showError("Số tiền khách đưa không đúng");
-            return;
-        }
-        
-        // Create and process payment request
-        PaymentRequest request = new PaymentRequest()
-                .setOrderId(currentOrder.getOrderId())
-                .setPaymentMethod("CASH")
-                .setAmountReceived(receivedAmount)
-                .setVatPercent(vatPercentProperty.get())
-                .setDiscountAmount(discountAmountProperty.get());
-        
-        PaymentResponse response = paymentService.processPayment(request);
-        
-        if (response.isSuccess()) {
-            handlePaymentSuccess(response);
-        } else {
-            handlePaymentFailure(response);
-        }
-    }
+
     
-    /**
-     * ✅ NEW: Process card payment (from payment.txt)
-     */
-    private void processCardPayment() {
-        // For educational project - no transaction code validation needed
-        // Process payment directly
-        
-        double totalAmount = grandTotalProperty.get();
-        
-        // Create and process payment request
-        PaymentRequest request = new PaymentRequest()
-                .setOrderId(currentOrder.getOrderId())
-                .setPaymentMethod("CARD")
-                .setAmountReceived(totalAmount)
-                .setTransactionCode(null) // No transaction code for educational project
-                .setVatPercent(vatPercentProperty.get())
-                .setDiscountAmount(discountAmountProperty.get());
-        
-        PaymentResponse response = paymentService.processPayment(request);
-        
-        if (response.isSuccess()) {
-            handlePaymentSuccess(response);
-        } else {
-            handlePaymentFailure(response);
-        }
-    }
+
     
-    /**
-     * ✅ NEW: Process electronic payment with QR code (from payment.txt)
-     */
-    private void processElectronicPayment() {
-        String transactionCode = qrTransactionCodeField.getText().trim();
-        String paymentMethod = getSelectedPaymentMethod();
-        
-        if (transactionCode.length() < 6) {
-            showError("Mã giao dịch phải có ít nhất 6 ký tự");
-            return;
-        }
-        
-        double totalAmount = grandTotalProperty.get();
-        
-        // Create and process payment request
-        PaymentRequest request = new PaymentRequest()
-                .setOrderId(currentOrder.getOrderId())
-                .setPaymentMethod(paymentMethod.toUpperCase())
-                .setAmountReceived(totalAmount)
-                .setTransactionCode(transactionCode)
-                .setVatPercent(vatPercentProperty.get())
-                .setDiscountAmount(discountAmountProperty.get());
-        
-        PaymentResponse response = paymentService.processPayment(request);
-        
-        if (response.isSuccess()) {
-            handlePaymentSuccess(response);
-        } else {
-            handlePaymentFailure(response);
-        }
-    }
+
     
-    /**
-     * ✅ ENHANCED: Validation before payment (from payment.txt)
-     */
-    private boolean validateBeforePaymentEnhanced() {
-        if (currentOrder == null) {
-            showError("Không có đơn hàng để thanh toán");
-            return false;
-        }
-        
-        if (orderItems.isEmpty()) {
-            showError("Đơn hàng trống");
-            return false;
-        }
-        
-        if (grandTotalProperty.get() <= 0) {
-            showError("Tổng tiền không hợp lệ");
-            return false;
-        }
-        
-        return true;
-    }
+
     
-    /**
-     * ✅ NEW: Get payment method display name (from payment.txt)
-     */
-    private String getPaymentMethodName(String method) {
-        switch (method.toUpperCase()) {
-            case "CASH": return "Tiền mặt";
-            case "CARD": return "Thẻ tín dụng";
-            case "MOMO": return "MoMo";
-            case "VNPAY": return "VNPay";
-            case "ZALOPAY": return "ZaloPay";
-            case "BANK_TRANSFER": return "Chuyển khoản";
-            default: return method;
-        }
-    }
+
     
-    /**
-     * ✅ ENHANCED: Payment processing using enhanced methods (from payment.txt)
-     */
-    private void handlePaymentEnhanced() {
-        try {
-            System.out.println("🔧 Processing enhanced payment...");
-            
-            // Clear previous errors
-            clearErrors();
-            
-            // Validate before payment
-            if (!validateBeforePaymentEnhanced()) {
-                return;
-            }
-            
-            String paymentMethod = getSelectedPaymentMethod();
-            
-            if (cashRadio.isSelected()) {
-                // ✅ CASH: Use auto-filled amount
-                processCashPayment();
-            } else if (cardRadio.isSelected()) {
-                // ✅ CARD: Manual transaction code
-                processCardPayment();
-            } else {
-                // ✅ ELECTRONIC: QR code payment
-                processElectronicPayment();
-            }
-            
-        } catch (Exception e) {
-            System.err.println("❌ Payment processing error: " + e.getMessage());
-            showError("Lỗi xử lý thanh toán: " + e.getMessage());
-        }
-    }
+
 }

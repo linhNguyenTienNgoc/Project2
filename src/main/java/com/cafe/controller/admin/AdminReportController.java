@@ -245,7 +245,6 @@ public class AdminReportController implements Initializable, DashboardCommunicat
     private void generateReport() {
         LocalDate startDate = startDatePicker.getValue();
         LocalDate endDate = endDatePicker.getValue();
-        String reportType = reportTypeCombo.getValue();
 
         if (startDate == null || endDate == null) {
             showError("Vui lòng chọn khoảng thời gian");

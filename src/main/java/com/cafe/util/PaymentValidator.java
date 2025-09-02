@@ -86,28 +86,7 @@ public class PaymentValidator {
         }
     }
     
-    /**
-     * Validate transaction code format
-     */
-    private boolean validateTransactionCode(String transactionCode, PaymentMethod method) {
-        if (transactionCode == null || transactionCode.trim().isEmpty()) {
-            return false;
-        }
-        
-        switch (method) {
-            case CARD:
-                return transactionCode.length() >= 6 && transactionCode.length() <= 20;
-            case MOMO:
-                return transactionCode.length() >= 8 && transactionCode.length() <= 15;
-            case VNPAY:
-            case ZALOPAY:
-                return transactionCode.length() >= 10 && transactionCode.length() <= 25;
-            case BANK_TRANSFER:
-                return transactionCode.length() >= 10 && transactionCode.length() <= 30;
-            default:
-                return true;
-        }
-    }
+
     
     /**
      * Validate VAT percentage

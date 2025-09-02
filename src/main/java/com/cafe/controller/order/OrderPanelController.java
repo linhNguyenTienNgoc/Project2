@@ -7,8 +7,6 @@ import com.cafe.model.entity.Order;
 import com.cafe.model.entity.OrderDetail;
 import com.cafe.model.entity.Product;
 import com.cafe.service.OrderService;
-import com.cafe.service.MenuService;
-import com.cafe.service.PaymentService;
 import com.cafe.util.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -48,8 +46,6 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
 
     // ✅ Services - Complete Integration
     private OrderService orderService;
-    private MenuService menuService;
-    private PaymentService paymentService;
 
     // Current state
     private Order currentOrder;
@@ -68,8 +64,6 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         try {
             // ✅ Initialize services
             orderService = new OrderService();
-            menuService = new MenuService();
-            paymentService = new PaymentService();
 
             // ✅ Get current user ID from SessionManager
             initializeUserSession();
@@ -361,12 +355,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         }
     }
 
-    /**
-     * ✅ LEGACY: Update table status through Dashboard (for backward compatibility)
-     */
-    private void updateTableStatus(String newStatus) {
-        updateTableStatusIfNeeded(newStatus);
-    }
+
 
     /**
      * ✅ COMPLETE: Load order details for current order
@@ -1038,68 +1027,9 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         });
     }
 
-    /**
-     * ✅ DEPRECATED: Legacy method - replaced by callback
-     */
-    private void handlePaymentCompleted() {
-        Platform.runLater(() -> {
-            try {
-                // ✅ Auto-update table status to cleaning after payment
-                updateTableStatusIfNeeded("cleaning");
-                
-                // ✅ Complete the order and reset
-                completeOrderAndReset();
-                
-                // Note: Success message is already shown by main payment completion callback
-                
-                System.out.println("✅ Payment completed for order: " + currentOrder.getOrderNumber());
-                
-            } catch (Exception e) {
-                System.err.println("❌ Error handling payment completion: " + e.getMessage());
-                e.printStackTrace();
-            }
-        });
-    }
 
-    /**
-     * ✅ ENHANCED: Complete order and reset state with table status
-     */
-    private void completeOrderAndReset() {
-        if (currentOrder == null) return;
 
-        Task<Boolean> completeTask = new Task<Boolean>() {
-            @Override
-            protected Boolean call() throws Exception {
-                return orderService.completeOrder(currentOrder);
-            }
 
-            @Override
-            protected void succeeded() {
-                Platform.runLater(() -> {
-                    // ✅ Reset state
-                    currentOrder = null;
-                    currentOrderDetails.clear();
-                    // Keep currentTableId for potential next order
-
-                    // ✅ Update UI
-                    updateOrderDisplay();
-
-                    // ✅ Table status already updated to "cleaning" in processPayment
-
-                    System.out.println("✅ Order completed and state reset");
-                });
-            }
-
-            @Override
-            protected void failed() {
-                Platform.runLater(() -> {
-                    System.err.println("⚠️ Failed to complete order, but payment was successful");
-                });
-            }
-        };
-
-        new Thread(completeTask).start();
-    }
 
     /**
      * ✅ ENHANCED: Handle clear order with table status update
@@ -1287,62 +1217,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         return currentOrder != null && orderService.canModifyOrder(currentOrder);
     }
     
-    /**
-     * ✅ DEBUG: Kiểm tra resource paths và dependencies
-     */
-    private void debugResourcePaths() {
-        System.out.println("🔍 =====DEBUGGING PAYMENT RESOURCES=====");
-        
-        try {
-            // Test FXML path
-            java.net.URL fxmlUrl = getClass().getResource("/fxml/payment/payment.fxml");
-            if (fxmlUrl == null) {
-                System.err.println("❌ FXML không tìm thấy: /fxml/payment/payment.fxml");
-                // Thử các path khác
-                fxmlUrl = getClass().getResource("../../../fxml/payment/payment.fxml");
-                System.out.println("🔍 Trying relative path: " + (fxmlUrl != null ? "FOUND" : "NOT FOUND"));
-            } else {
-                System.out.println("✅ FXML found: " + fxmlUrl);
-            }
-            
-            // Test CSS path
-            java.net.URL cssUrl = getClass().getResource("/css/payment.css");
-            if (cssUrl == null) {
-                System.err.println("❌ CSS không tìm thấy: /css/payment.css");
-            } else {
-                System.out.println("✅ CSS found: " + cssUrl);
-            }
-            
-            // Test current order data
-            if (currentOrder == null) {
-                System.err.println("❌ CRITICAL: currentOrder is NULL");
-                return;
-            }
-            
-            System.out.println("✅ Order data:");
-            System.out.println("  - Order ID: " + currentOrder.getOrderId());
-            System.out.println("  - Order Number: " + currentOrder.getOrderNumber());
-            System.out.println("  - Table ID: " + currentOrder.getTableId());
-            System.out.println("  - Status: " + currentOrder.getOrderStatus());
-            System.out.println("  - Payment Status: " + currentOrder.getPaymentStatus());
-            System.out.println("  - Total Amount: " + currentOrder.getTotalAmount());
-            
-            // Test order details
-            System.out.println("✅ Order Details:");
-            System.out.println("  - Details count: " + currentOrderDetails.size());
-            for (int i = 0; i < Math.min(3, currentOrderDetails.size()); i++) {
-                OrderDetail detail = currentOrderDetails.get(i);
-                System.out.println("  - Item " + (i+1) + ": " + detail.getProductName() + 
-                                   " x" + detail.getQuantity() + " = " + detail.getTotalPrice());
-            }
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error in debugResourcePaths: " + e.getMessage());
-            e.printStackTrace();
-        }
-        
-        System.out.println("🔍 =================================");
-    }
+
     
     /**
      * ✅ DEBUG: Test method để debug payment window riêng
@@ -1406,24 +1281,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         return "bàn hiện tại"; // Fallback
     }
     
-    /**
-     * ⚠️ PHƯƠNG THỨC QUAN TRỌNG: Clear cache hoàn toàn
-     */
-    private void clearOrderCache() {
-        System.out.println("🔄 Clearing order cache completely...");
-        
-        // Clear order details list
-        currentOrderDetails.clear();
-        
-        // Clear UI forms
-        clearOrderForm();
-        
-        // Clear temporary data
-        clearTempData();
-        
-        // Note: Don't clear currentOrder here - let loadOrderDetails() handle it
-        System.out.println("✅ Order cache cleared completely");
-    }
+
     
     /**
      * Clear order completely (including currentOrder)

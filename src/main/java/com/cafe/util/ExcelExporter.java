@@ -1,6 +1,6 @@
 package com.cafe.util;
 
-import com.cafe.controller.admin.AdminReportController.ReportData;
+
 import com.cafe.controller.admin.AdminReportController.ProductReportData;
 import com.cafe.controller.admin.AdminReportController.CustomerData;
 import org.apache.poi.ss.usermodel.*;
@@ -50,22 +50,32 @@ public class ExcelExporter {
             cell.setCellStyle(headerStyle);
         }
 
-        // Fill data - placeholder for SalesData that doesn't exist yet
+        // Fill data - using actual SalesData implementation
         int rowNum = 4;
-        // TODO: Replace with actual SalesData implementation when available
-        /*
-        for (SalesData data : salesList) {
-            Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(data.getDate());
-            row.createCell(1).setCellValue(data.getRevenue());
-            row.createCell(2).setCellValue(data.getOrderCount());
-            row.createCell(3).setCellValue(data.getAvgOrder());
-            row.createCell(4).setCellValue(data.getGrowth());
-        }
-        */
-        
-        // Placeholder row
-        if (rowNum == 4) { // Only add placeholder if no data
+        try {
+            java.util.List<com.cafe.model.dto.SalesData> salesDataList = getSalesData();
+            
+            if (salesDataList != null && !salesDataList.isEmpty()) {
+                for (com.cafe.model.dto.SalesData data : salesDataList) {
+                    Row row = sheet.createRow(rowNum++);
+                    row.createCell(0).setCellValue(data.getDate().toString());
+                    row.createCell(1).setCellValue(data.getTotalRevenue());
+                    row.createCell(2).setCellValue(data.getTotalOrders());
+                    row.createCell(3).setCellValue(data.getAverageOrderValue());
+                    row.createCell(4).setCellValue(data.getTotalItemsSold());
+                }
+            } else {
+                // No data available
+                Row noDataRow = sheet.createRow(rowNum++);
+                noDataRow.createCell(0).setCellValue("Không có dữ liệu");
+                noDataRow.createCell(1).setCellValue(0);
+                noDataRow.createCell(2).setCellValue(0);
+                noDataRow.createCell(3).setCellValue(0);
+                noDataRow.createCell(4).setCellValue(0);
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error loading sales data: " + e.getMessage());
+            // Fallback to placeholder
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue("Đang cập nhật...");
             row.createCell(1).setCellValue(0);
@@ -220,30 +230,43 @@ public class ExcelExporter {
         workbook.close();
     }
     
-    /**
-     * Helper method to calculate total revenue from product list
-     */
-    private double getTotalRevenue(List<ProductReportData> productList) {
-        return productList.stream()
-                .mapToDouble(ProductReportData::getRevenue)
-                .sum();
-    }
+
 
     private void createSalesSheet(Workbook workbook, List<Object> salesList, LocalDate startDate, LocalDate endDate) {
         // Implementation similar to exportSalesReport but creating sheet in existing workbook
-        Sheet sheet = workbook.createSheet("Doanh thu");
+        workbook.createSheet("Doanh thu");
         // ... (similar implementation)
     }
 
     private void createProductSheet(Workbook workbook, List<ProductReportData> productList, LocalDate startDate, LocalDate endDate) {
         // Implementation similar to exportProductReport but creating sheet in existing workbook
-        Sheet sheet = workbook.createSheet("Sản phẩm");
+        workbook.createSheet("Sản phẩm");
         // ... (similar implementation)
     }
 
     private void createCustomerSheet(Workbook workbook, List<CustomerData> customerList, LocalDate startDate, LocalDate endDate) {
         // Implementation similar to exportCustomerReport but creating sheet in existing workbook
-        Sheet sheet = workbook.createSheet("Khách hàng");
+        workbook.createSheet("Khách hàng");
         // ... (similar implementation)
+    }
+    
+    /**
+     * Get sales data for reporting
+     */
+    private java.util.List<com.cafe.model.dto.SalesData> getSalesData() {
+        try {
+            // Use ReportService to get sales data
+            com.cafe.service.ReportService reportService = new com.cafe.service.ReportService();
+            
+            // Get sales data for the last 30 days
+            java.time.LocalDate endDate = java.time.LocalDate.now();
+            java.time.LocalDate startDate = endDate.minusDays(30);
+            
+            return reportService.getSalesDataByDateRange(startDate, endDate);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error getting sales data: " + e.getMessage());
+            return java.util.List.of();
+        }
     }
 }

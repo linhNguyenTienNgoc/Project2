@@ -13,9 +13,6 @@ public class DateUtils {
 
     private static final String DEFAULT_DATE_FORMAT = "dd/MM/yyyy";
     private static final String DEFAULT_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
-    private static final String SQL_DATE_FORMAT = "yyyy-MM-dd";
-    private static final String SQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
     /**
      * Tạo StringConverter cho DatePicker với format mặc định
      */

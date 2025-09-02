@@ -213,23 +213,7 @@ public class TableController implements Initializable, DashboardCommunicator {
         loadTablesByArea(areaId);
     }
 
-    /**
-     * Select area by name (for backward compatibility)
-     */
-    private void selectAreaByName(String areaName, Button selectedButton) {
-        // Find area ID by name
-        Integer areaId = null;
-        if (areas != null) {
-            for (Area area : areas) {
-                if (area.getAreaName().equals(areaName)) {
-                    areaId = area.getAreaId();
-                    break;
-                }
-            }
-        }
 
-        selectArea(areaId, selectedButton);
-    }
 
     /**
      * Set active area button styling
@@ -526,34 +510,7 @@ public class TableController implements Initializable, DashboardCommunicator {
         }
     }
 
-    /**
-     * ✅ LEGACY: Switch to menu tab after selecting table (with potential auto status update)
-     */
-    private void switchToMenuTab(TableCafe table) {
-        try {
-            System.out.println("🔄 Switching to menu tab for table: " + table.getTableName());
-            
-            // Use reflection to call switchToTab method on DashboardController
-            if (dashboardController != null) {
-                Method switchToTabMethod = dashboardController.getClass().getMethod("switchToTab", String.class);
-                switchToTabMethod.invoke(dashboardController, "menu");
-                
-                // Also set up the order panel for the selected table
-                Method showOrderPanelMethod = dashboardController.getClass().getMethod("showOrderPanel", int.class);
-                showOrderPanelMethod.invoke(dashboardController, table.getTableId());
-                
-                System.out.println("✅ Successfully switched to menu tab and set up order panel");
-            } else {
-                System.err.println("⚠️ Dashboard controller not available");
-                showError("Không thể chuyển sang menu. Vui lòng thử lại.");
-            }
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error switching to menu tab: " + e.getMessage());
-            e.printStackTrace();
-            showError("Không thể chuyển sang menu: " + e.getMessage());
-        }
-    }
+
 
     /**
      * ✅ NEW: Show order panel for selected table

@@ -286,23 +286,7 @@ public class OrderDAOImpl implements OrderDAO {
         return o;
     }
 
-    private void setOrderToPreparedStatement(Order order, PreparedStatement ps) throws SQLException {
-        ps.setString(1, order.getOrderNumber());
-        ps.setInt(2, order.getTableId());
-        if (order.getCustomerId() != null) {
-            ps.setInt(3, order.getCustomerId());
-        } else {
-            ps.setNull(3, Types.INTEGER);
-        }
-        ps.setInt(4, order.getUserId());
-        ps.setDouble(5, order.getTotalAmount());
-        ps.setDouble(6, order.getDiscountAmount());
-        ps.setDouble(7, order.getFinalAmount());
-        ps.setString(8, order.getPaymentMethod());
-        ps.setString(9, order.getPaymentStatus());
-        ps.setString(10, order.getOrderStatus());
-        ps.setString(11, order.getNotes());
-    }
+
 
     // Additional methods implementation
     @Override

@@ -5,8 +5,6 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -243,7 +241,7 @@ public class QRCodeService {
         
         for (String method : methods) {
             try {
-                Image qrImage = generatePaymentQRCode(method, amount, orderNumber);
+                generatePaymentQRCode(method, amount, orderNumber);
                 String instructions = getPaymentInstructions(method);
                 
                 System.out.println("✅ Generated QR for " + getPaymentMethodDisplayName(method));

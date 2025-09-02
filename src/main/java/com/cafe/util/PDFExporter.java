@@ -1,6 +1,6 @@
 package com.cafe.util;
 
-import com.cafe.controller.admin.AdminReportController.ReportData;
+
 import com.cafe.controller.admin.AdminReportController.ProductReportData;
 import com.cafe.controller.admin.AdminReportController.CustomerData;
 import com.itextpdf.text.*;
@@ -58,24 +58,35 @@ public class PDFExporter {
             table.addCell(cell);
         }
 
-        // Table data
-        // TODO: Replace with actual SalesData implementation when available
-        /*
-        for (SalesData data : salesList) {
-            table.addCell(new PdfPCell(new Phrase(data.getDate(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getRevenue()), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(String.valueOf(data.getOrderCount()), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getAvgOrder()), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(String.format("%.1f%%", data.getGrowth()), NORMAL_FONT)));
+        // Table data - using actual SalesData implementation
+        try {
+            java.util.List<com.cafe.model.dto.SalesData> salesDataList = getSalesData();
+            
+            if (salesDataList != null && !salesDataList.isEmpty()) {
+                for (com.cafe.model.dto.SalesData data : salesDataList) {
+                    table.addCell(new PdfPCell(new Phrase(data.getDate().toString(), NORMAL_FONT)));
+                    table.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getTotalRevenue()), NORMAL_FONT)));
+                    table.addCell(new PdfPCell(new Phrase(String.valueOf(data.getTotalOrders()), NORMAL_FONT)));
+                    table.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getAverageOrderValue()), NORMAL_FONT)));
+                    table.addCell(new PdfPCell(new Phrase(String.valueOf(data.getTotalItemsSold()), NORMAL_FONT)));
+                }
+            } else {
+                // No data available
+                table.addCell(new PdfPCell(new Phrase("Không có dữ liệu", NORMAL_FONT)));
+                table.addCell(new PdfPCell(new Phrase("", NORMAL_FONT)));
+                table.addCell(new PdfPCell(new Phrase("", NORMAL_FONT)));
+                table.addCell(new PdfPCell(new Phrase("", NORMAL_FONT)));
+                table.addCell(new PdfPCell(new Phrase("", NORMAL_FONT)));
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error loading sales data: " + e.getMessage());
+            // Fallback to placeholder
+            table.addCell(new PdfPCell(new Phrase("Đang cập nhật...", NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
         }
-        */
-        
-        // Placeholder row for now
-        table.addCell(new PdfPCell(new Phrase("Đang cập nhật...", NORMAL_FONT)));
-        table.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
-        table.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
-        table.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
-        table.addCell(new PdfPCell(new Phrase("0%", NORMAL_FONT)));
 
         document.add(table);
         document.close();
@@ -217,24 +228,35 @@ public class PDFExporter {
             salesTable.addCell(cell);
         }
 
-        // Sales data - using mock data since SalesData doesn't exist yet
-        // TODO: Replace with actual SalesData implementation
-        /*
-        for (SalesData data : salesList) {
-            salesTable.addCell(new PdfPCell(new Phrase(data.getDate(), NORMAL_FONT)));
-            salesTable.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getRevenue()), NORMAL_FONT)));
-            salesTable.addCell(new PdfPCell(new Phrase(String.valueOf(data.getOrderCount()), NORMAL_FONT)));
-            salesTable.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getAvgOrder()), NORMAL_FONT)));
-            salesTable.addCell(new PdfPCell(new Phrase(String.format("%.1f%%", data.getGrowth()), NORMAL_FONT)));
+        // Sales data - using actual SalesData implementation
+        try {
+            java.util.List<com.cafe.model.dto.SalesData> salesDataList = getSalesData();
+            
+            if (salesDataList != null && !salesDataList.isEmpty()) {
+                for (com.cafe.model.dto.SalesData data : salesDataList) {
+                    salesTable.addCell(new PdfPCell(new Phrase(data.getDate().toString(), NORMAL_FONT)));
+                    salesTable.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getTotalRevenue()), NORMAL_FONT)));
+                    salesTable.addCell(new PdfPCell(new Phrase(String.valueOf(data.getTotalOrders()), NORMAL_FONT)));
+                    salesTable.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getAverageOrderValue()), NORMAL_FONT)));
+                    salesTable.addCell(new PdfPCell(new Phrase(String.valueOf(data.getTotalItemsSold()), NORMAL_FONT)));
+                }
+            } else {
+                // No data available
+                salesTable.addCell(new PdfPCell(new Phrase("Không có dữ liệu", NORMAL_FONT)));
+                salesTable.addCell(new PdfPCell(new Phrase("", NORMAL_FONT)));
+                salesTable.addCell(new PdfPCell(new Phrase("", NORMAL_FONT)));
+                salesTable.addCell(new PdfPCell(new Phrase("", NORMAL_FONT)));
+                salesTable.addCell(new PdfPCell(new Phrase("", NORMAL_FONT)));
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error loading sales data: " + e.getMessage());
+            // Fallback to placeholder
+            salesTable.addCell(new PdfPCell(new Phrase("Đang cập nhật...", NORMAL_FONT)));
+            salesTable.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+            salesTable.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+            salesTable.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
+            salesTable.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
         }
-        */
-        
-        // Placeholder row for now
-        salesTable.addCell(new PdfPCell(new Phrase("Đang cập nhật...", NORMAL_FONT)));
-        salesTable.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
-        salesTable.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
-        salesTable.addCell(new PdfPCell(new Phrase("0", NORMAL_FONT)));
-        salesTable.addCell(new PdfPCell(new Phrase("0%", NORMAL_FONT)));
 
         document.add(salesTable);
         document.newPage();
@@ -325,12 +347,25 @@ public class PDFExporter {
         document.close();
     }
     
+
+    
     /**
-     * Helper method to calculate total revenue from product list
+     * Get sales data for reporting
      */
-    private double getTotalRevenue(List<ProductReportData> productList) {
-        return productList.stream()
-                .mapToDouble(ProductReportData::getRevenue)
-                .sum();
+    private java.util.List<com.cafe.model.dto.SalesData> getSalesData() {
+        try {
+            // Use ReportService to get sales data
+            com.cafe.service.ReportService reportService = new com.cafe.service.ReportService();
+            
+            // Get sales data for the last 30 days
+            java.time.LocalDate endDate = java.time.LocalDate.now();
+            java.time.LocalDate startDate = endDate.minusDays(30);
+            
+            return reportService.getSalesDataByDateRange(startDate, endDate);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error getting sales data: " + e.getMessage());
+            return java.util.List.of();
+        }
     }
 }

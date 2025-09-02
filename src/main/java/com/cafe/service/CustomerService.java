@@ -135,20 +135,7 @@ public class CustomerService {
         }
     }
 
-    /**
-     * Tìm kiếm khách hàng theo tên
-     */
-    public List<Customer> searchCustomersByName(String name) {
-        try (Connection conn = DatabaseConfig.getConnection()) {
-            CustomerDAO customerDAO = new CustomerDAOImpl(conn);
-            return customerDAO.getAllCustomers().stream()
-                    .filter(c -> c.getFullName().toLowerCase().contains(name.toLowerCase()))
-                    .toList();
-        } catch (Exception e) {
-            System.err.println("Error searching customers by name: " + e.getMessage());
-            return List.of();
-        }
-    }
+
 
     /**
      * Lấy top khách hàng VIP (theo điểm tích lũy)
@@ -162,6 +149,59 @@ public class CustomerService {
                     .toList();
         } catch (Exception e) {
             System.err.println("Error loading VIP customers: " + e.getMessage());
+            return List.of();
+        }
+    }
+    
+    /**
+     * Search customers by phone number
+     */
+    public List<Customer> searchCustomersByPhone(String phone) {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            CustomerDAO customerDAO = new CustomerDAOImpl(conn);
+            return customerDAO.getAllCustomers().stream()
+                    .filter(customer -> customer.getPhone() != null && 
+                            customer.getPhone().contains(phone))
+                    .toList();
+        } catch (Exception e) {
+            System.err.println("Error searching customers by phone: " + e.getMessage());
+            return List.of();
+        }
+    }
+    
+    /**
+     * Search customers by name
+     */
+    public List<Customer> searchCustomersByName(String name) {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            CustomerDAO customerDAO = new CustomerDAOImpl(conn);
+            return customerDAO.getAllCustomers().stream()
+                    .filter(customer -> customer.getFullName() != null && 
+                            customer.getFullName().toLowerCase().contains(name.toLowerCase()))
+                    .toList();
+        } catch (Exception e) {
+            System.err.println("Error searching customers by name: " + e.getMessage());
+            return List.of();
+        }
+    }
+    
+    /**
+     * Search customers by phone and name
+     */
+    public List<Customer> searchCustomersByPhoneAndName(String phone, String name) {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            CustomerDAO customerDAO = new CustomerDAOImpl(conn);
+            return customerDAO.getAllCustomers().stream()
+                    .filter(customer -> {
+                        boolean phoneMatch = customer.getPhone() != null && 
+                                customer.getPhone().contains(phone);
+                        boolean nameMatch = customer.getFullName() != null && 
+                                customer.getFullName().toLowerCase().contains(name.toLowerCase());
+                        return phoneMatch && nameMatch;
+                    })
+                    .toList();
+        } catch (Exception e) {
+            System.err.println("Error searching customers by phone and name: " + e.getMessage());
             return List.of();
         }
     }

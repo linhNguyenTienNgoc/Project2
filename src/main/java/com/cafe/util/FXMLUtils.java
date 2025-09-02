@@ -1,8 +1,6 @@
 package com.cafe.util;
 
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 
 import java.io.IOException;
 import java.net.URL;

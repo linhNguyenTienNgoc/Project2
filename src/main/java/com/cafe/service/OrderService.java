@@ -58,7 +58,6 @@ public class OrderService {
 
         try (Connection conn = DatabaseConfig.getConnection()) {
             OrderDAO orderDAO = new OrderDAOImpl(conn);
-            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
             // Check if there's already an active order for this table
             Optional<Order> existingOrder = getActiveOrderByTable(tableId, conn);
@@ -117,7 +116,6 @@ public class OrderService {
         }
 
         try (Connection conn = DatabaseConfig.getConnection()) {
-            OrderDAO orderDAO = new OrderDAOImpl(conn);
             OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
             // Check if product already exists in order
@@ -181,7 +179,6 @@ public class OrderService {
         }
 
         try (Connection conn = DatabaseConfig.getConnection()) {
-            OrderDAO orderDAO = new OrderDAOImpl(conn);
             OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
             if (!orderDetailDAO.deleteByOrderAndProduct(order.getOrderId(), productId)) {
@@ -210,7 +207,6 @@ public class OrderService {
         }
 
         try (Connection conn = DatabaseConfig.getConnection()) {
-            OrderDAO orderDAO = new OrderDAOImpl(conn);
             OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
             if (newQuantity == 0) {
@@ -289,7 +285,6 @@ public class OrderService {
 
         try (Connection conn = DatabaseConfig.getConnection()) {
             OrderDAO orderDAO = new OrderDAOImpl(conn);
-            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
             order.setOrderStatus("preparing");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
@@ -315,7 +310,6 @@ public class OrderService {
 
         try (Connection conn = DatabaseConfig.getConnection()) {
             OrderDAO orderDAO = new OrderDAOImpl(conn);
-            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
             order.setOrderStatus("ready");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
@@ -336,7 +330,6 @@ public class OrderService {
 
         try (Connection conn = DatabaseConfig.getConnection()) {
             OrderDAO orderDAO = new OrderDAOImpl(conn);
-            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
             order.setOrderStatus("served");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
@@ -362,7 +355,6 @@ public class OrderService {
 
         try (Connection conn = DatabaseConfig.getConnection()) {
             OrderDAO orderDAO = new OrderDAOImpl(conn);
-            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
             order.setOrderStatus("completed");
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
@@ -393,7 +385,6 @@ public class OrderService {
 
         try (Connection conn = DatabaseConfig.getConnection()) {
             OrderDAO orderDAO = new OrderDAOImpl(conn);
-            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
             // ✅ FIXED: Set both order_status and payment_status to 'cancelled' to satisfy constraint
             order.setOrderStatus("cancelled");
@@ -436,7 +427,6 @@ public class OrderService {
 
         try (Connection conn = DatabaseConfig.getConnection()) {
             OrderDAO orderDAO = new OrderDAOImpl(conn);
-            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
             order.setPaymentMethod(paymentMethod);
             order.setPaymentStatus("paid");
@@ -643,7 +633,6 @@ public class OrderService {
 
         try (Connection conn = DatabaseConfig.getConnection()) {
             OrderDAO orderDAO = new OrderDAOImpl(conn);
-            OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl(conn); // ✅ Initialize OrderDetailDAO
 
             order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             return orderDAO.update(order);

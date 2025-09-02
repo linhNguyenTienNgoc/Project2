@@ -8,12 +8,12 @@ import com.cafe.dao.base.ProductDAOImpl;
 import com.cafe.dao.base.UserDAO;
 import com.cafe.dao.base.UserDAOImpl;
 import com.cafe.model.entity.Order;
-import com.cafe.model.entity.Product;
+
 import com.cafe.model.entity.User;
 
 import java.sql.Connection;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -249,6 +249,56 @@ public class ReportService {
         public int getTotalOrders() { return totalOrders; }
         public double getTotalRevenue() { return totalRevenue; }
         public double getAvgOrderValue() { return avgOrderValue; }
+    }
+    
+    /**
+     * Get sales data by date range
+     * @param startDate Start date
+     * @param endDate End date
+     * @return List of sales data
+     */
+    public java.util.List<com.cafe.model.dto.SalesData> getSalesDataByDateRange(java.time.LocalDate startDate, java.time.LocalDate endDate) {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            String sql = """
+                SELECT 
+                    DATE(o.order_date) as order_date,
+                    COUNT(o.order_id) as total_orders,
+                    COALESCE(SUM(o.total_amount), 0) as total_revenue,
+                    COALESCE(SUM(od.quantity), 0) as total_items_sold
+                FROM orders o
+                LEFT JOIN order_details od ON o.order_id = od.order_id
+                WHERE o.payment_status = 'paid'
+                AND DATE(o.order_date) BETWEEN ? AND ?
+                GROUP BY DATE(o.order_date)
+                ORDER BY order_date DESC
+                """;
+            
+            java.util.List<com.cafe.model.dto.SalesData> salesDataList = new java.util.ArrayList<>();
+            
+            try (var stmt = conn.prepareStatement(sql)) {
+                stmt.setDate(1, java.sql.Date.valueOf(startDate));
+                stmt.setDate(2, java.sql.Date.valueOf(endDate));
+                
+                try (var rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        java.time.LocalDate date = rs.getDate("order_date").toLocalDate();
+                        int totalOrders = rs.getInt("total_orders");
+                        double totalRevenue = rs.getDouble("total_revenue");
+                        int totalItemsSold = rs.getInt("total_items_sold");
+                        
+                        salesDataList.add(new com.cafe.model.dto.SalesData(date, totalOrders, totalRevenue, totalItemsSold));
+                    }
+                }
+            }
+            
+            System.out.println("📊 Retrieved " + salesDataList.size() + " sales data records for date range: " + startDate + " to " + endDate);
+            return salesDataList;
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error getting sales data by date range: " + e.getMessage());
+            e.printStackTrace();
+            return java.util.List.of();
+        }
     }
 }
 
