@@ -213,3 +213,4 @@ System.out.println("Role: " + SessionManager.getCurrentUserRole());
 **Version:** 1.0.0  
 **Last Updated:** Today  
 **Status:** ✅ Completed
+

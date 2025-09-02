@@ -422,46 +422,21 @@ public class TableController implements Initializable, DashboardCommunicator {
     }
 
     /**
-     * ✅ UPDATED: Handle table click - Reserve table and switch to menu
+     * ✅ FIXED: Handle table click - Show appropriate action based on table status
      */
     private void handleTableClick(TableCafe table) {
         try {
             System.out.println("Table clicked: " + table.getTableName() + " - Status: " + table.getStatus());
 
-            // Check if table is available for booking
-            if (!"available".equalsIgnoreCase(table.getStatus())) {
-                // For non-available tables, show order panel directly (existing behavior)
-                selectedTable = table;
-                displayTables(currentTables); // Refresh to show selection
-                
-                DashboardHelper.notifyTableSelected(dashboardController, table);
-                DashboardHelper.updateTableInfo(dashboardController, table.getTableName(), table.getStatus());
-                showOrderPanelForTable(table);
-                return;
-            }
-
-            // ✅ OPTIMIZED WORKFLOW: For available tables, reserve and switch to menu
-            // 1. Update table status to 'reserved' - SINGLE UPDATE POINT
-            boolean statusUpdated = tableService.updateTableStatus(table.getTableId(), "reserved");
-            if (!statusUpdated) {
-                showError("Không thể đặt bàn. Vui lòng thử lại.");
-                return;
-            }
-
-            // 2. Update local table object and UI
-            table.setStatus("reserved");
+            // For all tables, show order panel (which handles different statuses appropriately)
             selectedTable = table;
-            displayTables(currentTables); // Refresh to show new status
-
-            // 3. Notify Dashboard about table selection (WITHOUT status update to avoid duplicate)
+            displayTables(currentTables); // Refresh to show selection
+            
             DashboardHelper.notifyTableSelected(dashboardController, table);
-            DashboardHelper.updateTableInfo(dashboardController, table.getTableName(), "reserved");
-
-            // 4. Switch to menu tab to start ordering (with no-auto-update flag)
-            switchToMenuTabWithoutStatusUpdate(table);
-
-            // 5. Show success message
-            showInfo("Đã đặt bàn " + table.getTableName() + ". Chuyển sang menu để chọn món.");
+            DashboardHelper.updateTableInfo(dashboardController, table.getTableName(), table.getStatus());
+            
+            // Show order panel for table (handles cleaning status with alert)
+            showOrderPanelForTable(table);
 
         } catch (Exception e) {
             System.err.println("Error handling table click: " + e.getMessage());
@@ -565,8 +540,8 @@ public class TableController implements Initializable, DashboardCommunicator {
                 return;
             }
 
-            // For all other statuses, show order panel directly
-            DashboardHelper.showOrderPanel(dashboardController, table.getTableId());
+            // For all other statuses, switch to menu tab to start ordering
+            switchToMenuTabWithoutStatusUpdate(table);
 
         } catch (Exception e) {
             System.err.println("Error showing order panel: " + e.getMessage());

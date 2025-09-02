@@ -1,6 +1,8 @@
 package com.cafe.util;
 
-import com.cafe.controller.admin.ReportController.*;
+import com.cafe.controller.admin.AdminReportController.ReportData;
+import com.cafe.controller.admin.AdminReportController.ProductReportData;
+import com.cafe.controller.admin.AdminReportController.CustomerData;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -85,7 +87,7 @@ public class ExcelExporter {
         workbook.close();
     }
 
-    public void exportProductReport(List<ProductData> productList, LocalDate startDate, LocalDate endDate) throws IOException {
+    public void exportProductReport(List<ProductReportData> productList, LocalDate startDate, LocalDate endDate) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Báo cáo sản phẩm");
 
@@ -120,12 +122,12 @@ public class ExcelExporter {
 
         // Fill data
         int rowNum = 4;
-        for (ProductData data : productList) {
+        for (ProductReportData data : productList) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(data.getProductName());
             row.createCell(1).setCellValue(data.getQuantitySold());
             row.createCell(2).setCellValue(data.getRevenue());
-            row.createCell(3).setCellValue((data.getRevenue() / getTotalRevenue(productList)) * 100);
+            row.createCell(3).setCellValue(data.getPercentage());
         }
 
         // Auto-size columns
@@ -178,10 +180,10 @@ public class ExcelExporter {
         int rowNum = 4;
         for (CustomerData data : customerList) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(data.getFullName());
-            row.createCell(1).setCellValue(data.getTotalOrders());
+            row.createCell(0).setCellValue(data.getCustomerName());
+            row.createCell(1).setCellValue(data.getOrderCount());
             row.createCell(2).setCellValue(data.getTotalSpent());
-            row.createCell(3).setCellValue(data.getLastOrderDate());
+            row.createCell(3).setCellValue(data.getLastVisit());
         }
 
         // Auto-size columns
@@ -197,7 +199,7 @@ public class ExcelExporter {
         workbook.close();
     }
 
-    public void exportAllReports(List<Object> salesList, List<ProductData> productList,
+    public void exportAllReports(List<Object> salesList, List<ProductReportData> productList,
                                  List<CustomerData> customerList, LocalDate startDate, LocalDate endDate) throws IOException {
         Workbook workbook = new XSSFWorkbook();
 
@@ -221,9 +223,9 @@ public class ExcelExporter {
     /**
      * Helper method to calculate total revenue from product list
      */
-    private double getTotalRevenue(List<ProductData> productList) {
+    private double getTotalRevenue(List<ProductReportData> productList) {
         return productList.stream()
-                .mapToDouble(ProductData::getRevenue)
+                .mapToDouble(ProductReportData::getRevenue)
                 .sum();
     }
 
@@ -233,7 +235,7 @@ public class ExcelExporter {
         // ... (similar implementation)
     }
 
-    private void createProductSheet(Workbook workbook, List<ProductData> productList, LocalDate startDate, LocalDate endDate) {
+    private void createProductSheet(Workbook workbook, List<ProductReportData> productList, LocalDate startDate, LocalDate endDate) {
         // Implementation similar to exportProductReport but creating sheet in existing workbook
         Sheet sheet = workbook.createSheet("Sản phẩm");
         // ... (similar implementation)

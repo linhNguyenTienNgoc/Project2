@@ -1,0 +1,5 @@
+[33m6e1791b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: Update controllers, services, and UI components - Add CredentialManager utility for secure credential handling - Update dashboard, login, and admin controllers - Enhance menu, customer, report, and table services - Improve CSS styling for dashboard and menu - Update FXML layouts for better UI - Add developer documentation
+[33m6e1c303[m feat: Add unified admin theme CSS with synchronized color palette
+[33m98d0783[m Update AdminMenuController and menu-style.css
+[33m79489d4[m feat: hoàn thiện admin-user và cập nhật admin-menu - Hoàn thiện chức năng quản lý user trong admin dashboard - Cập nhật giao diện và chức năng admin menu - Thêm checkout controller và các file CSS mới - Cải thiện payment UI và admin dashboard - Cập nhật database schema và documentation
+[33mdb375c4[m cập nhật admin

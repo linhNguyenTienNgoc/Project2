@@ -136,14 +136,99 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public boolean deleteOrder(int id) {
-        String sql = "DELETE FROM orders WHERE order_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
+        Connection conn = null;
+        try {
+            conn = this.conn;
+            conn.setAutoCommit(false);
+            
+            // 1. Xóa order details trước
+            String deleteDetailsSQL = "DELETE FROM order_details WHERE order_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(deleteDetailsSQL)) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+            }
+            
+            // 2. Xóa order promotions nếu có
+            String deletePromotionsSQL = "DELETE FROM order_promotions WHERE order_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(deletePromotionsSQL)) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+            }
+            
+            // 3. Lấy table_id trước khi xóa order
+            Integer tableId = null;
+            String getTableSQL = "SELECT table_id FROM orders WHERE order_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(getTableSQL)) {
+                stmt.setInt(1, id);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    tableId = rs.getInt("table_id");
+                }
+            }
+            
+            // 4. Xóa order chính
+            String deleteOrderSQL = "DELETE FROM orders WHERE order_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(deleteOrderSQL)) {
+                stmt.setInt(1, id);
+                int result = stmt.executeUpdate();
+                
+                if (result > 0) {
+                    // 5. Cập nhật trạng thái bàn nếu cần
+                    if (tableId != null) {
+                        updateTableStatusAfterDelete(conn, tableId);
+                    }
+                    
+                    conn.commit();
+                    return true;
+                } else {
+                    conn.rollback();
+                    return false;
+                }
+            }
+            
         } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
             e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return false;
+    }
+    
+    // Cập nhật trạng thái bàn sau khi xóa
+    private void updateTableStatusAfterDelete(Connection conn, int tableId) throws SQLException {
+        // Kiểm tra xem bàn còn order active khác không
+        String checkSQL = """
+            SELECT COUNT(*) FROM orders 
+            WHERE table_id = ? 
+            AND order_status IN ('pending', 'confirmed', 'preparing', 'ready', 'served')
+        """;
+        
+        try (PreparedStatement stmt = conn.prepareStatement(checkSQL)) {
+            stmt.setInt(1, tableId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next() && rs.getInt(1) == 0) {
+                // Không còn order active -> set available
+                String updateSQL = "UPDATE tables SET status = 'available' WHERE table_id = ?";
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateSQL)) {
+                    updateStmt.setInt(1, tableId);
+                    updateStmt.executeUpdate();
+                }
+            }
+        }
     }
 
     @Override

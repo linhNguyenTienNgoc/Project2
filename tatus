@@ -1,0 +1,26 @@
+warning: in the working copy of 'src/main/java/com/cafe/CafeManagementApplication.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main/java/com/cafe/controller/admin/AdminDashboardController.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main/java/com/cafe/controller/admin/AdminReportController.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main/resources/fxml/admin/menu-layout.fxml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main/resources/fxml/payment/payment.fxml', LF will be replaced by CRLF the next time Git touches it
+TROUBLESHOOTING_DASHBOARD.md
+database/complete_cafe_management.sql
+docs/developer/DYNAMIC_USER_DISPLAY.md
+src/main/java/com/cafe/controller/admin/AdminDashboardController.java
+src/main/java/com/cafe/controller/admin/AdminMenuController.java
+src/main/java/com/cafe/controller/admin/AdminReportController.java
+src/main/java/com/cafe/controller/admin/DashboardOverviewController.java
+src/main/java/com/cafe/controller/admin/ReportController.java
+src/main/java/com/cafe/controller/order/OrderPanelController.java
+src/main/java/com/cafe/controller/payment/PaymentController.java
+src/main/java/com/cafe/dao/base/OrderDAOImpl.java
+src/main/java/com/cafe/demo/UserDisplayDemo.java
+src/main/java/com/cafe/model/entity/Product.java
+src/main/java/com/cafe/util/ExcelExporter.java
+src/main/java/com/cafe/util/PDFExporter.java
+src/main/resources/css/dashboard-overview.css
+src/main/resources/css/payment.css
+src/main/resources/fxml/admin/dashboard-overview.fxml
+src/main/resources/fxml/admin/menu-layout.fxml
+src/main/resources/fxml/admin/report-layout.fxml
+src/main/resources/fxml/payment/payment.fxml

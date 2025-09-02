@@ -14,7 +14,7 @@ File: src/main/resources/fxml/payment/payment.fxml
 <BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="com.cafe.controller.payment.PaymentController"
             stylesheets="@../../css/payment.css"
-            prefWidth="1000" prefHeight="700" minWidth="800" minHeight="600">
+            prefWidth="1200" prefHeight="750" minWidth="1000" minHeight="650">
 
     <!-- Header -->
     <top>
@@ -52,14 +52,14 @@ File: src/main/resources/fxml/payment/payment.fxml
     </top>
 
     <center>
-        <HBox styleClass="main-container" spacing="30">
+        <HBox styleClass="main-container" spacing="20">
             <padding>
-                <Insets top="20" right="30" bottom="20" left="30"/>
+                <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
             <!-- Left Panel - Shopping Cart -->
-            <VBox styleClass="cart-panel" spacing="20" HBox.hgrow="ALWAYS">
-                <VBox spacing="15">
+            <VBox styleClass="cart-panel" spacing="15" prefWidth="450" minWidth="400" maxWidth="500">
+                <VBox spacing="10" VBox.vgrow="ALWAYS">
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <Label text="🛒 Giỏ Hàng" styleClass="panel-title"/>
                         <Region HBox.hgrow="ALWAYS"/>
@@ -67,10 +67,10 @@ File: src/main/resources/fxml/payment/payment.fxml
                     </HBox>
                     
                     <!-- Items Table -->
-                    <TableView fx:id="itemsTableView" styleClass="cart-table" VBox.vgrow="ALWAYS">
+                    <TableView fx:id="itemsTableView" styleClass="cart-table" prefHeight="200" maxHeight="300">
                         <columns>
                             <TableColumn fx:id="sttColumn" text="STT" prefWidth="40" sortable="false"/>
-                            <TableColumn fx:id="itemNameColumn" text="Món" prefWidth="200" sortable="false"/>
+                            <TableColumn fx:id="itemNameColumn" text="Món" prefWidth="180" sortable="false"/>
                             <TableColumn fx:id="quantityColumn" text="SL" prefWidth="50" sortable="false"/>
                             <TableColumn fx:id="unitPriceColumn" text="Đơn giá" prefWidth="80" sortable="false"/>
                             <TableColumn fx:id="totalPriceColumn" text="Thành tiền" prefWidth="100" sortable="false"/>
@@ -80,10 +80,34 @@ File: src/main/resources/fxml/payment/payment.fxml
                         </placeholder>
                     </TableView>
                 </VBox>
+                
+                <!-- Customer Information Section -->
+                <VBox spacing="10" styleClass="customer-section">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="👤 Thông tin khách hàng (tùy chọn)" styleClass="section-subtitle"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <VBox spacing="5">
+                            <Label text="Số điện thoại:" styleClass="customer-label"/>
+                            <TextField fx:id="customerPhoneField" promptText="Nhập SĐT (tùy chọn)..." 
+                                     styleClass="customer-input" prefWidth="140"/>
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Tên khách hàng:" styleClass="customer-label"/>
+                            <TextField fx:id="customerNameField" promptText="Tên khách hàng (tùy chọn)..." 
+                                     styleClass="customer-input" prefWidth="180"/>
+                        </VBox>
+                    </HBox>
+                    
+                    <Label text="💡 Lưu ý: Có thể thanh toán mà không cần nhập thông tin khách hàng" 
+                           styleClass="info-note"/>
+                </VBox>
             </VBox>
 
             <!-- Right Panel - Payment -->
-            <VBox styleClass="payment-panel" spacing="20" prefWidth="380" minWidth="320" maxWidth="400">
+            <VBox styleClass="payment-panel" spacing="15" prefWidth="350" minWidth="320" maxWidth="380">
                 
                 <!-- Payment Summary -->
                 <VBox spacing="15" styleClass="summary-section">

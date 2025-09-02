@@ -1,8 +1,8 @@
 package com.cafe.util;
 
-import com.cafe.controller.admin.ReportController.SalesData;
-import com.cafe.controller.admin.ReportController.ProductData;
-import com.cafe.controller.admin.ReportController.CustomerData;
+import com.cafe.controller.admin.AdminReportController.ReportData;
+import com.cafe.controller.admin.AdminReportController.ProductReportData;
+import com.cafe.controller.admin.AdminReportController.CustomerData;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 
@@ -81,7 +81,7 @@ public class PDFExporter {
         document.close();
     }
 
-    public void exportProductReport(List<ProductData> productList, LocalDate startDate, LocalDate endDate) throws IOException, DocumentException {
+    public void exportProductReport(List<ProductReportData> productList, LocalDate startDate, LocalDate endDate) throws IOException, DocumentException {
         Document document = new Document();
         String fileName = "BaoCaoSanPham_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf";
 
@@ -118,11 +118,11 @@ public class PDFExporter {
         }
 
         // Table data
-        for (ProductData data : productList) {
+        for (ProductReportData data : productList) {
             table.addCell(new PdfPCell(new Phrase(data.getProductName(), NORMAL_FONT)));
             table.addCell(new PdfPCell(new Phrase(String.valueOf(data.getQuantitySold()), NORMAL_FONT)));
             table.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getRevenue()), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(String.format("%.1f%%", (data.getRevenue() / getTotalRevenue(productList)) * 100), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(String.format("%.1f%%", data.getPercentage()), NORMAL_FONT)));
         }
 
         document.add(table);
@@ -167,17 +167,17 @@ public class PDFExporter {
 
         // Table data
         for (CustomerData data : customerList) {
-            table.addCell(new PdfPCell(new Phrase(data.getFullName(), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(String.valueOf(data.getTotalOrders()), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(data.getCustomerName(), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(String.valueOf(data.getOrderCount()), NORMAL_FONT)));
             table.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getTotalSpent()), NORMAL_FONT)));
-            table.addCell(new PdfPCell(new Phrase(data.getLastOrderDate(), NORMAL_FONT)));
+            table.addCell(new PdfPCell(new Phrase(data.getLastVisit(), NORMAL_FONT)));
         }
 
         document.add(table);
         document.close();
     }
 
-    public void exportAllReports(List<Object> salesList, List<ProductData> productList,
+    public void exportAllReports(List<Object> salesList, List<ProductReportData> productList,
                                  List<CustomerData> customerList, LocalDate startDate, LocalDate endDate) throws IOException, DocumentException {
         Document document = new Document();
         String fileName = "BaoCaoTongHop_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf";
@@ -259,11 +259,11 @@ public class PDFExporter {
         }
 
         // Product data
-        for (ProductData data : productList) {
+        for (ProductReportData data : productList) {
             productTable.addCell(new PdfPCell(new Phrase(data.getProductName(), NORMAL_FONT)));
             productTable.addCell(new PdfPCell(new Phrase(String.valueOf(data.getQuantitySold()), NORMAL_FONT)));
             productTable.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getRevenue()), NORMAL_FONT)));
-            productTable.addCell(new PdfPCell(new Phrase(String.format("%.1f%%", (data.getRevenue() / getTotalRevenue(productList)) * 100), NORMAL_FONT)));
+            productTable.addCell(new PdfPCell(new Phrase(String.format("%.1f%%", data.getPercentage()), NORMAL_FONT)));
         }
 
         document.add(productTable);
@@ -290,10 +290,10 @@ public class PDFExporter {
 
         // Customer data
         for (CustomerData data : customerList) {
-            customerTable.addCell(new PdfPCell(new Phrase(data.getFullName(), NORMAL_FONT)));
-            customerTable.addCell(new PdfPCell(new Phrase(String.valueOf(data.getTotalOrders()), NORMAL_FONT)));
+            customerTable.addCell(new PdfPCell(new Phrase(data.getCustomerName(), NORMAL_FONT)));
+            customerTable.addCell(new PdfPCell(new Phrase(String.valueOf(data.getOrderCount()), NORMAL_FONT)));
             customerTable.addCell(new PdfPCell(new Phrase(String.format("%.0f", data.getTotalSpent()), NORMAL_FONT)));
-            customerTable.addCell(new PdfPCell(new Phrase(data.getLastOrderDate(), NORMAL_FONT)));
+            customerTable.addCell(new PdfPCell(new Phrase(data.getLastVisit(), NORMAL_FONT)));
         }
 
         document.add(customerTable);
@@ -328,9 +328,9 @@ public class PDFExporter {
     /**
      * Helper method to calculate total revenue from product list
      */
-    private double getTotalRevenue(List<ProductData> productList) {
+    private double getTotalRevenue(List<ProductReportData> productList) {
         return productList.stream()
-                .mapToDouble(ProductData::getRevenue)
+                .mapToDouble(ProductReportData::getRevenue)
                 .sum();
     }
 }

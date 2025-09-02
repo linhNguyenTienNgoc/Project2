@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cafe.controller.admin.AdminReportController"
+            stylesheets="@../../css/admin-theme.css,@../../css/report.css">
+    
+    <!-- Top: ToolBar với bộ lọc và controls -->
+    <top>
+        <ToolBar styleClass="report-toolbar">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+            
+            <Label text="📊 Báo cáo thống kê" styleClass="report-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            
+            <Label text="Từ ngày:" styleClass="date-label"/>
+            <DatePicker fx:id="startDatePicker" styleClass="date-picker" prefWidth="150"/>
+            
+            <Label text="Đến ngày:" styleClass="date-label"/>
+            <DatePicker fx:id="endDatePicker" styleClass="date-picker" prefWidth="150"/>
+            
+            <Label text="Loại báo cáo:" styleClass="date-label"/>
+            <ComboBox fx:id="reportTypeCombo" styleClass="report-type-combo" prefWidth="150"/>
+            
+            <Button fx:id="generateReportButton" text="🔍 Tạo báo cáo" styleClass="filter-button" 
+                    onAction="#handleGenerateReport"/>
+            
+            <Button fx:id="refreshButton" text="🔄 Làm mới" styleClass="refresh-button" 
+                    onAction="#handleRefresh"/>
+        </ToolBar>
+    </top>
+    
+    <!-- Left: Thống kê tổng quan -->
+    <left>
+        <VBox spacing="15" styleClass="stats-panel" prefWidth="250">
+            <padding>
+                <Insets top="20" right="15" bottom="20" left="20"/>
+            </padding>
+            
+            <Label text="📈 Thống kê tổng quan" styleClass="stats-title"/>
+            
+            <VBox spacing="10" styleClass="stat-item">
+                <Label text="Tổng doanh thu:" styleClass="stat-label"/>
+                <Label fx:id="totalRevenueLabel" text="0 VNĐ" styleClass="stat-value"/>
+            </VBox>
+            
+            <VBox spacing="10" styleClass="stat-item">
+                <Label text="Tổng đơn hàng:" styleClass="stat-label"/>
+                <Label fx:id="totalOrdersLabel" text="0" styleClass="stat-value"/>
+            </VBox>
+            
+            <VBox spacing="10" styleClass="stat-item">
+                <Label text="Giá trị TB/đơn:" styleClass="stat-label"/>
+                <Label fx:id="avgOrderValueLabel" text="0 VNĐ" styleClass="stat-value"/>
+            </VBox>
+            
+            <VBox spacing="10" styleClass="stat-item">
+                <Label text="Doanh thu TB/ngày:" styleClass="stat-label"/>
+                <Label fx:id="dailyAvgRevenueLabel" text="0 VNĐ" styleClass="stat-value"/>
+            </VBox>
+            
+            <Region VBox.vgrow="ALWAYS"/>
+            
+            <VBox spacing="10" styleClass="action-buttons">
+                <Button fx:id="exportReportButton" text="📥 Xuất báo cáo" 
+                        styleClass="export-button" onAction="#handleExportReport"/>
+                <Button fx:id="printReportButton" text="🖨️ In báo cáo" 
+                        styleClass="print-button" onAction="#handlePrintReport"/>
+            </VBox>
+        </VBox>
+    </left>
+    
+    <!-- Center: Biểu đồ và bảng -->
+    <center>
+        <VBox spacing="20" styleClass="content-container">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            
+            <!-- Hàng 1: Biểu đồ doanh thu -->
+            <VBox spacing="10" styleClass="chart-container">
+                <Label text="📈 Doanh thu theo thời gian" styleClass="chart-title"/>
+                <LineChart fx:id="revenueChart" prefHeight="300" styleClass="revenue-chart">
+                    <xAxis>
+                        <CategoryAxis fx:id="revenueXAxis" label="Thời gian"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis fx:id="revenueYAxis" label="Doanh thu (VNĐ)"/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+            
+            <!-- Hàng 2: HBox chứa 2 biểu đồ -->
+            <HBox spacing="20" prefHeight="300">
+                <!-- Biểu đồ cột - Sản phẩm bán chạy -->
+                <VBox spacing="10" styleClass="chart-container" HBox.hgrow="ALWAYS">
+                    <Label text="🏆 Top sản phẩm bán chạy" styleClass="chart-title"/>
+                    <BarChart fx:id="productSalesChart" prefHeight="280" styleClass="product-chart">
+                        <xAxis>
+                            <CategoryAxis fx:id="productXAxis" label="Sản phẩm"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis fx:id="productYAxis" label="Số lượng"/>
+                        </yAxis>
+                    </BarChart>
+                </VBox>
+                
+                <!-- Biểu đồ tròn - Phân phối danh mục -->
+                <VBox spacing="10" styleClass="chart-container" HBox.hgrow="ALWAYS">
+                    <Label text="🍰 Phân phối theo danh mục" styleClass="chart-title"/>
+                    <PieChart fx:id="categoryDistributionChart" prefHeight="280" styleClass="category-chart"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+    
+    <!-- Bottom: Tables chi tiết -->
+    <bottom>
+        <VBox spacing="15" styleClass="tables-container">
+            <padding>
+                <Insets top="0" right="20" bottom="20" left="20"/>
+            </padding>
+            
+            <!-- TabPane cho các loại báo cáo -->
+            <TabPane styleClass="report-tabs">
+                <Tab text="📋 Báo cáo tổng hợp" closable="false">
+                    <TableView fx:id="reportTable" styleClass="report-table" prefHeight="200">
+                        <columns>
+                            <TableColumn fx:id="dateColumn" text="Ngày" prefWidth="120" styleClass="date-column"/>
+                            <TableColumn fx:id="ordersColumn" text="Số đơn hàng" prefWidth="120" styleClass="number-column"/>
+                            <TableColumn fx:id="revenueColumn" text="Doanh thu (VNĐ)" prefWidth="150" styleClass="currency-column"/>
+                            <TableColumn fx:id="avgValueColumn" text="Giá trị TB (VNĐ)" prefWidth="150" styleClass="currency-column"/>
+                        </columns>
+                    </TableView>
+                </Tab>
+                
+                <Tab text="🛍️ Báo cáo sản phẩm" closable="false">
+                    <TableView fx:id="productReportTable" styleClass="product-report-table" prefHeight="200">
+                        <columns>
+                            <TableColumn fx:id="productNameColumn" text="Tên sản phẩm" prefWidth="200" styleClass="text-column"/>
+                            <TableColumn fx:id="quantitySoldColumn" text="Số lượng bán" prefWidth="120" styleClass="number-column"/>
+                            <TableColumn fx:id="productRevenueColumn" text="Doanh thu (VNĐ)" prefWidth="150" styleClass="currency-column"/>
+                            <TableColumn fx:id="percentageColumn" text="Tỷ lệ (%)" prefWidth="100" styleClass="percentage-column"/>
+                        </columns>
+                    </TableView>
+                </Tab>
+            </TabPane>
+        </VBox>
+    </bottom>
+    
+</BorderPane>

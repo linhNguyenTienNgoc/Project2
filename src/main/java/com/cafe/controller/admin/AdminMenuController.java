@@ -1,5 +1,6 @@
 package com.cafe.controller.admin;
 
+import com.cafe.CafeManagementApplication;
 import com.cafe.controller.base.DashboardCommunicator;
 import com.cafe.config.DatabaseConfig;
 import com.cafe.dao.base.CategoryDAO;
@@ -8,8 +9,8 @@ import com.cafe.dao.base.ProductDAO;
 import com.cafe.dao.base.ProductDAOImpl;
 import com.cafe.model.entity.Category;
 import com.cafe.model.entity.Product;
-import com.cafe.service.MenuService;
 import com.cafe.util.AlertUtils;
+import com.cafe.util.SessionManager;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -17,7 +18,6 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -34,7 +34,6 @@ import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.util.StringConverter;
 import javafx.geometry.Pos;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.Node;
 
 import java.io.File;
@@ -118,15 +117,9 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     @FXML private Button duplicateProductButton;
 
     // =============================================
-    // FXML COMPONENTS - FORM DIALOG (Keep for compatibility)
+    // FXML COMPONENTS - FORM DIALOG (UNUSED - Removed)
     // =============================================
-    @FXML private VBox productFormDialog;
-    @FXML private Label dialogTitle;
-    @FXML private Button closeDialogButton;
-    @FXML private Button selectImageButton;
-    @FXML private Button cancelFormButton;
-    @FXML private Button resetFormFieldsButton;
-    @FXML private Button saveProductButton;
+    // Form dialog components are created programmatically
 
     // =============================================
     // PROGRAMMATIC FORM FIELDS (Created dynamically)
@@ -139,6 +132,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     private ImageView formProductImageView;
     private TextField imageUrlField;
     private CheckBox isAvailableCheckBox;
+    private Button saveProductButton;
 
     // =============================================
     // DATA COLLECTIONS
@@ -150,7 +144,6 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     // =============================================
     // SERVICES & STATE
     // =============================================
-    private MenuService menuService;
     private ProductDAO productDAO;
     private CategoryDAO categoryDAO;
     private Product currentEditingProduct = null;
@@ -222,7 +215,6 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
 
     private void initializeServices() {
         System.out.println("🔧 Initializing services...");
-        menuService = new MenuService();
         try (Connection connection = DatabaseConfig.getConnection()) {
             productDAO = new ProductDAOImpl(connection);
             categoryDAO = new CategoryDAOImpl(connection);
@@ -328,8 +320,8 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     }
 
     private void configureResponsiveTable() {
-        // Force table to use constrained resize policy
-        productsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // Force table to use constrained resize policy with flexible last column
+        productsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         
         // Remove explicit width/height constraints that might conflict
         productsTable.setPrefWidth(Region.USE_COMPUTED_SIZE);
@@ -713,10 +705,8 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     }
 
     private void setupFormDialog() {
-        if (productFormDialog != null) {
-            productFormDialog.setVisible(false);
-            productFormDialog.setManaged(false);
-        }
+        // Form dialog is created programmatically - no FXML setup needed
+        System.out.println("✅ Form dialog setup complete (programmatic creation)");
     }
 
     // =============================================
@@ -1847,7 +1837,9 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         previewCostPrice.setText(priceFormatter.format(product.getCostPrice()) + " đ");
         previewStatus.setText(product.isAvailable() ? "Đang bán" : "Ngừng bán");
         previewDescription.setText(product.getDescription() != null ? product.getDescription() : "Chưa có mô tả");
-        previewCreatedDate.setText(LocalDateTime.now().format(dateFormatter)); // TODO: Use actual creation date
+        previewCreatedDate.setText(product.getCreatedAt() != null ? 
+            product.getCreatedAt().format(dateFormatter) : 
+            LocalDateTime.now().format(dateFormatter));
 
         // Apply status styling
         if (product.isAvailable()) {
@@ -1960,8 +1952,52 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
 
     private void changeProductImage() {
         if (currentEditingProduct == null) return;
-        selectImageFile();
-        // TODO: Save image URL to current product
+        
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Chọn ảnh sản phẩm");
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+
+        Window window = productsTable.getScene().getWindow();
+        File selectedFile = fileChooser.showOpenDialog(window);
+
+        if (selectedFile != null) {
+            String imageUrl = selectedFile.toURI().toString();
+            currentEditingProduct.setImageUrl(imageUrl);
+            
+            // Save to database
+            Task<Boolean> updateTask = new Task<Boolean>() {
+                @Override
+                protected Boolean call() throws Exception {
+                    try (Connection connection = DatabaseConfig.getConnection()) {
+                        ProductDAO dao = new ProductDAOImpl(connection);
+                        return dao.update(currentEditingProduct);
+                    }
+                }
+
+                @Override
+                protected void succeeded() {
+                    Platform.runLater(() -> {
+                        if (getValue()) {
+                            loadImageFromUrl(imageUrl);
+                            AlertUtils.showInfo("Thành công", "Đã cập nhật ảnh sản phẩm");
+                        } else {
+                            AlertUtils.showError("Lỗi", "Không thể cập nhật ảnh sản phẩm");
+                        }
+                    });
+                }
+
+                @Override
+                protected void failed() {
+                    Platform.runLater(() -> {
+                        AlertUtils.showError("Lỗi", "Lỗi khi cập nhật ảnh: " + getException().getMessage());
+                    });
+                }
+            };
+
+            new Thread(updateTask).start();
+        }
     }
 
     // =============================================
@@ -2060,8 +2096,14 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             if (productFormStage != null) {
                 productFormStage.close();
             }
-            // TODO: Implement logout logic
-            System.out.println("Logging out...");
+            
+            // Clear session
+            SessionManager.clearSession();
+            
+            // Return to login screen
+            CafeManagementApplication.showLoginScreen();
+            
+            System.out.println("✅ Logged out successfully");
         }
     }
 

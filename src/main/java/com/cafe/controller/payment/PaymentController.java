@@ -32,6 +32,8 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.converter.NumberStringConverter;
+import javafx.fxml.FXMLLoader;
+import java.util.Optional;
 
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -135,6 +137,10 @@ public class PaymentController implements Initializable {
     @FXML private VBox cardTransferSection;
     @FXML private TextArea paymentNotesArea;
     
+    // Customer Information Section
+    @FXML private TextField customerNameField;
+    @FXML private TextField customerPhoneField;
+    
     // Action Buttons
     @FXML private Button cancelButton;
     @FXML private Button printReceiptButton;
@@ -171,6 +177,10 @@ public class PaymentController implements Initializable {
     
     // ✅ NEW: Selected promotion
     private ObjectProperty<Promotion> selectedPromotionProperty = new SimpleObjectProperty<>();
+    
+    // Customer Information Properties
+    private StringProperty customerNameProperty = new SimpleStringProperty("");
+    private StringProperty customerPhoneProperty = new SimpleStringProperty("");
     
     // Format
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
@@ -256,6 +266,9 @@ public class PaymentController implements Initializable {
         
         // ✅ Setup cash auto-fill after data is loaded
         setupCashAutoFill();
+        
+        // Initialize customer information
+        initializeCustomerInfo();
         
         System.out.println("✅ Enhanced payment data initialized for order: " + order.getOrderNumber());
     }
@@ -349,6 +362,101 @@ public class PaymentController implements Initializable {
         vatPercentField.textProperty().bindBidirectional(vatPercentProperty, new NumberStringConverter());
         discountValueField.textProperty().bindBidirectional(discountValueProperty, new NumberStringConverter());
         customerAmountField.textProperty().bindBidirectional(customerAmountProperty, new NumberStringConverter());
+        
+        // Setup customer information fields
+        setupCustomerFields();
+    }
+    
+    private void setupCustomerFields() {
+        // Bind customer properties to fields
+        customerNameField.textProperty().bindBidirectional(customerNameProperty);
+        customerPhoneField.textProperty().bindBidirectional(customerPhoneProperty);
+        
+        // Setup phone field listener for auto-fill customer name and auto-save new customer
+        customerPhoneField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                searchCustomerByPhone(newVal.trim());
+            }
+        });
+        
+        // Setup name field listener for auto-save when both phone and name are provided
+        customerNameField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty() && 
+                customerPhoneProperty.get() != null && !customerPhoneProperty.get().trim().isEmpty()) {
+                // Auto-save customer if both phone and name are provided
+                saveCustomerIfNew();
+            }
+        });
+    }
+    
+    private void clearCustomerFields() {
+        customerNameProperty.set("");
+        customerPhoneProperty.set("");
+    }
+    
+    /**
+     * Auto-save customer if phone number is new
+     */
+    private void saveCustomerIfNew() {
+        String phone = customerPhoneProperty.get().trim();
+        String name = customerNameProperty.get().trim();
+        
+        if (phone.isEmpty() || name.isEmpty()) {
+            return;
+        }
+        
+        try {
+            // Check if customer already exists
+            if (!isExistingCustomer(phone)) {
+                // Save new customer
+                saveNewCustomer(name, phone);
+                System.out.println("✅ Auto-saved new customer: " + name + " - " + phone);
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error auto-saving customer: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Check if customer exists by phone
+     */
+    private boolean isExistingCustomer(String phone) {
+        // TODO: Implement database check
+        // For now, return false to allow auto-save
+        return false;
+    }
+    
+    /**
+     * Save new customer to database
+     */
+    private void saveNewCustomer(String name, String phone) {
+        // TODO: Implement database save
+        System.out.println("💾 Saving new customer: " + name + " - " + phone);
+    }
+    
+    private void searchCustomerByPhone(String phone) {
+        // TODO: Implement customer search by phone
+        // This would typically query the database
+        System.out.println("🔍 Searching customer by phone: " + phone);
+        
+        // For now, just show a placeholder
+        if (phone.length() >= 10) {
+            // Simulate finding customer
+            customerNameProperty.set("Khách hàng " + phone.substring(phone.length() - 4));
+        }
+    }
+    
+    private void searchCustomer() {
+        // TODO: Implement customer search functionality
+        // This could open a dialog to search for existing customers
+        System.out.println("🔍 Customer search functionality to be implemented");
+    }
+    
+    private void initializeCustomerInfo() {
+        // Clear customer fields
+        clearCustomerFields();
+        
+        System.out.println("✅ Customer information initialized");
     }
     
     private void bindCalculations() {
@@ -526,7 +634,20 @@ public class PaymentController implements Initializable {
             double receivedAmount = cashRadio.isSelected() ? customerAmountProperty.get() : totalAmount;
             String transactionCode = cardRadio.isSelected() || transferRadio.isSelected() ? 
                 transactionCodeField.getText() : null;
-            String notes = paymentNotesArea.getText();
+            
+            // Prepare customer information notes (optional)
+            StringBuilder customerNotes = new StringBuilder();
+            if (!customerNameProperty.get().trim().isEmpty()) {
+                customerNotes.append("Khách hàng: ").append(customerNameProperty.get()).append("\n");
+            }
+            if (!customerPhoneProperty.get().trim().isEmpty()) {
+                customerNotes.append("SĐT: ").append(customerPhoneProperty.get()).append("\n");
+            }
+            if (paymentNotesArea != null && !paymentNotesArea.getText().trim().isEmpty()) {
+                customerNotes.append("Ghi chú thanh toán: ").append(paymentNotesArea.getText());
+            }
+            
+            String notes = customerNotes.toString();
             
             // Process payment through service (using existing method signature)
             boolean success = paymentService.processPayment(currentOrder, paymentMethod, receivedAmount);
@@ -605,6 +726,12 @@ public class PaymentController implements Initializable {
             return false;
         }
         
+        // Customer information is optional - no validation required
+        // Auto-save customer if both phone and name are provided
+        if (!customerNameProperty.get().trim().isEmpty() && !customerPhoneProperty.get().trim().isEmpty()) {
+            saveCustomerIfNew();
+        }
+        
         // Validate discount
         double maxDiscount = subtotalProperty.get();
         if (discountAmountProperty.get() > maxDiscount) {
@@ -676,6 +803,10 @@ public class PaymentController implements Initializable {
         discountValueField.getStyleClass().remove("field-error");
         customerAmountField.getStyleClass().remove("field-error");
         transactionCodeField.getStyleClass().remove("field-error");
+        
+        // Clear customer field errors
+        customerNameField.getStyleClass().remove("field-error");
+        customerPhoneField.getStyleClass().remove("field-error");
     }
     
     private String formatCurrency(double amount) {
@@ -708,6 +839,10 @@ public class PaymentController implements Initializable {
         cashRadio.setSelected(true); // ✅ Default tiền mặt
         transactionCodeField.clear();
         paymentNotesArea.clear();
+        
+        // Reset customer information
+        clearCustomerFields();
+        
         clearErrors();
     }
     

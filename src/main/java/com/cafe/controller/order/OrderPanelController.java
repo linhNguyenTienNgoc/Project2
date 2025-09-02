@@ -9,6 +9,7 @@ import com.cafe.model.entity.Product;
 import com.cafe.service.OrderService;
 import com.cafe.service.MenuService;
 import com.cafe.service.PaymentService;
+import com.cafe.util.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -53,7 +54,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     // Current state
     private Order currentOrder;
     private int currentTableId = -1;
-    private int currentUserId = 1; // TODO: Get from session
+    private int currentUserId = -1; // Will be set from SessionManager
     private List<OrderDetail> currentOrderDetails = new ArrayList<>();
     
     // ✅ NEW: Flag to prevent auto-update when table just reserved
@@ -69,6 +70,9 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             orderService = new OrderService();
             menuService = new MenuService();
             paymentService = new PaymentService();
+
+            // ✅ Get current user ID from SessionManager
+            initializeUserSession();
 
             // Setup button actions
             setupButtonActions();
@@ -96,6 +100,41 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
+     * ✅ NEW: Initialize user session and get current user ID
+     */
+    private void initializeUserSession() {
+        try {
+            if (SessionManager.isLoggedIn()) {
+                currentUserId = SessionManager.getCurrentUserId();
+                String username = SessionManager.getCurrentUsername();
+                String fullName = SessionManager.getCurrentUserFullName();
+                String role = SessionManager.getCurrentUserRole();
+                
+                System.out.println("✅ User session initialized:");
+                System.out.println("  - User ID: " + currentUserId);
+                System.out.println("  - Username: " + username);
+                System.out.println("  - Full Name: " + fullName);
+                System.out.println("  - Role: " + role);
+                
+                // Validate user ID
+                if (currentUserId <= 0) {
+                    System.err.println("⚠️ Invalid user ID from session: " + currentUserId);
+                    currentUserId = 1; // Fallback to default
+                    System.out.println("🔄 Using fallback user ID: " + currentUserId);
+                }
+            } else {
+                System.err.println("⚠️ No user session found - user not logged in");
+                currentUserId = 1; // Fallback to default
+                System.out.println("🔄 Using fallback user ID: " + currentUserId);
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error initializing user session: " + e.getMessage());
+            currentUserId = 1; // Fallback to default
+            System.out.println("🔄 Using fallback user ID due to error: " + currentUserId);
+        }
+    }
+
+    /**
      * Setup button actions
      */
     private void setupButtonActions() {
@@ -113,6 +152,12 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
      */
     public void setCurrentTable(int tableId) {
         System.out.println("🏢 Setting current table: " + tableId);
+
+        // ⚠️ QUAN TRỌNG: Clear cache trước khi set table mới
+        if (this.currentTableId != tableId) {
+            clearOrderCache();
+            System.out.println("🔄 Cache cleared for new table selection");
+        }
 
         this.currentTableId = tableId;
         this.skipAutoStatusUpdate = false; // Reset flag for normal operation
@@ -217,13 +262,12 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         System.out.println("🔍 Debug: currentTableStatus = " + currentTableStatus + ", currentOrder = " + (currentOrder != null ? "exists" : "null"));
         
         if (currentOrder == null) {
-            // ✅ FIXED: Don't auto-change reserved tables to available
-            // Only change to available if currently occupied/cleaning
-            if ("occupied".equalsIgnoreCase(currentTableStatus) || 
-                "cleaning".equalsIgnoreCase(currentTableStatus)) {
+            // ✅ FIXED: Don't auto-change reserved/cleaning tables to available
+            // Only change to available if currently occupied
+            if ("occupied".equalsIgnoreCase(currentTableStatus)) {
                 updateTableStatusIfNeeded("available");
             } else {
-                // Preserve reserved/available status when no order
+                // Preserve reserved/available/cleaning status when no order
                 System.out.println("⏭️ Table " + currentTableId + " status preserved: " + currentTableStatus + " (no order)");
             }
             return;
@@ -363,7 +407,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ ENHANCED: Add product with automatic table status update
+     * ✅ ENHANCED: Add product with automatic table status update and permission check
      */
     public void addProduct(Product product, int quantity) {
         if (product == null || quantity <= 0) {
@@ -376,6 +420,15 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             return;
         }
 
+        // ✅ Check if table is in cleaning status - prevent new orders
+        String currentTableStatus = getCurrentTableStatus();
+        if ("cleaning".equalsIgnoreCase(currentTableStatus)) {
+            showError("Bàn đang được dọn dẹp. Vui lòng hoàn thành dọn dẹp trước khi tạo order mới.");
+            return;
+        }
+
+
+
         Task<Boolean> addProductTask = new Task<Boolean>() {
             @Override
             protected Boolean call() throws Exception {
@@ -383,11 +436,17 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                     // ✅ Create order if not exists
                     if (currentOrder == null) {
                         System.out.println("📋 Creating new order for table " + currentTableId);
-                        currentOrder = orderService.createOrder(currentTableId, currentUserId, null);
+                        int userId = getCurrentUserId(); // Get current user ID from session
+                        System.out.println("🔍 Using user ID: " + userId + " for order creation");
+                        currentOrder = orderService.createOrder(currentTableId, userId, null);
                         if (currentOrder == null) {
                             throw new Exception("Không thể tạo đơn hàng mới");
                         }
-                        System.out.println("✅ Created order: " + currentOrder.getOrderNumber());
+                        System.out.println("✅ Created order: " + currentOrder.getOrderNumber() + " by user " + userId);
+                        
+                        // ✅ FIXED: When adding first item, change table status to "reserved"
+                        updateTableStatusIfNeeded("reserved");
+                        System.out.println("🔄 Table " + currentTableId + " status changed to 'reserved' (first item added)");
                     }
 
                     // ✅ Add product to order using OrderService
@@ -415,13 +474,13 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                             enableAutoStatusUpdate();
                         }
 
-                        // ✅ Auto-update table status to occupied when first product added
-                        updateTableStatusIfNeeded("occupied");
+                        // ✅ Don't auto-update table status when adding products
+                        // Table status will be updated to "occupied" only when placing order
 
                         // ✅ Reload order details to get updated data
                         loadOrderDetails();
 
-                        showInfo("Đã thêm " + product.getProductName() + " vào đơn hàng");
+                        // Note: Success message is already shown by MenuController
                     }
                 });
             }
@@ -465,7 +524,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                             updateTableStatusIfNeeded("available");
                         }
 
-                        showInfo("Đã xóa sản phẩm khỏi đơn hàng");
+                        // Note: Success message is logged to console
                     }
                 });
             }
@@ -672,6 +731,13 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             return;
         }
 
+        // ✅ Check if table is in cleaning status - prevent placing orders
+        String currentTableStatus = getCurrentTableStatus();
+        if ("cleaning".equalsIgnoreCase(currentTableStatus)) {
+            showError("Bàn đang được dọn dẹp. Vui lòng hoàn thành dọn dẹp trước khi đặt món.");
+            return;
+        }
+
         Task<Boolean> placeOrderTask = new Task<Boolean>() {
             @Override
             protected Boolean call() throws Exception {
@@ -716,7 +782,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
-     * ✅ ENHANCED: Handle payment action with modern PaymentController
+     * ✅ ENHANCED: Handle payment action with modern PaymentController and permission check
      */
     private void handlePayment() {
         if (currentOrder == null) {
@@ -728,6 +794,8 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             showError("Đơn hàng trống, không thể thanh toán");
             return;
         }
+
+
 
         // ✅ Show modern payment window
         showModernPaymentWindow();
@@ -980,8 +1048,7 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
                 // ✅ Complete the order and reset
                 completeOrderAndReset();
                 
-                // ✅ Show success message
-                showInfo("Thanh toán hoàn tất! Bàn đã được chuyển sang trạng thái dọn dẹp.");
+                // Note: Success message is already shown by main payment completion callback
                 
                 System.out.println("✅ Payment completed for order: " + currentOrder.getOrderNumber());
                 
@@ -1162,6 +1229,43 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
     }
 
     /**
+     * ✅ NEW: Get current user ID (refreshed from session)
+     */
+    public int getCurrentUserId() {
+        // Refresh user ID from session in case it changed
+        if (SessionManager.isLoggedIn()) {
+            int sessionUserId = SessionManager.getCurrentUserId();
+            if (sessionUserId > 0) {
+                currentUserId = sessionUserId;
+            }
+        }
+        return currentUserId;
+    }
+
+    /**
+     * ✅ NEW: Refresh user session (call when needed)
+     */
+    public void refreshUserSession() {
+        initializeUserSession();
+    }
+
+    /**
+     * ✅ NEW: Get current user info for display
+     */
+    public String getCurrentUserInfo() {
+        if (SessionManager.isLoggedIn()) {
+            String fullName = SessionManager.getCurrentUserFullName();
+            String role = SessionManager.getCurrentUserRole();
+            return fullName + " (" + role + ")";
+        }
+        return "Chưa đăng nhập";
+    }
+
+
+
+
+
+    /**
      * Get order details count
      */
     public int getOrderDetailsCount() {
@@ -1299,5 +1403,54 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
         }
         
         return "bàn hiện tại"; // Fallback
+    }
+    
+    /**
+     * ⚠️ PHƯƠNG THỨC QUAN TRỌNG: Clear cache hoàn toàn
+     */
+    private void clearOrderCache() {
+        System.out.println("🔄 Clearing order cache completely...");
+        
+        // Clear current order
+        currentOrder = null;
+        
+        // Clear order details list
+        currentOrderDetails.clear();
+        
+        // Clear UI forms
+        clearOrderForm();
+        
+        // Clear temporary data
+        clearTempData();
+        
+        System.out.println("✅ Order cache cleared completely");
+    }
+    
+    /**
+     * Clear form UI
+     */
+    private void clearOrderForm() {
+        // Clear order details display
+        if (orderItemsContainer != null) {
+            orderItemsContainer.getChildren().clear();
+        }
+        
+        // Reset totals
+        if (totalAmountLabel != null) {
+            totalAmountLabel.setText("0 VNĐ");
+        }
+        
+        // Clear any other UI elements
+        System.out.println("✅ Order form UI cleared");
+    }
+    
+    /**
+     * Clear temporary data
+     */
+    private void clearTempData() {
+        // Reset any counters or temporary variables
+        skipAutoStatusUpdate = false;
+        
+        System.out.println("✅ Temporary data cleared");
     }
 }

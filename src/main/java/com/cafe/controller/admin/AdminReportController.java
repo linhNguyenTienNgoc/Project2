@@ -211,11 +211,7 @@ public class AdminReportController implements Initializable, DashboardCommunicat
     }
 
     private void setupEventHandlers() {
-        generateReportButton.setOnAction(e -> generateReport());
-        refreshButton.setOnAction(e -> generateReport());
-        exportReportButton.setOnAction(e -> exportReport());
-        printReportButton.setOnAction(e -> printReport());
-
+        // Event handlers are now handled by @FXML annotations in the FXML file
         // Auto-generate when date changes
         startDatePicker.setOnAction(e -> generateReport());
         endDatePicker.setOnAction(e -> generateReport());
@@ -224,6 +220,26 @@ public class AdminReportController implements Initializable, DashboardCommunicat
 
     private void generateDefaultReport() {
         generateReport();
+    }
+
+    @FXML
+    private void handleGenerateReport() {
+        generateReport();
+    }
+
+    @FXML
+    private void handleRefresh() {
+        generateReport();
+    }
+
+    @FXML
+    private void handleExportReport() {
+        exportReport();
+    }
+
+    @FXML
+    private void handlePrintReport() {
+        printReport();
     }
 
     private void generateReport() {
@@ -594,6 +610,25 @@ public class AdminReportController implements Initializable, DashboardCommunicat
         public double getRevenue() { return revenue; }
         public double getPercentage() { return percentage; }
         public void setPercentage(double percentage) { this.percentage = percentage; }
+    }
+
+    public static class CustomerData {
+        private String customerName;
+        private int orderCount;
+        private double totalSpent;
+        private String lastVisit;
+
+        public CustomerData(String customerName, int orderCount, double totalSpent, String lastVisit) {
+            this.customerName = customerName;
+            this.orderCount = orderCount;
+            this.totalSpent = totalSpent;
+            this.lastVisit = lastVisit;
+        }
+
+        public String getCustomerName() { return customerName; }
+        public int getOrderCount() { return orderCount; }
+        public double getTotalSpent() { return totalSpent; }
+        public String getLastVisit() { return lastVisit; }
     }
 
     // Dashboard Communication

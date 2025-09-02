@@ -1,4 +1,7 @@
 package com.cafe.model.entity;
+
+import java.time.LocalDateTime;
+
 public class Product {
     private int productId;
     private String productName;
@@ -11,8 +14,10 @@ public class Product {
     private boolean isActive;
     private Integer stockQuantity; // Thêm field cho stock quantity
     private String sku; // Thêm field cho SKU
+    private LocalDateTime createdAt; // Thêm field cho creation date
 
     public Product() {
+        this.createdAt = LocalDateTime.now();
     }
 
     public Product(int productId, String productName, int categoryId, double price, double costPrice, String description, String imageUrl, boolean isAvailable, boolean isActive) {
@@ -25,6 +30,7 @@ public class Product {
         this.imageUrl = imageUrl;
         this.isAvailable = isAvailable;
         this.isActive = isActive;
+        this.createdAt = LocalDateTime.now();
     }
 
     public int getProductId() {
@@ -113,6 +119,14 @@ public class Product {
 
     public void setSku(String sku) {
         this.sku = sku;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     // Getter methods cho compatibility với view components

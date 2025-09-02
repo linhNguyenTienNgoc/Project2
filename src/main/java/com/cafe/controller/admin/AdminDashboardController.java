@@ -350,7 +350,7 @@ public class AdminDashboardController extends DashboardController {
                 fxmlPath = "/fxml/admin/customer-layout.fxml";
                 break;
             case "report":
-                fxmlPath = "/fxml/admin/report-layout.fxml";
+                fxmlPath = "/fxml/admin/admin-report-layout.fxml";
                 break;
             case "promotion":
                 fxmlPath = "/fxml/admin/promotion-layout.fxml";
