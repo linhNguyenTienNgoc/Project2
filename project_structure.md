@@ -114,7 +114,7 @@ Project2/
 │   │   │           │   │   ├── 📁 TableController.java
 │   │   │           │   │   └── 📁 TableManagementController.java
 │   │   │           │   ├── 📁 user/
-│   │   │           │   │   ├── 📁 UserController.java
+
 │   │   │           │   │   └── 📁 UserManagementController.java
 │   │   │           │   ├── 📁 inventory/
 │   │   │           │   │   ├── 📁 IngredientController.java
