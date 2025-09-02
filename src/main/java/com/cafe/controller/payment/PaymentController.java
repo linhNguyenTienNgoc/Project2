@@ -14,6 +14,7 @@ import com.cafe.service.CustomerService;
 import com.cafe.model.entity.Customer;
 import com.cafe.util.PaymentValidator;
 import com.cafe.util.PriceFormatter;
+import com.cafe.util.SessionManager;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -695,7 +696,16 @@ public class PaymentController implements Initializable {
         
         tableIdLabel.setText(currentTableName);
         orderIdLabel.setText(currentOrder.getOrderNumber());
-        serverNameLabel.setText("Admin User"); // TODO: Get from session
+        
+        // ✅ Get real staff name from session
+        String staffName = SessionManager.getCurrentUserFullName();
+        if (staffName == null || staffName.trim().isEmpty()) {
+            staffName = SessionManager.getCurrentUsername();
+        }
+        if (staffName == null || staffName.trim().isEmpty()) {
+            staffName = "Nhân viên";
+        }
+        serverNameLabel.setText(staffName);
         
         LocalDateTime orderTime = currentOrder.getOrderDate().toLocalDateTime();
         orderTimeLabel.setText(orderTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));

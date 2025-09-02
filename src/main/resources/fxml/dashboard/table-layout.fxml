@@ -14,16 +14,7 @@
     <HBox fx:id="areaBar" spacing="10" alignment="CENTER_LEFT" 
           style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 8;">
         <Label text="Khu vực:" style="-fx-font-weight: bold; -fx-text-fill: #333; -fx-padding: 0 10;"/>
-        <Button fx:id="allAreaBtn" text="Tất cả" 
-                style="-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20;"/>
-        <Button fx:id="floor1Btn" text="Tầng 1" 
-                style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
-        <Button fx:id="floor2Btn" text="Tầng 2" 
-                style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
-        <Button fx:id="vipBtn" text="VIP" 
-                style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
-        <Button fx:id="rooftopBtn" text="Sân thượng" 
-                style="-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;"/>
+        <!-- Dynamic area buttons will be created here by controller -->
     </HBox>
     
     <!-- Table Status Legend -->

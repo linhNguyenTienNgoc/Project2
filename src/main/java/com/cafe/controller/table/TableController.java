@@ -18,6 +18,7 @@ import javafx.concurrent.Task;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 /**
@@ -31,16 +32,15 @@ public class TableController implements Initializable, DashboardCommunicator {
 
     @FXML private VBox tableLayoutContainer;
     @FXML private HBox areaBar;
-    @FXML private Button allAreaBtn;
-    @FXML private Button floor1Btn;
-    @FXML private Button floor2Btn;
-    @FXML private Button vipBtn;
-    @FXML private Button rooftopBtn;
     @FXML private ProgressIndicator loadingIndicator;
     @FXML private Label statusLabel;
     @FXML private ScrollPane tableScrollPane;
     @FXML private VBox tableContainer;
     @FXML private GridPane tableGrid;
+    
+    // Dynamic area buttons
+    private Button allAreaBtn;
+    private List<Button> areaButtons = new ArrayList<>();
 
     // Services
     private TableService tableService;
@@ -66,10 +66,9 @@ public class TableController implements Initializable, DashboardCommunicator {
             tableService = new TableService();
 
             // Setup UI components
-            setupAreaButtons();
             setupLoadingIndicator();
 
-            // Load initial data
+            // Load initial data (areas first, then create dynamic buttons)
             loadInitialData();
 
             System.out.println("✅ TableController initialized successfully");
@@ -93,14 +92,53 @@ public class TableController implements Initializable, DashboardCommunicator {
     }
 
     /**
-     * Setup area button actions
+     * Create dynamic area buttons based on database data
      */
-    private void setupAreaButtons() {
-        allAreaBtn.setOnAction(e -> selectArea(null, allAreaBtn));
-        floor1Btn.setOnAction(e -> selectAreaByName("Tầng 1", floor1Btn));
-        floor2Btn.setOnAction(e -> selectAreaByName("Tầng 2", floor2Btn));
-        vipBtn.setOnAction(e -> selectAreaByName("VIP", vipBtn));
-        rooftopBtn.setOnAction(e -> selectAreaByName("Sân thượng", rooftopBtn));
+    private void createDynamicAreaButtons() {
+        // Clear existing buttons
+        areaButtons.clear();
+        areaBar.getChildren().clear();
+        
+        // Add label back
+        Label areaLabel = new Label("Khu vực:");
+        areaLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #333; -fx-padding: 0 10;");
+        areaBar.getChildren().add(areaLabel);
+        
+        // Create "All Areas" button
+        allAreaBtn = createAreaButton("Tất cả", null);
+        areaBar.getChildren().add(allAreaBtn);
+        
+        // Create buttons for each area from database (sorted by area_id)
+        if (areas != null) {
+            // Sort areas by area_id for consistent ordering
+            areas.sort((a1, a2) -> Integer.compare(a1.getAreaId(), a2.getAreaId()));
+            
+            for (Area area : areas) {
+                Button areaBtn = createAreaButton(area.getAreaName(), area.getAreaId());
+                areaButtons.add(areaBtn);
+                areaBar.getChildren().add(areaBtn);
+            }
+        }
+        
+        // Set "All Areas" as default active
+        setActiveAreaButton(allAreaBtn);
+    }
+    
+    /**
+     * Create a single area button with consistent styling
+     */
+    private Button createAreaButton(String text, Integer areaId) {
+        Button button = new Button(text);
+        button.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;");
+        
+        // Set action based on whether it's "All Areas" or specific area
+        if (areaId == null) {
+            button.setOnAction(e -> selectArea(null, button));
+        } else {
+            button.setOnAction(e -> selectArea(areaId, button));
+        }
+        
+        return button;
     }
 
     /**
@@ -140,10 +178,12 @@ public class TableController implements Initializable, DashboardCommunicator {
             protected void succeeded() {
                 Platform.runLater(() -> {
                     try {
+                        // Create dynamic buttons after areas are loaded
+                        createDynamicAreaButtons();
+                        
                         displayTables(currentTables);
                         showLoading(false);
                         updateStatus("Đã tải " + currentTables.size() + " bàn");
-                        setActiveAreaButton(allAreaBtn);
                     } catch (Exception e) {
                         System.err.println("Error updating UI: " + e.getMessage());
                         showError("Lỗi hiển thị dữ liệu");
@@ -174,7 +214,7 @@ public class TableController implements Initializable, DashboardCommunicator {
     }
 
     /**
-     * Select area by name (for hardcoded buttons)
+     * Select area by name (for backward compatibility)
      */
     private void selectAreaByName(String areaName, Button selectedButton) {
         // Find area ID by name
@@ -199,14 +239,18 @@ public class TableController implements Initializable, DashboardCommunicator {
         String inactiveStyle = "-fx-background-color: transparent; -fx-text-fill: #8B4513; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20; -fx-border-color: #8B4513; -fx-border-width: 1; -fx-border-radius: 20;";
         String activeStyle = "-fx-background-color: #8B4513; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20;";
 
-        allAreaBtn.setStyle(inactiveStyle);
-        floor1Btn.setStyle(inactiveStyle);
-        floor2Btn.setStyle(inactiveStyle);
-        vipBtn.setStyle(inactiveStyle);
-        rooftopBtn.setStyle(inactiveStyle);
+        // Reset all area buttons
+        if (allAreaBtn != null) {
+            allAreaBtn.setStyle(inactiveStyle);
+        }
+        for (Button btn : areaButtons) {
+            btn.setStyle(inactiveStyle);
+        }
 
         // Set active button style
-        activeButton.setStyle(activeStyle);
+        if (activeButton != null) {
+            activeButton.setStyle(activeStyle);
+        }
     }
 
     /**
