@@ -8,40 +8,52 @@
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
       fx:id="menuLayoutContainer"
       fx:controller="com.cafe.controller.menu.MenuController"
-      spacing="15" styleClass="content-container">
+      spacing="15" style="-fx-background-color: #f5d6ae;">
     
-    <!-- Category Bar - Dynamic categories will be loaded here -->
-    <HBox fx:id="categoryBar" spacing="10" alignment="CENTER_LEFT" 
-          styleClass="search-container">
-        <!-- Category buttons will be dynamically created by MenuController -->
-        <!-- Default "All" button as fallback -->
-        <Button fx:id="allCategoryBtn" text="Tất cả" 
-                styleClass="category-button, category-button-selected"/>
+    <!-- Category and Search Bar - Combined -->
+    <HBox spacing="15" alignment="CENTER_LEFT" styleClass="search-container">
+        <!-- Category buttons -->
+        <HBox fx:id="categoryBar" spacing="10" alignment="CENTER_LEFT">
+            <!-- Category buttons will be dynamically created by MenuController -->
+            <!-- Default "All" button as fallback -->
+            <Button fx:id="allCategoryBtn" text="Tất cả" 
+                    styleClass="category-button, category-button-selected"/>
+        </HBox>
+        
+        <!-- Separator -->
+        <Rectangle width="1" height="30" fill="#d7ccc8"/>
+        
+        <!-- Search Bar -->
+        <HBox spacing="10" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+            <TextField fx:id="searchField" promptText="Nhập mã/tên món cần tìm" 
+                      HBox.hgrow="ALWAYS" 
+                      styleClass="search-field"/>
+            <Button fx:id="searchBtn" styleClass="btn-primary search-btn">
+                <graphic>
+                    <Label text="🔍" style="-fx-font-size: 14px;"/>
+                </graphic>
+            </Button>
+        </HBox>
     </HBox>
     
-    <!-- Search Bar -->
-    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="search-container">
-        <TextField fx:id="searchField" promptText="Nhập mã/tên món cần tìm" 
-                  HBox.hgrow="ALWAYS" 
-                  styleClass="search-field"/>
-        <Button fx:id="searchBtn" text="🔍" 
-                styleClass="btn-primary"/>
-    </HBox>
-    
-    <!-- Status Bar -->
-    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="card">
-        <ProgressIndicator fx:id="loadingIndicator" styleClass="progress-indicator" visible="false"/>
-        <Label fx:id="statusLabel" text="Sẵn sàng" style="-fx-text-fill: #666; -fx-font-size: 12px;"/>
+    <!-- Status Bar - Separate and Compact -->
+    <HBox spacing="5" alignment="CENTER_LEFT" styleClass="status-bar">
+        <ProgressIndicator fx:id="loadingIndicator" styleClass="progress-indicator compact" 
+                          visible="false" prefWidth="16" prefHeight="16"/>
+        <Label fx:id="statusLabel" text="Sẵn sàng" 
+               style="-fx-text-fill: #666; -fx-font-size: 11px;"/>
     </HBox>
     
     <!-- Product Grid -->
     <ScrollPane fx:id="productScrollPane" VBox.vgrow="ALWAYS" 
-               fitToWidth="true" styleClass="scroll-pane">
+               fitToWidth="true" styleClass="scroll-pane" 
+               style="-fx-background-color: transparent; -fx-background: transparent; -fx-control-inner-background: transparent;">
         <content>
-            <VBox fx:id="productContainer" style="-fx-padding: 10;">
-                <GridPane fx:id="productGrid" hgap="15" vgap="15" style="-fx-padding: 10;">
+            <VBox fx:id="productContainer" styleClass="product-container" style="-fx-background-color: transparent;">
+                <TilePane fx:id="productGrid" hgap="15" vgap="15" 
+                         alignment="TOP_LEFT" styleClass="product-grid" style="-fx-background-color: transparent;">
                     <!-- Products will be loaded dynamically here by MenuController -->
-                </GridPane>
+                </TilePane>
                 
                 <!-- Empty state when no products found -->
                 <VBox fx:id="emptyStateContainer" alignment="CENTER" spacing="10" visible="false" 

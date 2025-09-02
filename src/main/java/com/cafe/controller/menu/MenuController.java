@@ -39,7 +39,7 @@ public class MenuController implements Initializable, DashboardCommunicator {
     @FXML private Label statusLabel;
     @FXML private ScrollPane productScrollPane;
     @FXML private VBox productContainer;
-    @FXML private GridPane productGrid;
+    @FXML private TilePane productGrid;
     @FXML private VBox emptyStateContainer;
     @FXML private Label emptyStateLabel;
 
@@ -280,7 +280,7 @@ public class MenuController implements Initializable, DashboardCommunicator {
     }
 
     /**
-     * Display products in grid
+     * Display products in tile pane
      */
     private void displayProducts(List<Product> products) {
         productGrid.getChildren().clear();
@@ -292,24 +292,15 @@ public class MenuController implements Initializable, DashboardCommunicator {
 
         showEmptyState(false);
 
-        // Configure grid
+        // Configure tile pane
         productGrid.setHgap(15);
         productGrid.setVgap(15);
         productGrid.setPadding(new Insets(10));
 
-        // Add products to grid
-        int row = 0;
-        int col = 0;
-
+        // Add products to tile pane
         for (Product product : products) {
             VBox productCard = createProductCard(product);
-            productGrid.add(productCard, col, row);
-
-            col++;
-            if (col >= PRODUCTS_PER_ROW) {
-                col = 0;
-                row++;
-            }
+            productGrid.getChildren().add(productCard);
         }
     }
 
