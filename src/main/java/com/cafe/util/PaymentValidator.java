@@ -47,13 +47,15 @@ public class PaymentValidator {
         
         switch (method) {
             case CASH:
+                // Cash: allow amount >= required (for change)
                 return amountReceived >= requiredAmount;
             case CARD:
             case MOMO:
             case VNPAY:
             case ZALOPAY:
             case BANK_TRANSFER:
-                // For electronic payments, exact amount is expected
+                // Electronic payments: amount should match exactly (after VAT, promotions)
+                // But allow small tolerance for floating point precision
                 return Math.abs(amountReceived - requiredAmount) < 0.01;
             default:
                 return false;
@@ -75,11 +77,8 @@ public class PaymentValidator {
             case VNPAY:
             case ZALOPAY:
             case BANK_TRANSFER:
-                if (request.getTransactionCode() == null || request.getTransactionCode().trim().isEmpty()) {
-                    System.err.println("❌ Transaction code required for " + method.getDisplayName());
-                    return false;
-                }
-                return validateTransactionCode(request.getTransactionCode(), method);
+                // For educational project - no transaction code validation needed
+                return true;
                 
             default:
                 System.err.println("❌ Unsupported payment method: " + request.getPaymentMethod());

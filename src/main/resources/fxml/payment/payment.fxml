@@ -126,7 +126,7 @@ File: src/main/resources/fxml/payment/payment.fxml
                             <Label fx:id="vatAmountLabel" text="0₫" styleClass="summary-value"/>
                         </HBox>
                         
-                        <HBox styleClass="summary-row discount-row" visible="false" managed="false">
+                        <HBox fx:id="discountRow" styleClass="summary-row discount-row" visible="false" managed="false">
                             <Label text="Giảm giá" styleClass="summary-label discount-label"/>
                             <Region HBox.hgrow="ALWAYS"/>
                             <Label fx:id="discountAmountLabel" text="-0₫" styleClass="summary-value discount-value"/>
@@ -242,13 +242,10 @@ File: src/main/resources/fxml/payment/payment.fxml
                     <VBox spacing="10" styleClass="card-instructions">
                         <Label text="1. Quét thẻ trên máy POS" styleClass="instruction"/>
                         <Label text="2. Nhập mã PIN nếu được yêu cầu" styleClass="instruction"/>
-                        <Label text="3. Chờ xác nhận giao dịch thành công" styleClass="instruction"/>
+                        <Label text="3. Bấm 'Thanh toán' để hoàn tất" styleClass="instruction"/>
                         
-                        <VBox spacing="8">
-                            <Label text="Mã giao dịch từ máy POS:" styleClass="transaction-label"/>
-                            <TextField fx:id="transactionCodeField" promptText="Nhập mã giao dịch..." 
-                                     styleClass="transaction-input"/>
-                        </VBox>
+                        <Label text="💡 Dành cho project học tập - không cần mã giao dịch" 
+                               styleClass="instruction" style="-fx-text-fill: #666; -fx-font-style: italic;"/>
                     </VBox>
                 </VBox>
 

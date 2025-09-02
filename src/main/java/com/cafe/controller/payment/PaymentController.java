@@ -30,7 +30,13 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.Scene;
+import javafx.scene.paint.Color;
+import javafx.geometry.Pos;
+import javafx.geometry.Insets;
 import javafx.stage.Stage;
+import javafx.stage.Modality;
 import javafx.util.converter.NumberStringConverter;
 import javafx.fxml.FXMLLoader;
 import java.util.Optional;
@@ -95,6 +101,7 @@ public class PaymentController implements Initializable {
     @FXML private Button applyPromotionButton;
     @FXML private Label appliedPromotionLabel;
     @FXML private Label discountAmountLabel;
+    @FXML private HBox discountRow;
     
     // Legacy discount section (keep for backward compatibility)
     @FXML private ToggleGroup discountTypeGroup;
@@ -123,7 +130,7 @@ public class PaymentController implements Initializable {
     
     // ✅ NEW: Card Payment Section
     @FXML private VBox cardPaymentSection;
-    @FXML private TextField transactionCodeField;
+    // @FXML private TextField transactionCodeField; // Removed for educational project
     
     // ✅ ENHANCED: QR Code Section
     @FXML private VBox qrCodeSection;
@@ -468,7 +475,7 @@ public class PaymentController implements Initializable {
         vatAmountProperty.bind(subtotalProperty.multiply(vatPercentProperty.divide(100)));
         
         // Discount calculation - simplified for promotion-based discounts
-        discountAmountProperty.bind(discountValueProperty);
+        // Note: discountAmountProperty is now set directly in promotion methods, not bound
         
         // Grand total calculation (removed service fee)
         grandTotalProperty.bind(subtotalProperty
@@ -629,11 +636,20 @@ public class PaymentController implements Initializable {
             // Determine payment method
             String paymentMethod = getSelectedPaymentMethod();
             
-            // Prepare payment data
+            // Check if it's an electronic payment method
+            boolean isElectronic = isElectronicPaymentMethod(paymentMethod);
+            
+            if (isElectronic) {
+                // Show QR code popup for electronic payments
+                showQRCodePopup();
+                return; // Don't process payment yet, wait for user to complete in popup
+            }
+            
+            // Prepare payment data for non-electronic methods
             double totalAmount = grandTotalProperty.get();
             double receivedAmount = cashRadio.isSelected() ? customerAmountProperty.get() : totalAmount;
-            String transactionCode = cardRadio.isSelected() || transferRadio.isSelected() ? 
-                transactionCodeField.getText() : null;
+            // For educational project - no transaction code needed
+            String transactionCode = null;
             
             // Prepare customer information notes (optional)
             StringBuilder customerNotes = new StringBuilder();
@@ -748,12 +764,8 @@ public class PaymentController implements Initializable {
                 isValid = false;
             }
         } else {
-            // Validate transaction code for card/transfer
-            if (transactionCodeField.getText().trim().isEmpty()) {
-                transactionCodeField.getStyleClass().add("field-error");
-                showError("Vui lòng nhập mã giao dịch");
-                isValid = false;
-            }
+            // For educational project - no transaction code validation needed
+            // All payment methods (CARD, MOMO, VNPAY, ZALOPAY, BANK_TRANSFER) work without transaction code
         }
         
         return isValid;
@@ -802,7 +814,6 @@ public class PaymentController implements Initializable {
         cashErrorLabel.setText("");
         discountValueField.getStyleClass().remove("field-error");
         customerAmountField.getStyleClass().remove("field-error");
-        transactionCodeField.getStyleClass().remove("field-error");
         
         // Clear customer field errors
         customerNameField.getStyleClass().remove("field-error");
@@ -837,7 +848,7 @@ public class PaymentController implements Initializable {
         discountValueProperty.set(0);
         customerAmountProperty.set(0);
         cashRadio.setSelected(true); // ✅ Default tiền mặt
-        transactionCodeField.clear();
+        // transactionCodeField.clear(); // Removed for educational project
         paymentNotesArea.clear();
         
         // Reset customer information
@@ -860,7 +871,7 @@ public class PaymentController implements Initializable {
                 .setOrderId(currentOrder.getOrderId())
                 .setPaymentMethod(getSelectedPaymentMethod())
                 .setAmountReceived(customerAmountProperty.get())
-                .setTransactionCode(transactionCodeField.getText())
+                .setTransactionCode(null) // No transaction code for educational project
                 .setNotes(paymentNotesArea.getText())
                 .setVatPercent(vatPercentProperty.get())
                 .setDiscountAmount(discountAmountProperty.get());
@@ -1037,6 +1048,10 @@ public class PaymentController implements Initializable {
         appliedPromotionLabel.setText("Đã áp dụng: " + selectedPromotion.getPromotionName());
         appliedPromotionLabel.setVisible(true);
         
+        // Show discount row in summary
+        discountRow.setVisible(true);
+        discountRow.setManaged(true);
+        
         // Disable promotion selection
         promotionComboBox.setDisable(true);
         applyPromotionButton.setText("Hủy KM");
@@ -1055,6 +1070,11 @@ public class PaymentController implements Initializable {
         selectedPromotionProperty.set(null);
         
         appliedPromotionLabel.setVisible(false);
+        
+        // Hide discount row in summary
+        discountRow.setVisible(false);
+        discountRow.setManaged(false);
+        
         promotionComboBox.setDisable(false);
         promotionComboBox.setValue(null);
         
@@ -1068,6 +1088,184 @@ public class PaymentController implements Initializable {
     // =====================================================
     // QR CODE METHODS
     // =====================================================
+    
+    /**
+     * Check if payment method is electronic (requires QR code popup)
+     */
+    private boolean isElectronicPaymentMethod(String paymentMethod) {
+        return "MOMO".equals(paymentMethod) || 
+               "VNPAY".equals(paymentMethod) || 
+               "ZALOPAY".equals(paymentMethod) || 
+               "BANK_TRANSFER".equals(paymentMethod);
+    }
+    
+    /**
+     * Show QR code popup for electronic payments
+     */
+    private void showQRCodePopup() {
+        try {
+            String paymentMethod = getSelectedPaymentMethod();
+            double amount = grandTotalProperty.get();
+            
+            // Create QR code content
+            String qrContent = createQRContent(paymentMethod, amount);
+            
+            // Create popup stage
+            Stage qrPopup = new Stage();
+            qrPopup.setTitle("Mã QR Thanh Toán");
+            qrPopup.initModality(Modality.APPLICATION_MODAL);
+            qrPopup.initOwner(payButton.getScene().getWindow());
+            qrPopup.setResizable(false);
+            
+            // Create main container
+            VBox mainContainer = new VBox(20);
+            mainContainer.setAlignment(Pos.CENTER);
+            mainContainer.setPadding(new Insets(30));
+            mainContainer.setStyle("-fx-background-color: #ffffff; -fx-background-radius: 15;");
+            
+            // Title
+            Label titleLabel = new Label("📱 " + getPaymentMethodDisplayName(paymentMethod));
+            titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #5d2b1c;");
+            
+            // Amount
+            Label amountLabel = new Label("Số tiền: " + formatCurrency(amount));
+            amountLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: 600; -fx-text-fill: #2d1810;");
+            
+            // QR Code ImageView
+            ImageView qrImageView = new ImageView();
+            qrImageView.setFitWidth(200);
+            qrImageView.setFitHeight(200);
+            qrImageView.setStyle("-fx-background-color: #ffffff; -fx-background-radius: 10; -fx-border-color: #d2b48c; -fx-border-radius: 10; -fx-border-width: 2; -fx-padding: 10;");
+            
+            // Generate QR code image
+            Image qrImage = qrCodeService.generateQRCodeImage(qrContent);
+            qrImageView.setImage(qrImage);
+            
+            // Instructions
+            Label instructionLabel = new Label("Bấm 'Hoàn thành thanh toán' để xác nhận");
+            instructionLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #8b4513; -fx-font-style: italic;");
+            
+            // Complete payment button
+            Button completeButton = new Button("Hoàn thành thanh toán");
+            completeButton.setStyle("-fx-background-color: #228b22; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6px; -fx-padding: 10 20 10 20; -fx-font-size: 14px;");
+            completeButton.setOnAction(e -> {
+                // Complete payment directly (educational project)
+                try {
+                    String selectedMethod = getSelectedPaymentMethod();
+                    double paymentAmount = grandTotalProperty.get();
+                    
+                    System.out.println("🔍 DEBUG: Starting payment processing...");
+                    System.out.println("🔍 DEBUG: Order ID: " + currentOrder.getOrderId());
+                    System.out.println("🔍 DEBUG: Payment Method: " + selectedMethod);
+                    System.out.println("🔍 DEBUG: Payment Amount: " + paymentAmount);
+                    
+                    // Process payment using existing service
+                    boolean success = paymentService.processPayment(currentOrder, selectedMethod, paymentAmount);
+                    
+                    System.out.println("🔍 DEBUG: Payment result: " + success);
+                    
+                    if (success) {
+                        showSuccess("Thanh toán thành công!");
+                        System.out.println("✅ Payment completed successfully");
+                        
+                        // Close QR popup first
+                        qrPopup.close();
+                        
+                        // Close payment window
+                        Stage qrStage = (Stage) ((Button) e.getSource()).getScene().getWindow();
+                        Stage paymentStage = (Stage) qrStage.getOwner();
+                        if (paymentStage != null) {
+                            paymentStage.close();
+                        }
+                        
+                        // Notify callback for dashboard refresh
+                        if (paymentCallback != null) {
+                            Platform.runLater(() -> {
+                                try {
+                                    paymentCallback.onPaymentCompleted(currentOrder, selectedMethod);
+                                    System.out.println("✅ OrderPanel notified about payment completion");
+                                } catch (Exception ex) {
+                                    System.err.println("❌ Error notifying payment callback: " + ex.getMessage());
+                                }
+                            });
+                        }
+                    } else {
+                        System.err.println("❌ Payment processing failed");
+                        showError("Không thể xử lý thanh toán. Vui lòng thử lại.");
+                    }
+                } catch (Exception ex) {
+                    System.err.println("❌ Error completing payment: " + ex.getMessage());
+                    ex.printStackTrace();
+                    showError("Có lỗi xảy ra khi xử lý thanh toán: " + ex.getMessage());
+                }
+            });
+            
+            // Close button
+            Button closeButton = new Button("Đóng");
+            closeButton.setStyle("-fx-background-color: #5d2b1c; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16 8 16; -fx-background-radius: 6px;");
+            closeButton.setOnAction(e -> qrPopup.close());
+            
+            // Button container
+            HBox buttonContainer = new HBox(10);
+            buttonContainer.setAlignment(Pos.CENTER);
+            buttonContainer.getChildren().addAll(completeButton, closeButton);
+            
+            // Add all components
+            mainContainer.getChildren().addAll(titleLabel, amountLabel, qrImageView, instructionLabel, buttonContainer);
+            
+            // Create scene
+            Scene scene = new Scene(mainContainer);
+            scene.setFill(Color.TRANSPARENT);
+            qrPopup.setScene(scene);
+            
+            // Center the popup
+            qrPopup.centerOnScreen();
+            
+            // Show popup
+            qrPopup.show();
+            
+            System.out.println("✅ QR Code popup shown for " + paymentMethod + " - Amount: " + formatCurrency(amount));
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error showing QR code popup: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Get display name for payment method
+     */
+    private String getPaymentMethodDisplayName(String paymentMethod) {
+        switch (paymentMethod) {
+            case "MOMO": return "MoMo";
+            case "VNPAY": return "VNPay";
+            case "ZALOPAY": return "ZaloPay";
+            case "BANK_TRANSFER": return "Chuyển khoản";
+            default: return paymentMethod;
+        }
+    }
+    
+    /**
+     * Create QR content for payment
+     */
+    private String createQRContent(String paymentMethod, double amount) {
+        // Create QR content based on payment method
+        String baseUrl = "https://payment.cafe.com/";
+        String orderId = currentOrder != null ? currentOrder.getOrderNumber() : "ORD" + System.currentTimeMillis();
+        
+        switch (paymentMethod) {
+            case "MOMO":
+                return baseUrl + "momo?amount=" + (int)amount + "&orderId=" + orderId;
+            case "VNPAY":
+                return baseUrl + "vnpay?amount=" + (int)amount + "&orderId=" + orderId;
+            case "ZALOPAY":
+                return baseUrl + "zalopay?amount=" + (int)amount + "&orderId=" + orderId;
+            case "BANK_TRANSFER":
+                return baseUrl + "bank?amount=" + (int)amount + "&orderId=" + orderId;
+            default:
+                return "Payment: " + formatCurrency(amount) + " - Order: " + orderId;
+        }
+    }
     
     /**
      * Update payment sections based on selected method
@@ -1089,15 +1287,13 @@ public class PaymentController implements Initializable {
             cardPaymentSection.setManaged(isCard);
         }
         
+        // Hide QR section in payment panel (we use popup instead)
         if (qrCodeSection != null) {
-            qrCodeSection.setVisible(isElectronic);
-            qrCodeSection.setManaged(isElectronic);
+            qrCodeSection.setVisible(false);
+            qrCodeSection.setManaged(false);
         }
         
-        // ✅ Generate QR code for electronic payments
-        if (isElectronic) {
-            generateQRCode();
-        }
+        // Note: QR code popup will be shown when payment button is clicked, not here
         
         // ✅ Auto-fill cash amount when cash is selected
         if (isCash && customerAmountField != null) {
@@ -1232,12 +1428,8 @@ public class PaymentController implements Initializable {
      * ✅ NEW: Process card payment (from payment.txt)
      */
     private void processCardPayment() {
-        String transactionCode = transactionCodeField.getText().trim();
-        
-        if (transactionCode.length() < 6) {
-            showError("Mã giao dịch phải có ít nhất 6 ký tự");
-            return;
-        }
+        // For educational project - no transaction code validation needed
+        // Process payment directly
         
         double totalAmount = grandTotalProperty.get();
         
@@ -1246,7 +1438,7 @@ public class PaymentController implements Initializable {
                 .setOrderId(currentOrder.getOrderId())
                 .setPaymentMethod("CARD")
                 .setAmountReceived(totalAmount)
-                .setTransactionCode(transactionCode)
+                .setTransactionCode(null) // No transaction code for educational project
                 .setVatPercent(vatPercentProperty.get())
                 .setDiscountAmount(discountAmountProperty.get());
         

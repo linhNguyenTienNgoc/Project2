@@ -44,32 +44,72 @@ public class PaymentService {
      * Process payment with complete validation and business logic
      */
     public PaymentResponse processPayment(PaymentRequest request) {
+        System.out.println("🔍 PaymentService.processPayment(request) called");
+        System.out.println("🔍 Request Order ID: " + request.getOrderId());
+        System.out.println("🔍 Request Payment Method: " + request.getPaymentMethod());
+        System.out.println("🔍 Request Amount: " + request.getAmountReceived());
+        
         try (Connection connection = DatabaseConfig.getConnection()) {
             // 1. Validate payment request
+            System.out.println("🔍 Step 1: Validating payment request...");
             if (!validator.validatePaymentRequest(request)) {
+                System.out.println("🔍 ❌ Payment request validation failed");
                 return PaymentResponse.failure("Invalid payment request");
             }
+            System.out.println("🔍 ✅ Payment request validation passed");
             
             // 2. Get order from database
+            System.out.println("🔍 Step 2: Getting order from database...");
             OrderDAO orderDAO = new OrderDAOImpl(connection);
             Optional<Order> orderOpt = orderDAO.findById(request.getOrderId());
             if (!orderOpt.isPresent()) {
+                System.out.println("🔍 ❌ Order not found: " + request.getOrderId());
                 return PaymentResponse.failure("Order not found");
             }
+            System.out.println("🔍 ✅ Order found: " + orderOpt.get().getOrderNumber());
             
             Order order = orderOpt.get();
             
             // 3. Validate order can be paid
+            System.out.println("🔍 Step 3: Validating order can be paid...");
+            System.out.println("🔍 Order status: " + order.getOrderStatus());
+            System.out.println("🔍 Order can be paid: " + order.canBePaid());
             if (!order.canBePaid()) {
+                System.out.println("🔍 ❌ Order cannot be paid. Status: " + order.getOrderStatus());
                 return PaymentResponse.failure("Order cannot be paid. Status: " + order.getOrderStatus());
             }
+            System.out.println("🔍 ✅ Order can be paid");
             
             // 4. Validate payment amount
-            if (!validator.validateAmount(request.getAmountReceived(), order.getFinalAmount(), request.getPaymentMethod())) {
-                return PaymentResponse.failure("Insufficient payment amount");
+            System.out.println("🔍 Step 4: Validating payment amount...");
+            System.out.println("🔍 Amount received: " + request.getAmountReceived());
+            System.out.println("🔍 Order final amount: " + order.getFinalAmount());
+            
+            // For electronic payments, amountReceived already includes VAT and promotions
+            // So we should compare with the actual amount to be paid
+            double amountToValidate = request.getAmountReceived();
+            double requiredAmount = order.getFinalAmount();
+            
+            // If this is an electronic payment, the amountReceived is the final amount after VAT/promotions
+            // So we should validate against itself (exact match)
+            if (request.getPaymentMethod().equals("CASH")) {
+                // For cash, validate against order amount (customer can pay more)
+                if (!validator.validateAmount(amountToValidate, requiredAmount, request.getPaymentMethod())) {
+                    System.out.println("🔍 ❌ Payment amount validation failed");
+                    return PaymentResponse.failure("Insufficient payment amount");
+                }
+            } else {
+                // For electronic payments, amountReceived is already the final amount
+                // Just validate it's reasonable (not negative, not zero)
+                if (amountToValidate <= 0) {
+                    System.out.println("🔍 ❌ Invalid payment amount: " + amountToValidate);
+                    return PaymentResponse.failure("Invalid payment amount");
+                }
             }
+            System.out.println("🔍 ✅ Payment amount validation passed");
             
             // 5. Process payment by method
+            System.out.println("🔍 Step 5: Processing payment by method...");
             PaymentResponse response = processPaymentByMethod(order, request);
             
             // 6. Update order if successful
@@ -127,16 +167,15 @@ public class PaymentService {
      * Process card payment
      */
     private PaymentResponse processCardPayment(Order order, PaymentRequest request) {
-        if (request.getTransactionCode() == null || request.getTransactionCode().trim().isEmpty()) {
-            return PaymentResponse.failure("Transaction code required for card payment");
-        }
+        // For educational project - no transaction code validation needed
+        String transactionId = "EDU_CARD_" + System.currentTimeMillis();
         
         // Simulate card processing
-        boolean processed = simulateCardProcessing(request.getTransactionCode(), order.getFinalAmount());
+        boolean processed = simulateCardProcessing(transactionId, order.getFinalAmount());
         
         if (processed) {
             return PaymentResponse.success("Card payment processed successfully")
-                    .setTransactionId(request.getTransactionCode());
+                    .setTransactionId(transactionId);
         } else {
             return PaymentResponse.failure("Card payment failed");
         }
@@ -146,17 +185,16 @@ public class PaymentService {
      * Process electronic wallet payment
      */
     private PaymentResponse processElectronicPayment(Order order, PaymentRequest request) {
-        if (request.getTransactionCode() == null || request.getTransactionCode().trim().isEmpty()) {
-            return PaymentResponse.failure("Transaction code required for electronic payment");
-        }
+        // For educational project - no transaction code validation needed
+        String transactionId = "EDU_" + request.getPaymentMethod() + "_" + System.currentTimeMillis();
         
         // Simulate e-wallet processing
         boolean processed = simulateEWalletProcessing(request.getPaymentMethod(), 
-                request.getTransactionCode(), order.getFinalAmount());
+                transactionId, order.getFinalAmount());
         
         if (processed) {
             return PaymentResponse.success("Electronic payment processed successfully")
-                    .setTransactionId(request.getTransactionCode());
+                    .setTransactionId(transactionId);
         } else {
             return PaymentResponse.failure("Electronic payment failed");
         }
@@ -218,12 +256,23 @@ public class PaymentService {
      * Legacy method for backward compatibility
      */
     public boolean processPayment(Order order, String paymentMethod, double amountReceived) {
+        System.out.println("🔍 PaymentService.processPayment() called");
+        System.out.println("🔍 Order ID: " + order.getOrderId());
+        System.out.println("🔍 Payment Method: " + paymentMethod);
+        System.out.println("🔍 Amount Received: " + amountReceived);
+        
         PaymentRequest request = new PaymentRequest()
                 .setOrderId(order.getOrderId())
                 .setPaymentMethod(paymentMethod)
-                .setAmountReceived(amountReceived);
+                .setAmountReceived(amountReceived)
+                .setTransactionCode(null); // For educational project
         
+        System.out.println("🔍 PaymentRequest created, calling processPayment(request)...");
         PaymentResponse response = processPayment(request);
+        System.out.println("🔍 PaymentResponse received: " + response.isSuccess());
+        if (!response.isSuccess()) {
+            System.out.println("🔍 Payment failed: " + response.getMessage());
+        }
         return response.isSuccess();
     }
     
