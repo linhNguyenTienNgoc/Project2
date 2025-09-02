@@ -40,9 +40,7 @@ INSERT INTO categories (category_name, description, display_order) VALUES
 ('Trà & Trà sữa', 'Trà sữa, trà đá, trà nóng các loại', 2),
 ('Nước ép & Sinh tố', 'Nước ép trái cây tươi và sinh tố', 3),
 ('Bánh ngọt', 'Bánh ngọt, bánh kem, dessert', 4),
-('Đồ ăn nhẹ', 'Snack, đồ ăn vặt', 5),
-('Món chính', 'Cơm, mì, phở các loại', 6),
-('Đồ uống đá xay', 'Smoothies, frappuccino', 7);
+('Đồ uống đá xay', 'Smoothies, frappuccino', 5);
 
 -- =====================================================
 -- INSERT PRODUCTS
@@ -100,37 +98,15 @@ INSERT INTO products (product_name, category_id, price, cost_price, description,
 ('Bánh macaron', 4, 35000, 20000, 'Bánh macaron Pháp', TRUE),
 ('Bánh opera', 4, 50000, 28000, 'Bánh opera cao cấp', TRUE);
 
--- Đồ ăn nhẹ (category_id = 5)
-INSERT INTO products (product_name, category_id, price, cost_price, description, is_available) VALUES
-('Khoai tây chiên', 5, 25000, 15000, 'Khoai tây chiên giòn rụm', TRUE),
-('Gà rán', 5, 35000, 20000, 'Gà rán giòn tan', TRUE),
-('Sandwich', 5, 32000, 18000, 'Sandwich thịt nguội', TRUE),
-('Hotdog', 5, 28000, 16000, 'Hotdog xúc xích Đức', TRUE),
-('Bánh mì nướng', 5, 22000, 13000, 'Bánh mì nướng bơ tỏi', TRUE),
-('Khoai lang nướng', 5, 20000, 12000, 'Khoai lang nướng thơm', TRUE),
-('Nem chua rán', 5, 30000, 17000, 'Nem chua rán đặc sản', TRUE),
-('Chả cá viên', 5, 26000, 15000, 'Chả cá viên chiên', TRUE),
-('Bánh tráng nướng', 5, 18000, 10000, 'Bánh tráng nướng Đà Lạt', TRUE),
-('Mix nuts', 5, 35000, 20000, 'Hỗn hợp hạt dinh dưỡng', TRUE);
 
--- Món chính (category_id = 6)
-INSERT INTO products (product_name, category_id, price, cost_price, description, is_available) VALUES
-('Cơm gà Hải Nam', 6, 55000, 32000, 'Cơm gà Hải Nam truyền thống', TRUE),
-('Phở bò', 6, 50000, 28000, 'Phở bò Hà Nội chính hiệu', TRUE),
-('Bún bò Huế', 6, 48000, 27000, 'Bún bò Huế cay nồng', TRUE),
-('Mì quảng', 6, 45000, 25000, 'Mì quảng đặc sản Quảng Nam', TRUE),
-('Cơm sườn nướng', 6, 52000, 30000, 'Cơm sườn nướng thơm lừng', TRUE),
-('Pasta carbonara', 6, 65000, 38000, 'Pasta carbonara Ý', TRUE),
-('Fried rice', 6, 42000, 24000, 'Cơm chiên Dương Châu', TRUE),
-('Bánh xèo', 6, 38000, 22000, 'Bánh xèo miền Tây', TRUE);
 
--- Đồ uống đá xay (category_id = 7)
+-- Đồ uống đá xay (category_id = 5)
 INSERT INTO products (product_name, category_id, price, cost_price, description, is_available) VALUES
-('Frappuccino', 7, 58000, 33000, 'Frappuccino cà phê đá xay', TRUE),
-('Chocolate smoothie', 7, 52000, 29000, 'Chocolate smoothie đá xay', TRUE),
-('Oreo smoothie', 7, 55000, 31000, 'Oreo smoothie bánh quy', TRUE),
-('Matcha frappé', 7, 60000, 34000, 'Matcha frappé Nhật Bản', TRUE),
-('Coconut smoothie', 7, 48000, 27000, 'Coconut smoothie dừa tươi', TRUE);
+('Frappuccino', 5, 58000, 33000, 'Frappuccino cà phê đá xay', TRUE),
+('Chocolate smoothie', 5, 52000, 29000, 'Chocolate smoothie đá xay', TRUE),
+('Oreo smoothie', 5, 55000, 31000, 'Oreo smoothie bánh quy', TRUE),
+('Matcha frappé', 5, 60000, 34000, 'Matcha frappé Nhật Bản', TRUE),
+('Coconut smoothie', 5, 48000, 27000, 'Coconut smoothie dừa tươi', TRUE);
 
 -- =====================================================
 -- INSERT AREAS
