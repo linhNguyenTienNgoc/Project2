@@ -243,9 +243,6 @@ public class PaymentService {
         return transactionCode.length() >= 8; // Simple simulation
     }
     
-    private boolean simulateBankTransferVerification(String transactionCode, double amount) {
-        return transactionCode.length() >= 10; // Simple simulation
-    }
     
     private boolean simulateBankTransferProcessing(String transactionId, double amount) {
         return transactionId.length() >= 8; // Simple simulation for educational project
