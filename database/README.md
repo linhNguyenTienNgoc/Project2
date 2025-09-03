@@ -56,12 +56,12 @@ mysql -u root -p < complete_cafe_management.sql
 | Username | Password | Role | Mô tả |
 |----------|----------|------|-------|
 | admin | 123456 | Admin | Quản trị viên |
-| manager | 123456 | Manager | Quản lý |
-| cashier1 | 123456 | Cashier | Thu ngân 1 |
-| waiter1 | 123456 | Waiter | Phục vụ 1 |
-| barista1 | 123456 | Barista | Pha chế |
-| waiter2 | 123456 | Waiter | Phục vụ 2 |
-| cashier2 | 123456 | Cashier | Thu ngân 2 |
+| manager | 123456 | Staff | Quản lý |
+| cashier1 | 123456 | Staff | Thu ngân 1 |
+| waiter1 | 123456 | Staff | Phục vụ 1 |
+| barista1 | 123456 | Staff | Pha chế |
+| waiter2 | 123456 | Staff | Phục vụ 2 |
+| cashier2 | 123456 | Staff | Thu ngân 2 |
 
 ### **🍰 Product Categories**
 1. **Cà phê** - 10 sản phẩm (25k-55k)

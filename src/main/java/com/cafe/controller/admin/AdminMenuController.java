@@ -1659,7 +1659,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             
             // Clear image
             if (formProductImageView != null) {
-                Image defaultImage = new Image("file:src/main/resources/images/no-image.png");
+                Image defaultImage = new Image(getClass().getResourceAsStream("/images/no-image.png"));
                 formProductImageView.setImage(defaultImage);
             }
             
@@ -1885,7 +1885,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         
         // Clear image
         if (productImageView != null) {
-            productImageView.setImage(new Image("file:src/main/resources/images/no-image.png"));
+                            productImageView.setImage(new Image(getClass().getResourceAsStream("/images/no-image.png")));
         }
     }
 
@@ -1896,7 +1896,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     private void loadImageFromUrl(String imageUrl) {
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
             // Load default image
-            Image defaultImage = new Image("file:src/main/resources/images/no-image.png");
+            Image defaultImage = new Image(getClass().getResourceAsStream("/images/no-image.png"));
             if (productImageView != null) {
                 productImageView.setImage(defaultImage);
             }
@@ -1929,7 +1929,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             protected void failed() {
                 Platform.runLater(() -> {
                     // Load default image on failure
-                    Image defaultImage = new Image("file:src/main/resources/images/no-image.png");
+                    Image defaultImage = new Image(getClass().getResourceAsStream("/images/no-image.png"));
                     if (productImageView != null) {
                         productImageView.setImage(defaultImage);
                     }

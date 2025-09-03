@@ -6,7 +6,7 @@ Hệ thống quản lý quán cà phê được phát triển bằng JavaFX vớ
 
 ### 👥 Quản lý Người dùng & Phân quyền
 - **Đăng nhập/Đăng xuất** với xác thực bảo mật
-- **Phân quyền** theo vai trò (Admin, Manager, Cashier, Waiter, Barista)
+- **Phân quyền** theo vai trò (Admin, Staff)
 - **Quản lý nhân viên** với chấm công tự động
 
 ### 🍽️ Quản lý Menu & Sản phẩm
@@ -44,40 +44,39 @@ Hệ thống quản lý quán cà phê được phát triển bằng JavaFX vớ
 ## 🛠️ Công nghệ sử dụng
 
 ### Backend
-- **Java 17** - Ngôn ngữ lập trình chính
-- **JavaFX 17** - Framework giao diện
+- **Java 21** - Ngôn ngữ lập trình chính
+- **JavaFX 24** - Framework giao diện desktop
 - **MySQL 8.0** - Hệ quản trị cơ sở dữ liệu
-- **HikariCP** - Connection pooling
-- **BCrypt** - Mã hóa mật khẩu
+- **Maven** - Quản lý dependencies và build
 
 ### Frontend
-- **FXML** - Định nghĩa giao diện
+- **FXML** - Định nghĩa giao diện JavaFX
 - **CSS** - Styling và themes
 - **Scene Builder** - Thiết kế giao diện
 
-### Build & Deploy
-- **Maven** - Quản lý dependencies và build
-- **JUnit 5** - Unit testing
-- **Mockito** - Mock testing
+### Architecture
+- **MVC Pattern** - Model-View-Controller
+- **DAO Pattern** - Data Access Object
+- **Service Layer** - Business logic layer
+- **Layered Architecture** - Tách biệt các layer
 
-### Utilities
-- **Logback** - Logging framework
-- **Jackson** - JSON processing
+### Utilities & Libraries
+- **BCrypt** - Mã hóa mật khẩu
 - **Apache POI** - Excel export
 - **iText 7** - PDF generation
-- **JavaMail** - Email notifications
+- **QR Code Generator** - Tạo mã QR thanh toán
 
 ## 📋 Yêu cầu hệ thống
 
 ### Minimum Requirements
-- **Java 17** hoặc cao hơn
+- **Java 21** hoặc cao hơn
 - **MySQL 8.0** hoặc cao hơn
 - **RAM:** 4GB
 - **Storage:** 2GB free space
 - **OS:** Windows 10+, macOS 10.14+, Linux
 
 ### Recommended Requirements
-- **Java 17** hoặc cao hơn
+- **Java 21** hoặc cao hơn
 - **MySQL 8.0** hoặc cao hơn
 - **RAM:** 8GB
 - **Storage:** 5GB free space
@@ -93,15 +92,19 @@ cd cafe-management
 
 ### 2. Cài đặt Database
 ```bash
-# Import database schema
-mysql -u root -p < database/cafe_management.sql
-
-# Hoặc sử dụng phpMyAdmin để import file SQL
+# Import database schema và sample data
+mysql -u root -p < database/cafe_database_structure.sql
+mysql -u root -p < database/cafe_sample_data.sql
+mysql -u root -p < database/update_product_images.sql
+# Hoặc sử dụng script tự động
+cd database
+setup_database.bat  # Windows
+./setup_database.sh # Linux/Mac
 ```
 
 ### 3. Cấu hình Database
 ```bash
-# Chỉnh sửa file config/database.properties
+# Chỉnh sửa file database/database_config.properties
 # Cập nhật thông tin kết nối database
 ```
 
@@ -115,11 +118,14 @@ mvn clean install
 
 ### 5. Chạy ứng dụng
 ```bash
-# Sử dụng Maven
+# Phương pháp 1: Sử dụng script (Khuyến nghị)
+run-app.bat
+
+# Phương pháp 2: Sử dụng Maven
 mvn javafx:run
 
-# Hoặc chạy JAR file
-java -jar target/cafe-management-1.0.0.jar
+# Phương pháp 3: Build và chạy JAR
+build-and-run.bat
 ```
 
 ## 📁 Cấu trúc Project
@@ -127,30 +133,42 @@ java -jar target/cafe-management-1.0.0.jar
 ```
 Project2/
 ├── src/main/java/com/cafe/          # Source code chính
-│   ├── config/                      # Cấu hình
+│   ├── config/                      # Cấu hình database
 │   ├── model/                       # Models & Entities
+│   │   ├── entity/                  # Database entities
+│   │   ├── dto/                     # Data Transfer Objects
+│   │   └── enums/                   # Enumerations
 │   ├── dao/                         # Data Access Objects
-│   ├── service/                     # Business Logic
-│   ├── controller/                  # Controllers
+│   │   └── base/                    # Base DAO implementations
+│   ├── service/                     # Business Logic Layer
+│   ├── controller/                  # Controllers (MVC)
+│   │   ├── admin/                   # Admin controllers
+│   │   ├── auth/                    # Authentication
+│   │   ├── dashboard/               # Dashboard
+│   │   ├── order/                   # Order management
+│   │   ├── payment/                 # Payment processing
+│   │   └── table/                   # Table management
 │   ├── util/                        # Utilities
 │   └── exception/                   # Exception handling
 ├── src/main/resources/              # Resources
 │   ├── fxml/                        # FXML files
 │   ├── css/                         # Stylesheets
 │   ├── images/                      # Images & Icons
-│   └── properties/                  # Properties files
-├── src/test/                        # Test files
+│   └── database_config.properties   # Database config
 ├── database/                        # Database files
+│   ├── cafe_database_structure.sql  # Database schema
+│   ├── cafe_sample_data.sql         # Sample data
+│   └── setup_database.bat          # Setup script
 ├── docs/                           # Documentation
-└── scripts/                        # Build scripts
+└── scripts/                        # Build & run scripts
 ```
 
 ## 🔧 Cấu hình
 
 ### Database Configuration
 ```properties
-# config/database.properties
-database.url=jdbc:mysql://localhost:3306/cafe_management
+# database/database_config.properties
+database.url=jdbc:mysql://localhost:3306/cafe_management?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
 database.username=root
 database.password=your_password
 database.driver=com.mysql.cj.jdbc.Driver
@@ -158,9 +176,9 @@ database.driver=com.mysql.cj.jdbc.Driver
 
 ### Application Configuration
 ```properties
-# config/application.properties
+# src/main/resources/database_config.properties
 app.name=Cafe Management System
-app.version=1.0.0
+app.version=2.0.0
 app.language=vi
 app.currency=VND
 ```
@@ -169,11 +187,10 @@ app.currency=VND
 
 | Username | Password | Role | Tên |
 |----------|----------|------|-----|
-| admin | password | Admin | Nguyễn Tiến Ngọc Linh |
-| manager | password | Manager | Trần Xuân Quang Minh |
-| cashier1 | password | Cashier | Vũ Hoàng Nam |
-| waiter1 | password | Waiter | Dương Tuấn Minh |
-| barista1 | password | Barista | Nguyễn Thị Nguyệt Nhi |
+| admin | 123456 | Admin | Nguyễn Tiến Ngọc Linh |
+| manager | 123456 | Staff | Trần Xuân Quang Minh |
+| staff01 | 123456 | Staff | Vũ Hoàng Nam |
+| staff02 | 123456 | Staff | Dương Tuấn Minh |
 
 ## 📊 Screenshots
 
@@ -208,10 +225,11 @@ mvn jacoco:report
 
 ## 📚 Documentation
 
-- [User Guide](docs/user-guide/user-manual.md)
-- [Developer Guide](docs/developer/architecture.md)
-- [API Documentation](docs/api/controllers.md)
-- [Database Design](docs/developer/database-design.md)
+- [Running Guide](RUNNING_GUIDE.md) - Hướng dẫn chạy ứng dụng
+- [Project Structure](project_structure.md) - Cấu trúc chi tiết project
+- [Database Setup](database/SETUP_GUIDE.md) - Hướng dẫn setup database
+- [Database ERD](database/ERD.md) - Sơ đồ mối quan hệ database
+- [Changelog](CHANGELOG.md) - Lịch sử thay đổi
 
 ## 🤝 Contributing
 
@@ -229,19 +247,7 @@ Xem [CHANGELOG.md](CHANGELOG.md) để biết chi tiết về các thay đổi.
 
 Project này được phân phối dưới giấy phép MIT. Xem file [LICENSE](LICENSE) để biết thêm chi tiết.
 
-## 👨‍💻 Team
 
-- **Nguyễn Tiến Ngọc Linh** - Project Manager
-- **Trần Xuân Quang Minh** - Lead Developer
-- **Vũ Hoàng Nam** - Backend Developer
-- **Dương Tuấn Minh** - Frontend Developer
-- **Nguyễn Thị Nguyệt Nhi** - UI/UX Designer
-
-## 📞 Liên hệ
-
-- **Email:** cafe.management@example.com
-- **Website:** https://cafe-management.example.com
-- **GitHub:** https://github.com/your-username/cafe-management
 
 ## 🙏 Acknowledgments
 

@@ -6,21 +6,6 @@ echo.
 echo Starting application...
 echo.
 
-REM Kiểm tra Java version
-java -version
-if %errorlevel% neq 0 (
-    echo ERROR: Java is not installed or not in PATH
-    pause
-    exit /b 1
-)
-
-REM Kiểm tra Maven
-mvn -version
-if %errorlevel% neq 0 (
-    echo ERROR: Maven is not installed or not in PATH
-    pause
-    exit /b 1
-)
 
 REM Clean và compile project
 echo.

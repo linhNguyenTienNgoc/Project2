@@ -4,7 +4,8 @@
 
 - **Java**: JDK 21 hoặc cao hơn
 - **Maven**: 3.6.0 hoặc cao hơn
-- **MySQL**: 8.0 hoặc cao hơn (để chạy database)
+- **MySQL**: 8.0 hoặc cao hơn
+- **JavaFX**: 24.0.2 (đã bao gồm trong project)
 
 ## Cách chạy ứng dụng
 
@@ -68,11 +69,13 @@
 ### Lỗi 4: "Database connection failed"
 **Giải pháp:**
 - Đảm bảo MySQL Server đang chạy
-- Kiểm tra file `database_config.properties`
-- Tạo database `cafe_management` nếu chưa có
+- Kiểm tra file `database/database_config.properties`
+- Chạy script setup database: `cd database && setup_database.bat`
+- Import database schema: `mysql -u root -p < database/cafe_database_structure.sql`
 
 ### Lỗi 5: "JavaFX runtime components are missing"
 **Giải pháp:**
+- JavaFX 24.0.2 đã được bao gồm trong project
 - Đảm bảo đang sử dụng Java 21+
 - Chạy: `mvn clean compile javafx:run`
 
@@ -83,9 +86,21 @@
    CREATE DATABASE cafe_management;
    ```
 
-2. Chạy script SQL trong file `database/cafe_management.sql`
+2. Import database schema và sample data:
+   ```bash
+   # Import schema
+   mysql -u root -p < database/cafe_database_structure.sql
+   
+   # Import sample data
+   mysql -u root -p < database/cafe_sample_data.sql
+   
+   # Hoặc sử dụng script tự động
+   cd database
+   setup_database.bat  # Windows
+   ./setup_database.sh # Linux/Mac
+   ```
 
-3. Cập nhật thông tin kết nối trong file `config/database_config.properties`
+3. Cập nhật thông tin kết nối trong file `database/database_config.properties`
 
 ## Thông tin đăng nhập mặc định
 
@@ -95,35 +110,33 @@
 - **Role**: admin
 
 ### Các tài khoản khác:
-- **Manager**: manager / 123456
-- **Cashier**: cashier1 / 123456  
-- **Waiter**: waiter1 / 123456
-- **Barista**: barista1 / 123456
+- **Manager**: manager / 123456 (Staff role)
+- **Cashier**: cashier1 / 123456 (Staff role)
+- **Waiter**: waiter1 / 123456 (Staff role)
+- **Barista**: barista1 / 123456 (Staff role)
 
 ### Lưu ý:
 - Tất cả password đều là: `123456`
 - Admin sẽ được chuyển đến màn hình admin dashboard
 - Các role khác sẽ được chuyển đến màn hình dashboard thường
 
-## Cấu trúc thư mục
+## Cấu trúc thư mục chính
 
 ```
 Project2/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/cafe/
-│   │   └── resources/
-│   │       ├── fxml/
-│   │       ├── css/
-│   │       └── images/
-├── config/
-├── database/
-├── run-app.bat
-├── run-simple.bat
-├── build-and-run.bat
-└── pom.xml
+├── src/main/java/com/cafe/          # Source code (77 Java files)
+├── src/main/resources/              # Resources (FXML, CSS, Images)
+├── database/                        # Database files & scripts
+├── docs/                           # Documentation
+├── lib/javafx-sdk-24.0.2/         # JavaFX SDK
+├── run-app.bat                     # Main run script
+├── run-simple.bat                  # Simple run script
+├── build-and-run.bat               # Build and run script
+├── test-dashboard.bat              # Test dashboard script
+└── pom.xml                         # Maven configuration
 ```
+
+Chi tiết cấu trúc xem file [project_structure.md](project_structure.md)
 
 ## Liên hệ hỗ trợ
 

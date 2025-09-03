@@ -8,36 +8,42 @@ và project này tuân thủ [Semantic Versioning](https://semver.org/spec/v2.0.
 ## [Unreleased]
 
 ### Added
-- Cấu trúc project JavaFX hoàn chỉnh
-- Maven _configuration_ với dependencies
-- Build scripts cho Windows và Linux/Mac
-- Application configuration file
-- Project documentation
+- Cập nhật documentation cho phù hợp với cấu trúc hiện tại
+- Cải thiện hướng dẫn setup và chạy ứng dụng
+- Cập nhật project structure documentation
 
 ### Changed
-- Cập nhật cấu trúc thư mục theo chuẩn Maven
-- Tối ưu hóa database schema
+- Cập nhật README.md với thông tin chính xác về Java 21 và JavaFX 24
+- Cập nhật RUNNING_GUIDE.md với hướng dẫn setup database mới
+- Cập nhật project_structure.md phản ánh đúng cấu trúc thực tế
 
 ### Fixed
-- Không có
+- Sửa thông tin password mặc định từ "password" thành "123456"
+- Cập nhật đường dẫn database config files
 
-## [1.0.0] - 2025-01-31
+## [2.0.0] - 2025-01-31
 
 ### Added
+- **JavaFX Application hoàn chỉnh**
+  - 77 Java files với kiến trúc MVC
+  - 12 CSS themes cho giao diện
+  - 45 product images và UI assets
+  - Admin dashboard với 8 views
+
 - **Database Schema hoàn chỉnh**
   - 12 bảng chính cho quản lý quán cà phê
-  - Dữ liệu mẫu đầy đủ
+  - Sample data phong phú (7 users, 50+ products, 10 orders)
   - ERD và documentation chi tiết
 
 - **Cấu hình Database**
   - File cấu hình kết nối
-  - Hướng dẫn setup và sử dụng
-  - Backup và restore scripts
+  - Setup scripts cho Windows và Linux/Mac
+  - Database structure và sample data riêng biệt
 
 - **Tài liệu Project**
-  - README.md chi tiết
-  - Hướng dẫn cài đặt
-  - Mô tả tính năng
+  - README.md chi tiết với cấu trúc thực tế
+  - RUNNING_GUIDE.md với hướng dẫn chi tiết
+  - project_structure.md phản ánh đúng cấu trúc
 
 ### Features
 - Quản lý người dùng và phân quyền
@@ -50,30 +56,34 @@ và project này tuân thủ [Semantic Versioning](https://semver.org/spec/v2.0.
 - Chấm công nhân viên
 
 ### Technical Details
+- **Backend:** Java 21, JavaFX 24.0.2
 - **Database:** MySQL 8.0
-- **Architecture:** Layered Architecture
+- **Architecture:** Layered Architecture với MVC Pattern
 - **Design Pattern:** MVC, DAO, Service Layer
-- **Documentation:** Markdown, ERD
+- **Build Tool:** Maven với JavaFX dependencies
+- **Documentation:** Markdown, ERD, Developer guides
 
 ### Database Tables
-1. `roles` - Vai trò người dùng
-2. `users` - Thông tin người dùng
-3. `categories` - Danh mục sản phẩm
-4. `products` - Sản phẩm
-5. `areas` - Khu vực
-6. `tables` - Bàn
-7. `customers` - Khách hàng
-8. `orders` - Đơn hàng
-9. `order_details` - Chi tiết đơn hàng
-10. `promotions` - Khuyến mãi
-11. `ingredients` - Nguyên liệu
-12. `attendance` - Chấm công
+1. `users` - Thông tin người dùng (Admin, Staff roles)
+2. `categories` - Danh mục sản phẩm
+3. `products` - Sản phẩm
+4. `areas` - Khu vực
+5. `tables` - Bàn
+6. `customers` - Khách hàng
+7. `orders` - Đơn hàng
+8. `order_details` - Chi tiết đơn hàng
+9. `promotions` - Khuyến mãi
+10. `order_promotions` - Áp dụng khuyến mãi
+11. `attendance` - Chấm công
+12. `system_settings` - Cài đặt hệ thống
 
 ### Sample Data
-- **Users:** 5 tài khoản mẫu với các vai trò khác nhau
-- **Products:** 20+ sản phẩm mẫu (cà phê, trà, bánh, món ăn)
-- **Areas & Tables:** 4 khu vực với 6 bàn
-- **Categories:** 5 danh mục sản phẩm
+- **Users:** 7 tài khoản mẫu với các vai trò khác nhau
+- **Products:** 50+ sản phẩm mẫu (cà phê, trà, bánh, món ăn)
+- **Areas & Tables:** 5 khu vực với 25+ bàn
+- **Categories:** 7 danh mục sản phẩm
+- **Orders:** 10 đơn hàng mẫu với các trạng thái khác nhau
+- **Promotions:** 7 chương trình khuyến mãi
 
 ### Security
 - Mật khẩu được mã hóa bằng BCrypt
@@ -87,7 +97,7 @@ và project này tuân thủ [Semantic Versioning](https://semver.org/spec/v2.0.
 - Optimized queries
 - Caching support
 
-## [0.9.0] - 2025-01-30
+## [1.0.0] - 2025-01-30
 
 ### Added
 - Database schema cơ bản
@@ -101,7 +111,7 @@ và project này tuân thủ [Semantic Versioning](https://semver.org/spec/v2.0.
 ### Fixed
 - Sửa lỗi trong database schema
 
-## [0.8.0] - 2025-01-29
+## [0.9.0] - 2025-01-29
 
 ### Added
 - Project initialization
@@ -115,7 +125,7 @@ và project này tuân thủ [Semantic Versioning](https://semver.org/spec/v2.0.
 ### Fixed
 - Không có
 
-## [0.7.0] - 2025-01-28
+## [0.8.0] - 2025-01-28
 
 ### Added
 - Project concept
@@ -155,19 +165,20 @@ và project này tuân thủ [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## Support
 
-- **Current Version:** 1.0.0
-- **Supported Versions:** 1.0.x
+- **Current Version:** 2.0.0
+- **Supported Versions:** 2.0.x
 - **End of Life:** Chưa có
 
 ## Migration Guide
 
-### From 0.9.0 to 1.0.0
+### From 1.0.0 to 2.0.0
 - Backup database hiện tại
-- Import schema mới
+- Import schema mới từ `cafe_database_structure.sql`
+- Import sample data từ `cafe_sample_data.sql`
 - Cập nhật application configuration
 - Test tất cả tính năng
 
-### From 0.8.0 to 0.9.0
+### From 0.9.0 to 1.0.0
 - Không có thay đổi breaking
 - Chỉ cần import schema mới
 

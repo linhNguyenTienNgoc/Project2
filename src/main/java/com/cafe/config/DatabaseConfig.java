@@ -61,20 +61,12 @@ public class DatabaseConfig {
         properties = new Properties();
         
         try (InputStream input = getClass().getClassLoader()
-                .getResourceAsStream("database_config.properties")) {
+                .getResourceAsStream("properties/database_config.properties")) {
             
-            if (input == null) {
-                // Fallback to database folder
-                try (InputStream fallback = getClass().getClassLoader()
-                        .getResourceAsStream("../../database/database_config.properties")) {
-                    if (fallback != null) {
-                        properties.load(fallback);
-                    } else {
-                        loadDefaultProperties();
-                    }
-                }
-            } else {
+            if (input != null) {
                 properties.load(input);
+            } else {
+                loadDefaultProperties();
             }
             
             // Load database properties
