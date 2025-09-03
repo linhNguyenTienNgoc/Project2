@@ -15,7 +15,6 @@ import com.cafe.util.SessionManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -139,7 +138,6 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     // =============================================
     private final ObservableList<Product> productList = FXCollections.observableArrayList();
     private final ObservableList<Category> categoryList = FXCollections.observableArrayList();
-    private FilteredList<Product> filteredProducts;
 
     // =============================================
     // SERVICES & STATE
@@ -483,9 +481,18 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     }
 
     private void setupTableDataBinding() {
-        // Setup filtered list
-        filteredProducts = new FilteredList<>(productList, p -> true);
-        productsTable.setItems(filteredProducts);
+        // *** CRITICAL: Use productList directly for sorting ***
+        // FilteredList can interfere with sorting functionality
+        productsTable.setItems(productList);
+        
+        // *** SORTING: JavaFX TableView has built-in sorting support ***
+        // Set default sort order by Product ID (ascending)
+        Platform.runLater(() -> {
+            productsTable.getSortOrder().clear();
+            productsTable.getSortOrder().add(productIdColumn);
+            productIdColumn.setSortType(TableColumn.SortType.ASCENDING);
+            System.out.println("✅ Default sorting set to Product ID (ascending)");
+        });
         
         // Enhanced selection handler with debug logging
         productsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -524,6 +531,8 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
         
         System.out.println("✅ Table data binding configured with selection handlers");
     }
+
+
 
     private void setupFullScreenLayout() {
         Platform.runLater(() -> {
@@ -571,12 +580,16 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     }
 
     private void applyFilters() {
-        filteredProducts.setPredicate(product -> {
+        // *** NEW APPROACH: Filter directly on ObservableList for better sorting compatibility ***
+        // Clear current items and add filtered items
+        ObservableList<Product> filteredItems = FXCollections.observableArrayList();
+        
+        for (Product product : productList) {
             // Search filter
             String searchText = searchField != null ? searchField.getText().toLowerCase() : "";
             if (!searchText.isEmpty()) {
                 if (!product.getProductName().toLowerCase().contains(searchText)) {
-                    return false;
+                    continue;
                 }
             }
 
@@ -584,7 +597,7 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             Category selectedCategory = categoryFilter != null ? categoryFilter.getValue() : null;
             if (selectedCategory != null) {
                 if (product.getCategoryId() != selectedCategory.getCategoryId()) {
-                    return false;
+                    continue;
                 }
             }
 
@@ -593,13 +606,30 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
             if (!"Tất cả".equals(selectedStatus)) {
                 boolean isAvailable = "Đang bán".equals(selectedStatus);
                 if (product.isAvailable() != isAvailable) {
-                    return false;
+                    continue;
                 }
             }
 
-            return true;
-        });
+            filteredItems.add(product);
+        }
+        
+        // Update table with filtered items
+        productsTable.setItems(filteredItems);
 
+        updateTableFooter();
+    }
+    
+    private void resetFilters() {
+        // Reset to show all products
+        productsTable.setItems(productList);
+        
+        // Reset to default sorting by Product ID
+        Platform.runLater(() -> {
+            productsTable.getSortOrder().clear();
+            productsTable.getSortOrder().add(productIdColumn);
+            productIdColumn.setSortType(TableColumn.SortType.ASCENDING);
+        });
+        
         updateTableFooter();
     }
 
@@ -757,7 +787,8 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
                     if (getValue() != null) {
                         productList.addAll(getValue());
                     }
-                    updateTableFooter();
+                    // Reset filters to show all products after loading
+                    resetFilters();
                     
                     // Trigger responsive adjustment after loading
                     Platform.runLater(() -> {
@@ -2015,8 +2046,10 @@ public class AdminMenuController implements Initializable, DashboardCommunicator
     }
 
     private void updateTableFooter() {
-        int total = filteredProducts.size();
-        int active = (int) filteredProducts.stream().filter(Product::isAvailable).count();
+        // Use current table items instead of filteredProducts
+        ObservableList<Product> currentItems = productsTable.getItems();
+        int total = currentItems.size();
+        int active = (int) currentItems.stream().filter(Product::isAvailable).count();
         int inactive = total - active;
 
         if (totalProductsLabel != null) {

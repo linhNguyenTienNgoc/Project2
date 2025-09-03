@@ -47,13 +47,13 @@
             <HBox spacing="15" alignment="CENTER_LEFT" styleClass="toolbar">
                 <!-- Action Buttons -->
                 <HBox spacing="10" alignment="CENTER_LEFT" styleClass="action-buttons">
-                    <Button fx:id="addTableButton" text="➕ Thêm bàn" 
+                    <Button fx:id="addTableButton" text="➕ Thêm" 
                             onAction="#handleAddTable" styleClass="btn, btn-success"/>
-                    <Button fx:id="editTableButton" text="✏️ Sửa bàn" 
+                    <Button fx:id="editTableButton" text="✏️ Sửa" 
                             onAction="#handleEditTable" styleClass="btn, btn-warning" disable="true"/>
-                    <Button fx:id="deleteTableButton" text="🗑️ Xóa bàn" 
+                    <Button fx:id="deleteTableButton" text="🗑️ Xóa" 
                             onAction="#handleDeleteTable" styleClass="btn, btn-danger" disable="true"/>
-                    <Button fx:id="refreshButton" text="🔄 Làm mới" 
+                    <Button fx:id="refreshButton" text="🔄 Mới" 
                             onAction="#handleRefresh" styleClass="btn, btn-info"/>
                 </HBox>
                 

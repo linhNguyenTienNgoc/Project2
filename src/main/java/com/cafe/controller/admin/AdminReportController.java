@@ -286,13 +286,13 @@ public class AdminReportController implements Initializable, DashboardCommunicat
 
     private void loadRevenueData(LocalDate startDate, LocalDate endDate) {
         String sql = """
-            SELECT DATE(o.created_at) as order_date,
+            SELECT DATE(o.order_date) as order_date,
                    COUNT(*) as total_orders,
                    SUM(o.total_amount) as total_revenue,
                    AVG(o.total_amount) as avg_order_value
             FROM orders o
-            WHERE DATE(o.created_at) BETWEEN ? AND ?
-            GROUP BY DATE(o.created_at)
+            WHERE DATE(o.order_date) BETWEEN ? AND ?
+            GROUP BY DATE(o.order_date)
             ORDER BY order_date
             """;
 
@@ -328,14 +328,14 @@ public class AdminReportController implements Initializable, DashboardCommunicat
 
     private void loadProductData(LocalDate startDate, LocalDate endDate) {
         String sql = """
-            SELECT p.name as product_name,
-                   SUM(oi.quantity) as quantity_sold,
-                   SUM(oi.quantity * oi.unit_price) as revenue
-            FROM order_items oi
-            JOIN products p ON oi.product_id = p.id
-            JOIN orders o ON oi.order_id = o.id
-            WHERE DATE(o.created_at) BETWEEN ? AND ?
-            GROUP BY p.id, p.name
+            SELECT p.product_name as product_name,
+                   SUM(od.quantity) as quantity_sold,
+                   SUM(od.quantity * od.unit_price) as revenue
+            FROM order_details od
+            JOIN products p ON od.product_id = p.product_id
+            JOIN orders o ON od.order_id = o.order_id
+            WHERE DATE(o.order_date) BETWEEN ? AND ?
+            GROUP BY p.product_id, p.product_name
             ORDER BY revenue DESC
             LIMIT 10
             """;
@@ -380,14 +380,14 @@ public class AdminReportController implements Initializable, DashboardCommunicat
 
     private void loadCategoryData(LocalDate startDate, LocalDate endDate) {
         String sql = """
-            SELECT c.name as category_name,
-                   SUM(oi.quantity * oi.unit_price) as revenue
-            FROM order_items oi
-            JOIN products p ON oi.product_id = p.id
-            JOIN categories c ON p.category_id = c.id
-            JOIN orders o ON oi.order_id = o.id
-            WHERE DATE(o.created_at) BETWEEN ? AND ?
-            GROUP BY c.id, c.name
+            SELECT c.category_name as category_name,
+                   SUM(od.quantity * od.unit_price) as revenue
+            FROM order_details od
+            JOIN products p ON od.product_id = p.product_id
+            JOIN categories c ON p.category_id = c.category_id
+            JOIN orders o ON od.order_id = o.order_id
+            WHERE DATE(o.order_date) BETWEEN ? AND ?
+            GROUP BY c.category_id, c.category_name
             ORDER BY revenue DESC
             """;
 

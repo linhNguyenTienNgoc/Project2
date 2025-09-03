@@ -204,18 +204,17 @@ public class PaymentService {
      * Process bank transfer payment
      */
     private PaymentResponse processBankTransferPayment(Order order, PaymentRequest request) {
-        if (request.getTransactionCode() == null || request.getTransactionCode().trim().isEmpty()) {
-            return PaymentResponse.failure("Transaction reference required for bank transfer");
-        }
+        // For educational project - no transaction code validation needed
+        String transactionId = "EDU_BANK_" + System.currentTimeMillis();
         
-        // Simulate bank transfer verification
-        boolean verified = simulateBankTransferVerification(request.getTransactionCode(), order.getFinalAmount());
+        // Simulate bank transfer processing
+        boolean processed = simulateBankTransferProcessing(transactionId, order.getFinalAmount());
         
-        if (verified) {
-            return PaymentResponse.success("Bank transfer verified successfully")
-                    .setTransactionId(request.getTransactionCode());
+        if (processed) {
+            return PaymentResponse.success("Bank transfer processed successfully")
+                    .setTransactionId(transactionId);
         } else {
-            return PaymentResponse.failure("Bank transfer verification failed");
+            return PaymentResponse.failure("Bank transfer processing failed");
         }
     }
     
@@ -246,6 +245,10 @@ public class PaymentService {
     
     private boolean simulateBankTransferVerification(String transactionCode, double amount) {
         return transactionCode.length() >= 10; // Simple simulation
+    }
+    
+    private boolean simulateBankTransferProcessing(String transactionId, double amount) {
+        return transactionId.length() >= 8; // Simple simulation for educational project
     }
 
     // =====================================================

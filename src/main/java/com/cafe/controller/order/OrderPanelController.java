@@ -838,10 +838,10 @@ public class OrderPanelController implements Initializable, DashboardCommunicato
             paymentStage.setTitle("Thanh toán - " + currentOrder.getOrderNumber());
             paymentStage.initModality(Modality.APPLICATION_MODAL);
             paymentStage.setResizable(true);
-            paymentStage.setMinWidth(900);
-            paymentStage.setMinHeight(700);
+            paymentStage.setMinWidth(750);
+            paymentStage.setMinHeight(650);
             
-            Scene paymentScene = new Scene(paymentRoot, 950, 750);
+            Scene paymentScene = new Scene(paymentRoot, 800, 750);
             paymentScene.getStylesheets().add(getClass().getResource("/css/payment.css").toExternalForm());
             
             paymentStage.setScene(paymentScene);

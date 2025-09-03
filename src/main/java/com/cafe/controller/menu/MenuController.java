@@ -291,16 +291,23 @@ public class MenuController implements Initializable, DashboardCommunicator {
 
         showEmptyState(false);
 
+        // *** SORT PRODUCTS BY ID (ASCENDING) ***
+        List<Product> sortedProducts = products.stream()
+                .sorted((p1, p2) -> Integer.compare(p1.getProductId(), p2.getProductId()))
+                .toList();
+
         // Configure tile pane
         productGrid.setHgap(15);
         productGrid.setVgap(15);
         productGrid.setPadding(new Insets(10));
 
-        // Add products to tile pane
-        for (Product product : products) {
+        // Add products to tile pane in sorted order
+        for (Product product : sortedProducts) {
             VBox productCard = createProductCard(product);
             productGrid.getChildren().add(productCard);
         }
+        
+        System.out.println("✅ Products displayed sorted by ID (ascending)");
     }
 
     /**
