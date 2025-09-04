@@ -1,4 +1,4 @@
-﻿# ☕ CAFE MANAGEMENT SYSTEM
+﻿# CAFE MANAGEMENT SYSTEM
 ## **Technical Documentation**
 ### **A Comprehensive JavaFX Desktop Application**
 
@@ -6,7 +6,7 @@
 
 **Version:** 1.0.0  
 **Author:** Team 2_C2406L  
-**Date:** 2024  
+**Date:** 2025  
 **Technology Stack:** Java 21, JavaFX 24, MySQL 8.0, Maven  
 
 ---
@@ -38,7 +38,7 @@
 16. [Reporting & Analytics](#16-reporting--analytics)
 17. [QR Code & Receipt System](#17-qr-code--receipt-system)
 
-### **PART V: DATA ACCESS & BUSINESS LOGIC**
+### **PART V: DATA ACCESS & BUSINESS LOGIC*
 18. [Data Access Layer (DAO Pattern)](#18-data-access-layer-dao-pattern)
 19. [Service Layer Business Logic](#19-service-layer-business-logic)
 
@@ -3643,4 +3643,1499 @@ This comprehensive Payment Processing System provides secure, multi-method payme
 
 ---
 
-*This completes Part III: Core Modules & Components of the Cafe Management System documentation, covering the essential operational modules including Authentication & User Management, Menu & Product Management, Table & Area Management, Order Processing System, and Payment Processing System. Each module provides comprehensive functionality with robust business logic, secure data handling, and intuitive user interfaces designed for efficient cafe operations.*
+# **PART IV: ADVANCED FEATURES & INTEGRATIONS**
+
+## **14. Customer Management System**
+
+### **14.1 Customer Entity Model and Business Logic**
+
+The **Customer** entity supports comprehensive customer relationship management, enabling loyalty programs, purchase tracking, and targeted promotions.
+
+**Entity Attributes:**
+- **customerId**: Unique identifier
+- **fullName**: Customer name (mandatory)
+- **phone**: Primary contact number (unique, validated)
+- **email**: Optional contact for digital receipts & promotions
+- **loyaltyPoints**: Accumulated points
+- **totalSpent**: Aggregated spending history
+- **createdAt / updatedAt**: Timestamps for lifecycle tracking
+
+**Business Logic Functions:**
+- **Loyalty Point Accumulation**: 1 point per 10,000 VND spent
+- **Tier-based Benefits**: Bronze, Silver, Gold levels (future upgrade)
+- **Customer Validation**: Duplicate prevention (phone uniqueness)
+- **Purchase History Tracking**: Aggregates orders linked to each customer
+
+---
+
+### **14.2 CustomerService Business Logic**
+
+**Core Responsibilities:**
+- Customer registration & profile management
+- Loyalty point calculation and update after payments
+- Search/filter functions (by name, phone, loyalty level)
+- Integration with **OrderService** for history tracking
+
+**Advanced Functions:**
+- **Auto-detection**: Phone number lookup for repeat customers
+- **Profile Enrichment**: Automatic update of totalSpent and loyalty points
+- **Data Analytics**: Identify top customers for targeted campaigns
+
+---
+
+### **14.3 CustomerController Implementation**
+
+**Features:**
+- **Customer List Table**: Displays ID, name, phone, email, loyalty points, total spent
+- **Add/Edit Dialog**: Modal form for profile management
+- **Search & Filter**: Real-time search by phone/name
+- **Order Integration**: Customer info automatically linked during checkout
+- **Validation**: Prevents duplicate phone number registrations
+
+**UI Design:**
+- Tab-based navigation in admin panel
+- Real-time loyalty point updates after payment
+- Context menu for quick actions (View History, Edit, Delete)
+
+---
+
+## **15. Promotion & Discount System**
+
+### **15.1 Promotion Entity Model**
+
+**Entity Attributes:**
+- **promotionId**: Unique identifier
+- **code**: Promotion code (e.g., WELCOME10)
+- **description**: Details of the discount rule
+- **discountType**: ENUM('PERCENTAGE', 'FIXED')
+- **discountValue**: Discount rate or amount
+- **startDate / endDate**: Validity period
+- **isActive**: Boolean flag
+- **usageLimit**: Optional cap on usage
+
+---
+
+### **15.2 PromotionService Business Logic**
+
+**Core Responsibilities:**
+- Validate promotion code during checkout
+- Calculate applicable discount
+- Ensure promotion eligibility (date, usage count, min order value)
+- Apply multiple promotions with priority rules
+
+**Discount Calculation Engine:**
+- **Percentage Discounts**: e.g., 10% off total bill
+- **Fixed Amount Discounts**: e.g., -50,000 VND
+- **Combination Rules**: Highest-value discount prioritized
+
+**Integration:**
+- Works with **OrderService** for final amount calculation
+- Links with **CustomerService** for personalized campaigns
+
+---
+
+### **15.3 PromotionController Implementation**
+
+**Features:**
+- **Promotion List Table**: Code, discount type, value, validity
+- **CRUD Operations**: Add, edit, delete promotions
+- **Search/Filter**: Active promotions, expired, upcoming
+- **Bulk Import/Export**: Excel upload via Apache POI
+- **Usage Analytics**: Tracks redemption rate per promotion
+
+**UI Design:**
+- Admin panel tab for promotions
+- Form validation: prevents overlapping promotion dates
+- Real-time calculation preview during checkout
+
+---
+
+## **16. Reporting & Analytics**
+
+### **16.1 SalesData Entity Model**
+
+**Attributes:**
+- **reportId**: Unique ID
+- **dateRange**: Report time span
+- **totalOrders**: Number of completed orders
+- **totalRevenue**: Sum of final amounts
+- **averageOrderValue**: Computed metric
+- **topProducts**: List of best-selling items
+- **customerStats**: New vs returning customers
+
+---
+
+### **16.2 ReportService Business Logic**
+
+**Core Reports:**
+- **Daily Sales Summary**
+- **Monthly Revenue Trends**
+- **Product Performance Report**
+- **Customer Loyalty Report**
+
+**Technical Features:**
+- **Excel Export (Apache POI)** for financial reports
+- **PDF Export (iText)** for official documents
+- **Predefined Database Views** for sales and menu analytics
+
+**KPIs Monitored:**
+- Orders/hour, Average Table Turnover
+- Revenue by category (Coffee, Tea, Cake…)
+- Customer retention rate
+
+---
+
+### **16.3 AdminReportController Implementation**
+
+**Features:**
+- **Date Range Picker**: Select report period
+- **Report Generation Buttons**: Excel, PDF export
+- **Charts & Graphs**: JavaFX charts (bar, line, pie)
+- **Interactive Dashboard**: Filter by product/category
+
+---
+
+## **17. QR Code & Receipt System**
+
+### **17.1 QR Code Integration**
+
+**Features:**
+- **Table QR Codes**: Each table has a unique QR for quick check-in
+- **Payment QR Codes**: Integration with MoMo, VNPay, ZaloPay
+- **Order Tracking**: Customers can scan to check order status
+
+**Implementation:**
+- ZXing library for QR generation
+- Stored in DB & printed on receipts
+
+---
+
+### **17.2 Receipt System**
+
+**Receipt Features:**
+- **Auto-generated on Payment**
+- **Content**: Cafe logo, order details, discount, total, payment method, QR code
+- **Formats**: PDF, print-friendly text
+- **Multi-language**: English & Vietnamese
+
+**ReceiptController Implementation:**
+- Generates receipts after successful payment
+- Exports PDF with iText
+- Supports reprinting via admin panel
+
+---
+
+# **PART V: DATA ACCESS & BUSINESS LOGIC**
+
+## **18. Data Access Layer (DAO Pattern)**
+
+### **18.1 DAO Design Principles**
+
+The Cafe Management System applies the **Data Access Object (DAO) pattern** to abstract and encapsulate all database access logic. This approach ensures separation of concerns, easier maintenance, and improved testability.
+
+**Key Benefits:**
+- **Centralized Database Access Logic**: All database operations are contained within DAO classes
+- **SQL Injection Prevention**: Prepared statements ensure secure database interactions
+- **Database Independence**: Easy transition between different database systems
+- **Testability**: Mock DAO implementations simplify unit testing
+- **Maintainability**: Clear separation between business logic and data access
+
+### **18.2 DAO Architecture**
+
+**DAO Layer Components:**
+
+- **Interfaces**: Define common operations (CRUD, queries) for each entity
+- **Implementations**: Contain JDBC code with MySQL-specific queries
+- **BaseDAO**: Shared utility functions (connection handling, error logging)
+
+**Interface Design Pattern:**
+The ProductDAO interface defines a comprehensive contract for product data access operations. It includes methods for basic CRUD operations (Create, Read, Update, Delete) as well as specialized queries for category-based filtering and stock management. The interface design follows the DAO pattern principles, providing a clean abstraction layer between business logic and data persistence.
+
+**Implementation Architecture:**
+The ProductDAOImpl class implements the ProductDAO interface using JDBC with MySQL-specific optimizations. The implementation uses prepared statements to prevent SQL injection attacks and ensure secure database interactions. The class includes comprehensive error handling with logging, automatic resource management using try-with-resources patterns, and efficient data mapping from database results to domain objects.
+
+### **18.3 DAO Components by Entity**
+
+**UserDAO:**
+- Handles authentication queries and user lookup
+- Supports user creation, update, deactivation
+- Manages role-based filtering and user status
+
+**ProductDAO:**
+- CRUD operations for menu items
+- Price and availability updates
+- Category-based filtering and stock management
+
+**OrderDAO:**
+- Create new orders and retrieve order history
+- Manage order status updates and transitions
+- Handle order detail relationships and calculations
+
+**CustomerDAO:**
+- Store and retrieve customer profiles
+- Loyalty points and purchase history tracking
+- Phone-based quick lookup and duplicate prevention
+
+**PromotionDAO:**
+- Manage promotions and validity checks
+- Track usage limits and redemption logs
+- Active promotion filtering and expiration handling
+
+### **18.4 Transaction Management**
+
+The DAO layer integrates with the Service layer for comprehensive transaction management:
+
+**Transaction Principles:**
+- Uses `Connection.setAutoCommit(false)` for multi-step operations
+- Ensures rollback on failure to maintain data consistency
+- Guarantees ACID compliance across complex operations
+
+**Example Transaction:**
+```java
+try (Connection conn = DatabaseConfig.getConnection()) {
+    conn.setAutoCommit(false);
+    
+    // Create order
+    orderDAO.create(order, conn);
+    
+    // Add order details
+    for (OrderDetail detail : orderDetails) {
+        orderDetailDAO.add(detail, conn);
+        productDAO.decreaseStock(detail.getProductId(), detail.getQuantity(), conn);
+    }
+    
+    // Update table status
+    tableDAO.updateStatus(order.getTableId(), TableStatus.OCCUPIED, conn);
+    
+    conn.commit();
+} catch (Exception e) {
+    if (conn != null) {
+        conn.rollback(); // Rollback on failure
+    }
+    throw new ServiceException("Failed to process order", e);
+}
+```
+
+---
+
+## **19. Service Layer Business Logic**
+
+### **19.1 Service Layer Principles**
+
+The Service Layer provides a higher abstraction above DAO, encapsulating business rules, workflows, and transaction logic.
+
+**Benefits:**
+- **Lightweight Controllers**: Controllers focus on UI interaction, not business logic
+- **Centralized Validation**: Business rules are enforced at the service layer
+- **Reusable Logic**: Business operations can be reused across different controllers
+- **Future Integration**: Easy integration with external APIs or cloud services
+- **Transaction Management**: Complex multi-step operations are handled atomically
+
+### **19.2 Service Architecture**
+
+**Key Services:**
+
+- **UserService**: Authentication, role validation, user lifecycle management
+- **MenuService**: Product CRUD, category management, stock validation
+- **OrderService**: Order creation, modification, discount application
+- **PaymentService**: Multi-method payments, refunds, receipt generation
+- **CustomerService**: Loyalty points updates, purchase tracking
+- **PromotionService**: Validation and application of discounts
+- **TableService**: Table/area assignment, status transitions
+- **ReportService**: Sales analytics, export to PDF/Excel
+
+### **19.3 Business Logic Examples**
+
+**Order Processing Workflow:**
+The OrderService implements a comprehensive order creation workflow that ensures data consistency and business rule enforcement. The process begins with order validation to ensure all required data is present and valid. The service then creates the order record and processes each order detail, updating inventory levels accordingly. The workflow includes table status updates to reflect the new order assignment. All operations are wrapped in a database transaction to ensure atomicity and data integrity.
+
+**Promotion Application Logic:**
+The promotion application system provides flexible discount calculation capabilities supporting both percentage-based and fixed-amount discounts. The system validates promotion eligibility based on active status and order requirements before applying any discounts. The calculation engine ensures that discounts never result in negative order amounts, maintaining business rule compliance. The promotion system integrates seamlessly with the order processing workflow to provide real-time discount application.
+
+### **19.4 Error Handling in Service Layer**
+
+**Custom Exceptions:**
+- **ServiceException**: Business logic errors with meaningful messages
+- **DAOException**: Data access errors with technical details
+- **ValidationException**: Input validation errors with field-specific messages
+
+**Logging Strategy:**
+- **SLF4J Integration**: Comprehensive logging for traceability
+- **Error Context**: Detailed error information for debugging
+- **Security Logging**: Sensitive operations are logged for audit purposes
+
+**Graceful Error Handling:**
+- **User-Friendly Messages**: Errors are translated to user-friendly messages
+- **Rollback Protection**: Failed transactions are automatically rolled back
+- **Recovery Mechanisms**: System can recover from temporary failures
+
+### **19.5 Integration with Controllers**
+
+Controllers only call Service methods, never DAO directly:
+
+**Benefits:**
+- **Clean MVC Separation**: Clear boundaries between presentation and business logic
+- **Validation at Service Layer**: Business rules are enforced before data access
+- **Maintainability**: Changes to business logic don't affect controllers
+- **Testability**: Services can be tested independently of UI components
+
+**Example (Controller → Service):**
+```java
+@FXML
+private void handleLogin() {
+    try {
+        // Validate input
+        if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty()) {
+            AlertUtils.showError("Please enter both username and password");
+            return;
+        }
+        
+        // Authenticate user
+        User user = userService.authenticate(usernameField.getText(), passwordField.getText());
+        if (user != null) {
+            SessionManager.startSession(user);
+            navigateToDashboard(user);
+        } else {
+            AlertUtils.showError("Invalid credentials!");
+        }
+    } catch (ServiceException e) {
+        AlertUtils.showError("Login failed: " + e.getMessage());
+        logger.error("Login error for user: " + usernameField.getText(), e);
+    }
+}
+
+### **19.6 Security Implementation Examples**
+
+**Password Hashing with BCrypt:**
+```java
+public class SecurityUtils {
+    private static final int BCRYPT_ROUNDS = 12;
+    
+    public static String hashPassword(String plainPassword) {
+        return BCrypt.hashpw(plainPassword, BCrypt.gensalt(BCRYPT_ROUNDS));
+    }
+    
+    public static boolean verifyPassword(String plainPassword, String hashedPassword) {
+        return BCrypt.checkpw(plainPassword, hashedPassword);
+    }
+}
+```
+
+**SQL Injection Prevention:**
+```java
+public class UserDAOImpl implements UserDAO {
+    @Override
+    public User findByUsername(String username) {
+        String query = "SELECT * FROM users WHERE username = ? AND is_active = true";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, username); // Parameterized query prevents SQL injection
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return mapResultSetToUser(rs);
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding user by username: " + username, e);
+        }
+        return null;
+    }
+}
+```
+
+**Role-Based Access Control:**
+```java
+public class AuthorizationManager {
+    public static boolean hasPermission(User user, String permission) {
+        if (user == null || user.getRole() == null) {
+            return false;
+        }
+        
+        switch (user.getRole()) {
+            case ADMIN:
+                return true; // Admin has all permissions
+            case MANAGER:
+                return MANAGER_PERMISSIONS.contains(permission);
+            case STAFF:
+                return STAFF_PERMISSIONS.contains(permission);
+            default:
+                return false;
+        }
+    }
+}
+```
+
+### **19.7 Advanced Business Logic Examples**
+
+**Promotion Application with Complex Rules:**
+```java
+public class PromotionService {
+    public double applyPromotion(Order order, Promotion promo) throws ServiceException {
+        // Validate promotion eligibility
+        if (!isPromotionEligible(order, promo)) {
+            throw new ServiceException("Promotion not eligible for this order");
+        }
+        
+        // Calculate discount based on promotion type
+        double discount = 0.0;
+        switch (promo.getType()) {
+            case PERCENTAGE:
+                discount = order.getSubtotal() * (promo.getValue() / 100.0);
+                break;
+            case FIXED_AMOUNT:
+                discount = Math.min(promo.getValue(), order.getSubtotal());
+                break;
+            case BUY_X_GET_Y:
+                discount = calculateBuyXGetYDiscount(order, promo);
+                break;
+        }
+        
+        // Ensure discount doesn't exceed order total
+        return Math.max(order.getSubtotal() - discount, 0.0);
+    }
+    
+    private boolean isPromotionEligible(Order order, Promotion promo) {
+        return promo.isActive() && 
+               order.getSubtotal() >= promo.getMinimumAmount() &&
+               !promo.isExpired() &&
+               promo.getUsageCount() < promo.getMaxUsage();
+    }
+}
+```
+
+**Inventory Management with Stock Validation:**
+```java
+public class InventoryService {
+    public void processOrder(Order order) throws ServiceException {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            conn.setAutoCommit(false);
+            
+            // Validate stock availability
+            for (OrderDetail detail : order.getOrderDetails()) {
+                Product product = productDAO.findById(detail.getProductId());
+                if (product.getStockQuantity() < detail.getQuantity()) {
+                    throw new ServiceException("Insufficient stock for " + product.getName());
+                }
+            }
+            
+            // Update inventory
+            for (OrderDetail detail : order.getOrderDetails()) {
+                productDAO.decreaseStock(detail.getProductId(), detail.getQuantity(), conn);
+            }
+            
+            // Create order
+            orderDAO.create(order, conn);
+            
+            conn.commit();
+        } catch (SQLException e) {
+            throw new ServiceException("Failed to process order", e);
+        }
+    }
+}
+```
+
+---
+
+# **PART VI: USER INTERFACES & CONTROLLERS**
+
+## **20. Controller Architecture**
+
+### **20.1 MVC Pattern Implementation**
+
+The Cafe Management System implements a comprehensive Model-View-Controller (MVC) architecture with JavaFX controllers managing user interactions and coordinating between the UI and business logic.
+
+**Controller Responsibilities:**
+- **User Input Handling**: Capture and validate user interactions
+- **UI State Management**: Maintain interface state and synchronization
+- **Service Coordination**: Orchestrate business operations through service layer
+- **Navigation Control**: Manage screen transitions and routing
+- **Error Presentation**: Display user-friendly error messages
+
+### **20.2 Controller Hierarchy**
+
+**Base Controllers:**
+- **BaseController**: Common functionality for all controllers
+- **AdminBaseController**: Administrative controller base class
+- **DialogController**: Modal dialog management patterns
+
+**Specialized Controllers:**
+- **Authentication Controllers**: Login and session management
+- **Business Process Controllers**: Order, payment, and table management
+- **Administrative Controllers**: User, menu, and system management
+- **Reporting Controllers**: Analytics and data export
+
+### **20.3 Controller Lifecycle Management**
+
+**Initialization Pattern:**
+The OrderPanelController follows a structured initialization pattern that ensures proper component setup and service integration. The controller extends BaseController to inherit common functionality and implements the JavaFX Initializable interface for proper lifecycle management. During initialization, the controller establishes service layer connections, configures UI components including data tables and event handlers, and loads initial data to populate the interface. This pattern ensures consistent controller behavior and proper resource management.
+
+**Event Handling Patterns:**
+- **FXML Event Binding**: Direct method binding for simple interactions
+- **Custom Event Handlers**: Complex logic with validation and error handling
+- **Asynchronous Operations**: Background processing with UI updates
+
+---
+
+## **21. Main Application Controllers**
+
+### **21.1 Authentication Controllers**
+
+**LoginController Implementation:**
+- **Credential Validation**: Real-time input validation and formatting
+- **Authentication Flow**: Secure login process with session management
+- **Error Handling**: User-friendly error messages and retry mechanisms
+- **Remember Me**: Optional credential persistence for user convenience
+
+**Session Management:**
+- **User Context**: Maintains user information throughout the session
+- **Role-Based Access**: Enforces permissions based on user roles
+- **Session Timeout**: Automatic logout after inactivity periods
+- **Security Logging**: Comprehensive audit trail for login attempts
+
+### **21.2 Dashboard Controllers**
+
+**DashboardController Features:**
+- **Navigation Management**: Centralized routing between application sections
+- **User Context Display**: Shows current user information and role
+- **Quick Actions**: Direct access to common operations
+- **Real-time Updates**: Live synchronization with backend data
+
+**AdminDashboardController:**
+- **System Overview**: Key performance indicators and metrics
+- **Administrative Functions**: User management, system configuration
+- **Reporting Access**: Business intelligence and analytics
+- **System Monitoring**: Performance and health indicators
+
+### **21.3 Business Process Controllers**
+
+**OrderPanelController:**
+- **Order Creation**: Interactive order building with real-time validation
+- **Product Selection**: Integrated menu browsing and item addition
+- **Order Modification**: In-line editing and quantity management
+- **Payment Integration**: Seamless transition to payment processing
+
+**OrderPanelController Implementation:**
+```java
+public class OrderPanelController extends BaseController implements Initializable {
+    @FXML private TableView<OrderDetail> orderTable;
+    @FXML private TableView<Product> productTable;
+    @FXML private Label totalLabel;
+    @FXML private ComboBox<Table> tableComboBox;
+    
+    private OrderService orderService;
+    private ProductService productService;
+    private ObservableList<OrderDetail> orderDetails;
+    
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        orderService = new OrderService();
+        productService = new ProductService();
+        orderDetails = FXCollections.observableArrayList();
+        
+        setupTables();
+        loadProducts();
+        loadTables();
+        setupEventHandlers();
+    }
+    
+    @FXML
+    private void handleAddToOrder() {
+        Product selectedProduct = productTable.getSelectionModel().getSelectedItem();
+        if (selectedProduct != null) {
+            OrderDetail detail = new OrderDetail();
+            detail.setProduct(selectedProduct);
+            detail.setQuantity(1);
+            detail.setPrice(selectedProduct.getPrice());
+            
+            orderDetails.add(detail);
+            updateTotal();
+        }
+    }
+    
+    @FXML
+    private void handlePlaceOrder() {
+        if (orderDetails.isEmpty()) {
+            AlertUtils.showError("Please add items to the order");
+            return;
+        }
+        
+        Table selectedTable = tableComboBox.getValue();
+        if (selectedTable == null) {
+            AlertUtils.showError("Please select a table");
+            return;
+        }
+        
+        try {
+            Order order = new Order();
+            order.setTable(selectedTable);
+            order.setOrderDetails(orderDetails);
+            order.setTotalAmount(calculateTotal());
+            
+            orderService.createOrder(order);
+            clearOrder();
+            AlertUtils.showInfo("Order placed successfully!");
+        } catch (ServiceException e) {
+            AlertUtils.showError("Failed to place order: " + e.getMessage());
+        }
+    }
+}
+```
+
+**TableController:**
+- **Visual Layout**: Interactive table status display and management
+- **Status Transitions**: Real-time table state updates
+- **Assignment Logic**: Intelligent table assignment and reservation
+- **Area Management**: Multi-zone table organization
+
+**PaymentController:**
+- **Multi-Method Support**: Cash, card, and mobile payment processing
+- **Amount Validation**: Real-time payment amount verification
+- **Receipt Generation**: Automatic receipt creation and printing
+- **Transaction Security**: Secure payment processing with audit trails
+
+**PaymentController Implementation:**
+```java
+public class PaymentController extends BaseController {
+    @FXML private Label amountLabel;
+    @FXML private TextField cashAmountField;
+    @FXML private ComboBox<PaymentMethod> paymentMethodComboBox;
+    @FXML private Label changeLabel;
+    
+    private Order currentOrder;
+    private PaymentService paymentService;
+    
+    @FXML
+    private void handlePayment() {
+        PaymentMethod method = paymentMethodComboBox.getValue();
+        if (method == null) {
+            AlertUtils.showError("Please select a payment method");
+            return;
+        }
+        
+        try {
+            Payment payment = new Payment();
+            payment.setOrder(currentOrder);
+            payment.setMethod(method);
+            payment.setAmount(currentOrder.getTotalAmount());
+            
+            if (method == PaymentMethod.CASH) {
+                double cashAmount = Double.parseDouble(cashAmountField.getText());
+                if (cashAmount < currentOrder.getTotalAmount()) {
+                    AlertUtils.showError("Cash amount must be greater than or equal to total");
+                    return;
+                }
+                payment.setCashAmount(cashAmount);
+            }
+            
+            paymentService.processPayment(payment);
+            generateReceipt(payment);
+            closePaymentWindow();
+        } catch (ServiceException e) {
+            AlertUtils.showError("Payment failed: " + e.getMessage());
+        }
+    }
+    
+    @FXML
+    private void handleCashAmountChange() {
+        try {
+            double cashAmount = Double.parseDouble(cashAmountField.getText());
+            double change = cashAmount - currentOrder.getTotalAmount();
+            changeLabel.setText(String.format("Change: $%.2f", Math.max(0, change)));
+        } catch (NumberFormatException e) {
+            changeLabel.setText("Change: $0.00");
+        }
+    }
+}
+```
+
+### **21.4 Administrative Controllers**
+
+**AdminMenuController:**
+- **Product Management**: Comprehensive CRUD operations for menu items
+- **Category Organization**: Hierarchical product categorization
+- **Inventory Control**: Stock level monitoring and management
+- **Image Management**: Product photo upload and optimization
+
+**AdminUserController:**
+- **User Administration**: Staff account creation and management
+- **Role Assignment**: Permission-based access control
+- **Account Status**: User activation and deactivation
+- **Security Management**: Password policies and account security
+
+**AdminReportController:**
+- **Report Generation**: Automated report creation and export
+- **Data Visualization**: Charts and graphs for business insights
+- **Export Functions**: PDF and Excel export capabilities
+- **Analytics Dashboard**: Real-time business intelligence
+
+### **21.5 Controller Communication Patterns**
+
+**Inter-Controller Communication:**
+- **Event Bus Pattern**: Decoupled communication between controllers
+- **Callback Mechanisms**: Direct method calls for tight integration
+- **Shared State Management**: Common data access through service layer
+- **Navigation Coordination**: Centralized screen transition management
+
+**Service Integration:**
+- **Dependency Injection**: Service instances injected into controllers
+- **Error Propagation**: Consistent error handling across all controllers
+- **Transaction Coordination**: Service layer transaction management
+- **Data Synchronization**: Real-time data updates and UI refresh
+
+---
+
+# **PART VII: TECHNICAL IMPLEMENTATION**
+
+## **22. Development Environment & Setup**
+
+### **22.1 Prerequisites and System Requirements**
+
+**Development Environment:**
+- **Java Development Kit (JDK) 21**: Latest LTS version with enhanced features
+- **Maven 3.8+**: Dependency management and build automation
+- **MySQL 8.0**: Database server with advanced features
+- **IDE Support**: IntelliJ IDEA, Eclipse, or Visual Studio Code
+
+**System Requirements:**
+- **Operating System**: Windows 10+, macOS 10.15+, or Linux (Ubuntu 20.04+)
+- **Memory**: Minimum 8GB RAM, recommended 16GB for development
+- **Storage**: 10GB free space for development environment
+- **Network**: Internet connection for dependency downloads
+
+### **22.2 Project Setup and Configuration**
+
+**Repository Setup:**
+The project setup process begins with cloning the repository from the version control system. The setup includes installing all required dependencies through Maven's dependency management system, which automatically downloads and configures all necessary libraries and frameworks. The database setup involves executing SQL scripts to create the database schema and populate it with initial sample data, ensuring the application has a proper foundation for development and testing.
+
+**Configuration Files:**
+- **database_config.properties**: Database connection parameters
+- **application.properties**: Application-specific settings
+- **logback.xml**: Logging configuration and levels
+
+### **22.3 Development Workflow**
+
+**Code Organization:**
+- **Feature Branches**: Separate branches for new features
+- **Pull Request Reviews**: Code review process for quality assurance
+- **Continuous Integration**: Automated build and testing
+- **Documentation Updates**: Synchronized documentation with code changes
+
+**Testing Strategy:**
+- **Unit Tests**: Individual component testing with JUnit 5
+- **Integration Tests**: Database and service layer testing
+- **UI Tests**: User interface automation testing
+- **Performance Tests**: Load and stress testing
+
+---
+
+## **23. Configuration Management**
+
+### **23.1 Environment-Specific Configuration**
+
+**Configuration Hierarchy:**
+- **Default Properties**: Base configuration values
+- **Environment Overrides**: Environment-specific modifications
+- **User Preferences**: Individual user customizations
+- **Runtime Configuration**: Dynamic configuration changes
+
+**Configuration Sources:**
+```properties
+# Database Configuration
+db.url=jdbc:mysql://localhost:3306/cafe_management
+db.username=cafe_user
+db.password=${DB_PASSWORD}
+db.pool.size=50
+db.pool.timeout=10
+
+# Application Configuration
+app.name=Cafe Management System
+app.version=1.0.0
+app.language=en
+app.timezone=Asia/Ho_Chi_Minh
+
+# Security Configuration
+security.password.min.length=8
+security.session.timeout=30
+security.max.login.attempts=5
+```
+
+### **23.2 Dynamic Configuration Management**
+
+**Configuration Loading:**
+- **Property File Loading**: Hierarchical property file resolution
+- **Environment Variable Integration**: External configuration support
+- **Database Configuration**: Runtime configuration from database
+- **Hot Reload**: Configuration changes without application restart
+
+**Configuration Manager Implementation:**
+```java
+public class ConfigurationManager {
+    private static final Properties config = new Properties();
+    private static final String CONFIG_FILE = "application.properties";
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
+    
+    static {
+        loadConfiguration();
+    }
+    
+    private static void loadConfiguration() {
+        try (InputStream input = ConfigurationManager.class.getClassLoader()
+                .getResourceAsStream(CONFIG_FILE)) {
+            if (input != null) {
+                config.load(input);
+                // Override with environment variables
+                overrideWithEnvironmentVariables();
+                logger.info("Configuration loaded successfully");
+            }
+        } catch (IOException e) {
+            logger.error("Failed to load configuration", e);
+        }
+    }
+    
+    private static void overrideWithEnvironmentVariables() {
+        // Database password from environment variable
+        String dbPassword = System.getenv("DB_PASSWORD");
+        if (dbPassword != null) {
+            config.setProperty("db.password", dbPassword);
+        }
+        
+        // Application environment
+        String appEnv = System.getenv("APP_ENV");
+        if (appEnv != null) {
+            config.setProperty("app.environment", appEnv);
+        }
+    }
+    
+    public static String getProperty(String key) {
+        return config.getProperty(key);
+    }
+    
+    public static int getIntProperty(String key, int defaultValue) {
+        try {
+            return Integer.parseInt(config.getProperty(key));
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid integer property: " + key + ", using default: " + defaultValue);
+            return defaultValue;
+        }
+    }
+    
+    public static boolean getBooleanProperty(String key, boolean defaultValue) {
+        try {
+            return Boolean.parseBoolean(config.getProperty(key));
+        } catch (Exception e) {
+            logger.warn("Invalid boolean property: " + key + ", using default: " + defaultValue);
+            return defaultValue;
+        }
+    }
+}
+```
+
+**Configuration Validation:**
+- **Schema Validation**: Configuration structure validation
+- **Value Validation**: Configuration value range and format checking
+- **Dependency Validation**: Cross-configuration dependency verification
+- **Default Value Fallback**: Automatic fallback to default values
+
+---
+
+## **24. Error Handling & Logging**
+
+### **24.1 Exception Handling Strategy**
+
+**Exception Hierarchy:**
+- **ApplicationException**: Base exception for application errors
+- **ServiceException**: Business logic and service layer errors
+- **DAOException**: Data access and database errors
+- **ValidationException**: Input validation and format errors
+- **SecurityException**: Authentication and authorization errors
+
+**Exception Handling Patterns:**
+The ExceptionHandler class implements a centralized exception management strategy that categorizes different types of exceptions and provides appropriate user feedback. The system distinguishes between business logic errors, database connectivity issues, and unexpected system errors, ensuring users receive meaningful error messages while technical details are logged for debugging purposes. This pattern maintains a clean separation between user-facing error messages and technical error information.
+
+**Exception Handler Implementation:**
+```java
+public class ExceptionHandler {
+    private static final Logger logger = LoggerFactory.getLogger(ExceptionHandler.class);
+    
+    public static void handleException(Exception e, String context) {
+        if (e instanceof ServiceException) {
+            handleServiceException((ServiceException) e, context);
+        } else if (e instanceof DAOException) {
+            handleDAOException((DAOException) e, context);
+        } else if (e instanceof ValidationException) {
+            handleValidationException((ValidationException) e, context);
+        } else {
+            handleUnexpectedException(e, context);
+        }
+    }
+    
+    private static void handleServiceException(ServiceException e, String context) {
+        logger.error("Service error in " + context + ": " + e.getMessage(), e);
+        AlertUtils.showError("Operation failed: " + e.getMessage());
+    }
+    
+    private static void handleDAOException(DAOException e, String context) {
+        logger.error("Database error in " + context + ": " + e.getMessage(), e);
+        AlertUtils.showError("Database operation failed. Please try again.");
+    }
+    
+    private static void handleValidationException(ValidationException e, String context) {
+        logger.warn("Validation error in " + context + ": " + e.getMessage());
+        AlertUtils.showError("Invalid input: " + e.getMessage());
+    }
+    
+    private static void handleUnexpectedException(Exception e, String context) {
+        logger.error("Unexpected error in " + context + ": " + e.getMessage(), e);
+        AlertUtils.showError("An unexpected error occurred. Please contact support.");
+    }
+}
+```
+
+### **24.2 Logging Framework**
+
+**Logging Configuration:**
+The logging framework utilizes Logback with a comprehensive configuration that includes file-based logging with automatic log rotation. The system implements time-based log file management, automatically creating new log files daily and maintaining a 30-day history of log files. The logging pattern includes timestamps, thread information, log levels, and logger names to provide comprehensive debugging information while maintaining efficient log file management.
+
+**Logging Levels:**
+- **ERROR**: System errors requiring immediate attention
+- **WARN**: Potential issues that should be monitored
+- **INFO**: General application flow and important events
+- **DEBUG**: Detailed debugging information
+- **TRACE**: Very detailed debugging information
+
+### **24.3 Error Recovery and Resilience**
+
+**Error Recovery Mechanisms:**
+- **Automatic Retry**: Transient error recovery with exponential backoff
+- **Circuit Breaker**: Protection against cascading failures
+- **Graceful Degradation**: Reduced functionality during partial failures
+- **Data Recovery**: Automatic data restoration and consistency checks
+
+**Monitoring and Alerting:**
+- **Error Tracking**: Comprehensive error monitoring and analysis
+- **Performance Monitoring**: System performance and resource usage
+- **User Experience Monitoring**: Error impact on user experience
+- **Proactive Alerting**: Early warning systems for potential issues
+
+---
+
+## **25. Testing Strategy**
+
+### **25.1 Testing Pyramid**
+
+**Unit Testing (70%):**
+- **Service Layer Tests**: Business logic validation
+- **Utility Function Tests**: Helper method verification
+- **Model Tests**: Entity and DTO validation
+- **Configuration Tests**: Configuration loading and validation
+
+**Integration Testing (20%):**
+- **Database Integration**: DAO layer and transaction testing
+- **Service Integration**: Cross-service interaction testing
+- **External Service Integration**: Payment and notification testing
+- **UI Integration**: Controller and FXML integration testing
+
+**End-to-End Testing (10%):**
+- **User Workflow Testing**: Complete user journey validation
+- **System Integration**: Full system integration testing
+- **Performance Testing**: Load and stress testing
+- **Security Testing**: Authentication and authorization testing
+
+### **25.2 Test Implementation**
+
+**Unit Test Example:**
+The unit test for order creation demonstrates the Arrange-Act-Assert pattern, where test data is prepared, the service method is executed, and the results are verified. The test validates that order creation properly assigns an order ID, sets the correct initial status, and interacts correctly with the data access layer. This approach ensures that individual components function correctly in isolation.
+
+**Integration Test Example:**
+The integration test for payment processing validates the complete payment workflow from request to response. The test verifies that payment processing returns successful results with appropriate status codes and transaction identifiers. This type of test ensures that different system components work together correctly and that the complete business process functions as expected.
+
+### **25.3 Test Automation**
+
+**Continuous Integration:**
+- **Automated Build**: Maven build automation
+- **Test Execution**: Automated test suite execution
+- **Code Coverage**: Test coverage reporting and monitoring
+- **Quality Gates**: Automated quality checks and validation
+
+**Test Data Management:**
+- **Test Database**: Isolated test database environment
+- **Data Seeding**: Automated test data creation
+- **Data Cleanup**: Automatic test data cleanup
+- **Data Isolation**: Test data isolation and independence
+
+---
+
+# **PART VIII: DEPLOYMENT & MAINTENANCE**
+
+## **26. Build & Deployment**
+
+### **26.1 Build Configuration**
+
+**Maven Build Configuration:**
+The Maven build configuration includes three essential plugins for the JavaFX application. The compiler plugin ensures Java 21 compatibility with proper source and target version settings. The JavaFX plugin provides JavaFX-specific build capabilities and runtime support. The shade plugin creates a self-contained executable JAR file that includes all dependencies, making the application portable and easy to distribute. This configuration ensures consistent builds across different environments and simplifies deployment.
+
+**Build Profiles:**
+- **Development**: Debug mode with enhanced logging
+- **Production**: Optimized performance with minimal logging
+- **Testing**: Test-specific configurations and dependencies
+- **Distribution**: Self-contained executable JAR creation
+
+### **26.2 Deployment Strategies**
+
+**Desktop Application Deployment:**
+- **JAR Distribution**: Self-contained executable JAR files
+- **Installation Scripts**: Automated installation and setup
+- **Dependency Management**: Bundled dependencies and libraries
+- **Platform-Specific Packaging**: Windows, macOS, and Linux packages
+
+**Database Deployment:**
+- **Schema Migration**: Automated database schema updates
+- **Data Migration**: Data transformation and migration scripts
+- **Backup Procedures**: Automated backup and recovery procedures
+- **Environment Setup**: Database environment configuration
+
+**Deployment Automation:**
+```bash
+#!/bin/bash
+# Deployment script
+
+# Build application
+mvn clean package -P production
+
+# Deploy database
+mysql -u root -p < database/migration.sql
+
+# Copy application files
+cp target/cafe-management-system.jar /opt/cafe/
+cp config/application.properties /opt/cafe/
+
+# Set permissions
+chmod +x /opt/cafe/cafe-management-system.jar
+
+# Start application
+java -jar /opt/cafe/cafe-management-system.jar
+```
+
+### **26.3 Environment Management**
+
+**Environment Configuration:**
+- **Development Environment**: Local development setup
+- **Testing Environment**: Isolated testing environment
+- **Staging Environment**: Pre-production validation
+- **Production Environment**: Live production deployment
+
+**Configuration Management:**
+- **Environment Variables**: External configuration management
+- **Configuration Files**: Environment-specific configuration files
+- **Database Configuration**: Environment-specific database settings
+- **Logging Configuration**: Environment-specific logging levels
+
+---
+
+## **27. Performance Optimization**
+
+### **27.1 Application Performance**
+
+**JavaFX Performance Optimization:**
+- **UI Thread Management**: Proper thread handling for UI updates
+- **Event Handling**: Efficient event processing and handling
+- **Memory Management**: Proper object lifecycle management
+- **Rendering Optimization**: Efficient UI rendering and updates
+
+**Database Performance:**
+- **Query Optimization**: Optimized SQL queries and indexing
+- **Connection Pooling**: Efficient database connection management
+- **Caching Strategy**: Application-level caching for frequently accessed data
+- **Batch Processing**: Efficient bulk data operations
+
+**Memory Management:**
+- **Object Pooling**: Reuse of expensive objects
+- **Garbage Collection**: Optimized garbage collection settings
+- **Memory Leak Prevention**: Proper resource cleanup and disposal
+- **Memory Monitoring**: Real-time memory usage monitoring
+
+### **27.2 Scalability Considerations**
+
+**Horizontal Scaling:**
+- **Load Balancing**: Multiple application instances
+- **Database Clustering**: Database replication and clustering
+- **Caching Layer**: Distributed caching for improved performance
+- **Microservices Architecture**: Future migration to microservices
+
+**Vertical Scaling:**
+- **Resource Allocation**: Optimal resource allocation and utilization
+- **Performance Tuning**: Application and database performance tuning
+- **Hardware Optimization**: Hardware resource optimization
+- **Capacity Planning**: Future capacity planning and scaling
+
+### **27.3 Monitoring and Metrics**
+
+**Performance Monitoring:**
+- **Application Metrics**: Response time, throughput, and error rates
+- **Database Metrics**: Query performance and connection usage
+- **System Metrics**: CPU, memory, and disk usage
+- **User Experience Metrics**: User interaction and satisfaction metrics
+
+**Performance Optimization Tools:**
+- **Profiling Tools**: Application profiling and analysis
+- **Monitoring Dashboards**: Real-time performance monitoring
+- **Alerting Systems**: Performance threshold alerting
+- **Performance Testing**: Load and stress testing tools
+
+---
+
+## **28. Maintenance & Monitoring**
+
+### **28.1 System Maintenance**
+
+**Regular Maintenance Tasks:**
+- **Database Maintenance**: Regular database optimization and cleanup
+- **Log Management**: Log rotation and archival
+- **Backup Verification**: Regular backup testing and verification
+- **Security Updates**: Regular security patches and updates
+
+**Preventive Maintenance:**
+- **Health Checks**: Regular system health monitoring
+- **Performance Monitoring**: Continuous performance monitoring
+- **Capacity Planning**: Proactive capacity planning and scaling
+- **Disaster Recovery**: Regular disaster recovery testing
+
+### **28.2 Monitoring and Alerting**
+
+**System Monitoring:**
+- **Application Monitoring**: Real-time application health monitoring
+- **Database Monitoring**: Database performance and health monitoring
+- **Infrastructure Monitoring**: Server and network monitoring
+- **User Experience Monitoring**: User interaction and satisfaction monitoring
+
+**Alerting Systems:**
+- **Critical Alerts**: Immediate notification for critical issues
+- **Warning Alerts**: Proactive notification for potential issues
+- **Performance Alerts**: Performance threshold alerting
+- **Security Alerts**: Security incident alerting
+
+**Monitoring Tools:**
+- **Application Performance Monitoring (APM)**: Detailed application performance analysis
+- **Database Monitoring**: Database performance and health monitoring
+- **Infrastructure Monitoring**: Server and network monitoring
+- **Log Management**: Centralized log collection and analysis
+
+### **28.3 Troubleshooting and Support**
+
+**Troubleshooting Procedures:**
+- **Issue Identification**: Systematic issue identification and classification
+- **Root Cause Analysis**: Comprehensive root cause analysis
+- **Resolution Procedures**: Standardized resolution procedures
+- **Documentation**: Comprehensive troubleshooting documentation
+
+**Support Procedures:**
+- **User Support**: User assistance and problem resolution
+- **Technical Support**: Technical issue resolution and support
+- **Escalation Procedures**: Issue escalation and management
+- **Knowledge Base**: Comprehensive knowledge base and documentation
+
+---
+
+# **PART IX: APPENDICES**
+
+## **29. API Documentation**
+
+### **29.1 Service Layer API**
+
+**UserService API:**
+The UserService interface provides comprehensive user management capabilities including authentication, user creation and modification, account deactivation, and role-based user retrieval. The service includes security features such as password validation and role-based access control, ensuring proper user lifecycle management throughout the application.
+
+**OrderService API:**
+The OrderService interface defines the complete order management workflow including order creation, modification, and status tracking. The service supports complex order operations such as adding and removing products from orders, managing order status transitions, and retrieving orders based on various criteria including status and table assignments.
+
+**PaymentService API:**
+The PaymentService interface handles all payment-related operations including payment processing, refund management, payment history tracking, and payment method validation. The service supports multiple payment methods and provides comprehensive transaction management with proper error handling and audit trail capabilities.
+
+### **29.2 Exception Handling API**
+
+**ServiceException:**
+The ServiceException class extends the standard Exception class to provide enhanced error handling capabilities for business logic operations. The class includes additional fields for error codes and user-friendly messages, allowing for better error categorization and user communication. The exception supports multiple constructor patterns for different error scenarios and maintains backward compatibility with standard exception handling.
+
+**ValidationException:**
+The ValidationException class specializes in handling input validation errors by extending ServiceException and adding field-specific error tracking. The class maintains a map of field names to error messages, enabling detailed validation feedback for form inputs and user data. This approach provides granular error reporting while maintaining the overall exception hierarchy structure.
+
+---
+
+## **30. Database Schema Reference**
+
+### **30.1 Complete Database Schema**
+
+**Users Table:**
+The users table serves as the central repository for all system user information including staff members and administrators. The table includes comprehensive user profile data with security features such as encrypted password storage, role-based access control, and account status management. The table implements proper data integrity constraints and includes audit trail fields for tracking user account lifecycle.
+
+**Products Table:**
+The products table manages the complete product catalog with detailed product information including pricing, categorization, and inventory tracking. The table supports product lifecycle management with availability and active status flags, cost tracking for profit margin calculations, and comprehensive product descriptions. The table maintains referential integrity with the categories table for proper product organization.
+
+**Orders Table:**
+The orders table represents the core business entity for customer orders with comprehensive order tracking and financial management. The table includes detailed order information such as customer and table associations, financial calculations including discounts and final amounts, payment processing status, and order lifecycle tracking. The table maintains multiple foreign key relationships to ensure data consistency across the system.
+
+### **30.2 Database Views**
+
+**Sales Report View:**
+The sales report view provides comprehensive business intelligence by aggregating order data into daily sales metrics. The view calculates key performance indicators including total orders, revenue, average order value, and unique customer counts for each day. The view filters for completed orders to ensure accurate financial reporting and includes proper date-based grouping for trend analysis.
+
+**Menu Items View:**
+The menu items view creates a unified interface for product display by joining product and category information. The view filters for active products and categories to ensure only available items are displayed, includes comprehensive product details such as pricing and availability status, and maintains proper ordering based on category display preferences and product names.
+
+### **30.3 Indexes and Performance**
+
+**Primary Indexes:**
+The database implements strategic single-column indexes on frequently queried fields to optimize query performance. These indexes target critical business operations such as user role filtering, product availability checks, order date-based queries, and customer phone lookups. The indexing strategy ensures fast response times for common operations while maintaining efficient storage utilization.
+
+**Composite Indexes:**
+The system employs multi-column indexes for complex queries that involve multiple search criteria. These composite indexes optimize performance for operations such as date and status-based order filtering, category and availability-based product searches, and order detail lookups. The composite indexing strategy supports efficient execution of business intelligence queries and reporting operations.
+
+---
+
+## **31. Configuration Reference**
+
+### **31.1 Application Configuration**
+
+**Database Configuration:**
+The database configuration section defines comprehensive connection parameters including the database URL with SSL and timezone settings, user credentials with environment variable support for security, and the MySQL JDBC driver specification. The connection pool configuration optimizes database performance with appropriate pool sizing, timeout settings, and prepared statement caching to ensure efficient resource utilization and connection management.
+
+**Application Configuration:**
+The application configuration encompasses system-wide settings including application identification, localization preferences with Vietnamese timezone and currency settings, user interface customization options, and comprehensive security parameters. The configuration includes password policies, session management settings, and account protection mechanisms to ensure secure system operation.
+
+### **31.2 Logging Configuration**
+
+**Logback Configuration:**
+The Logback configuration implements a comprehensive logging strategy with multiple appenders for different output destinations. The console appender provides real-time logging during development, while file appenders create persistent logs with automatic rotation and size management. The error file appender specifically captures error-level messages for focused troubleshooting. The configuration includes application-specific logger settings for detailed debugging and SQL query monitoring.
+
+---
+
+## **32. Troubleshooting Guide**
+
+### **32.1 Common Issues and Solutions**
+
+**Database Connection Issues:**
+Database connection problems typically stem from server availability, credential configuration, or network connectivity issues. The troubleshooting process involves verifying the database server status, checking connection parameters in the configuration files, ensuring proper database existence and accessibility, and validating network connectivity and firewall settings that might block database connections.
+
+**Database Health Check Implementation:**
+```java
+public class DatabaseHealthCheck {
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseHealthCheck.class);
+    
+    public static boolean checkConnection() {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            return conn.isValid(5); // 5 second timeout
+        } catch (SQLException e) {
+            logger.error("Database connection failed", e);
+            return false;
+        }
+    }
+    
+    public static void diagnoseConnectionIssues() {
+        // Check if MySQL service is running
+        if (!isMySQLServiceRunning()) {
+            logger.error("MySQL service is not running");
+            return;
+        }
+        
+        // Check connection parameters
+        String url = ConfigurationManager.getProperty("db.url");
+        String username = ConfigurationManager.getProperty("db.username");
+        
+        logger.info("Testing connection to: " + url);
+        logger.info("Username: " + username);
+        
+        // Test connection with timeout
+        try (Connection conn = DriverManager.getConnection(url, username, 
+                ConfigurationManager.getProperty("db.password"))) {
+            logger.info("Database connection successful");
+        } catch (SQLException e) {
+            logger.error("Database connection failed: " + e.getMessage());
+        }
+    }
+    
+    private static boolean isMySQLServiceRunning() {
+        try {
+            Process process = Runtime.getRuntime().exec("mysqladmin ping -h localhost");
+            return process.waitFor() == 0;
+        } catch (Exception e) {
+            logger.warn("Could not check MySQL service status", e);
+            return false;
+        }
+    }
+}
+```
+
+**JavaFX Runtime Issues:**
+JavaFX runtime problems often occur due to missing SDK components or incompatible Java versions. The resolution process includes verifying proper JavaFX SDK installation, checking Maven dependency configurations, validating module path settings, ensuring Java version compatibility, and reinstalling the JavaFX SDK if necessary to resolve component conflicts.
+
+**JavaFX Module Path Configuration:**
+```bash
+# Windows
+set JAVA_OPTS=--module-path "lib/javafx-sdk-24.0.2/lib" --add-modules javafx.controls,javafx.fxml
+
+# Linux/macOS
+export JAVA_OPTS="--module-path lib/javafx-sdk-24.0.2/lib --add-modules javafx.controls,javafx.fxml"
+
+# Maven configuration
+mvn clean compile exec:java -Dexec.mainClass="com.cafe.CafeManagementApplication" \
+    -Dexec.args="--module-path lib/javafx-sdk-24.0.2/lib --add-modules javafx.controls,javafx.fxml"
+```
+
+**JavaFX Application Launcher:**
+```java
+public class JavaFXLauncher {
+    public static void main(String[] args) {
+        try {
+            // Check JavaFX modules
+            ModuleLayer.boot().findModule("javafx.controls")
+                .orElseThrow(() -> new RuntimeException("JavaFX Controls module not found"));
+            
+            // Launch application
+            CafeManagementApplication.main(args);
+        } catch (Exception e) {
+            System.err.println("JavaFX Runtime Error: " + e.getMessage());
+            System.err.println("Please ensure JavaFX SDK is properly installed and configured");
+            System.exit(1);
+        }
+    }
+}
+```
+
+**Memory Issues:**
+Memory-related problems manifest as OutOfMemoryError exceptions or degraded performance. The solution involves increasing JVM heap allocation, implementing memory monitoring and profiling tools, identifying and resolving memory leaks in the application code, optimizing database query performance, and implementing proper connection pooling to manage resource utilization.
+
+**Memory Monitoring and Optimization:**
+```java
+public class MemoryMonitor {
+    private static final Logger logger = LoggerFactory.getLogger(MemoryMonitor.class);
+    
+    public static void logMemoryUsage() {
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory();
+        long freeMemory = runtime.freeMemory();
+        long usedMemory = totalMemory - freeMemory;
+        long maxMemory = runtime.maxMemory();
+        
+        logger.info("Memory Usage:");
+        logger.info("  Used: " + formatBytes(usedMemory));
+        logger.info("  Free: " + formatBytes(freeMemory));
+        logger.info("  Total: " + formatBytes(totalMemory));
+        logger.info("  Max: " + formatBytes(maxMemory));
+        logger.info("  Usage: " + String.format("%.2f%%", 
+            (double) usedMemory / maxMemory * 100));
+    }
+    
+    public static void checkMemoryLeaks() {
+        // Force garbage collection
+        System.gc();
+        
+        // Check for memory leaks in connection pools
+        if (DatabaseConfig.getConnectionPool() != null) {
+            int activeConnections = DatabaseConfig.getConnectionPool().getActiveConnections();
+            logger.info("Active database connections: " + activeConnections);
+        }
+        
+        // Check for memory leaks in cached data
+        if (ProductService.getCache() != null) {
+            int cachedProducts = ProductService.getCache().size();
+            logger.info("Cached products: " + cachedProducts);
+        }
+    }
+    
+    public static void optimizeMemory() {
+        // Clear unnecessary caches
+        ProductService.clearCache();
+        
+        // Force garbage collection
+        System.gc();
+        
+        // Log memory usage after optimization
+        logMemoryUsage();
+    }
+    
+    private static String formatBytes(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(1024));
+        String pre = "KMGTPE".charAt(exp-1) + "";
+        return String.format("%.1f %sB", bytes / Math.pow(1024, exp), pre);
+    }
+}
+```
+
+### **32.2 Performance Troubleshooting**
+
+**Slow Application Startup:**
+- **Database Connection**: Check database connection timeouts
+- **Resource Loading**: Optimize resource loading and caching
+- **Dependency Resolution**: Verify Maven dependency resolution
+- **JVM Startup**: Optimize JVM startup parameters
+
+**Slow Database Queries:**
+- **Query Optimization**: Analyze and optimize slow queries
+- **Index Usage**: Verify proper index usage
+- **Connection Pooling**: Check connection pool configuration
+- **Database Statistics**: Update database statistics
+
+**UI Performance Issues:**
+- **Event Handling**: Optimize event handling and processing
+- **UI Thread**: Ensure proper UI thread management
+- **Memory Usage**: Monitor and optimize memory usage
+- **Rendering**: Optimize UI rendering and updates
+
+### **32.3 Debugging Techniques**
+
+**Logging and Debugging:**
+The logging and debugging approach involves enabling detailed debug logging for specific operations, implementing performance timing measurements to identify bottlenecks, and providing comprehensive exception handling with contextual information. The debugging strategy includes structured logging with parameter substitution, performance monitoring with millisecond precision, and detailed error reporting with stack trace information for effective problem resolution.
+
+**Database Debugging:**
+Database debugging techniques include enabling comprehensive query logging to capture all database operations, analyzing slow query logs to identify performance bottlenecks, and monitoring active database connections to detect connection pool issues. The debugging process involves examining query execution patterns, connection utilization, and performance metrics to optimize database operations and resolve connectivity problems.
+
+**Performance Monitoring:**
+- **JVM Monitoring**: Use JVM monitoring tools (JConsole, VisualVM)
+- **Database Monitoring**: Monitor database performance and connections
+- **Application Monitoring**: Use application performance monitoring tools
+- **System Monitoring**: Monitor system resources and performance
+
+### **32.4 Recovery Procedures**
+
+**Database Recovery:**
+Database recovery procedures involve restoring data from backup files using MySQL import commands and implementing point-in-time recovery using binary log analysis. The recovery process includes comprehensive backup restoration with proper credential authentication and time-based recovery procedures that allow restoration to specific timestamps for data consistency and integrity.
+
+**Application Recovery:**
+Application recovery procedures include restarting the application service using system control commands, verifying application status and health, and monitoring application logs for error detection and resolution. The recovery process involves service management, status verification, and continuous log monitoring to ensure proper application operation and identify potential issues.
+
+**Data Recovery:**
+- **Backup Restoration**: Restore from latest backup
+- **Transaction Recovery**: Recover incomplete transactions
+- **Data Validation**: Validate data integrity after recovery
+- **Service Restoration**: Restore affected services
+
+---
+
+## **CONCLUSION**
+
+This comprehensive technical documentation provides a complete guide to the Cafe Management System, covering all aspects from system architecture and design to implementation details and maintenance procedures. The system demonstrates modern software development practices with robust architecture, comprehensive testing, and scalable design patterns.
+
+**Key Achievements:**
+- **Comprehensive Functionality**: Complete cafe management capabilities
+- **Modern Architecture**: Clean separation of concerns with MVC pattern
+- **Security Implementation**: Robust authentication and authorization
+- **Performance Optimization**: Efficient database and application performance
+- **Maintainable Code**: Well-structured and documented codebase
+- **Scalable Design**: Architecture supporting future growth and enhancements
+
+**Future Enhancements:**
+- **Cloud Integration**: Migration to cloud-based deployment
+- **Mobile Application**: Companion mobile app for customers
+- **Advanced Analytics**: Machine learning and predictive analytics
+- **Multi-location Support**: Support for multiple cafe locations
+- **API Development**: RESTful API for external integrations
+
+The Cafe Management System represents a modern, enterprise-grade solution for cafe operations, providing the foundation for efficient business management and customer service excellence.
+
+---
+
+**Document Version:** 1.0.0  
+**Last Updated:** December 2024  
+**Next Review:** March 2025
+
+---
