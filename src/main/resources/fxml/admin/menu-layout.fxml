@@ -26,15 +26,6 @@
                 <Button fx:id="refreshButton" text="🔄" styleClass="icon-button refresh-btn" />
             </HBox>
             
-            <Button fx:id="logoutButton" styleClass="logout-button">
-                <graphic>
-                    <ImageView fitHeight="20" fitWidth="20">
-                        <image>
-                            <Image url="@../../images/icons/power-icon.png" />
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
         </HBox>
     </top>
 
